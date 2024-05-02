@@ -16,12 +16,12 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                <i class="fa fa-user" aria-hidden="true"></i> Usuarios
+                <i class="fa fa-graduation-cap" aria-hidden="true"></i>Titulos
                 <!--<small>Create, Read, Update, Delete</small>-->
             </h1>
             <ol class="breadcrumb">
                 <li><a href="{{ route('home') }}"><i class="fa fa-dashboard"></i> Home</a></li>
-                <li><a href="{{ route('users.index') }}">Usuarios</a></li>
+                <li><a href="{{ route('titulos.index') }}">Titulos</a></li>
                 <!--<li class="active">Data tables</li>-->
             </ol>
         </section>
@@ -32,8 +32,8 @@
                 <div class="col-xs-12">
                     <div class="box">
                         <div class="box-header with-border">
-                            <h3 class="box-title">Usuario</h3>
-                            <a class='pull-right btn btn-success' href="{{ route('users.create') }}">Nuevo</a>
+                            <h3 class="box-title">Titulo</h3>
+                            <a class='pull-right btn btn-success' href="{{ route('titulos.create') }}">Nuevo</a>
                         </div>
                         @include('includes.messages')
 
@@ -43,67 +43,22 @@
                             <table id="example1" class="table table-bordered table-striped">
                                 <thead>
                                 <tr>
-
-                                    <th></th>
+                                    <!--<th>Nro.</th>-->
                                     <th>Nombre</th>
-                                    <th>CUIL</th>
-                                    <th>E-mail</th>
-                                    <th>Roles</th>
-                                    <th>Acciones</th>
+                                    <th>Nivel</th>
 
+                                    <th>Acciones</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-        @foreach ($users as $user)
-            <tr>
 
-                <td>
-                    @if($user->image)
-                        <img id="original" class="img-circle" src="{{ url('images/'.$user->image) }}" width="50px;">
-                    @else
-                        <img id="original" class="img-circle" src="{{ url('images/user.png') }}" >
-                    @endif
-                </td>
-                <td>{{ $user->name }}</td>
-                <td>{{ $user->cuil }}</td>
-                <td>{{ $user->email }}</td>
-                <td>
-
-                    @if(!empty($user->roles))
-
-                        @foreach($user->roles as $v)
-
-                            <label class="badge badge-success">{{ $v->name }}</label>
-                        @endforeach
-                    @endif
-                </td>
-                <td>@can('usuario-editar')<a href="{{ route('users.edit',$user->id) }}"><span class="glyphicon glyphicon-edit"></span></a>@endcan
-                @can('usuario-eliminar')
-                    <form id="delete-form-{{ $user->id }}" method="post" action="{{ route('users.destroy',$user->id) }}" style="display: none">
-                        {{ csrf_field() }}
-                        {{ method_field('DELETE') }}
-                    </form>
-                    @endcan
-                    <a href="" onclick="
-                        if(confirm('Está seguro?'))
-                        {
-                        event.preventDefault();
-                        document.getElementById('delete-form-{{ $user->id }}').submit();
-                        }
-                        else{
-                        event.preventDefault();
-                        }" ><span class="glyphicon glyphicon-trash"></span></a>
-                </td>
-            </tr>
-        @endforeach
                                 </tbody>
                                 <tfoot>
                                 <tr>
-                                    <th></th>
+                                    <!--<th>Nro.</th>-->
                                     <th>Nombre</th>
-                                    <th>CUIL</th>
-                                    <th>E-mail</th>
-                                    <th>Roles</th>
+                                    <th>Nivel</th>
+
                                     <th>Acciones</th>
                                 </tr>
                                 </tfoot>
@@ -133,7 +88,8 @@
     <script src="{{ asset('bower_components/jquery-slimscroll/jquery.slimscroll.min.js') }}"></script>
     <!-- FastClick -->
     <script src="{{ asset('bower_components/fastclick/lib/fastclick.js') }}"></script>
-
+    <!-- FastClick -->
+    <script src="{{ asset('bower_components/fastclick/lib/fastclick.js') }}"></script>
     <!-- AdminLTE App -->
     <script src="{{ asset('dist/js/adminlte.min.js') }}"></script>
     <!-- AdminLTE for demo purposes -->
@@ -142,9 +98,36 @@
     <script>
         $(document).ready(function() {
             $('#example1').DataTable({
+                "processing": true, // Activar la indicación de procesamiento
+                "serverSide": true, // Habilitar el procesamiento del lado del servidor
                 "autoWidth": false, // Desactiva el ajuste automático del anchos
                 responsive: true,
                 scrollX: true,
+                ajax: "{{ route('titulos.dataTable') }}",
+                columns: [
+
+                    {data: 'nombre', name: 'nombre'},
+                    {data: 'nivel', name: 'nivel'},
+
+
+                    {
+                        "data": null,
+                        "orderable": false,
+                        "searchable": false,
+                        "render": function(data, type, row) {
+                            // Construye el HTML de las acciones
+                            var actionsHtml = '';
+
+                            // Agrega enlaces de edición y eliminación si son necesarios
+                            // Puedes utilizar los datos de la fila para construir los enlaces
+                            actionsHtml += '<a href="' + row.edit_url + '">Editar</a>';
+                            actionsHtml += ' | ';
+                            actionsHtml += '<a href="' + row.delete_url + '">Eliminar</a>';
+
+                            return actionsHtml;
+                        }
+                    },
+                ],
                 "language": {
                     "url": "{{ asset('bower_components/datatables.net/lang/es-AR.json') }}"
                 }

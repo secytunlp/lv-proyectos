@@ -12,6 +12,7 @@ use DB;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request; // Importar la clase Request
 use Spatie\Permission\Models\Role; // Importa la clase Role
+use Illuminate\Support\Facades\Log;
 
 class RegisterController extends Controller
 {
@@ -49,7 +50,7 @@ class RegisterController extends Controller
     public function showRegistrationForm()
     {
         // Aquí podrías cargar los datos necesarios para el campo "facultad_id" si es necesario
-        $facultades = DB::table('facultad')->pluck('nombre', 'id'); // Obtener todas las facultades directamente desde la tabla
+        $facultades = DB::table('facultads')->pluck('nombre', 'id'); // Obtener todas las facultades directamente desde la tabla
 
         return view('auth.register', compact('facultades'));
     }
@@ -86,12 +87,13 @@ class RegisterController extends Controller
         } catch (QueryException $e) {
             // Si se produce un error de duplicación de entrada, manejarlo aquí
             if ($e->errorInfo[1] == 1062) {
+                //og::Info($e->getMessage());
                 // Verificar si el error es debido a duplicación de correo electrónico
-                if (strpos($e->getMessage(), 'email') !== false) {
+                if (strpos($e->getMessage(), 'for key \'email\'') !== false) {
                     return redirect()->back()->withInput($request->except('password'))->withErrors(['email' => 'El correo electrónico ya está en uso']);
                 }
                 // Verificar si el error es debido a duplicación de cuil
-                elseif (strpos($e->getMessage(), 'cuil') !== false) {
+                elseif (strpos($e->getMessage(), 'for key \'cuil\'') !== false) {
                     return redirect()->back()->withInput($request->except('password'))->withErrors(['cuil' => 'El CUIL ya está en uso']);
                 }
             }

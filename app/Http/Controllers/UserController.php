@@ -50,7 +50,7 @@ class UserController extends Controller
     public function create()
     {
         $roles = Role::pluck('name','name')->all();
-        $facultades = DB::table('facultad')->pluck('nombre', 'id'); // Obtener todas las facultades directamente desde la tabla
+        $facultades = DB::table('facultads')->pluck('nombre', 'id'); // Obtener todas las facultades directamente desde la tabla
         return view('users.create', compact('roles', 'facultades'));
     }
 
@@ -118,7 +118,7 @@ class UserController extends Controller
         $user = User::find($id);
         $roles = Role::pluck('name','name')->all();
         $userRole = $user->roles->pluck('name','name')->all();
-        $facultades = DB::table('facultad')->pluck('nombre', 'id');
+        $facultades = DB::table('facultads')->pluck('nombre', 'id');
         $userFacultad = $user->facultad_id; // Facultad asignada al usuario
         return view('users.edit', compact('user', 'roles', 'userRole', 'facultades', 'userFacultad'));
     }
@@ -191,7 +191,7 @@ class UserController extends Controller
     {
         $user = User::find($request->get('idUser'));
 
-        $facultades = DB::table('facultad')->pluck('nombre', 'id');
+        $facultades = DB::table('facultads')->pluck('nombre', 'id');
         $userFacultad = $user->facultad_id; // Facultad asignada al usuario
         return view('users.perfil',compact('user','facultades','userFacultad'));
     }

@@ -16,12 +16,12 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                <i class="fa fa-user" aria-hidden="true"></i> Usuarios
+                <i class="fa fa-university" aria-hidden="true"></i>Universidades
                 <!--<small>Create, Read, Update, Delete</small>-->
             </h1>
             <ol class="breadcrumb">
                 <li><a href="{{ route('home') }}"><i class="fa fa-dashboard"></i> Home</a></li>
-                <li><a href="{{ route('users.index') }}">Usuarios</a></li>
+                <li><a href="{{ route('universidads.index') }}">Universidades</a></li>
                 <!--<li class="active">Data tables</li>-->
             </ol>
         </section>
@@ -32,8 +32,8 @@
                 <div class="col-xs-12">
                     <div class="box">
                         <div class="box-header with-border">
-                            <h3 class="box-title">Usuario</h3>
-                            <a class='pull-right btn btn-success' href="{{ route('users.create') }}">Nuevo</a>
+                            <h3 class="box-title">Universidad</h3>
+                            <a class='pull-right btn btn-success' href="{{ route('universidads.create') }}">Nuevo</a>
                         </div>
                         @include('includes.messages')
 
@@ -43,43 +43,21 @@
                             <table id="example1" class="table table-bordered table-striped">
                                 <thead>
                                 <tr>
-
-                                    <th></th>
+                                    <!--<th>Nro.</th>-->
                                     <th>Nombre</th>
-                                    <th>CUIL</th>
-                                    <th>E-mail</th>
-                                    <th>Roles</th>
-                                    <th>Acciones</th>
 
+                                    <th>Acciones</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-        @foreach ($users as $user)
+        @foreach ($universidads as $universidad)
             <tr>
+                <!--<td>{{ $loop->index + 1 }}</td>-->
+                <td>{{ $universidad->nombre }}</td>
 
-                <td>
-                    @if($user->image)
-                        <img id="original" class="img-circle" src="{{ url('images/'.$user->image) }}" width="50px;">
-                    @else
-                        <img id="original" class="img-circle" src="{{ url('images/user.png') }}" >
-                    @endif
-                </td>
-                <td>{{ $user->name }}</td>
-                <td>{{ $user->cuil }}</td>
-                <td>{{ $user->email }}</td>
-                <td>
-
-                    @if(!empty($user->roles))
-
-                        @foreach($user->roles as $v)
-
-                            <label class="badge badge-success">{{ $v->name }}</label>
-                        @endforeach
-                    @endif
-                </td>
-                <td>@can('usuario-editar')<a href="{{ route('users.edit',$user->id) }}"><span class="glyphicon glyphicon-edit"></span></a>@endcan
-                @can('usuario-eliminar')
-                    <form id="delete-form-{{ $user->id }}" method="post" action="{{ route('users.destroy',$user->id) }}" style="display: none">
+                <td>@can('universidad-editar')<a href="{{ route('universidads.edit',$universidad->id) }}"><span class="glyphicon glyphicon-edit"></span></a>@endcan
+                @can('universidad-eliminar')
+                    <form id="delete-form-{{ $universidad->id }}" method="post" action="{{ route('universidads.destroy',$universidad->id) }}" style="display: none">
                         {{ csrf_field() }}
                         {{ method_field('DELETE') }}
                     </form>
@@ -88,7 +66,7 @@
                         if(confirm('Está seguro?'))
                         {
                         event.preventDefault();
-                        document.getElementById('delete-form-{{ $user->id }}').submit();
+                        document.getElementById('delete-form-{{ $universidad->id }}').submit();
                         }
                         else{
                         event.preventDefault();
@@ -99,11 +77,9 @@
                                 </tbody>
                                 <tfoot>
                                 <tr>
-                                    <th></th>
+                                    <!--<th>Nro.</th>-->
                                     <th>Nombre</th>
-                                    <th>CUIL</th>
-                                    <th>E-mail</th>
-                                    <th>Roles</th>
+
                                     <th>Acciones</th>
                                 </tr>
                                 </tfoot>
@@ -133,7 +109,8 @@
     <script src="{{ asset('bower_components/jquery-slimscroll/jquery.slimscroll.min.js') }}"></script>
     <!-- FastClick -->
     <script src="{{ asset('bower_components/fastclick/lib/fastclick.js') }}"></script>
-
+    <!-- FastClick -->
+    <script src="{{ asset('bower_components/fastclick/lib/fastclick.js') }}"></script>
     <!-- AdminLTE App -->
     <script src="{{ asset('dist/js/adminlte.min.js') }}"></script>
     <!-- AdminLTE for demo purposes -->

@@ -41,7 +41,7 @@
                             <table id="example1" class="table table-bordered table-striped">
                                 <thead>
                                 <tr>
-            <th>Nro.</th>
+
             <th>Nombre</th>
                                     <th>Acciones</th>
 
@@ -50,7 +50,7 @@
                                 <tbody>
         @foreach ($roles as $role)
             <tr>
-                <td>{{ $loop->index + 1 }}</td>
+
                 <td>{{ $role->name }}</td>
                 <td>@can('rol-editar')<a href="{{ route('roles.edit',$role->id) }}"><span class="glyphicon glyphicon-edit"></span></a>@endcan
 
@@ -76,7 +76,7 @@
                                 </tbody>
                                 <tfoot>
                                 <tr>
-                                    <th>Nro.</th>
+
                                     <th>Nombre</th>
 
                                     <th>Acciones</th>
@@ -109,8 +109,7 @@
     <script src="{{ asset('bower_components/jquery-slimscroll/jquery.slimscroll.min.js') }}"></script>
     <!-- FastClick -->
     <script src="{{ asset('bower_components/fastclick/lib/fastclick.js') }}"></script>
-    <!-- FastClick -->
-    <script src="{{ asset('bower_components/fastclick/lib/fastclick.js') }}"></script>
+
     <!-- AdminLTE App -->
     <script src="{{ asset('dist/js/adminlte.min.js') }}"></script>
     <!-- AdminLTE for demo purposes -->

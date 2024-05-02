@@ -6,6 +6,8 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 
 use App\Http\Controllers\PersonalController;
+use App\Http\Controllers\UniversidadController;
+use App\Http\Controllers\TituloController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +33,14 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('perfil', [UserController::class, 'perfil'])->name('users.perfil');
     Route::post('updatePerfil', [UserController::class, 'updatePerfil'])->name('users.updatePerfil');
 
+
+
+
     Route::resource('personals', PersonalController::class);
+
+    Route::resource('universidads', UniversidadController::class);
+
+    Route::resource('titulos', TituloController::class);
+    Route::get('titulo-datatable', [TituloController::class, 'dataTable'])->name('titulos.dataTable');
 
 });

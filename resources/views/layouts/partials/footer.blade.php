@@ -2,7 +2,7 @@
     <div class="pull-right hidden-xs">
         <b>Versión</b> 1.0.0
     </div>
-    <strong>Copyright &copy; 2024-{{ Carbon\carbon::now()->year }} <!--<a href="https://truptigaonkar.github.io/portfolio/">Trupti Gaonkar Portfolio</a>.--></strong> Todos los derechos reservados.
+    <strong>Copyright &copy; 2024-{{ Carbon\carbon::now()->year }} <a href="https://secyt.presi.unlp.edu.ar" target="_blank">Secretaría de Ciencia y Técnica UNLP</a>.</strong> Todos los derechos reservados.
     <script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
     <!-- jQuery UI 1.11.4 -->
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
