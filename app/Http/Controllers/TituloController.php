@@ -34,6 +34,7 @@ class TituloController extends Controller
 
     public function dataTable(Request $request)
     {
+        //print_r($request);
         $columnas = ['nombre', 'nivel']; // Define las columnas disponibles
         $columnaOrden = $columnas[$request->input('order.0.column')];
         $orden = $request->input('order.0.dir');
