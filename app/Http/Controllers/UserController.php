@@ -21,7 +21,7 @@ class UserController extends Controller
      */
     function __construct()
     {
-        $this->middleware('permission:usuario-listar|usuario-crear|usuario-editar|usuario-eliminar', ['only' => ['index','store']]);
+        $this->middleware('permission:usuario-listar|usuario-crear|usuario-editar|usuario-eliminar', ['only' => ['index','store','dataTable']]);
         $this->middleware('permission:usuario-crear', ['only' => ['create','store']]);
         $this->middleware('permission:usuario-editar', ['only' => ['edit','update']]);
         $this->middleware('permission:usuario-eliminar', ['only' => ['destroy']]);
@@ -40,6 +40,52 @@ class UserController extends Controller
 
         $users = User::all();
         return view ('users.index',compact('users'));
+    }
+
+    public function dataTable(Request $request)
+    {
+        $columnas = ['name', 'cuil', 'email']; // Define las columnas disponibles
+        $columnaOrden = $columnas[$request->input('order.0.column')];
+        $orden = $request->input('order.0.dir');
+        $busqueda = $request->input('search.value');
+
+        $query = User::query()->with('roles'); // Carga la relación de roles
+
+        // Unir la tabla de universidades para poder ordenar y filtrar por el nombre de la universidad
+        /*$query->select('titulos.id as id','titulos.nombre as titulo_nombre', 'nivel', 'universidads.nombre as universidad_nombre');
+        $query->leftJoin('universidads', 'titulos.universidad_id', '=', 'universidads.id');*/
+
+        foreach ($columnas as $columna) {
+            $query->orWhere($columna, 'like', "%$busqueda%");
+        }
+        $query->orWhereHas('roles', function ($query) use ($busqueda) {
+            $query->where('name', 'like', "%$busqueda%");
+        });
+
+        // Cargar la relación universidad
+        //$query->with('universidad');
+
+        // Aplica la paginación utilizando el método paginate
+        //$datos = $query->orderBy($columnaOrden, $orden)->paginate($request->input('length'));
+
+
+        // Obtener la cantidad total de registros después de aplicar el filtro de búsqueda
+        $recordsFiltered = $query->count();
+
+
+        $datos = $query->orderBy($columnaOrden, $orden)->skip($request->input('start'))->take($request->input('length'))->get();
+
+        // Obtener la cantidad total de registros sin filtrar
+        $recordsTotal = User::count();
+
+
+
+        return response()->json([
+            'data' => $datos, // Obtener solo los elementos paginados
+            'recordsTotal' => $recordsTotal,
+            'recordsFiltered' => $recordsFiltered,
+            'draw' => $request->draw,
+        ]);
     }
 
     /**

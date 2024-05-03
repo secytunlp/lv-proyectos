@@ -46,7 +46,7 @@
                                     <!--<th>Nro.</th>-->
                                     <th>Nombre</th>
                                     <th>Nivel</th>
-
+                                    <th>Universidad</th>
                                     <th>Acciones</th>
                                 </tr>
                                 </thead>
@@ -58,7 +58,7 @@
                                     <!--<th>Nro.</th>-->
                                     <th>Nombre</th>
                                     <th>Nivel</th>
-
+                                    <th>Universidad</th>
                                     <th>Acciones</th>
                                 </tr>
                                 </tfoot>
@@ -103,30 +103,53 @@
                 "autoWidth": false, // Desactiva el ajuste automático del anchos
                 responsive: true,
                 scrollX: true,
-                ajax: "{{ route('titulos.dataTable') }}",
+                paging : true,
+                "ajax": {
+                    "url": "{{ route('titulos.dataTable') }}",
+                    "type": "POST",
+                    "data": function (d) {
+                        d._token = '{{ csrf_token() }}'; // Agrega el token CSRF si estás usando Laravel
+                        // Agrega otros parámetros si es necesario
+                        // d.otroParametro = valor;
+                    }
+                },
                 columns: [
 
-                    {data: 'nombre', name: 'nombre'},
+                    {data: 'titulo_nombre', name: 'titulo_nombre'},
                     {data: 'nivel', name: 'nivel'},
 
-
                     {
-                        "data": null,
+                        data: 'universidad_nombre', // Acceder al nombre de la universidad a través de la relación
+                        name: 'universidad_nombre',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        "data": "id",
                         "orderable": false,
                         "searchable": false,
                         "render": function(data, type, row) {
-                            // Construye el HTML de las acciones
+                            // Construir HTML para las acciones
                             var actionsHtml = '';
 
-                            // Agrega enlaces de edición y eliminación si son necesarios
-                            // Puedes utilizar los datos de la fila para construir los enlaces
-                            actionsHtml += '<a href="' + row.edit_url + '">Editar</a>';
-                            actionsHtml += ' | ';
-                            actionsHtml += '<a href="' + row.delete_url + '">Eliminar</a>';
+                            // Agregar enlace de edición si el usuario tiene permiso
+                            @can('titulo-editar')
+                                actionsHtml += '<a href="{{ route("titulos.edit", ":id") }}"><span class="glyphicon glyphicon-edit"></span></a>'.replace(':id', row.id);
+                            @endcan
 
-                            return actionsHtml;
-                        }
+                            // Agregar formulario de eliminación si el usuario tiene permiso
+                            @can('titulo-eliminar')
+                                actionsHtml += '<form id="delete-form-' + row.id + '" method="post" action="{{ route('titulos.destroy', '') }}/' + row.id + '" style="display: none">';
+                            actionsHtml += '{{ csrf_field() }}';
+                            actionsHtml += '{{ method_field('DELETE') }}';
+                            actionsHtml += '</form>';
+                            actionsHtml += '<a href="" onclick="if(confirm(\'Está seguro?\')) {event.preventDefault(); document.getElementById(\'delete-form-' + row.id + '\').submit();} else {event.preventDefault();}"><span class="glyphicon glyphicon-trash"></span></a>';
+                            @endcan
+
+                        return actionsHtml;
+
                     },
+            }
                 ],
                 "language": {
                     "url": "{{ asset('bower_components/datatables.net/lang/es-AR.json') }}"

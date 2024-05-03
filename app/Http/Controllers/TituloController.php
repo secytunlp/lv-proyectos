@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Titulo;
-
+use App\Models\Universidad;
 class TituloController extends Controller
 {
     /**
@@ -28,28 +28,52 @@ class TituloController extends Controller
     public function index(Request $request)
     {
 
-        $titulos = Titulo::all();
-        return view ('titulos.index',compact('titulos'));
+        //$titulos = Titulo::all();
+        return view ('titulos.index');
     }
 
     public function dataTable(Request $request)
     {
-        //print_r($request);
-        $columnas = ['nombre', 'nivel']; // Define las columnas disponibles
+        $columnas = ['titulos.nombre', 'nivel', 'universidads.nombre']; // Define las columnas disponibles
         $columnaOrden = $columnas[$request->input('order.0.column')];
         $orden = $request->input('order.0.dir');
         $busqueda = $request->input('search.value');
 
         $query = Titulo::query();
 
+        // Unir la tabla de universidades para poder ordenar y filtrar por el nombre de la universidad
+        $query->select('titulos.id as id','titulos.nombre as titulo_nombre', 'nivel', 'universidads.nombre as universidad_nombre');
+        $query->leftJoin('universidads', 'titulos.universidad_id', '=', 'universidads.id');
+
         foreach ($columnas as $columna) {
             $query->orWhere($columna, 'like', "%$busqueda%");
         }
 
-        $datos = $query->orderBy($columnaOrden, $orden)
-            ->paginate($request->input('length'));
 
-        return response()->json($datos);
+        // Cargar la relación universidad
+       //$query->with('universidad');
+
+        // Aplica la paginación utilizando el método paginate
+        //$datos = $query->orderBy($columnaOrden, $orden)->paginate($request->input('length'));
+
+
+        // Obtener la cantidad total de registros después de aplicar el filtro de búsqueda
+        $recordsFiltered = $query->count();
+
+
+        $datos = $query->orderBy($columnaOrden, $orden)->skip($request->input('start'))->take($request->input('length'))->get();
+
+        // Obtener la cantidad total de registros sin filtrar
+        $recordsTotal = Titulo::count();
+
+
+
+        return response()->json([
+            'data' => $datos, // Obtener solo los elementos paginados
+            'recordsTotal' => $recordsTotal,
+            'recordsFiltered' => $recordsFiltered,
+            'draw' => $request->draw,
+        ]);
     }
 
 
@@ -60,8 +84,9 @@ class TituloController extends Controller
      */
     public function create()
     {
-
-        return view('titulos.create');
+        $universidads=Universidad::orderBy('nombre','ASC')->get();
+        $universidads = $universidads->pluck('nombre', 'id')->prepend('','');
+        return view('titulos.create',compact('universidads'));
     }
 
     /**
@@ -73,8 +98,9 @@ class TituloController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'nombre' => 'required'
-
+            'nombre' => 'required',
+            'nivel' => 'required',
+            'universidad_id' => 'required',
         ]);
 
 
@@ -85,7 +111,7 @@ class TituloController extends Controller
 
 
         return redirect()->route('titulos.index')
-            ->with('success','Titulo creada con éxito');
+            ->with('success','Titulo creado con éxito');
     }
 
     /**
@@ -110,8 +136,9 @@ class TituloController extends Controller
     {
         $titulo = Titulo::find($id);
 
-
-        return view('titulos.edit',compact('titulo'));
+        $universidads=Universidad::orderBy('nombre','ASC')->get();
+        $universidads = $universidads->pluck('nombre', 'id')->prepend('','');
+        return view('titulos.edit',compact('titulo','universidads'));
     }
 
     /**
@@ -139,7 +166,7 @@ class TituloController extends Controller
 
 
         return redirect()->route('titulos.index')
-            ->with('success','Titulo modificada con éxito');
+            ->with('success','Titulo modificado con éxito');
     }
 
     /**
@@ -155,6 +182,6 @@ class TituloController extends Controller
         Titulo::find($id)->delete();
 
         return redirect()->route('titulos.index')
-            ->with('success','Titulo eliminada con éxito');
+            ->with('success','Titulo eliminado con éxito');
     }
 }

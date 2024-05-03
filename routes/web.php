@@ -32,7 +32,7 @@ Route::group(['middleware' => ['auth']], function() {
     Route::resource('users', UserController::class);
     Route::get('perfil', [UserController::class, 'perfil'])->name('users.perfil');
     Route::post('updatePerfil', [UserController::class, 'updatePerfil'])->name('users.updatePerfil');
-
+    Route::post('user-datatable', [UserController::class, 'dataTable'])->name('users.dataTable');
 
 
 
@@ -41,6 +41,6 @@ Route::group(['middleware' => ['auth']], function() {
     Route::resource('universidads', UniversidadController::class);
 
     Route::resource('titulos', TituloController::class);
-    Route::get('titulo-datatable', [TituloController::class, 'dataTable'])->name('titulos.dataTable');
+    Route::post('titulo-datatable', [TituloController::class, 'dataTable'])->name('titulos.dataTable');
 
 });
