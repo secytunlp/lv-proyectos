@@ -7,6 +7,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use App\Models\Investigador;
 use App\Models\Universidad;
+use App\Models\Unidad;
 use App\Models\Titulo;
 use DB;
 use Illuminate\Support\Facades\Log;
@@ -99,7 +100,14 @@ class InvestigadorController extends Controller
         $tituloposts = $tituloposts->pluck('full_name', 'id')->prepend('','');
         $facultades = DB::table('facultads')->pluck('nombre', 'id')->prepend('','');// Obtener todas las facultades directamente desde la tabla
         $cargos = DB::table('cargos')->orderBy('orden')->pluck('nombre', 'id')->prepend('','');
-        return view('investigadors.create',compact('provincias','titulos','tituloposts','facultades','cargos'));
+        $universidades=Universidad::orderBy('nombre','ASC')->get();
+        $universidades = $universidades->pluck('nombre', 'id')->prepend('','');
+        $unidads=Unidad::orderBy('nombre','ASC')->get();
+        $unidads->each->append('path_to_parent');
+        $unidads = $unidads->pluck('path_to_parent', 'id')->prepend('','');
+        $carrerainvs = DB::table('carrerainvs')->where('activo','1')->orderBy('orden')->pluck('nombre', 'id')->prepend('','');
+        $organismos = DB::table('organismos')->where('activo','1')->pluck('codigo', 'id')->prepend('','');
+        return view('investigadors.create',compact('provincias','titulos','tituloposts','facultades','cargos','universidades','unidads','carrerainvs','organismos'));
     }
 
     /**
@@ -171,6 +179,9 @@ class InvestigadorController extends Controller
             // Guardar el primer título pasado en $request->titulo en la columna titulo_id del investigador
             if (!empty($request->titulos)) {
                 $investigador->titulo_id = $request->titulos[0];
+                $investigador->carrera = null;
+                $investigador->total = null;
+                $investigador->materias = null;
                 $investigador->save();
             }
 
@@ -196,15 +207,23 @@ class InvestigadorController extends Controller
             if (!empty($request->cargos)) {
                 $mayorCargo = null;
                 $mayorDeddoc = null;
+                $mayorFacultad = null;
+                $mayorUniversidad = null;
                 foreach ($request->cargos as $item => $v) {
-                    Log::info("Cargo: " . $request->cargos[$item] . " - Dedicacion: ".$request->deddocs[$item]);
-                    Log::info("Mayor Cargo: " . $mayorCargo . " - Mayor Dedicacion: ".$mayorDeddoc);
-                    if ($mayorDeddoc === null || $this->esMayorDecicacion($request->deddocs[$item], $mayorDeddoc)) {
-                        $mayorDeddoc = $request->deddocs[$item];
-                        $mayorCargo = $request->cargos[$item];
-                        if ($request->deddocs[$item]==$mayorDeddoc){
-                            if ($mayorCargo === null || $this->esMayorCargo($request->cargos[$item], $mayorCargo)) {
-                                $mayorCargo = $request->cargos[$item];
+                    $activo=0;
+                    if (isset($request->activos[$item]) ) {
+                        $activo=1;
+                        if ($mayorDeddoc === null || $request->deddocs[$item] < $mayorDeddoc) {
+                            $mayorDeddoc = $request->deddocs[$item];
+                            $mayorCargo = $request->cargos[$item];
+                            $mayorFacultad = $request->facultads[$item];
+                            $mayorUniversidad = $request->universidads[$item];
+                            if ($request->deddocs[$item] == $mayorDeddoc) {
+                                if ($mayorCargo === null || $this->esMayorCargo($request->cargos[$item], $mayorCargo)) {
+                                    $mayorCargo = $request->cargos[$item];
+                                    $mayorFacultad = $request->facultads[$item];
+                                    $mayorUniversidad = $request->universidads[$item];
+                                }
                             }
                         }
                     }
@@ -216,7 +235,8 @@ class InvestigadorController extends Controller
                         'deddoc' => $request->deddocs[$item],
                         'ingreso' => $request->ingresos[$item],
                         'facultad_id' => $request->facultads[$item],
-                        'activo' => $request->has('activos') && $request->activos[$item] == '1', // Convierte a booleano
+                        'universidad_id' => $request->universidads[$item],
+                        'activo' => $activo,
                         'created_at' => now(), // Establece la fecha y hora de creación
                         'updated_at' => now(), // Establece la fecha y hora de actualización
                     ]);
@@ -226,8 +246,41 @@ class InvestigadorController extends Controller
             if ($mayorCargo !== null) {
                 $investigador->cargo_id = $mayorCargo;
                 $investigador->deddoc = $mayorDeddoc;
+                $investigador->facultad_id = $mayorFacultad;
+                $investigador->universidad_id = $mayorUniversidad;
                 $investigador->save();
             }
+
+            if (!empty($request->carrerainvs)) {
+
+                foreach ($request->carrerainvs as $item => $v) {
+                    // Verifica si el radio "actual" está seleccionado para esta fila
+                    $esActual = isset($request['actual_' . ($item + 1)]) && $request['actual_' . ($item + 1)] == 1;
+                    if ($esActual){
+                        $carrerainv_id = $request->carrerainvs[$item];
+                        $organismo_id = $request->organismos[$item];
+                    }
+
+
+                    // Inserta el registro en la tabla intermedia 'investigador_cargos'
+                    DB::table('investigador_cargos')->insert([
+                        'investigador_id' => $investigador->id, // Supongo que tienes un objeto $investigador disponible
+                        'carrerainv_id' => $request->carrerainvs[$item],
+                        'organismo_id' => $request->organismos[$item],
+                        'ingreso' => $request->carringresos[$item],
+
+                        'actual' => $esActual,
+                        'created_at' => now(), // Establece la fecha y hora de creación
+                        'updated_at' => now(), // Establece la fecha y hora de actualización
+                    ]);
+                }
+            }
+            if (!empty($request->carrerainvs)) {
+                $investigador->carrerainv_id = $carrerainv_id;
+                $investigador->organismo_id = $organismo_id;
+                $investigador->save();
+            }
+
             DB::commit();
             $respuestaID = 'success';
             $respuestaMSJ = 'Investigador creado con éxito';
@@ -244,21 +297,22 @@ class InvestigadorController extends Controller
 // Función para determinar si un cargo es mayor que otro
     function esMayorDecicacion($deddocActual, $deddocMayor)
     {
-        $ordenDeddocs = ['Simple', 'Semi Exclusiva', 'Exclusiva'];
+        $ordenDeddocs = ['Exclusiva', 'Semi Exclusiva', 'Simple'];
         $indiceActual = array_search($deddocActual, $ordenDeddocs);
         $indiceMayor = array_search($deddocMayor, $ordenDeddocs);
         Log::info("Actual: " . $deddocActual . " - Mayor: ".$deddocMayor);
-        return $indiceActual < $indiceMayor;
+        Log::info("Es mayor: " . ($indiceActual > $indiceMayor)?'SI':'NO');
+        return $indiceActual > $indiceMayor;
     }
 
     function esMayorCargo($cargoActual, $cargoMayor)
     {
         // Obtener el orden de los cargos desde la base de datos
         // Obtener el orden del cargo actual
-        $ordenCargoActual = DB::table('cargos')->where('nombre', $cargoActual)->value('orden');
+        $ordenCargoActual = DB::table('cargos')->where('id', $cargoActual)->value('orden');
 
 // Obtener el orden del cargo mayor
-        $ordenCargoMayor = DB::table('cargos')->where('nombre', $cargoMayor)->value('orden');
+        $ordenCargoMayor = DB::table('cargos')->where('id', $cargoMayor)->value('orden');
 
         // Si el orden es igual, compara directamente los nombres de los cargos
         if ($ordenCargoActual === $ordenCargoMayor) {

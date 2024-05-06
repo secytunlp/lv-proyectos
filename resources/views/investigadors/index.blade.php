@@ -124,6 +124,7 @@
                 responsive: true,
                 scrollX: true,
                 paging : true,
+                "order": [[ 2, "asc" ]], // Ordenar por el tercer campo (apellido) de forma ascendente
                 "ajax": {
                     "url": "{{ route('investigadors.dataTable') }}",
                     "type": "POST",

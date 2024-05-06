@@ -259,3 +259,7 @@ FROM `docente`
     LIMIT
     0,1000;
 
+################################ Unidades
+
+SELECT `cd_unidad` as id,`cd_tipounidad` as tipo, `cd_padre` as padre_id, `bl_hijos` as hijos, `ds_unidad` as nombre, `ds_codigo` as codigo, `ds_sigla` as sigla, `ds_direccion` as direccion, `ds_mail` as email, `ds_telefono` as telefono, `cd_facultad` as facultad_id, `bl_activa` as activa FROM `unidad` WHERE 1
+
