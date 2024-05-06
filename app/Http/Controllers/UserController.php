@@ -113,7 +113,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6|confirmed',
             'roles' => 'required',
-            'facultad_id' => 'nullable|exists:facultad,id', // Validación de facultad_id
+            'facultad_id' => 'nullable|exists:facultads,id', // Validación de facultad_id
             'cuil' => 'nullable|regex:/^\d{2}-\d{8}-\d{1}$/', // Validación de cuil
             'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
@@ -184,7 +184,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email,'.$id,
             'password' => 'confirmed',
             'roles' => 'required',
-            'facultad_id' => 'nullable|exists:facultad,id', // Validación de facultad_id
+            'facultad_id' => 'nullable|exists:facultads,id', // Validación de facultad_id
             'cuil' => 'nullable|regex:/^\d{2}-\d{8}-\d{1}$/', // Validación de cuil
             'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);

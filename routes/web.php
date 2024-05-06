@@ -8,6 +8,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PersonalController;
 use App\Http\Controllers\UniversidadController;
 use App\Http\Controllers\TituloController;
+use App\Http\Controllers\InvestigadorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,7 +26,7 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/home', [UserController::class, 'index'])->name('home');
+Route::get('/home', [TituloController::class, 'index'])->name('home');
 
 Route::group(['middleware' => ['auth']], function() {
     Route::resource('roles', RoleController::class);
@@ -42,5 +43,8 @@ Route::group(['middleware' => ['auth']], function() {
 
     Route::resource('titulos', TituloController::class);
     Route::post('titulo-datatable', [TituloController::class, 'dataTable'])->name('titulos.dataTable');
+
+    Route::resource('investigadors', InvestigadorController::class);
+    Route::post('investigador-datatable', [InvestigadorController::class, 'dataTable'])->name('investigadors.dataTable');
 
 });

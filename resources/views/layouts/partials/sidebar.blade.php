@@ -22,7 +22,7 @@
         </ul>
         <ul class="sidebar-menu" data-widget="tree">
             <li class="header">ADMINISTRACION</li>
-
+            @can('investigador-listar')<li><a href="{{ route('investigadors.index') }}"><i class="fa fa-microscope"></i>Investigadores</a></li>@endcan
 
 
         </ul>

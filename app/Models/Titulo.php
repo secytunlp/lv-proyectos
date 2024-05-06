@@ -23,4 +23,9 @@ class Titulo extends Model
     {
         return $this->belongsTo('App\Models\Universidad');
     }
+
+    public function getFullNameAttribute()
+    {
+        return $this->nombre . ' (' . $this->universidad->nombre.')';
+    }
 }
