@@ -107,7 +107,13 @@ class InvestigadorController extends Controller
         $unidads = $unidads->pluck('path_to_parent', 'id')->prepend('','');
         $carrerainvs = DB::table('carrerainvs')->where('activo','1')->orderBy('orden')->pluck('nombre', 'id')->prepend('','');
         $organismos = DB::table('organismos')->where('activo','1')->pluck('codigo', 'id')->prepend('','');
-        return view('investigadors.create',compact('provincias','titulos','tituloposts','facultades','cargos','universidades','unidads','carrerainvs','organismos'));
+        $currentYear = date('Y');
+        $startYear = 1994;
+        $years = range($currentYear, $startYear);
+        $years = array_combine($years, $years); // Esto crea un array asociativo con los años como claves y valores
+        $categorias = DB::table('categorias')->pluck('nombre', 'id')->prepend('','');
+        $sicadis = DB::table('sicadis')->pluck('nombre', 'id')->prepend('','');
+        return view('investigadors.create',compact('provincias','titulos','tituloposts','facultades','cargos','universidades','unidads','carrerainvs','sicadis','years','organismos','categorias','sicadis'));
     }
 
     /**
@@ -252,18 +258,26 @@ class InvestigadorController extends Controller
             }
 
             if (!empty($request->carrerainvs)) {
-
+                $esActual=0;
                 foreach ($request->carrerainvs as $item => $v) {
                     // Verifica si el radio "actual" está seleccionado para esta fila
-                    $esActual = isset($request['actual_' . ($item + 1)]) && $request['actual_' . ($item + 1)] == 1;
+                    /*$esActual = isset($request['actual_' . ($item + 1)]) && $request['actual_' . ($item + 1)] == 1;
                     if ($esActual){
                         $carrerainv_id = $request->carrerainvs[$item];
                         $organismo_id = $request->organismos[$item];
+                    }*/
+
+                    if ($request->actual == ($item + 1)) {
+                        // Esta es la fila que se considera "actual"
+                        $carrerainv_id = $request->carrerainvs[$item];
+                        $organismo_id = $request->organismos[$item];
+                        $esActual=1;
+
                     }
 
 
                     // Inserta el registro en la tabla intermedia 'investigador_cargos'
-                    DB::table('investigador_cargos')->insert([
+                    DB::table('investigador_carreras')->insert([
                         'investigador_id' => $investigador->id, // Supongo que tienes un objeto $investigador disponible
                         'carrerainv_id' => $request->carrerainvs[$item],
                         'organismo_id' => $request->organismos[$item],
@@ -278,6 +292,72 @@ class InvestigadorController extends Controller
             if (!empty($request->carrerainvs)) {
                 $investigador->carrerainv_id = $carrerainv_id;
                 $investigador->organismo_id = $organismo_id;
+                $investigador->save();
+            }
+
+            if (!empty($request->categorias)) {
+                $esCatActual=0;
+                foreach ($request->categorias as $item => $v) {
+
+
+                    if ($request->catactual == ($item + 1)) {
+                        // Esta es la fila que se considera "actual"
+                        $categoria_id = $request->categorias[$item];
+
+                        $esCatActual=1;
+
+                    }
+
+
+                    // Inserta el registro en la tabla intermedia 'investigador_cargos'
+                    DB::table('investigador_categorias')->insert([
+                        'investigador_id' => $investigador->id, // Supongo que tienes un objeto $investigador disponible
+                        'categoria_id' => $request->categorias[$item],
+                        'universidad_id' => $request->catuniversidads[$item],
+                        'notificacion' => $request->catnotificacions[$item],
+                        'year' => $request->catyears[$item],
+                        'actual' => $esCatActual,
+                        'created_at' => now(), // Establece la fecha y hora de creación
+                        'updated_at' => now(), // Establece la fecha y hora de actualización
+                    ]);
+                }
+            }
+            if (!empty($request->categorias)) {
+                $investigador->categoria_id = $categoria_id;
+
+                $investigador->save();
+            }
+
+            if (!empty($request->sicadis)) {
+                $essicadiActual=0;
+                foreach ($request->sicadis as $item => $v) {
+
+
+                    if ($request->sicadiactual == ($item + 1)) {
+                        // Esta es la fila que se considera "actual"
+                        $sicadi_id = $request->sicadis[$item];
+
+                        $essicadiActual=1;
+
+                    }
+
+
+                    // Inserta el registro en la tabla intermedia 'investigador_cargos'
+                    DB::table('investigador_sicadis')->insert([
+                        'investigador_id' => $investigador->id, // Supongo que tienes un objeto $investigador disponible
+                        'sicadi_id' => $request->sicadis[$item],
+
+                        'notificacion' => $request->sicadinotificacions[$item],
+                        'year' => $request->sicadiyears[$item],
+                        'actual' => $essicadiActual,
+                        'created_at' => now(), // Establece la fecha y hora de creación
+                        'updated_at' => now(), // Establece la fecha y hora de actualización
+                    ]);
+                }
+            }
+            if (!empty($request->sicadis)) {
+                $investigador->sicadi_id = $sicadi_id;
+
                 $investigador->save();
             }
 
@@ -389,6 +469,9 @@ class InvestigadorController extends Controller
 
         // Eliminar las relaciones de los cargos del investigador
         DB::table('investigador_cargos')->where('investigador_id', $investigador->id)->delete();
+        DB::table('investigador_carreras')->where('investigador_id', $investigador->id)->delete();
+        DB::table('investigador_sicadis')->where('investigador_id', $investigador->id)->delete();
+        DB::table('investigador_categorias')->where('investigador_id', $investigador->id)->delete();
 
         // Elimina las relaciones
         $investigador->titulos()->detach();
