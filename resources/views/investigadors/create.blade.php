@@ -45,6 +45,8 @@
                                     <li role="presentation" class="active"><a href="#datos_personales" aria-controls="datos_personales" role="tab" data-toggle="tab">Datos Personales</a></li>
                                     <li role="presentation"><a href="#universidad" aria-controls="universidad" role="tab" data-toggle="tab">Universidad</a></li>
                                     <li role="presentation"><a href="#investigacion" aria-controls="investigacion" role="tab" data-toggle="tab">Investigación</a></li>
+                                    <li role="presentation"><a href="#categorizacion" aria-controls="categorizacion" role="tab" data-toggle="tab">Categorización</a></li>
+                                    <li role="presentation"><a href="#becario" aria-controls="becario" role="tab" data-toggle="tab">Becas</a></li>
                                     <!-- Agrega más pestañas según sea necesario -->
                                 </ul>
                                 <div class="tab-content">
@@ -303,13 +305,13 @@
                                             </div>
                                         </fieldset>
                                     </div>
-                                    <div role="tabpanel" class="tab-pane active" id="investigacion">
+                                    <div role="tabpanel" class="tab-pane" id="investigacion">
                                         <div class="row">
 
                                             <div class="col-md-8">
                                                 <div class="form-group">
                                                     {{Form::label('unidad', 'Lugar de Trabajo')}}
-                                                    {{Form::select('unidad_id',  $unidads,'', ['class' => 'form-control js-example-basic-single','id'=>'unidad_id'])}}
+                                                    {{Form::select('unidad_id',  $unidads,'', ['class' => 'form-control js-example-basic-single', 'style' => 'width: 100%','id'=>'unidad_id'])}}
 
                                                 </div>
                                             </div>
@@ -355,11 +357,171 @@
                                             </div>
                                         </fieldset>
                                     </div>
+                                    <div role="tabpanel" class="tab-pane" id="categorizacion">
+
+                                        <fieldset style="border: 1px solid #ccc; padding: 10px;">
+                                            <legend style="border-bottom: none; margin-bottom: -10px; display: inline-block;width: auto;">Categorías SPU</legend>
+
+                                            <div class="form-group col-md-12">
+
+
+                                                <table class="table" style="width: 50%">
+                                                    <thead>
+
+                                                    <th>Categoría</th>
+                                                    <th>Año</th>
+                                                    <th>Notificación</th>
+                                                    <th>Universidad</th>
+                                                    <th>Actual</th>
+                                                    <th><a href="#" class="addRowCategoria"><i class="glyphicon glyphicon-plus"></i></a></th>
+
+                                                    </thead>
+
+                                                    <tbody id="cuerpoCategorias">
+                                                    <tr>
+
+                                                        <td>{{ Form::select('categorias[]',$categorias, '',['class' => 'form-control', 'style' => 'width: 60px']) }}</td>
+                                                        <td>{{ Form::select('catyears[]',$years, '',['class' => 'form-control', 'style' => 'width: 60px']) }}</td>
+                                                        <td>{{Form::date('catnotificacions[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
+                                                        <td>{{ Form::select('catuniversidads[]',$universidades, '',['class' => 'form-control js-example-basic-single', 'style' => 'width: 300px']) }}</td>
+
+                                                        <td>{{ Form::radio('catactual', 1, true,['id' => 'catactual_1']) }}</td> <!-- Usamos un nombre único con el índice 1 -->
+                                                        <td><a href="#" class="btn btn-danger removeCategoria"><i class="glyphicon glyphicon-remove"></i></a></td>
+                                                    </tr>
+
+                                                    </tbody>
+
+
+
+
+                                                </table>
+                                            </div>
+                                        </fieldset>
+                                        <fieldset style="border: 1px solid #ccc; padding: 10px;">
+                                            <legend style="border-bottom: none; margin-bottom: -10px; display: inline-block;width: auto;">Categorías SICADI</legend>
+
+                                            <div class="form-group col-md-12">
+
+
+                                                <table class="table" style="width: 50%">
+                                                    <thead>
+
+                                                    <th>Categoría</th>
+                                                    <th>Año</th>
+                                                    <th>Notificación</th>
+
+                                                    <th>Actual</th>
+                                                    <th><a href="#" class="addRowSicadi"><i class="glyphicon glyphicon-plus"></i></a></th>
+
+                                                    </thead>
+
+                                                    <tbody id="cuerpoSicadis">
+                                                    <tr>
+
+                                                        <td>{{ Form::select('sicadis[]',$sicadis, '',['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
+                                                        <td>{{ Form::select('sicadiyears[]',$years, '',['class' => 'form-control', 'style' => 'width: 60px']) }}</td>
+                                                        <td>{{Form::date('sicadinotificacions[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
+
+
+                                                        <td>{{ Form::radio('sicadiactual', 1, true,['id' => 'sicadiactual_1']) }}</td> <!-- Usamos un nombre único con el índice 1 -->
+                                                        <td><a href="#" class="btn btn-danger removeSicadi"><i class="glyphicon glyphicon-remove"></i></a></td>
+                                                    </tr>
+
+                                                    </tbody>
+
+
+
+
+                                                </table>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                    <div role="tabpanel" class="tab-pane" id="becario">
+
+                                        <fieldset style="border: 1px solid #ccc; padding: 10px;">
+                                            <legend style="border-bottom: none; margin-bottom: -10px; display: inline-block;width: auto;">Becas</legend>
+
+                                            <div class="form-group col-md-12">
+
+
+                                                <table class="table" style="width: 50%">
+                                                    <thead>
+
+
+                                                    <th>Institucion</th>
+                                                    <th>Beca</th>
+                                                    <th>Desde</th>
+                                                    <th>Hasta</th>
+                                                    <th>UNLP</th>
+                                                    <th><a href="#" class="addRowBeca"><i class="glyphicon glyphicon-plus"></i></a></th>
+
+                                                    </thead>
+
+                                                    <tbody id="cuerpoBecas">
+                                                    <tr>
+
+                                                        <td>{{ Form::select('becas[]',$categorias, '',['class' => 'form-control', 'style' => 'width: 150px']) }}</td>
+                                                        <td>{{ Form::select('institucions[]',$years, '',['class' => 'form-control', 'style' => 'width: 150px']) }}</td>
+                                                        <td>{{Form::date('becadesdes[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
+
+                                                        <td>{{Form::date('becahastas[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
+                                                        <td>{{Form::checkbox('becaunlps[]', 1,true)}}</td>
+                                                        <td><a href="#" class="btn btn-danger removeCategoria"><i class="glyphicon glyphicon-remove"></i></a></td>
+                                                    </tr>
+
+                                                    </tbody>
+
+
+
+
+                                                </table>
+                                            </div>
+                                        </fieldset>
+                                        <fieldset style="border: 1px solid #ccc; padding: 10px;">
+                                            <legend style="border-bottom: none; margin-bottom: -10px; display: inline-block;width: auto;">Categorías SICADI</legend>
+
+                                            <div class="form-group col-md-12">
+
+
+                                                <table class="table" style="width: 50%">
+                                                    <thead>
+
+                                                    <th>Categoría</th>
+                                                    <th>Año</th>
+                                                    <th>Notificación</th>
+
+                                                    <th>Actual</th>
+                                                    <th><a href="#" class="addRowSicadi"><i class="glyphicon glyphicon-plus"></i></a></th>
+
+                                                    </thead>
+
+                                                    <tbody id="cuerpoSicadis">
+                                                    <tr>
+
+                                                        <td>{{ Form::select('sicadis[]',$sicadis, '',['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
+                                                        <td>{{ Form::select('sicadiyears[]',$years, '',['class' => 'form-control', 'style' => 'width: 60px']) }}</td>
+                                                        <td>{{Form::date('sicadinotificacions[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
+
+
+                                                        <td>{{ Form::radio('sicadiactual', 1, true,['id' => 'sicadiactual_1']) }}</td> <!-- Usamos un nombre único con el índice 1 -->
+                                                        <td><a href="#" class="btn btn-danger removeSicadi"><i class="glyphicon glyphicon-remove"></i></a></td>
+                                                    </tr>
+
+                                                    </tbody>
+
+
+
+
+                                                </table>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                </div>
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-primary">Guardar</button>
                                         <a href='{{ route('investigadors.index') }}' class="btn btn-warning">Volver</a>
                                     </div>
-                                </div>
+
                             </div>
                         </form>
                     </div>
@@ -367,6 +529,7 @@
                 </div>
                 <!-- /.col-->
             </div>
+
             <!-- ./row -->
         </section>
         <!-- /.content -->
@@ -416,6 +579,18 @@
             // Seleccionar el radio button por defecto
             $('#actual_1').prop('checked', true);
 
+            // Limpiar el estado del radio button por defecto
+            $('input[name="catactual"]').prop('checked', false);
+
+            // Seleccionar el radio button por defecto
+            $('#catactual_1').prop('checked', true);
+
+            // Limpiar el estado del radio button por defecto
+            $('input[name="sicadiactual"]').prop('checked', false);
+
+            // Seleccionar el radio button por defecto
+            $('#sicadiactual_1').prop('checked', true);
+
             // Bandera para rastrear si se han realizado cambios en el formulario
             var cambiosRealizados = false;
 
@@ -437,6 +612,12 @@
                     // Devolver el mensaje de advertencia (solo necesario en algunos navegadores antiguos)
                     return mensaje;
                 }
+            });
+
+            // Escuchar el envío del formulario
+            $('form').on('submit', function() {
+                // Establecer cambios realizados como false
+                cambiosRealizados = false;
             });
 
         });
@@ -542,6 +723,72 @@
         };
 
         $('body').on('click', '.removeCarrerainv', function(e){
+
+            e.preventDefault();
+            $(this).parent().parent().remove();
+
+
+        });
+
+        $('.addRowCategoria').on('click',function(e){
+            e.preventDefault();
+            addRowCategoria();
+        });
+        function addRowCategoria()
+        {
+            var tr='<tr>'+
+                '<td>'+'{{ Form::select('categorias[]',$categorias ?? [''=>''], '',['class' => 'form-control', 'style' => 'width: 60px']) }}'+'</td>'+
+                '<td>'+'{{ Form::select('catyears[]',$years ?? [''=>''], '',['class' => 'form-control', 'style' => 'width: 60px']) }}'+'</td>'+
+                '<td>'+'{{Form::date('catnotificacions[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
+                '<td>'+'{{ Form::select('catuniversidads[]',$universidades ?? [''=>''], '',['class' => 'form-control js-example-basic-single', 'style' => 'width: 300px']) }}'+'</td>'+
+
+
+
+                '<td><input type="radio" name="catactual" id="catactual_' + ($("input[id^=\'catactual_\']").length + 1) + '" value="' + ($("input[id^=\'catactual_\']").length + 1) + '"></td>' +
+
+
+                '<td><a href="#" class="btn btn-danger removeCategoria"><i class="glyphicon glyphicon-remove"></i></a></td>'+
+                '</tr>';
+            $('#cuerpoCategorias').append(tr);
+            $('.js-example-basic-single').select2();
+
+
+        };
+
+        $('body').on('click', '.removeCategoria', function(e){
+
+            e.preventDefault();
+            $(this).parent().parent().remove();
+
+
+        });
+
+        $('.addRowSicadi').on('click',function(e){
+            e.preventDefault();
+            addRowSicadi();
+        });
+        function addRowSicadi()
+        {
+            var tr='<tr>'+
+                '<td>'+'{{ Form::select('sicadis[]',$sicadis ?? [''=>''], '',['class' => 'form-control', 'style' => 'width: 120px']) }}'+'</td>'+
+                '<td>'+'{{ Form::select('sicadiyears[]',$years ?? [''=>''], '',['class' => 'form-control', 'style' => 'width: 60px']) }}'+'</td>'+
+                '<td>'+'{{Form::date('sicadinotificacions[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
+
+
+
+
+                '<td><input type="radio" name="sicadiactual" id="sicadiactual_' + ($("input[id^=\'sicadiactual_\']").length + 1) + '" value="' + ($("input[id^=\'sicadiactual_\']").length + 1) + '"></td>' +
+
+
+                '<td><a href="#" class="btn btn-danger removeSicadi"><i class="glyphicon glyphicon-remove"></i></a></td>'+
+                '</tr>';
+            $('#cuerpoSicadis').append(tr);
+
+
+
+        };
+
+        $('body').on('click', '.removeSicadi', function(e){
 
             e.preventDefault();
             $(this).parent().parent().remove();
