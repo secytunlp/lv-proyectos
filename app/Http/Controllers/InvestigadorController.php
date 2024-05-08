@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Carrerainv;
+use App\Models\Categoria;
 use App\Models\Persona;
+use App\Models\Sicadi;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use App\Models\Investigador;
@@ -11,8 +13,10 @@ use App\Models\Universidad;
 use App\Models\Unidad;
 use App\Models\Titulo;
 use App\Models\Cargo;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
+
 
 class InvestigadorController extends Controller
 
@@ -49,21 +53,23 @@ class InvestigadorController extends Controller
         $orden = $request->input('order.0.dir');
         $busqueda = $request->input('search.value');
 
-        $query = Investigador::query();
+        // Consulta base
+        $query = Investigador::select('investigadors.id as id', 'personas.nombre as persona_nombre','ident', DB::raw("CONCAT(personas.apellido, ', ', personas.nombre) as persona_apellido"), 'cuil', 'categorias.nombre as categoria_nombre', 'sicadis.nombre as sicadi_nombre', 'cargos.nombre as cargo_nombre','deddoc', DB::raw("CONCAT(beca, ' ', institucion) as beca"),'institucion', DB::raw("CONCAT(carrerainvs.nombre, ' ', organismos.codigo) as carrerainv_nombre"), 'organismos.codigo as organismo_nombre', 'facultads.nombre as facultad_nombre')
+            ->leftJoin('categorias', 'investigadors.categoria_id', '=', 'categorias.id')
+            ->leftJoin('personas', 'investigadors.persona_id', '=', 'personas.id')
+            ->leftJoin('sicadis', 'investigadors.sicadi_id', '=', 'sicadis.id')
+            ->leftJoin('cargos', 'investigadors.cargo_id', '=', 'cargos.id')
+            ->leftJoin('carrerainvs', 'investigadors.carrerainv_id', '=', 'carrerainvs.id')
+            ->leftJoin('organismos', 'investigadors.organismo_id', '=', 'organismos.id')
+            ->leftJoin('facultads', 'investigadors.facultad_id', '=', 'facultads.id');
 
-        // Unir la tabla de categoriaes para poder ordenar y filtrar por el nombre de la categoria
-        $query->select('investigadors.id as id', 'personas.nombre as persona_nombre','ident', DB::raw("CONCAT(personas.apellido, ', ', personas.nombre) as persona_apellido"), 'cuil', 'categorias.nombre as categoria_nombre', 'sicadis.nombre as sicadi_nombre', 'cargos.nombre as cargo_nombre','deddoc', DB::raw("CONCAT(beca, ' ', institucion) as beca"),'institucion', DB::raw("CONCAT(carrerainvs.nombre, ' ', organismos.codigo) as carrerainv_nombre"), 'organismos.codigo as organismo_nombre', 'facultads.nombre as facultad_nombre');
-        $query->leftJoin('categorias', 'investigadors.categoria_id', '=', 'categorias.id');
-        $query->leftJoin('personas', 'investigadors.persona_id', '=', 'personas.id');
-        $query->leftJoin('sicadis', 'investigadors.sicadi_id', '=', 'sicadis.id');
-        $query->leftJoin('cargos', 'investigadors.cargo_id', '=', 'cargos.id');
-        $query->leftJoin('carrerainvs', 'investigadors.carrerainv_id', '=', 'carrerainvs.id');
-        $query->leftJoin('organismos', 'investigadors.organismo_id', '=', 'organismos.id');
-        $query->leftJoin('facultads', 'investigadors.facultad_id', '=', 'facultads.id');
-
-
-        foreach ($columnas as $columna) {
-            $query->orWhere($columna, 'like', "%$busqueda%");
+        // Aplicar la búsqueda
+        if (!empty($busqueda)) {
+            $query->where(function ($query) use ($columnas, $busqueda) {
+                foreach ($columnas as $columna) {
+                    $query->orWhere($columna, 'like', "%$busqueda%");
+                }
+            });
         }
 
         // Obtener la cantidad total de registros después de aplicar el filtro de búsqueda
@@ -114,8 +120,9 @@ class InvestigadorController extends Controller
         $startYear = 1994;
         $years = range($currentYear, $startYear);
         $years = array_combine($years, $years); // Esto crea un array asociativo con los años como claves y valores
-        $categorias = DB::table('categorias')->pluck('nombre', 'id')->prepend('','');
-        $sicadis = DB::table('sicadis')->pluck('nombre', 'id')->prepend('','');
+        $categorias = Categoria::orderBy('id')->pluck('nombre', 'id')->prepend('', '');
+
+        $sicadis = Sicadi::orderBy('id')->pluck('nombre', 'id')->prepend('', '');
         return view('investigadors.create',compact('provincias','titulos','tituloposts','facultades','cargos','universidades','unidads','carrerainvs','sicadis','years','organismos','categorias','sicadis'));
     }
 
@@ -364,6 +371,48 @@ class InvestigadorController extends Controller
                 $investigador->save();
             }
 
+            if (!empty($request->becas)) {
+                $institucionSeleccionad='';
+                $becaSeleccionada='';
+
+                foreach ($request->becas as $item => $v) {
+
+
+                    $esUnlp = 0;
+                    if (isset($request->becaunlps[$item]) ) {
+                        $esUnlp=1;
+                    }
+                    // Comprueba si el rango de fechas es actual o si no hay fecha de finalización
+                    $fechaHasta = $request->becahastas[$item] ?? null;
+                    $esRangoActual = ($fechaHasta === null || Carbon::parse($fechaHasta)->isFuture());
+
+                    if ($esRangoActual) {
+                        $institucionSeleccionad=$request->institucions[$item];
+                        $becaSeleccionada=$request->becas[$item];
+                    }
+
+
+
+                    // Inserta el registro en la tabla intermedia 'investigador_cargos'
+                    DB::table('investigador_becas')->insert([
+                        'investigador_id' => $investigador->id, // Supongo que tienes un objeto $investigador disponible
+                        'beca' => $request->becas[$item],
+
+                        'institucion' => $request->institucions[$item],
+                        'desde' => $request->becadesdes[$item],
+                        'hasta' => $request->becahastas[$item],
+                        'unlp' => $esUnlp,
+                        'created_at' => now(), // Establece la fecha y hora de creación
+                        'updated_at' => now(), // Establece la fecha y hora de actualización
+                    ]);
+                }
+            }
+            if (!empty($request->becas)) {
+                $investigador->beca = $becaSeleccionada;
+                $investigador->institucion = $institucionSeleccionad;
+                $investigador->save();
+            }
+
             DB::commit();
             $respuestaID = 'success';
             $respuestaMSJ = 'Investigador creado con éxito';
@@ -446,8 +495,8 @@ class InvestigadorController extends Controller
         $startYear = 1994;
         $years = range($currentYear, $startYear);
         $years = array_combine($years, $years); // Esto crea un array asociativo con los años como claves y valores
-        $categorias = DB::table('categorias')->pluck('nombre', 'id')->prepend('','');
-        $sicadis = DB::table('sicadis')->pluck('nombre', 'id')->prepend('','');
+        $categorias = Categoria::orderBy('id')->pluck('nombre', 'id')->prepend('', '');
+        $sicadis = Sicadi::orderBy('id')->pluck('nombre', 'id')->prepend('', '');
         return view('investigadors.edit',compact('investigador','provincias','titulos','tituloposts','facultades','cargos','universidades','unidads','carrerainvs','sicadis','years','organismos','categorias','sicadis'));
     }
 
@@ -461,22 +510,313 @@ class InvestigadorController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'nombre' => 'required'
-
+            'nombre' => 'required',
+            'apellido' => 'required',
+            'email' => 'required|email',
+            'documento' => 'required',
+            'cuil' => 'nullable|regex:/^\d{2}-\d{8}-\d{1}$/', // Validación de cuil
+            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
 
         $input = $request->all();
 
-
-
-
+        // Manejo de la imagen
+        $input['foto'] ='';
+        if ($files = $request->file('foto')) {
+            $image = $request->file('foto');
+            $name = time().'.'.$image->getClientOriginalExtension();
+            $destinationPath = public_path('/images');
+            $image->move($destinationPath, $name);
+            $input['foto'] = "$name";
+        }
         $investigador = Investigador::find($id);
-        $investigador->update($input);
+        DB::beginTransaction();
+        $ok = 1;
+
+        try {
+            $investigador->update($input);
+
+            $update['nombre'] = $request->get('nombre');
+            $update['apellido'] = $request->get('apellido');
+            $update['email'] = $request->get('email');
+            $update['telefono'] = $request->get('telefono');
+            $update['calle'] = $request->get('calle');
+            $update['nro'] = $request->get('nro');
+            $update['piso'] = $request->get('piso');
+            $update['depto'] = $request->get('depto');
+            $update['localidad'] = $request->get('localidad');
+            $update['provincia_id'] = $request->get('provincia_id');
+            $update['cp'] = $request->get('cp');
+            $update['genero'] = $request->get('genero');
+            if ($input['foto']){
+                $update['foto'] = $input['foto'];
+            }
+
+            $update['observaciones'] = $request->get('observaciones');
+            $update['cuil'] = $request->get('cuil');
+            $update['documento'] = $request->get('documento');
+            $update['nacimiento'] = $request->get('nacimiento');
+            $update['fallecimiento'] = $request->get('fallecimiento');
+
+
+            $investigador->persona()->update($update);
+        }catch(QueryException $ex){
+
+
+                if ($ex->errorInfo[1] == 1062) {
+                    $error='El documento está en uso';
+                } else {
+                    // Si no es por una clave duplicada, maneja la excepción de manera general
+                    $error=$ex->getMessage();
+                }
+
+                $ok=0;
 
 
 
-        return redirect()->route('investigadors.index')
-            ->with('success','Investigador modificado con éxito');
+
+        }
+
+        if ($ok){
+            $investigador->titulos()->detach();
+            $investigador->tituloposts()->detach();
+            $investigador->cargos()->detach();
+            $investigador->carrerainvs()->detach();
+            $investigador->categorias()->detach();
+            $investigador->sicadis()->detach();
+            $investigador->becas()->delete();
+            // Guardar el primer título pasado en $request->titulo en la columna titulo_id del investigador
+            if (!empty($request->titulos)) {
+                $investigador->titulo_id = $request->titulos[0];
+                $investigador->carrera = null;
+                $investigador->total = null;
+                $investigador->materias = null;
+                $investigador->save();
+            }
+
+            // Guardar el primer título pasado en $request->titulopost en la columna titulopost_id del investigador
+            if (!empty($request->tituloposts)) {
+                $investigador->titulopost_id = $request->tituloposts[0];
+                $investigador->save();
+            }
+
+            // Guardar los títulos en las relaciones
+            if (!empty($request->titulos)) {
+                foreach ($request->titulos as $item => $v) {
+                    $investigador->titulos()->attach($request->titulos[$item], ['egreso'=> $request->egresos[$item], 'created_at' => now(), 'updated_at' => now()]);
+                }
+            }
+
+            if (!empty($request->tituloposts)) {
+                foreach ($request->tituloposts as $item => $v) {
+                    $investigador->tituloposts()->attach($request->tituloposts[$item], ['egreso'=> $request->egresoposts[$item], 'created_at' => now(), 'updated_at' => now()]);
+                }
+            }
+
+            if (!empty($request->cargos)) {
+                $mayorCargo = null;
+                $mayorDeddoc = null;
+                $mayorFacultad = null;
+                $mayorUniversidad = null;
+                foreach ($request->cargos as $item => $v) {
+                    $activo=0;
+                    if (isset($request->activos[$item]) ) {
+                        $activo=1;
+                        if ($mayorDeddoc === null || $request->deddocs[$item] < $mayorDeddoc) {
+                            $mayorDeddoc = $request->deddocs[$item];
+                            $mayorCargo = $request->cargos[$item];
+                            $mayorFacultad = $request->facultads[$item];
+                            $mayorUniversidad = $request->universidads[$item];
+                            if ($request->deddocs[$item] == $mayorDeddoc) {
+                                if ($mayorCargo === null || $this->esMayorCargo($request->cargos[$item], $mayorCargo)) {
+                                    $mayorCargo = $request->cargos[$item];
+                                    $mayorFacultad = $request->facultads[$item];
+                                    $mayorUniversidad = $request->universidads[$item];
+                                }
+                            }
+                        }
+                    }
+
+                    // Inserta el registro en la tabla intermedia 'investigador_cargos'
+                    DB::table('investigador_cargos')->insert([
+                        'investigador_id' => $investigador->id, // Supongo que tienes un objeto $investigador disponible
+                        'cargo_id' => $request->cargos[$item],
+                        'deddoc' => $request->deddocs[$item],
+                        'ingreso' => $request->ingresos[$item],
+                        'facultad_id' => $request->facultads[$item],
+                        'universidad_id' => $request->universidads[$item],
+                        'activo' => $activo,
+                        'created_at' => now(), // Establece la fecha y hora de creación
+                        'updated_at' => now(), // Establece la fecha y hora de actualización
+                    ]);
+                }
+            }
+            // Guarda el mayor cargo encontrado en el investigador
+            if ($mayorCargo !== null) {
+                $investigador->cargo_id = $mayorCargo;
+                $investigador->deddoc = $mayorDeddoc;
+                $investigador->facultad_id = $mayorFacultad;
+                $investigador->universidad_id = $mayorUniversidad;
+                $investigador->save();
+            }
+
+            if (!empty($request->carrerainvs)) {
+                $esActual=0;
+                foreach ($request->carrerainvs as $item => $v) {
+                    // Verifica si el radio "actual" está seleccionado para esta fila
+                    /*$esActual = isset($request['actual_' . ($item + 1)]) && $request['actual_' . ($item + 1)] == 1;
+                    if ($esActual){
+                        $carrerainv_id = $request->carrerainvs[$item];
+                        $organismo_id = $request->organismos[$item];
+                    }*/
+
+                    if ($request->actual == ($item + 1)) {
+                        // Esta es la fila que se considera "actual"
+                        $carrerainv_id = $request->carrerainvs[$item];
+                        $organismo_id = $request->organismos[$item];
+                        $esActual=1;
+
+                    }
+
+
+                    // Inserta el registro en la tabla intermedia 'investigador_cargos'
+                    DB::table('investigador_carreras')->insert([
+                        'investigador_id' => $investigador->id, // Supongo que tienes un objeto $investigador disponible
+                        'carrerainv_id' => $request->carrerainvs[$item],
+                        'organismo_id' => $request->organismos[$item],
+                        'ingreso' => $request->carringresos[$item],
+
+                        'actual' => $esActual,
+                        'created_at' => now(), // Establece la fecha y hora de creación
+                        'updated_at' => now(), // Establece la fecha y hora de actualización
+                    ]);
+                }
+            }
+            if (!empty($request->carrerainvs)) {
+                $investigador->carrerainv_id = $carrerainv_id;
+                $investigador->organismo_id = $organismo_id;
+                $investigador->save();
+            }
+
+            if (!empty($request->categorias)) {
+                $esCatActual=0;
+                foreach ($request->categorias as $item => $v) {
+
+
+                    if ($request->catactual == ($item + 1)) {
+                        // Esta es la fila que se considera "actual"
+                        $categoria_id = $request->categorias[$item];
+
+                        $esCatActual=1;
+
+                    }
+
+
+                    // Inserta el registro en la tabla intermedia 'investigador_cargos'
+                    DB::table('investigador_categorias')->insert([
+                        'investigador_id' => $investigador->id, // Supongo que tienes un objeto $investigador disponible
+                        'categoria_id' => $request->categorias[$item],
+                        'universidad_id' => $request->catuniversidads[$item],
+                        'notificacion' => $request->catnotificacions[$item],
+                        'year' => $request->catyears[$item],
+                        'actual' => $esCatActual,
+                        'created_at' => now(), // Establece la fecha y hora de creación
+                        'updated_at' => now(), // Establece la fecha y hora de actualización
+                    ]);
+                }
+            }
+            if (!empty($request->categorias)) {
+                $investigador->categoria_id = $categoria_id;
+
+                $investigador->save();
+            }
+
+            if (!empty($request->sicadis)) {
+                $essicadiActual=0;
+                foreach ($request->sicadis as $item => $v) {
+
+
+                    if ($request->sicadiactual == ($item + 1)) {
+                        // Esta es la fila que se considera "actual"
+                        $sicadi_id = $request->sicadis[$item];
+
+                        $essicadiActual=1;
+
+                    }
+
+
+                    // Inserta el registro en la tabla intermedia 'investigador_cargos'
+                    DB::table('investigador_sicadis')->insert([
+                        'investigador_id' => $investigador->id, // Supongo que tienes un objeto $investigador disponible
+                        'sicadi_id' => $request->sicadis[$item],
+
+                        'notificacion' => $request->sicadinotificacions[$item],
+                        'year' => $request->sicadiyears[$item],
+                        'actual' => $essicadiActual,
+                        'created_at' => now(), // Establece la fecha y hora de creación
+                        'updated_at' => now(), // Establece la fecha y hora de actualización
+                    ]);
+                }
+            }
+            if (!empty($request->sicadis)) {
+                $investigador->sicadi_id = $sicadi_id;
+
+                $investigador->save();
+            }
+
+            if (!empty($request->becas)) {
+                $institucionSeleccionad='';
+                $becaSeleccionada='';
+
+                foreach ($request->becas as $item => $v) {
+
+
+                    $esUnlp = 0;
+                    if (isset($request->becaunlps[$item]) ) {
+                        $esUnlp=1;
+                    }
+                    // Comprueba si el rango de fechas es actual o si no hay fecha de finalización
+                    $fechaHasta = $request->becahastas[$item] ?? null;
+                    $esRangoActual = ($fechaHasta === null || Carbon::parse($fechaHasta)->isFuture());
+
+                    if ($esRangoActual) {
+                        $institucionSeleccionad=$request->institucions[$item];
+                        $becaSeleccionada=$request->becas[$item];
+                    }
+
+
+
+                    // Inserta el registro en la tabla intermedia 'investigador_cargos'
+                    DB::table('investigador_becas')->insert([
+                        'investigador_id' => $investigador->id, // Supongo que tienes un objeto $investigador disponible
+                        'beca' => $request->becas[$item],
+
+                        'institucion' => $request->institucions[$item],
+                        'desde' => $request->becadesdes[$item],
+                        'hasta' => $request->becahastas[$item],
+                        'unlp' => $esUnlp,
+                        'created_at' => now(), // Establece la fecha y hora de creación
+                        'updated_at' => now(), // Establece la fecha y hora de actualización
+                    ]);
+                }
+            }
+            if (!empty($request->becas)) {
+                $investigador->beca = $becaSeleccionada;
+                $investigador->institucion = $institucionSeleccionad;
+                $investigador->save();
+            }
+
+            DB::commit();
+            $respuestaID = 'success';
+            $respuestaMSJ = 'Investigador modificado con éxito';
+        }
+        else{
+            DB::rollback();
+            $respuestaID='error';
+            $respuestaMSJ=$error;
+        }
+
+        return redirect()->route('investigadors.index')->with($respuestaID, $respuestaMSJ);
     }
 
     /**
@@ -489,15 +829,20 @@ class InvestigadorController extends Controller
     {
         $investigador = Investigador::findOrFail($id);
 
-        // Eliminar las relaciones de los cargos del investigador
-        DB::table('investigador_cargos')->where('investigador_id', $investigador->id)->delete();
-        DB::table('investigador_carreras')->where('investigador_id', $investigador->id)->delete();
-        DB::table('investigador_sicadis')->where('investigador_id', $investigador->id)->delete();
-        DB::table('investigador_categorias')->where('investigador_id', $investigador->id)->delete();
+
+
+
+
+
 
         // Elimina las relaciones
         $investigador->titulos()->detach();
         $investigador->tituloposts()->detach();
+        $investigador->cargos()->detach();
+        $investigador->carrerainvs()->detach();
+        $investigador->categorias()->detach();
+        $investigador->sicadis()->detach();
+        $investigador->becas()->delete();
 
         // Elimina el investigador
         $investigador->delete();

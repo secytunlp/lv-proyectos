@@ -472,7 +472,7 @@
                                                         <td>{{Form::date('becadesdes[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
 
                                                         <td>{{Form::date('becahastas[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
-                                                        <td>{{Form::checkbox('becaunlps[]', 1,true)}}</td>
+                                                        <td>{{Form::checkbox('becaunlps[]', 1,false)}}</td>
                                                         <td><a href="#" class="btn btn-danger removeCategoria"><i class="glyphicon glyphicon-remove"></i></a></td>
                                                     </tr>
 
@@ -784,7 +784,7 @@
 
 
 
-                '<td>'+'{{ Form::checkbox('becaunlps[]',1,true) }}'+'</td>'+
+                '<td>'+'{{ Form::checkbox('becaunlps[]',1,false) }}'+'</td>'+
                 '</tr>';
             $('#cuerpoBecas').append(tr);
 

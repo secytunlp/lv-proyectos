@@ -349,7 +349,7 @@
                                                     </thead>
 
                                                     <tbody id="cuerpoCarrerainvs">
-                                                    @foreach ($investigador->$carrerainvs as $carrerainv)
+                                                    @foreach ($investigador->carrerainvs as $carrerainv)
                                                     <tr>
 
                                                         <td>{{ Form::select('carrerainvs[]',$carrerainvs, $carrerainv->pivot->carrerainv_id,['class' => 'form-control', 'style' => 'width: 200px']) }}</td>
@@ -392,17 +392,18 @@
                                                     </thead>
 
                                                     <tbody id="cuerpoCategorias">
+                                                    @foreach ($investigador->categorias as $categoria)
                                                     <tr>
 
-                                                        <td>{{ Form::select('categorias[]',$categorias, '',['class' => 'form-control', 'style' => 'width: 60px']) }}</td>
-                                                        <td>{{ Form::select('catyears[]',$years, '',['class' => 'form-control', 'style' => 'width: 60px']) }}</td>
-                                                        <td>{{Form::date('catnotificacions[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
-                                                        <td>{{ Form::select('catuniversidads[]',$universidades, '',['class' => 'form-control js-example-basic-single', 'style' => 'width: 300px']) }}</td>
+                                                        <td>{{ Form::select('categorias[]',$categorias, $categoria->pivot->categoria_id,['class' => 'form-control', 'style' => 'width: 60px']) }}</td>
+                                                        <td>{{ Form::select('catyears[]',['' => ''] +$years, $categoria->pivot->year,['class' => 'form-control', 'style' => 'width: 60px']) }}</td>
+                                                        <td>{{Form::date('catnotificacions[]',  ($categoria->pivot->notificacion)?date('Y-m-d', strtotime($categoria->pivot->notificacion)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
+                                                        <td>{{ Form::select('catuniversidads[]',$universidades, $categoria->pivot->universidad_id,['class' => 'form-control js-example-basic-single', 'style' => 'width: 300px']) }}</td>
 
-                                                        <td>{{ Form::radio('catactual', 1, true,['id' => 'catactual_1']) }}</td> <!-- Usamos un nombre único con el índice 1 -->
+                                                        <td>{{ Form::radio('catactual', 1, ($categoria->pivot->actual)?true:false,['id' => 'catactual_1']) }}</td> <!-- Usamos un nombre único con el índice 1 -->
                                                         <td><a href="#" class="btn btn-danger removeCategoria"><i class="glyphicon glyphicon-remove"></i></a></td>
                                                     </tr>
-
+                                                    @endforeach
                                                     </tbody>
 
 
@@ -431,17 +432,18 @@
                                                     </thead>
 
                                                     <tbody id="cuerpoSicadis">
+                                                    @foreach ($investigador->sicadis as $sicadi)
                                                     <tr>
 
-                                                        <td>{{ Form::select('sicadis[]',$sicadis, '',['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
-                                                        <td>{{ Form::select('sicadiyears[]',$years, '',['class' => 'form-control', 'style' => 'width: 60px']) }}</td>
-                                                        <td>{{Form::date('sicadinotificacions[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
+                                                        <td>{{ Form::select('sicadis[]',$sicadis, $sicadi->pivot->sicadi_id,['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
+                                                        <td>{{ Form::select('sicadiyears[]',$years, $sicadi->pivot->year,['class' => 'form-control', 'style' => 'width: 60px']) }}</td>
+                                                        <td>{{Form::date('sicadinotificacions[]', ($sicadi->pivot->notificacion)?date('Y-m-d', strtotime($sicadi->pivot->notificacion)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
 
 
-                                                        <td>{{ Form::radio('sicadiactual', 1, true,['id' => 'sicadiactual_1']) }}</td> <!-- Usamos un nombre único con el índice 1 -->
+                                                        <td>{{ Form::radio('sicadiactual', 1, ($sicadi->pivot->actual)?true:false,['id' => 'sicadiactual_1']) }}</td> <!-- Usamos un nombre único con el índice 1 -->
                                                         <td><a href="#" class="btn btn-danger removeSicadi"><i class="glyphicon glyphicon-remove"></i></a></td>
                                                     </tr>
-
+                                                    @endforeach
                                                     </tbody>
 
 
@@ -474,18 +476,19 @@
                                                     </thead>
 
                                                     <tbody id="cuerpoBecas">
+                                                    @foreach ($investigador->becas as $beca)
                                                     <tr>
 
-                                                        <td>{{ Form::select('institucions[]',[''=>'','ANPCyT'=>'ANPCyT','CIC'=>'CIC','CONICET'=>'CONICET','UNLP'=>'UNLP','CIN'=>'CIN','OTRA'=>'OTRA'], '',['class' => 'form-control institucion_select', 'style' => 'width: 150px']) }}</td>
-                                                        <td>{{ Form::select('becas[]',[''=>'','Beca inicial'=>'Beca inicial','Beca superior'=>'Beca superior','Beca de entrenamiento'=>'Beca de entrenamiento','Beca doctoral'=>'Beca doctoral','Beca posdoctoral'=>'Beca posdoctoral','Beca finalización del doctorado'=>'Beca finalización del doctorado','Beca maestría'=>'Beca maestría','Formación Superior'=>'Formación Superior','Iniciación'=>'Iniciación','TIPO I'=>'TIPO I','TIPO II'=>'TIPO II','TIPO A'=>'TIPO A','Tipo A - Maestría'=>'Tipo A - Maestría','Tipo A - Doctorado'=>'Tipo A - Doctorado','Beca Cofinanciada (UNLP-CIC)'=>'Beca Cofinanciada (UNLP-CIC)','Especial de Maestría'=>'Especial de Maestría','TIPO B'=>'TIPO B','TIPO B (DOCTORADO)'=>'TIPO B (DOCTORADO)','TIPO B (MAESTRÍA)'=>'TIPO B (MAESTRÍA)','BECA DE PERFECCIONAMIENTO'=>'BECA DE PERFECCIONAMIENTO','CONICET 2'=>'CONICET 2','RETENCION DE POSTGRADUADO'=>'RETENCION DE POSTGRADUADO','EVC'=>'EVC'], '',['class' => 'form-control beca_select', 'style' => 'width: 150px']) }}</td>
+                                                        <td>{{ Form::select('institucions[]',[''=>'','ANPCyT'=>'ANPCyT','CIC'=>'CIC','CONICET'=>'CONICET','UNLP'=>'UNLP','CIN'=>'CIN','OTRA'=>'OTRA'], $beca->institucion,['class' => 'form-control institucion_select', 'style' => 'width: 150px']) }}</td>
+                                                        <td>{{ Form::select('becas[]',[''=>'','Beca inicial'=>'Beca inicial','Beca superior'=>'Beca superior','Beca de entrenamiento'=>'Beca de entrenamiento','Beca doctoral'=>'Beca doctoral','Beca posdoctoral'=>'Beca posdoctoral','Beca finalización del doctorado'=>'Beca finalización del doctorado','Beca maestría'=>'Beca maestría','Formación Superior'=>'Formación Superior','Iniciación'=>'Iniciación','TIPO I'=>'TIPO I','TIPO II'=>'TIPO II','TIPO A'=>'TIPO A','Tipo A - Maestría'=>'Tipo A - Maestría','Tipo A - Doctorado'=>'Tipo A - Doctorado','Beca Cofinanciada (UNLP-CIC)'=>'Beca Cofinanciada (UNLP-CIC)','Especial de Maestría'=>'Especial de Maestría','TIPO B'=>'TIPO B','TIPO B (DOCTORADO)'=>'TIPO B (DOCTORADO)','TIPO B (MAESTRÍA)'=>'TIPO B (MAESTRÍA)','BECA DE PERFECCIONAMIENTO'=>'BECA DE PERFECCIONAMIENTO','CONICET 2'=>'CONICET 2','RETENCION DE POSTGRADUADO'=>'RETENCION DE POSTGRADUADO','EVC'=>'EVC'], $beca->beca,['class' => 'form-control beca_select', 'style' => 'width: 150px']) }}</td>
 
-                                                        <td>{{Form::date('becadesdes[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
+                                                        <td>{{Form::date('becadesdes[]', ($beca->desde)?date('Y-m-d', strtotime($beca->desde)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
 
-                                                        <td>{{Form::date('becahastas[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
-                                                        <td>{{Form::checkbox('becaunlps[]', 1,true)}}</td>
+                                                        <td>{{Form::date('becahastas[]', ($beca->hasta)?date('Y-m-d', strtotime($beca->hasta)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
+                                                        <td>{{Form::checkbox('becaunlps[]', 1,($beca->unlp)?true:false)}}</td>
                                                         <td><a href="#" class="btn btn-danger removeCategoria"><i class="glyphicon glyphicon-remove"></i></a></td>
                                                     </tr>
-
+                                                    @endforeach
                                                     </tbody>
 
 
@@ -796,7 +799,7 @@
 
 
 
-                '<td>'+'{{ Form::checkbox('becaunlps[]',1,true) }}'+'</td>'+
+                '<td>'+'{{ Form::checkbox('becaunlps[]',1,false) }}'+'</td>'+
                 '</tr>';
             $('#cuerpoBecas').append(tr);
 

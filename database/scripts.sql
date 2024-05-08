@@ -1,9 +1,36 @@
 ################################### Migrar DB #################################################
 ############### Personas
-SELECT cd_docente,`ds_nombre`,`ds_apellido`,`nu_documento`,CONCAT(nu_precuil,'-',LPAD(nu_documento,8,'0'),'-',nu_postcuil) AS CUIL,`ds_sexo`,`ds_calle`,`nu_nro`,`nu_piso`,`ds_depto`,`ds_localidad`,`cd_provincia`,`nu_cp`,`nu_telefono`,`ds_mail`,`dt_nacimiento` FROM `docente` WHERE 1
-
+SELECT cd_docente as id,`ds_nombre` as nombre,`ds_apellido` as apellido,`nu_documento` as documento,CONCAT(nu_precuil,'-',LPAD(nu_documento,8,'0'),'-',nu_postcuil) AS cuil,`ds_sexo` as genero,`ds_calle` as calle,`nu_nro` as nro,`nu_piso` as piso,`ds_depto` as depto,`ds_localidad` as localidad,`cd_provincia` as provincia_id,`nu_cp` as cp,`nu_telefono` as telefono,`ds_mail` as email,`dt_nacimiento` as nacimiento
+FROM `docente`
+ORDER BY cd_docente
+    LIMIT
+    0,5000;
 ############### Investigadores
-SELECT `cd_docente` as id,`nu_ident` as ident,`cd_docente` as persona_id,`cd_categoria` as categoria_id,`cd_categoriasicadi` as sicadi_id,`cd_carrerainv` as carrerainv_id,`cd_organismo` as organismo_id,`cd_facultad` as facultad_id,`cd_cargo` as cargo_id,`ds_deddoc` as deddoc,`cd_universidad` as universidad_id,`cd_titulo` as titulo_id,`cd_titulopost` as titulopost_id,`cd_unidad` as unidad_id,
+SELECT `cd_docente` as id,`nu_ident` as ident,`cd_docente` as persona_id,`cd_categoria` as categoria_id,`cd_categoriasicadi` as sicadi_id,
+       CASE`cd_carrerainv`
+            WHEN '11' THEN null
+            WHEN '10' THEN null
+           ELSE cd_carrerainv END as carrerainv_id,
+       CASE `cd_organismo`
+           WHEN '7' THEN null
+           else cd_organismo END as organismo_id,
+       CASE `cd_facultad`
+           WHEN '574' THEN null
+           ELSE cd_facultad END as facultad_id,
+       CASE `cd_cargo`
+           WHEN '6' THEN null
+           ELSE cd_cargo END as cargo_id,
+       CASE `ds_deddoc`
+           WHEN 's/d' THEN null
+           WHEN 'SI-1' THEN 'Simple'
+           WHEN 'SE-1' THEN 'Semi Exclusiva'
+           ELSE ds_deddoc END as deddoc,`cd_universidad` as universidad_id,
+       CASE `cd_titulo`
+           WHEN '9999' THEN null
+           ELSE cd_titulo END as titulo_id,
+       CASE `cd_titulopost`
+           WHEN '9999' THEN null
+           ELSE cd_titulopost END as titulopost_id,`cd_unidad` as unidad_id,
        CASE `ds_orgbeca`
            WHEN 'U.N.L.P' THEN 'UNLP'
            WHEN 'U.N.L.P.' THEN 'UNLP'
@@ -257,9 +284,36 @@ SELECT `cd_docente` as id,`nu_ident` as ident,`cd_docente` as persona_id,`cd_cat
 FROM `docente`
          LEFT JOIN `deddoc` ON `docente`.`cd_deddoc` = `deddoc`.`cd_deddoc`
     LIMIT
-    0,1000;
+    0,5000;
 
 ################################ Unidades
 
-SELECT `cd_unidad` as id,`cd_tipounidad` as tipo, `cd_padre` as padre_id, `bl_hijos` as hijos, `ds_unidad` as nombre, `ds_codigo` as codigo, `ds_sigla` as sigla, `ds_direccion` as direccion, `ds_mail` as email, `ds_telefono` as telefono, `cd_facultad` as facultad_id, `bl_activa` as activa FROM `unidad` WHERE 1
+SELECT `cd_unidad` as id,`cd_tipounidad` as tipo, `cd_padre` as padre_id, `bl_hijos` as hijos, `ds_unidad` as nombre, `ds_codigo` as codigo, `ds_sigla` as sigla, `ds_direccion` as direccion, `ds_mail` as email, `ds_telefono` as telefono, `cd_facultad` as facultad_id, `bl_activa` as activa
+FROM `unidad` WHERE 1
 
+################################ Cargos
+
+SELECT `cd_docente` as investigador_id,cargos_alfabetico.cd_cargo as cargo_id, ds_deddoc as deddoc, dt_fecha as ingreso,cargos_alfabetico.cd_facultad as facultad_id
+FROM `cargos_alfabetico`
+INNER JOIN docente ON cargos_alfabetico.dni = docente.nu_documento
+LEFT JOIN `deddoc` ON `cargos_alfabetico`.`cd_deddoc` = `deddoc`.`cd_deddoc`
+WHERE cargos_alfabetico.escalafon = 'Docente' AND cargos_alfabetico.situacion != 'Licencia sin goce de sueldos' AND cargos_alfabetico.situacion != 'Renuncia' AND cargos_alfabetico.situacion != 'Jubilación'
+AND cargos_alfabetico.cd_facultad in (177 ,179 ,174 ,180,169 ,187,175,167,181,177,173, 170,172, 171,165,176,168,1220) AND cargos_alfabetico.cd_cargo in (1,2,3,4,5,14);
+
+################################ Carreras
+
+SELECT cd_docente as investigador_id,cd_carrerainv as carrerainv_id, cd_organismo as organismo_id
+FROM `docente`
+WHERE cd_carrerainv is not null and cd_carrerainv in (1,2,3,4,5,6,8,9,12,13) AND cd_organismo is not null and cd_organismo in (1,2,3,4,5,8,9);
+
+################################ Categorias SPU
+
+SELECT cd_docente as investigador_id,cd_categoria as categoria_id, cd_univcat as universidad_id
+FROM `docente`
+WHERE cd_categoria is not null and cd_categoria in (6,7,8,9,10);
+
+################################ Categorias SICADI
+
+SELECT cd_docente as investigador_id,cd_categoria as sicadi_id, '2023' as year
+FROM `docente`
+WHERE cd_categoria is not null and cd_categoria in (6,7,8,9,10);

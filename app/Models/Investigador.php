@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
+
 class Investigador extends Model
 {
     use HasFactory;
@@ -44,7 +44,22 @@ class Investigador extends Model
 
     public function carrerainvs() {
 
-        return $this->belongsToMany('App\Models\Carrerainv', 'investigador_carreras')->withPivot('ingreso','facultad_id','actual','organismo_id');;
+        return $this->belongsToMany('App\Models\Carrerainv', 'investigador_carreras')->withPivot('ingreso','actual','organismo_id');
+    }
+
+    public function categorias() {
+
+        return $this->belongsToMany('App\Models\Categoria', 'investigador_categorias')->withPivot('notificacion','actual','year','universidad_id');
+    }
+
+    public function sicadis() {
+
+        return $this->belongsToMany('App\Models\Sicadi', 'investigador_sicadis')->withPivot('notificacion','actual','year');
+    }
+
+    public function becas()
+    {
+        return $this->hasMany(InvestigadorBeca::class, 'investigador_id');
     }
 
 }
