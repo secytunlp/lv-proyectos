@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Carrerainv;
 use App\Models\Persona;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -9,6 +10,7 @@ use App\Models\Investigador;
 use App\Models\Universidad;
 use App\Models\Unidad;
 use App\Models\Titulo;
+use App\Models\Cargo;
 use DB;
 use Illuminate\Support\Facades\Log;
 
@@ -99,13 +101,14 @@ class InvestigadorController extends Controller
         $tituloposts=Titulo::where('nivel', 'Posgrado')->orderBy('nombre','ASC')->get();
         $tituloposts = $tituloposts->pluck('full_name', 'id')->prepend('','');
         $facultades = DB::table('facultads')->pluck('nombre', 'id')->prepend('','');// Obtener todas las facultades directamente desde la tabla
-        $cargos = DB::table('cargos')->orderBy('orden')->pluck('nombre', 'id')->prepend('','');
+        // Obtener los cargos ordenados por el campo 'orden' y seleccionar solo los campos 'id' y 'nombre'
+        $cargos = Cargo::orderBy('orden')->pluck('nombre', 'id')->prepend('', '');
         $universidades=Universidad::orderBy('nombre','ASC')->get();
         $universidades = $universidades->pluck('nombre', 'id')->prepend('','');
         $unidads=Unidad::orderBy('nombre','ASC')->get();
         $unidads->each->append('path_to_parent');
         $unidads = $unidads->pluck('path_to_parent', 'id')->prepend('','');
-        $carrerainvs = DB::table('carrerainvs')->where('activo','1')->orderBy('orden')->pluck('nombre', 'id')->prepend('','');
+        $carrerainvs = Carrerainv::where('activo','1')->orderBy('orden')->pluck('nombre', 'id')->prepend('', '');
         $organismos = DB::table('organismos')->where('activo','1')->pluck('codigo', 'id')->prepend('','');
         $currentYear = date('Y');
         $startYear = 1994;
@@ -389,10 +392,10 @@ class InvestigadorController extends Controller
     {
         // Obtener el orden de los cargos desde la base de datos
         // Obtener el orden del cargo actual
-        $ordenCargoActual = DB::table('cargos')->where('id', $cargoActual)->value('orden');
+        $ordenCargoActual = Cargo::where('id', $cargoActual)->value('orden');
 
 // Obtener el orden del cargo mayor
-        $ordenCargoMayor = DB::table('cargos')->where('id', $cargoMayor)->value('orden');
+        $ordenCargoMayor = Cargo::where('id', $cargoMayor)->value('orden');
 
         // Si el orden es igual, compara directamente los nombres de los cargos
         if ($ordenCargoActual === $ordenCargoMayor) {
@@ -424,9 +427,28 @@ class InvestigadorController extends Controller
     {
         $investigador = Investigador::find($id);
 
-        $universidads=Universidad::orderBy('nombre','ASC')->get();
-        $universidads = $universidads->pluck('nombre', 'id')->prepend('','');
-        return view('investigadors.edit',compact('investigador','universidads'));
+        $provincias = DB::table('provincias')->OrderBy('nombre')->pluck('nombre', 'id'); // Obtener todas las provincias
+        $titulos=Titulo::where('nivel', 'Grado')->orderBy('nombre','ASC')->get();
+        $titulos = $titulos->pluck('full_name', 'id')->prepend('','');
+        $tituloposts=Titulo::where('nivel', 'Posgrado')->orderBy('nombre','ASC')->get();
+        $tituloposts = $tituloposts->pluck('full_name', 'id')->prepend('','');
+        $facultades = DB::table('facultads')->pluck('nombre', 'id')->prepend('','');// Obtener todas las facultades directamente desde la tabla
+        // Obtener los cargos ordenados por el campo 'orden' y seleccionar solo los campos 'id' y 'nombre'
+        $cargos = Cargo::orderBy('orden')->pluck('nombre', 'id')->prepend('', '');
+        $universidades=Universidad::orderBy('nombre','ASC')->get();
+        $universidades = $universidades->pluck('nombre', 'id')->prepend('','');
+        $unidads=Unidad::orderBy('nombre','ASC')->get();
+        $unidads->each->append('path_to_parent');
+        $unidads = $unidads->pluck('path_to_parent', 'id')->prepend('','');
+        $carrerainvs = Carrerainv::where('activo','1')->orderBy('orden')->pluck('nombre', 'id')->prepend('', '');
+        $organismos = DB::table('organismos')->where('activo','1')->pluck('codigo', 'id')->prepend('','');
+        $currentYear = date('Y');
+        $startYear = 1994;
+        $years = range($currentYear, $startYear);
+        $years = array_combine($years, $years); // Esto crea un array asociativo con los años como claves y valores
+        $categorias = DB::table('categorias')->pluck('nombre', 'id')->prepend('','');
+        $sicadis = DB::table('sicadis')->pluck('nombre', 'id')->prepend('','');
+        return view('investigadors.edit',compact('investigador','provincias','titulos','tituloposts','facultades','cargos','universidades','unidads','carrerainvs','sicadis','years','organismos','categorias','sicadis'));
     }
 
     /**

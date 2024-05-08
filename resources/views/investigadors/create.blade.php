@@ -55,14 +55,14 @@
                                         <div class="row">
                                         <div class="col-md-4">
                                             <div class="form-group">
-                                                <label for="apellido">Apellido</label>
-                                                <input type="text" class="form-control" id="apellido" name="apellido" placeholder="Apellido" value="{{ old('apellido') }}">
+                                                {{Form::label('apellido', 'Apellido')}}
+                                                {{Form::text('apellido', '', ['class' => 'form-control','placeholder'=>'Apellido'])}}
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
-                                                <label for="nombre">Nombre</label>
-                                                <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre" value="{{ old('nombre') }}">
+                                                {{Form::label('nombre', 'Nombre')}}
+                                                {{Form::text('nombre', '', ['class' => 'form-control','placeholder'=>'Nombre'])}}
                                             </div>
                                         </div>
                                         <div class="col-md-2">
@@ -179,7 +179,7 @@
 
                                             <div class="form-group col-md-12">
 
-
+                                                <div class="table-responsive">
                                             <table class="table" style="width: 50%">
                                                 <thead>
 
@@ -204,6 +204,7 @@
 
 
                                             </table>
+                                                </div>
                                         </div>
 
                                         </fieldset>
@@ -237,7 +238,7 @@
                                             <legend style="border-bottom: none; margin-bottom: -10px; display: inline-block;width: auto;">Títulos de Posgrado</legend>
 
                                             <div class="form-group col-md-12">
-
+                                                <div class="table-responsive">
 
                                                 <table class="table" style="width: 50%">
                                                     <thead>
@@ -263,6 +264,7 @@
 
 
                                                 </table>
+                                                </div>
                                             </div>
                                         </fieldset>
                                         <fieldset style="border: 1px solid #ccc; padding: 10px;">
@@ -270,7 +272,7 @@
 
                                             <div class="form-group col-md-12">
 
-
+                                                <div class="table-responsive">
                                                 <table class="table" style="width: 50%">
                                                     <thead>
 
@@ -288,7 +290,7 @@
                                                     <tr>
 
                                                         <td>{{ Form::select('cargos[]',$cargos, '',['class' => 'form-control', 'style' => 'width: 200px']) }}</td>
-                                                        <td>{{ Form::select('deddocs[]',['','Exclusiva','Semi Exclusiva','Simple'], '',['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
+                                                        <td>{{ Form::select('deddocs[]',[''=>'','Exclusiva'=>'Exclusiva','Semi Exclusiva'=>'Semi Exclusiva','Simple'=>'Simple'], '',['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
                                                         <td>{{Form::date('ingresos[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
                                                         <td>{{ Form::select('facultads[]',$facultades, '',['class' => 'form-control', 'style' => 'width: 300px']) }}</td>
                                                         <td>{{ Form::select('universidads[]',$universidades, '',['class' => 'form-control js-example-basic-single', 'style' => 'width: 300px']) }}</td>
@@ -302,6 +304,7 @@
 
 
                                                 </table>
+                                                </div>
                                             </div>
                                         </fieldset>
                                     </div>
@@ -323,7 +326,7 @@
 
                                             <div class="form-group col-md-12">
 
-
+                                                <div class="table-responsive">
                                                 <table class="table" style="width: 50%">
                                                     <thead>
 
@@ -354,6 +357,7 @@
 
 
                                                 </table>
+                                                </div>
                                             </div>
                                         </fieldset>
                                     </div>
@@ -364,7 +368,7 @@
 
                                             <div class="form-group col-md-12">
 
-
+                                                <div class="table-responsive">
                                                 <table class="table" style="width: 50%">
                                                     <thead>
 
@@ -395,6 +399,7 @@
 
 
                                                 </table>
+                                                </div>
                                             </div>
                                         </fieldset>
                                         <fieldset style="border: 1px solid #ccc; padding: 10px;">
@@ -402,7 +407,7 @@
 
                                             <div class="form-group col-md-12">
 
-
+                                                <div class="table-responsive">
                                                 <table class="table" style="width: 50%">
                                                     <thead>
 
@@ -433,6 +438,7 @@
 
 
                                                 </table>
+                                                </div>
                                             </div>
                                         </fieldset>
                                     </div>
@@ -443,7 +449,7 @@
 
                                             <div class="form-group col-md-12">
 
-
+                                                <div class="table-responsive">
                                                 <table class="table" style="width: 50%">
                                                     <thead>
 
@@ -460,8 +466,9 @@
                                                     <tbody id="cuerpoBecas">
                                                     <tr>
 
-                                                        <td>{{ Form::select('becas[]',$categorias, '',['class' => 'form-control', 'style' => 'width: 150px']) }}</td>
-                                                        <td>{{ Form::select('institucions[]',$years, '',['class' => 'form-control', 'style' => 'width: 150px']) }}</td>
+                                                        <td>{{ Form::select('institucions[]',[''=>'','ANPCyT'=>'ANPCyT','CIC'=>'CIC','CONICET'=>'CONICET','UNLP'=>'UNLP','CIN'=>'CIN','OTRA'=>'OTRA'], '',['class' => 'form-control institucion_select', 'style' => 'width: 150px']) }}</td>
+                                                        <td>{{ Form::select('becas[]',[''=>''], '',['class' => 'form-control beca_select', 'style' => 'width: 150px']) }}</td>
+
                                                         <td>{{Form::date('becadesdes[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
 
                                                         <td>{{Form::date('becahastas[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
@@ -475,46 +482,10 @@
 
 
                                                 </table>
+                                                </div>
                                             </div>
                                         </fieldset>
-                                        <fieldset style="border: 1px solid #ccc; padding: 10px;">
-                                            <legend style="border-bottom: none; margin-bottom: -10px; display: inline-block;width: auto;">Categorías SICADI</legend>
 
-                                            <div class="form-group col-md-12">
-
-
-                                                <table class="table" style="width: 50%">
-                                                    <thead>
-
-                                                    <th>Categoría</th>
-                                                    <th>Año</th>
-                                                    <th>Notificación</th>
-
-                                                    <th>Actual</th>
-                                                    <th><a href="#" class="addRowSicadi"><i class="glyphicon glyphicon-plus"></i></a></th>
-
-                                                    </thead>
-
-                                                    <tbody id="cuerpoSicadis">
-                                                    <tr>
-
-                                                        <td>{{ Form::select('sicadis[]',$sicadis, '',['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
-                                                        <td>{{ Form::select('sicadiyears[]',$years, '',['class' => 'form-control', 'style' => 'width: 60px']) }}</td>
-                                                        <td>{{Form::date('sicadinotificacions[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
-
-
-                                                        <td>{{ Form::radio('sicadiactual', 1, true,['id' => 'sicadiactual_1']) }}</td> <!-- Usamos un nombre único con el índice 1 -->
-                                                        <td><a href="#" class="btn btn-danger removeSicadi"><i class="glyphicon glyphicon-remove"></i></a></td>
-                                                    </tr>
-
-                                                    </tbody>
-
-
-
-
-                                                </table>
-                                            </div>
-                                        </fieldset>
                                     </div>
                                 </div>
                                     <div class="form-group">
@@ -679,7 +650,7 @@
         {
             var tr='<tr>'+
                 '<td>'+'{{ Form::select('cargos[]',$cargos ?? [''=>''], '',['class' => 'form-control', 'style' => 'width: 200px']) }}'+'</td>'+
-                '<td>'+'{{ Form::select('deddocs[]',['','Exclusiva','Semi Exclusiva','Simple'] ?? [''=>''], '',['class' => 'form-control', 'style' => 'width: 120px']) }}'+'</td>'+
+                '<td>'+'{{ Form::select('deddocs[]',[''=>'','Exclusiva'=>'Exclusiva','Semi Exclusiva'=>'Semi Exclusiva','Simple'=>'Simple'] ?? [''=>''], '',['class' => 'form-control', 'style' => 'width: 120px']) }}'+'</td>'+
                 '<td>'+'{{Form::date('ingresos[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
                 '<td>'+'{{ Form::select('facultads[]',$facultades ?? [''=>''], '',['class' => 'form-control', 'style' => 'width: 300px']) }}'+'</td>'+
                 '<td>'+'{{ Form::select('universidads[]',$universidades ?? [''=>''], '',['class' => 'form-control js-example-basic-single', 'style' => 'width: 300px']) }}'+'</td>'+
@@ -795,6 +766,81 @@
 
 
         });
+
+        $('.addRowBeca').on('click',function(e){
+            e.preventDefault();
+            addRowBeca();
+        });
+        function addRowBeca()
+        {
+            var tr='<tr>'+
+                '<td>'+'{{ Form::select('institucions[]',[''=>'','ANPCyT'=>'ANPCyT','CIC'=>'CIC','CONICET'=>'CONICET','UNLP'=>'UNLP','CIN'=>'CIN','OTRA'=>'OTRA'], '',['class' => 'form-control institucion_select', 'style' => 'width: 150px']) }}'+'</td>'+
+                '<td>'+'{{ Form::select('becas[]',[''], '',['class' => 'form-control beca_select', 'style' => 'width: 150px']) }}'+'</td>'+
+                '<td>'+'{{Form::date('becadesdes[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
+                '<td>'+'{{Form::date('becahastas[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
+
+
+
+
+
+
+                '<td>'+'{{ Form::checkbox('becaunlps[]',1,true) }}'+'</td>'+
+                '</tr>';
+            $('#cuerpoBecas').append(tr);
+
+
+
+        };
+
+        $('body').on('click', '.removeBeca', function(e){
+
+            e.preventDefault();
+            $(this).parent().parent().remove();
+
+
+        });
+
+
+        // Al cambiar cualquier select de instituciones
+        $(document).on('change', 'select.institucion_select', function() {
+            var rowIndex = $(this).closest('tr').index(); // Obtener el índice de la fila actual
+            var institucionSeleccionada = $(this).val(); // Obtener la institución seleccionada
+
+            // Obtener el select de becas en la misma fila
+            var becasSelect = $('tbody#cuerpoBecas tr:eq(' + rowIndex + ') select.beca_select');
+            var opciones = obtenerOpcionesBecaPorInstitucion(institucionSeleccionada); // Obtener opciones de beca
+
+            // Limpiar el select de becas y agregar las nuevas opciones
+            becasSelect.empty();
+            opciones.forEach(function(opcion) {
+                //console.log(opcion);
+                becasSelect.append($('<option>', {
+                    value: opcion,
+                    text: opcion
+                }));
+            });
+        });
+
+        // Función para obtener opciones de beca según la institución seleccionada
+        function obtenerOpcionesBecaPorInstitucion(institucionSeleccionada) {
+            //console.log(institucionSeleccionada)
+            switch (institucionSeleccionada) {
+                case 'ANPCyT':
+                    return ['','Beca inicial', 'Beca superior'];
+                case 'CIC':
+                    return ['', 'Beca de entrenamiento','Beca doctoral', 'Beca posdoctoral'];
+                case 'CONICET':
+                    return ['','Beca doctoral', 'Beca posdoctoral','Beca finalización del doctorado'];
+                case 'UNLP':
+                    return ['','Beca doctoral', 'Beca posdoctoral','TIPO A','TIPO B (DOCTORADO)','TIPO B (MAESTRÍA)','Beca Cofinanciada (UNLP-CIC)','RETENCION DE POSTGRADUADO'];
+                case 'CIN':
+                    return ['','EVC'];
+                // Agregar casos para otras instituciones si es necesario
+                default:
+                    return ['']; // Opción por defecto
+            }
+        }
+
 
     </script>
 
