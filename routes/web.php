@@ -9,6 +9,11 @@ use App\Http\Controllers\PersonalController;
 use App\Http\Controllers\UniversidadController;
 use App\Http\Controllers\TituloController;
 use App\Http\Controllers\InvestigadorController;
+use App\Http\Controllers\ProyectoController;
+use App\Http\Controllers\IntegranteController;
+use App\Http\Controllers\IntegranteEstadoController;
+use App\Http\Controllers\SolicitudSicadiController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -24,11 +29,22 @@ Route::get('/', function () {
     return redirect(route('login'));
 });
 
+Route::get('/error-403', function () {
+    return view('errors.403');
+})->name('error-403');
+
 Auth::routes();
 
-Route::get('/home', [TituloController::class, 'index'])->name('home');
 
-Route::group(['middleware' => ['auth']], function() {
+
+
+Route::group(['middleware' => 'auth'], function() {
+    Route::get('select-rol', [UserController::class, 'selectRol'])->name('select-rol');
+    Route::post('save-selected-rol', [UserController::class, 'saveSelectedRol'])->name('save-selected-rol');
+});
+
+Route::group(['middleware' => ['auth', 'CheckSelectedRolePermissions']], function() {
+    Route::get('/home', [ProyectoController::class, 'index'])->name('home');
     Route::resource('roles', RoleController::class);
     Route::resource('users', UserController::class);
     Route::get('perfil', [UserController::class, 'perfil'])->name('users.perfil');
@@ -46,5 +62,21 @@ Route::group(['middleware' => ['auth']], function() {
 
     Route::resource('investigadors', InvestigadorController::class);
     Route::post('investigador-datatable', [InvestigadorController::class, 'dataTable'])->name('investigadors.dataTable');
+
+    Route::resource('solicitud_sicadis', SolicitudSicadiController::class);
+    Route::post('solicitud_sicadi-datatable', [SolicitudSicadiController::class, 'dataTable'])->name('solicitud_sicadis.dataTable');
+
+
+
+    Route::resource('proyectos', ProyectoController::class);
+    Route::post('proyecto-datatable', [ProyectoController::class, 'dataTable'])->name('proyectos.dataTable');
+
+    Route::resource('integrantes', IntegranteController::class);
+    Route::post('integrante-datatable', [IntegranteController::class, 'dataTable'])->name('integrantes.dataTable');
+    Route::get('buscar_investigador', [IntegranteController::class, 'buscarInvestigador'])->name('integrantes.buscarInvestigador');
+
+    Route::resource('integrante_estados', IntegranteEstadoController::class);
+    Route::post('integrante_estado-datatable', [IntegranteEstadoController::class, 'dataTable'])->name('integrante_estados.dataTable');
+
 
 });

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
 use DB;
 use Hash;
@@ -23,7 +24,7 @@ class UserController extends Controller
     {
         $this->middleware('permission:usuario-listar|usuario-crear|usuario-editar|usuario-eliminar', ['only' => ['index','store','dataTable']]);
         $this->middleware('permission:usuario-crear', ['only' => ['create','store']]);
-        $this->middleware('permission:usuario-editar', ['only' => ['edit','update']]);
+        $this->middleware('permission:usuario-editar', ['only' => ['edit','update','perfil','updatePerfil']]);
         $this->middleware('permission:usuario-eliminar', ['only' => ['destroy']]);
     }
 
@@ -163,7 +164,9 @@ class UserController extends Controller
     {
         $user = User::find($id);
         $roles = Role::pluck('name','name')->all();
+
         $userRole = $user->roles->pluck('name','name')->all();
+
         $facultades = DB::table('facultads')->pluck('nombre', 'id');
         $userFacultad = $user->facultad_id; // Facultad asignada al usuario
         return view('users.edit', compact('user', 'roles', 'userRole', 'facultades', 'userFacultad'));
@@ -281,4 +284,38 @@ class UserController extends Controller
         return redirect()->route('users.index')
             ->with('success','Perfil modificado con éxito');
     }
+
+    public function selectRol()
+    {
+        //dd('Estoy dentro de selectRol');
+        $user = auth()->user();
+        $roles = $user->roles;
+        //$roles = $user->roles->pluck('name','name')->all();
+
+        return view('users.select-rol', compact('roles'));
+    }
+
+    public function saveSelectedRol(Request $request)
+    {
+        /*$request->validate([
+            'rol_id' => 'required|exists:roles,id,user_id,' . auth()->id()
+        ]);*/
+        //dd($request->rol_id);
+        session(['selected_rol' => $request->rol_id]);
+
+        // Obtener el rol seleccionado por el usuario
+        //$selectedRole = Role::find($request->rol_id);
+
+        // Obtener el usuario autenticado
+        //$user = auth()->user();
+
+        // Sincronizar los permisos del usuario con los permisos del rol seleccionado
+        //$user->syncPermissions($selectedRole->permissions);
+
+        //dd(session('selected_rol'));
+        // Redirigir al usuario a la ruta deseada
+        return redirect()->route('home'); // Cambia 'home' por la ruta que desees
+    }
+
+
 }

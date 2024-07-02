@@ -22,6 +22,7 @@ class RoleController extends Controller
         $this->middleware('permission:rol-crear', ['only' => ['create','store']]);
         $this->middleware('permission:rol-editar', ['only' => ['edit','update']]);
         $this->middleware('permission:rol-eliminar', ['only' => ['destroy']]);
+
     }
 
     /**

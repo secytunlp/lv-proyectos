@@ -466,7 +466,7 @@
                                                     <thead>
 
 
-                                                    <th>Institucion</th>
+                                                    <th>Institución</th>
                                                     <th>Beca</th>
                                                     <th>Desde</th>
                                                     <th>Hasta</th>

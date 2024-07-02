@@ -69,7 +69,7 @@ class RegisterController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'cuil' => 'nullable|regex:/^\d{2}-\d{8}-\d{1}$/', // Validación de cuil
-            'facultad_id' => 'nullable|exists:facultad,id', // Validación de facultad_id
+            'facultad_id' => 'nullable|exists:facultads,id', // Validación de facultad_id
         ]);
     }
 // Método para registrar un nuevo usuario
@@ -121,6 +121,10 @@ class RegisterController extends Controller
 
         // Asigna el rol "solicitante" al usuario recién creado
         $role = Role::where('name', 'Solicitante')->first();
+        $user->assignRole($role);
+
+        // Asigna el rol "director" al usuario recién creado
+        $role = Role::where('name', 'Director')->first();
         $user->assignRole($role);
 
         return $user;

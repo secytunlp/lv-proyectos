@@ -61,7 +61,7 @@
                         {{ csrf_field() }}
                         {{ method_field('DELETE') }}
                     </form>
-                    @endcan
+
                     <a href="" onclick="
                         if(confirm('Está seguro?'))
                         {
@@ -71,6 +71,7 @@
                         else{
                         event.preventDefault();
                         }" ><span class="glyphicon glyphicon-trash"></span></a>
+                    @endcan
                 </td>
             </tr>
         @endforeach

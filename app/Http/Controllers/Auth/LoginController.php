@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
@@ -37,6 +38,25 @@ class LoginController extends Controller
     {
         $this->middleware('guest')->except('logout');
     }
+
+    protected function authenticated(\Illuminate\Http\Request $request, $user)
+    {
+
+        log::info('Roles: '.$user->roles->count() );
+        if ($user->roles->count() > 1) {
+            //dd($user);
+            return redirect()->route('select-rol');
+        } else {
+            // Si el usuario tiene un solo rol, guardarlo en la sesión
+            $role = $user->roles->first();
+            session(['selected_rol' => $role->id]);
+        }
+
+        return redirect()->intended($this->redirectPath());
+
+    }
+
+
 
 
 }

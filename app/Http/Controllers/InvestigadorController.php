@@ -29,9 +29,10 @@ class InvestigadorController extends Controller
     function __construct()
     {
         $this->middleware('permission:investigador-listar|investigador-crear|investigador-editar|investigador-eliminar', ['only' => ['index','store','dataTable']]);
-        $this->middleware('permission:investigador-crear', ['only' => ['create','store']]);
+        $this->middleware('permission:investigador-crear', ['only' => ['create','store','buscarInvestigador']]);
         $this->middleware('permission:investigador-editar', ['only' => ['edit','update']]);
         $this->middleware('permission:investigador-eliminar', ['only' => ['destroy']]);
+        //dd(session()->all());
     }
 
     /**
@@ -52,6 +53,8 @@ class InvestigadorController extends Controller
         $columnaOrden = $columnas[$request->input('order.0.column')];
         $orden = $request->input('order.0.dir');
         $busqueda = $request->input('search.value');
+
+
 
         // Consulta base
         $query = Investigador::select('investigadors.id as id', 'personas.nombre as persona_nombre','ident', DB::raw("CONCAT(personas.apellido, ', ', personas.nombre) as persona_apellido"), 'cuil', 'categorias.nombre as categoria_nombre', 'sicadis.nombre as sicadi_nombre', 'cargos.nombre as cargo_nombre','deddoc', DB::raw("CONCAT(beca, ' ', institucion) as beca"),'institucion', DB::raw("CONCAT(carrerainvs.nombre, ' ', organismos.codigo) as carrerainv_nombre"), 'organismos.codigo as organismo_nombre', 'facultads.nombre as facultad_nombre')
@@ -91,6 +94,7 @@ class InvestigadorController extends Controller
             'draw' => $request->draw,
         ]);
     }
+
 
 
 
@@ -140,7 +144,7 @@ class InvestigadorController extends Controller
             'email' => 'required|email',
             'documento' => 'required',
             'cuil' => 'nullable|regex:/^\d{2}-\d{8}-\d{1}$/', // Validación de cuil
-            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+            'foto' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
 
         $input = $request->all();
@@ -475,7 +479,7 @@ class InvestigadorController extends Controller
     public function edit($id)
     {
         $investigador = Investigador::find($id);
-
+        //dd($investigador->titulos);
         $provincias = DB::table('provincias')->OrderBy('nombre')->pluck('nombre', 'id'); // Obtener todas las provincias
         $titulos=Titulo::where('nivel', 'Grado')->orderBy('nombre','ASC')->get();
         $titulos = $titulos->pluck('full_name', 'id')->prepend('','');
@@ -515,7 +519,7 @@ class InvestigadorController extends Controller
             'email' => 'required|email',
             'documento' => 'required',
             'cuil' => 'nullable|regex:/^\d{2}-\d{8}-\d{1}$/', // Validación de cuil
-            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+            'foto' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
 
         $input = $request->all();

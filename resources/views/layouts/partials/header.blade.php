@@ -1,4 +1,5 @@
   <header class="main-header">
+
     <!-- Logo -->
     <a href="{{ url('/') }}" class="logo">
       <!-- mini logo for sidebar mini 50x50 pixels -->
@@ -50,7 +51,7 @@
 
                     ?>
 
-                    {{ Auth::user()->name }} - {{$roles}}
+                    {{ Auth::user()->name }}
 
                   <small>Miembro desde {{ date('d-m-Y', strtotime(Auth::user()->created_at)) }}</small>
                 </p>
@@ -86,3 +87,4 @@
     </nav>
 
   </header>
+

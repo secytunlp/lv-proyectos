@@ -62,4 +62,9 @@ class Investigador extends Model
         return $this->hasMany(InvestigadorBeca::class, 'investigador_id');
     }
 
+    public function integrantes()
+    {
+        return $this->hasMany(Integrante::class);
+    }
+
 }
