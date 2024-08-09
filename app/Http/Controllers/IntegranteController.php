@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\User;
 use Spatie\Permission\Models\Role; // Importa la clase Role
 use App\Mail\SolicitudEnviada;
+//use Barryvdh\DomPDF\Facade as PDF;
 class IntegranteController extends Controller
 {
 
@@ -1202,27 +1203,7 @@ class IntegranteController extends Controller
             $integrante->save();
             $investigador = Investigador::find($integrante->investigador_id);
 
-            if ($investigador) {
-                $investigador->categoria_id = $integrante->categoria_id;
-                $investigador->sicadi_id = $integrante->sicadi_id;
-                $investigador->carrerainv_id = $integrante->carrerainv_id;
-                $investigador->organismo_id = $integrante->organismo_id;
-                $investigador->facultad_id = $integrante->facultad_id;
-                $investigador->cargo_id = $integrante->cargo_id;
-                $investigador->deddoc = $integrante->deddoc;
-                $investigador->universidad_id = $integrante->universidad_id;
-                $investigador->titulo_id = $integrante->titulo_id;
-                $investigador->titulopost_id = $integrante->titulopost_id;
-                $investigador->unidad_id = $integrante->unidad_id;
-                $investigador->institucion = $integrante->institucion;
-                $investigador->beca = $integrante->beca;
 
-                $investigador->materias = $integrante->materias;
-                $investigador->total = $integrante->total;
-                $investigador->carrera = $integrante->carrera;
-
-                $investigador->save();
-            }
             $this->actualizarInvestigador($integrante,$investigador);
 
 
@@ -2086,28 +2067,7 @@ class IntegranteController extends Controller
             //$integrante->baja=$integrante->alta;
             $integrante->save();
             $investigador = Investigador::find($integrante->investigador_id);
-            if ($investigador) {
-                $investigador->categoria_id = $integrante->categoria_id;
-                $investigador->sicadi_id = $integrante->sicadi_id;
-                $investigador->carrerainv_id = $integrante->carrerainv_id;
-                $investigador->organismo_id = $integrante->organismo_id;
-                $investigador->facultad_id = $integrante->facultad_id;
-                $investigador->cargo_id = $integrante->cargo_id;
-                $investigador->deddoc = $integrante->deddoc;
-                $investigador->universidad_id = $integrante->universidad_id;
-                $investigador->titulo_id = $integrante->titulo_id;
-                $investigador->titulopost_id = $integrante->titulopost_id;
-                $investigador->unidad_id = $integrante->unidad_id;
-                $investigador->institucion = $integrante->institucion;
-                $investigador->beca = $integrante->beca;
 
-
-                $investigador->materias = $integrante->materias; // Cambia esto a los datos que quieras actualizar
-                $investigador->total = $integrante->total;
-                $investigador->carrera = $integrante->carrera;
-
-                $investigador->save();
-            }
             $this->actualizarInvestigador($integrante,$investigador);
             $this->cambiarEstado($integrante,'Confirmación de cambio');
 
@@ -2743,30 +2703,12 @@ class IntegranteController extends Controller
 
             $integrante->estado = '';
             //$integrante->baja=$integrante->alta;
+            $integrante->horas_anteriores=null;
+            $integrante->cambio=null;
+            $integrante->reduccion=null;
             $integrante->save();
             $investigador = Investigador::find($integrante->investigador_id);
-            if ($investigador) {
-                $investigador->categoria_id = $integrante->categoria_id;
-                $investigador->sicadi_id = $integrante->sicadi_id;
-                $investigador->carrerainv_id = $integrante->carrerainv_id;
-                $investigador->organismo_id = $integrante->organismo_id;
-                $investigador->facultad_id = $integrante->facultad_id;
-                $investigador->cargo_id = $integrante->cargo_id;
-                $investigador->deddoc = $integrante->deddoc;
-                $investigador->universidad_id = $integrante->universidad_id;
-                $investigador->titulo_id = $integrante->titulo_id;
-                $investigador->titulopost_id = $integrante->titulopost_id;
-                $investigador->unidad_id = $integrante->unidad_id;
-                $investigador->institucion = $integrante->institucion;
-                $investigador->beca = $integrante->beca;
 
-
-                $investigador->materias = $integrante->materias; // Cambia esto a los datos que quieras actualizar
-                $investigador->total = $integrante->total;
-                $investigador->carrera = $integrante->carrera;
-
-                $investigador->save();
-            }
             $this->actualizarInvestigador($integrante,$investigador);
 
             $this->cambiarEstado($integrante,'Confirmación de cambio de horas');
@@ -2902,6 +2844,26 @@ class IntegranteController extends Controller
 
     public function actualizarInvestigador($integrante, $investigador)
     {
+        if ($investigador) {
+            $investigador->categoria_id = $integrante->categoria_id;
+            $investigador->sicadi_id = $integrante->sicadi_id;
+            $investigador->carrerainv_id = $integrante->carrerainv_id;
+            $investigador->organismo_id = $integrante->organismo_id;
+            $investigador->facultad_id = $integrante->facultad_id;
+            $investigador->cargo_id = $integrante->cargo_id;
+            $investigador->deddoc = $integrante->deddoc;
+            $investigador->universidad_id = $integrante->universidad_id;
+            $investigador->titulo_id = $integrante->titulo_id;
+            $investigador->titulopost_id = $integrante->titulopost_id;
+            $investigador->unidad_id = $integrante->unidad_id;
+            $investigador->institucion = ($integrante->institucion)?$integrante->institucion:null;
+            $investigador->beca = ($integrante->beca)?$integrante->beca:null;
+            $investigador->materias = $integrante->materias;
+            $investigador->total = $integrante->total;
+            $investigador->carrera = $integrante->carrera;
+
+            $investigador->save();
+        }
         $persona = $investigador->persona;  // Obtener la persona asociada
 
         // Actualizar los datos de la persona aquí
@@ -3223,8 +3185,8 @@ class IntegranteController extends Controller
             'carrerainv_id' => $integrante->carrerainv_id,
             'organismo_id' => $integrante->organismo_id,
             'unidad_id' => $integrante->unidad_id,
-            'institucion' => $integrante->institucion,
-            'beca' => $integrante->beca,
+            'institucion' => ($integrante->institucion)?$integrante->institucion:null,
+            'beca' => ($integrante->beca)?$integrante->beca:null,
             'consecuencias' => $integrante->consecuencias,
             'motivos' => $integrante->motivos,
             'reduccion' => $integrante->reduccion,
@@ -4025,31 +3987,12 @@ class IntegranteController extends Controller
         try {
 
             $integrante->estado = '';
-            //$integrante->baja=$integrante->alta;
+            $integrante->horas_anteriores=null;
+            $integrante->cambio=null;
+            $integrante->reduccion=null;
             $integrante->save();
             $investigador = Investigador::find($integrante->investigador_id);
-            if ($investigador) {
-                $investigador->categoria_id = $integrante->categoria_id;
-                $investigador->sicadi_id = $integrante->sicadi_id;
-                $investigador->carrerainv_id = $integrante->carrerainv_id;
-                $investigador->organismo_id = $integrante->organismo_id;
-                $investigador->facultad_id = $integrante->facultad_id;
-                $investigador->cargo_id = $integrante->cargo_id;
-                $investigador->deddoc = $integrante->deddoc;
-                $investigador->universidad_id = $integrante->universidad_id;
-                $investigador->titulo_id = $integrante->titulo_id;
-                $investigador->titulopost_id = $integrante->titulopost_id;
-                $investigador->unidad_id = $integrante->unidad_id;
-                $investigador->institucion = $integrante->institucion;
-                $investigador->beca = $integrante->beca;
 
-
-                $investigador->materias = $integrante->materias; // Cambia esto a los datos que quieras actualizar
-                $investigador->total = $integrante->total;
-                $investigador->carrera = $integrante->carrera;
-
-                $investigador->save();
-            }
             $this->actualizarInvestigador($integrante,$investigador);
 
             $this->cambiarEstado($integrante,'Confirmación de cambio de horas');

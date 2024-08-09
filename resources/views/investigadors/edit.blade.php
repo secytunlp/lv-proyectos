@@ -220,20 +220,20 @@
                                             <div class="col-md-5">
                                                 <div class="form-group">
                                                     {{Form::label('carrera', 'Carrera')}}
-                                                    {{Form::text('carrera', '', ['class' => 'form-control','placeholder'=>'Carrera'])}}
+                                                    {{Form::text('carrera', $investigador->carrera, ['class' => 'form-control','placeholder'=>'Carrera'])}}
                                                 </div>
                                             </div>
                                             <div class="col-md-2">
                                                 <div class="form-group">
                                                     {{Form::label('total', 'Total De Materias')}}
-                                                    {{Form::number('total', '', ['class' => 'form-control','placeholder'=>'Total De Materias'])}}
+                                                    {{Form::number('total', $investigador->total, ['class' => 'form-control','placeholder'=>'Total De Materias'])}}
 
                                                 </div>
                                             </div>
                                             <div class="col-md-2">
                                                 <div class="form-group">
                                                     {{Form::label('materias', 'Aprobadas')}}
-                                                    {{Form::number('materias', '', ['class' => 'form-control','placeholder'=>'Aprobadas'])}}
+                                                    {{Form::number('materias', $investigador->materias, ['class' => 'form-control','placeholder'=>'Aprobadas'])}}
                                                 </div>
                                             </div>
 
@@ -323,7 +323,7 @@
                                             <div class="col-md-8">
                                                 <div class="form-group">
                                                     {{Form::label('unidad', 'Lugar de Trabajo')}}
-                                                    {{Form::select('unidad_id',  $unidads,'', ['class' => 'form-control js-example-basic-single', 'style' => 'width: 100%','id'=>'unidad_id'])}}
+                                                    {{Form::select('unidad_id',  $unidads,$investigador->unidad_id, ['class' => 'form-control js-example-basic-single', 'style' => 'width: 100%','id'=>'unidad_id'])}}
 
                                                 </div>
                                             </div>

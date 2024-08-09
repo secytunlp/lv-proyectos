@@ -144,11 +144,11 @@ class CheckSelectedRolePermissions
         $user->setRelation('permissions', $rolePermissions);
 
         // Registro de depuración
-        \Log::info('Permisos del rol seleccionado:', $rolePermissions->pluck('name')->toArray());
+        //Log::info('Permisos del rol seleccionado:', $rolePermissions->pluck('name')->toArray());
 
         // Verificar si el usuario tiene permiso para acceder a la ruta actual
         $currentRouteName = $request->route()->getName();
-        \Log::info('Ruta:'. $currentRouteName);
+        //Log::info('Ruta:'. $currentRouteName);
         if (!isset($permissionMap[$currentRouteName]) || !$rolePermissions->contains('name', $permissionMap[$currentRouteName])) {
             // Redireccionar a la página de error 403
             return redirect()->route('error-403');
