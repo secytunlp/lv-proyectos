@@ -147,7 +147,7 @@
 
                             // Agregar enlace de edición si el usuario tiene permiso
                             @can('usuario-editar')
-                                actionsHtml += '<a href="{{ route("users.edit", ":id") }}"><span class="glyphicon glyphicon-edit"></span></a>'.replace(':id', row.id);
+                                actionsHtml += '<a href="{{ route("users.edit", ":id") }}" alt="Editar" title="Editar"><span class="glyphicon glyphicon-edit"></span></a>'.replace(':id', row.id);
                             @endcan
 
                             // Agregar formulario de eliminación si el usuario tiene permiso
@@ -156,7 +156,7 @@
                             actionsHtml += '{{ csrf_field() }}';
                             actionsHtml += '{{ method_field('DELETE') }}';
                             actionsHtml += '</form>';
-                            actionsHtml += '<a href="" onclick="if(confirm(\'Está seguro?\')) {event.preventDefault(); document.getElementById(\'delete-form-' + row.id + '\').submit();} else {event.preventDefault();}"><span class="glyphicon glyphicon-trash"></span></a>';
+                            actionsHtml += '<a href="" onclick="if(confirm(\'Está seguro?\')) {event.preventDefault(); document.getElementById(\'delete-form-' + row.id + '\').submit();} else {event.preventDefault();}" alt="Eliminar" title="Eliminar"><span class="glyphicon glyphicon-trash"></span></a>';
                             @endcan
 
                                 return actionsHtml;

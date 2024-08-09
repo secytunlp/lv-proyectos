@@ -3,9 +3,9 @@
     <!-- Logo -->
     <a href="{{ url('/') }}" class="logo">
       <!-- mini logo for sidebar mini 50x50 pixels -->
-      <span class="logo-mini"><b>Gestión de proyectos</b></span>
+      <span class="logo-mini"><img src="{{ url('/images/logo.webp') }}" width="60px;"></span>
       <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg"><b>Gestión de proyectos</b> Panel</span>     Gestión de proyectos Panel
+      <span class="logo-lg"><img src="{{ url('/images/logo.webp') }}" width="60px;"></span>
     </a>
 
       <!-- Header Navbar: style can be found in header.less -->

@@ -175,7 +175,7 @@
                             var actionsHtml = '';
 // Agregar enlace de edición si el usuario tiene permiso
                             @can('integrante-listar')
-                                actionsHtml += '<a href="{{ route("integrantes.index") }}?proyecto_id=' + row.id + '"><i class="fa fa-user-friends"></i></a>';
+                                actionsHtml += '<a href="{{ route("integrantes.index") }}?proyecto_id=' + row.id + '" alt="Integrantes" title="Integrantes"><i class="fa fa-user-friends"></i></a>';
                             @endcan
 
 

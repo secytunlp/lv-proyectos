@@ -94,14 +94,14 @@
                                         <div class="row">
                                             <div class="col-md-3">
                                                 <div class="form-group">
-                                                    <label for="foto">Curriculum</label>
+                                                    <label for="curriculum">Curriculum</label>
                                                     <input type="file" name="curriculum" class="form-control" placeholder="">
 
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="form-group">
-                                                    <label for="foto">Plan de trabajo</label>
+                                                    <label for="actividades">Plan de trabajo</label>
                                                     <input type="file" name="actividades" class="form-control" placeholder="">
 
                                                 </div>
@@ -133,17 +133,42 @@
                                                 {{Form::text('cuil', '', ['class' => 'form-control','placeholder'=>'XX-XXXXXXXX-X'])}}
                                             </div>
                                         </div>
-                                        <div class="col-md-5">
+                                        <div class="col-md-4">
                                             <div class="form-group">
                                                 {{Form::label('email', 'Email')}}
                                                 {{Form::email('email', '', ['class' => 'form-control','placeholder'=>'Email'])}}
                                             </div>
                                         </div>
-
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                {{Form::label('nacimiento', 'Nacimiento')}}
+                                                {{Form::date('nacimiento', '', ['class' => 'form-control'])}}
+                                            </div>
+                                        </div>
                                     </div>
 
                                     </div>
                                     <div role="tabpanel" class="tab-pane" id="universidad">
+                                        <div class="row">
+
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    {{Form::label('facultad', 'U. Académica')}}
+                                                    {{Form::select('facultad_id',  $facultades,'', ['class' => 'form-control js-example-basic-single', 'style' => 'width: 100%','id'=>'facultad_id'])}}
+
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    {{Form::label('universidad', 'Universidad')}}
+                                                    {{Form::select('universidad_id',  $universidades,'', ['class' => 'form-control js-example-basic-single', 'style' => 'width: 100%','id'=>'universidad_id'])}}
+
+                                                </div>
+                                            </div>
+
+
+                                        </div>
                                         <fieldset style="border: 1px solid #ccc; padding: 10px;">
                                             <legend style="border-bottom: none; margin-bottom: -10px; display: inline-block;width: auto;">Título de Grado</legend>
 
@@ -249,8 +274,8 @@
                                                     <th>Cargo</th>
                                                     <th>Dedicación</th>
                                                     <th>Ingreso</th>
-                                                    <th>U. Académica</th>
-                                                    <th>Universidad</th>
+                                                    <!--<th>U. Académica</th>
+                                                    <th>Universidad</th>-->
                                                     <!--<th>Activo</th>
                                                     <th><a href="#" class="addRowCargo"><i class="glyphicon glyphicon-plus"></i></a></th>-->
 
@@ -262,8 +287,8 @@
                                                         <td>{{ Form::select('cargos[]',$cargos, '',['class' => 'form-control', 'style' => 'width: 200px']) }}</td>
                                                         <td>{{ Form::select('deddocs[]',[''=>'','Exclusiva'=>'Exclusiva','Semi Exclusiva'=>'Semi Exclusiva','Simple'=>'Simple'], '',['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
                                                         <td>{{Form::date('ingresos[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
-                                                        <td>{{ Form::select('facultads[]',$facultades, '',['class' => 'form-control', 'style' => 'width: 300px']) }}</td>
-                                                        <td>{{ Form::select('universidads[]',$universidades, '',['class' => 'form-control js-example-basic-single', 'style' => 'width: 300px']) }}</td>
+                                                        <!--<td>{{ Form::select('facultads[]',$facultades, '',['class' => 'form-control', 'style' => 'width: 300px']) }}</td>
+                                                        <td>{{ Form::select('universidads[]',$universidades, '',['class' => 'form-control js-example-basic-single', 'style' => 'width: 300px']) }}</td>-->
                                                         <!--<td>{{Form::checkbox('activos[]', 1,true)}}</td>
                                                         <td><a href="#" class="btn btn-danger removeCargo"><i class="glyphicon glyphicon-remove"></i></a></td>-->
                                                     </tr>
@@ -525,6 +550,7 @@
                                     nombre: item.nombre,
                                     cuil: item.cuil,
                                     email: item.email,
+                                    nacimiento: item.nacimiento,
                                     titulo: item.titulo,
                                     titulopost: item.titulopost,
                                     cargo: item.cargo,
@@ -544,6 +570,15 @@
                     $('#nombre').val(ui.item.nombre);
                     $('#cuil').val(ui.item.cuil);
                     $('#email').val(ui.item.email);
+                    let nacimiento = ui.item.nacimiento;
+                    if(nacimiento){
+                        // Actualizar la fecha de egreso
+                        let formattedEgreso = new Date(nacimiento).toISOString().split('T')[0];
+                        $('#nacimiento').val(formattedEgreso);
+                    }
+
+
+
 
                     //vacío los campos
                     $('#cuerpoTitulo select[name="titulos[]"]').val('').trigger('change');
@@ -552,10 +587,12 @@
                     $('#cuerpoPosgrado input[name="egresoposts[]"]').val('');
                     $('#cuerpoCargos select[name="cargos[]"]').val('').trigger('change');
                     $('#cuerpoCargos select[name="deddocs[]"]').val('').trigger('change');
-                    $('#cuerpoCargos select[name="facultads[]"]').val('').trigger('change');
-                    $('#cuerpoCargos select[name="universidads[]"]').val('').trigger('change');
+                    /*$('#cuerpoCargos select[name="facultads[]"]').val('').trigger('change');
+                    $('#cuerpoCargos select[name="universidads[]"]').val('').trigger('change');*/
                     $('#cuerpoCargos input[name="ingresos[]"]').val('');
                     $('#unidad_id').val('').trigger('change');
+                    $('#facultad_id').val('').trigger('change');
+                    $('#universidad_id').val('').trigger('change');
                     $('#cuerpoCarrerainvs select[name="carrerainvs[]"]').val('').trigger('change');
                     $('#cuerpoCarrerainvs input[name="carringresos[]"]').val('');
                     $('#cuerpoCarrerainvs select[name="organismos[]"]').val('').trigger('change');
@@ -605,9 +642,10 @@
 
                         $('#cuerpoCargos select[name="cargos[]"]').val(cargoId).trigger('change');
                         $('#cuerpoCargos select[name="deddocs[]"]').val(deddoc).trigger('change');
-                        $('#cuerpoCargos select[name="facultads[]"]').val(facultadId).trigger('change');
-                        $('#cuerpoCargos select[name="universidads[]"]').val(universidadId).trigger('change');
-
+                        /*$('#cuerpoCargos select[name="facultads[]"]').val(facultadId).trigger('change');
+                        $('#cuerpoCargos select[name="universidads[]"]').val(universidadId).trigger('change');*/
+                        $('#facultad_id').val(facultadId).trigger('change');
+                        $('#universidad_id').val(universidadId).trigger('change');
                         if(ingreso) {
                             // Suponiendo que 'ingreso' es una fecha en formato 'Y-m-d
                             let formattedIngreso = new Date(ingreso).toISOString().split('T')[0];
@@ -740,23 +778,14 @@
         });
 
         // Función para obtener opciones de beca según la institución seleccionada
+
         function obtenerOpcionesBecaPorInstitucion(institucionSeleccionada) {
             //console.log(institucionSeleccionada)
-            switch (institucionSeleccionada) {
-                case 'ANPCyT':
-                    return ['','Beca inicial', 'Beca superior'];
-                case 'CIC':
-                    return ['', 'Beca de entrenamiento','Beca doctoral', 'Beca posdoctoral'];
-                case 'CONICET':
-                    return ['','Beca doctoral', 'Beca posdoctoral','Beca finalización del doctorado'];
-                case 'UNLP':
-                    return ['','Beca doctoral', 'Beca posdoctoral','TIPO A','TIPO B (DOCTORADO)','TIPO B (MAESTRÍA)','Beca Cofinanciada (UNLP-CIC)','RETENCION DE POSTGRADUADO'];
-                case 'CIN':
-                    return ['','EVC'];
-                // Agregar casos para otras instituciones si es necesario
-                default:
-                    return ['']; // Opción por defecto
+            var opciones = @json(config('becas'));
+            if (opciones[institucionSeleccionada]) {
+                return opciones[institucionSeleccionada];
             }
+            return ['']; // Opción por defecto
         }
 
     </script>

@@ -55,7 +55,7 @@
                 <!--<td>{{ $loop->index + 1 }}</td>-->
                 <td>{{ $universidad->nombre }}</td>
 
-                <td>@can('universidad-editar')<a href="{{ route('universidads.edit',$universidad->id) }}"><span class="glyphicon glyphicon-edit"></span></a>@endcan
+                <td>@can('universidad-editar')<a href="{{ route('universidads.edit',$universidad->id) }}" alt="Editar" title="Editar"><span class="glyphicon glyphicon-edit"></span></a>@endcan
                 @can('universidad-eliminar')
                     <form id="delete-form-{{ $universidad->id }}" method="post" action="{{ route('universidads.destroy',$universidad->id) }}" style="display: none">
                         {{ csrf_field() }}
@@ -70,7 +70,7 @@
                         }
                         else{
                         event.preventDefault();
-                        }" ><span class="glyphicon glyphicon-trash"></span></a>
+                        }" alt="Eliminar" title="Eliminar"><span class="glyphicon glyphicon-trash"></span></a>
                     @endcan
                 </td>
             </tr>

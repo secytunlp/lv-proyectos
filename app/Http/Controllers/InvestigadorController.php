@@ -223,12 +223,12 @@ class InvestigadorController extends Controller
                     $investigador->tituloposts()->attach($request->tituloposts[$item], ['egreso'=> $request->egresoposts[$item], 'created_at' => now(), 'updated_at' => now()]);
                 }
             }
-
+            $mayorCargo = null;
+            $mayorDeddoc = null;
+            $mayorFacultad = null;
+            $mayorUniversidad = null;
             if (!empty($request->cargos)) {
-                $mayorCargo = null;
-                $mayorDeddoc = null;
-                $mayorFacultad = null;
-                $mayorUniversidad = null;
+
                 foreach ($request->cargos as $item => $v) {
                     $activo=0;
                     if (isset($request->activos[$item]) ) {
@@ -616,12 +616,12 @@ class InvestigadorController extends Controller
                     $investigador->tituloposts()->attach($request->tituloposts[$item], ['egreso'=> $request->egresoposts[$item], 'created_at' => now(), 'updated_at' => now()]);
                 }
             }
-
+            $mayorCargo = null;
+            $mayorDeddoc = null;
+            $mayorFacultad = null;
+            $mayorUniversidad = null;
             if (!empty($request->cargos)) {
-                $mayorCargo = null;
-                $mayorDeddoc = null;
-                $mayorFacultad = null;
-                $mayorUniversidad = null;
+
                 foreach ($request->cargos as $item => $v) {
                     $activo=0;
                     if (isset($request->activos[$item]) ) {

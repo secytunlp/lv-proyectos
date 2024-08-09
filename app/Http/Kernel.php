@@ -70,5 +70,6 @@ class Kernel extends HttpKernel
         'permission' => \Spatie\Permission\Middlewares\PermissionMiddleware::class,
         'role_or_permission' => \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class,
         'CheckSelectedRolePermissions' => \App\Http\Middleware\CheckSelectedRolePermissions::class, // Agrega esta línea
+        'custom.auth' => \App\Http\Middleware\CustomAuth::class,
     ];
 }

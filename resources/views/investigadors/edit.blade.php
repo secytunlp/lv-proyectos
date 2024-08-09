@@ -839,21 +839,11 @@
         // Función para obtener opciones de beca según la institución seleccionada
         function obtenerOpcionesBecaPorInstitucion(institucionSeleccionada) {
             //console.log(institucionSeleccionada)
-            switch (institucionSeleccionada) {
-                case 'ANPCyT':
-                    return ['','Beca inicial', 'Beca superior'];
-                case 'CIC':
-                    return ['', 'Beca de entrenamiento','Beca doctoral', 'Beca posdoctoral'];
-                case 'CONICET':
-                    return ['','Beca doctoral', 'Beca posdoctoral','Beca finalización del doctorado'];
-                case 'UNLP':
-                    return ['','Beca doctoral', 'Beca posdoctoral','TIPO A','TIPO B (DOCTORADO)','TIPO B (MAESTRÍA)','Beca Cofinanciada (UNLP-CIC)','RETENCION DE POSTGRADUADO'];
-                case 'CIN':
-                    return ['','EVC'];
-                // Agregar casos para otras instituciones si es necesario
-                default:
-                    return ['']; // Opción por defecto
+            var opciones = @json(config('becas'));
+            if (opciones[institucionSeleccionada]) {
+                return opciones[institucionSeleccionada];
             }
+            return ['']; // Opción por defecto
         }
 
 

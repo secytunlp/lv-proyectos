@@ -231,13 +231,268 @@
                             // Construir HTML para las acciones
 
                             var actionsHtml = '';
+
 // Agregar enlace de edición si el usuario tiene permiso
                             @can('integrante_estado-listar')
-                                actionsHtml += '<a href="{{ route("integrante_estados.index") }}?integrante_id=' + row.id + '"><i class="fa fa-tasks"></i></a>';
+                                actionsHtml += '<a href="{{ route("integrante_estados.index") }}?integrante_id=' + row.id + '" alt="Estados" title="Estados" style="margin-right: 5px;"><i class="fa fa-tasks"></i></a>';
                             @endcan
 
 
-                        return actionsHtml;
+
+
+                            //console.log(row.estado);
+                            if(row.estado == 'Alta Creada') {
+                                @can('integrante-editar')
+                                    actionsHtml += '<a href="{{ route("integrantes.edit", ":id") }}" alt="Modificar alta" title="Modificar alta" style="margin-right: 5px;"><span class="glyphicon glyphicon-edit"></span></a>'.replace(':id', row.id);
+                                @endcan
+                                // Agregar formulario de eliminación si el usuario tiene permiso
+                                @can('integrante-eliminar')
+                                    actionsHtml += '<form id="delete-form-' + row.id + '" method="post" action="{{ route('integrantes.destroy', '') }}/' + row.id + '" style="display: none">';
+                                actionsHtml += '{{ csrf_field() }}';
+                                actionsHtml += '{{ method_field('DELETE') }}';
+                                actionsHtml += '</form>';
+                                actionsHtml += '<a href="" onclick="if(confirm(\'Está seguro?\')) {event.preventDefault(); document.getElementById(\'delete-form-' + row.id + '\').submit();} else {event.preventDefault();}" alt="Anular alta" title="Anular alta" style="margin-right: 5px;"><span class="glyphicon glyphicon-trash"></span></a>';
+                                @endcan
+                            }
+
+                            if(((row.estado == '')||(row.estado == null)) &&(row.baja == null)&&(row.tipo != 'Director')&&(row.tipo != 'Codirector')){
+                                @can('integrante-eliminar')
+                                    actionsHtml += '<a href="{{ route("integrantes.baja", ":id") }}" alt="Baja de integrante" title="Baja de integrante" style="margin-right: 5px;"><span class="glyphicon glyphicon-remove"></span></a>'.replace(':id', row.id);
+                                @endcan
+
+                            }
+                            if(row.estado == 'Baja Creada') {
+                                @can('integrante-eliminar')
+                                    actionsHtml += '<form id="anular-form-' + row.id + '" method="post" action="{{ route('integrantes.anular', '') }}/' + row.id + '" style="display: none">';
+                                actionsHtml += '{{ csrf_field() }}';
+
+                                actionsHtml += '</form>';
+                                actionsHtml += '<a href="" onclick="if(confirm(\'Está seguro?\')) {event.preventDefault(); document.getElementById(\'anular-form-' + row.id + '\').submit();} else {event.preventDefault();}" alt="Anular Baja" title="Anular Baja" style="margin-right: 5px;"><i class="fa fa-times-circle"></i></a>';
+                                @endcan
+
+                            }
+                            if(((row.estado == '')||(row.estado == null)) &&(row.baja == null) &&(row.tipo == 'Colaborador')){
+                                @can('integrante-editar')
+                                    actionsHtml += '<a href="{{ route("integrantes.cambio", ":id") }}" alt="Cambio de colaborador a integrante" title="Cambio de colaborador a integrante" style="margin-right: 5px;"><span class="glyphicon glyphicon-refresh"></span></a>'.replace(':id', row.id);
+                                @endcan
+
+                            }
+                            if(((row.estado == '')||(row.estado == null)) &&(row.baja == null) &&(row.tipo != 'Colaborador')){
+                                @can('integrante-editar')
+                                    actionsHtml += '<a href="{{ route("integrantes.cambioHS", ":id") }}" alt="Cambio de dedicación horaria" title="Cambio de dedicación horaria" style="margin-right: 5px;"><i class="fa fa-clock"></i></a>'.replace(':id', row.id);
+                                @endcan
+
+                            }
+                            if(((row.estado == '')||(row.estado == null)) &&(row.baja == null)&&(row.tipo != 'Director')&&(row.tipo != 'Codirector')&&(row.tipo != 'Colaborador')){
+                                @can('integrante-editar')
+                                    actionsHtml += '<a href="{{ route("integrantes.cambioTipo", ":id") }}" alt="Cambio de tipo de integrante" title="Cambio de tipo de integrante" style="margin-right: 5px;"><span class="glyphicon glyphicon-refresh"></span></a>'.replace(':id', row.id);
+                                @endcan
+
+                            }
+                            if(row.estado == 'Cambio Creado') {
+                                @can('integrante-editar')
+                                    actionsHtml += '<a href="{{ route("integrantes.cambio", ":id") }}" alt="Cambio de colaborador a integrante" title="Cambio de colaborador a integrante" style="margin-right: 5px;"><span class="glyphicon glyphicon-refresh"></span></a>'.replace(':id', row.id);
+                                actionsHtml += '<form id="anularCambio-form-' + row.id + '" method="post" action="{{ route('integrantes.anularCambio', '') }}/' + row.id + '" style="display: none">';
+                                actionsHtml += '{{ csrf_field() }}';
+
+                                actionsHtml += '</form>';
+                                actionsHtml += '<a href="" onclick="if(confirm(\'Está seguro?\')) {event.preventDefault(); document.getElementById(\'anularCambio-form-' + row.id + '\').submit();} else {event.preventDefault();}" alt="Anular Cambio de colaborador a integrante" title="Anular Cambio de colaborador a integrante" style="margin-right: 5px;"><i class="fa fa-times-circle"></i></a>';
+                                @endcan
+
+                            }
+                            if(row.estado == 'Cambio Hs. Creado') {
+                                @can('integrante-editar')
+                                    actionsHtml += '<a href="{{ route("integrantes.cambioHS", ":id") }}" alt="Cambio de dedicación horaria" title="Cambio de dedicación horaria" style="margin-right: 5px;"><span class="fa fa-clock"></span></a>'.replace(':id', row.id);
+                                    actionsHtml += '<form id="anularHS-form-' + row.id + '" method="post" action="{{ route('integrantes.anularHS', '') }}/' + row.id + '" style="display: none">';
+                                    actionsHtml += '{{ csrf_field() }}';
+
+                                    actionsHtml += '</form>';
+                                    actionsHtml += '<a href="" onclick="if(confirm(\'Está seguro?\')) {event.preventDefault(); document.getElementById(\'anularHS-form-' + row.id + '\').submit();} else {event.preventDefault();}" alt="Anular Cambio de dedicación horaria" title="Anular Cambio de dedicación horaria" style="margin-right: 5px;"><i class="fa fa-times-circle"></i></a>';
+                                @endcan
+
+                            }
+                            if(row.estado == 'Cambio Tipo Creado') {
+                                @can('integrante-editar')
+
+                                actionsHtml += '<form id="anularTipo-form-' + row.id + '" method="post" action="{{ route('integrantes.anularTipo', '') }}/' + row.id + '" style="display: none">';
+                                actionsHtml += '{{ csrf_field() }}';
+
+                                actionsHtml += '</form>';
+                                actionsHtml += '<a href="" onclick="if(confirm(\'Está seguro?\')) {event.preventDefault(); document.getElementById(\'anularTipo-form-' + row.id + '\').submit();} else {event.preventDefault();}" alt="Anular Cambio de tipo" title="Anular Cambio de tipo" style="margin-right: 5px;"><i class="fa fa-times-circle"></i></a>';
+                                @endcan
+
+                            }
+
+                            if((row.estado == 'Alta Recibida')||(row.estado == 'Alta Creada')) {
+
+                                // Agregar enlace para descargar el PDF del integrante
+                                actionsHtml += '<a href="{{ route("integrantes.alta-pdf") }}?integrante_id=' + row.id + '" alt="Descargar PDF" title="Descargar PDF" target="_blank" style="margin-right: 5px;"><i class="fa fa-file-pdf"></i></a>';
+
+                                actionsHtml += '<a href="{{ route("integrantes.archivos") }}?integrante_id=' + row.id + '" alt="Descargar archivos" title="Descargar archivos" target="_blank" style="margin-right: 5px;"><i class="fa fa-download"></i></a>';
+
+
+
+
+                            }
+                            if((row.estado == 'Baja Recibida')||(row.estado == 'Baja Creada')) {
+
+                                // Agregar enlace para descargar el PDF del integrante
+                                actionsHtml += '<a href="{{ route("integrantes.baja-pdf") }}?integrante_id=' + row.id + '" alt="Descargar PDF" title="Descargar PDF" target="_blank" style="margin-right: 5px;"><i class="fa fa-file-pdf"></i></a>';
+
+
+
+
+
+
+                            }
+                            if((row.estado == 'Cambio Recibido')||(row.estado == 'Cambio Creado')) {
+
+                                // Agregar enlace para descargar el PDF del integrante
+                                actionsHtml += '<a href="{{ route("integrantes.cambio-pdf") }}?integrante_id=' + row.id + '" alt="Descargar PDF" title="Descargar PDF" target="_blank" style="margin-right: 5px;"><i class="fa fa-file-pdf"></i></a>';
+
+                                actionsHtml += '<a href="{{ route("integrantes.archivos") }}?integrante_id=' + row.id + '" alt="Descargar archivos" title="Descargar archivos" target="_blank" style="margin-right: 5px;"><i class="fa fa-download"></i></a>';
+
+
+
+
+                            }
+                            if((row.estado == 'Cambio Hs. Recibido')||(row.estado == 'Cambio Hs. Creado')) {
+
+                                // Agregar enlace para descargar el PDF del integrante
+                                actionsHtml += '<a href="{{ route("integrantes.cambioHS-pdf") }}?integrante_id=' + row.id + '" alt="Descargar PDF" title="Descargar PDF" target="_blank" style="margin-right: 5px;"><i class="fa fa-file-pdf"></i></a>';
+
+
+                                actionsHtml += '<a href="{{ route("integrantes.archivos") }}?integrante_id=' + row.id + '" alt="Descargar archivos" title="Descargar archivos" target="_blank" style="margin-right: 5px;"><i class="fa fa-download"></i></a>';
+
+
+
+                            }
+                            if((row.estado == 'Cambio Tipo Recibido')||(row.estado == 'Cambio Tipo Creado')) {
+
+                                // Agregar enlace para descargar el PDF del integrante
+                                actionsHtml += '<a href="{{ route("integrantes.cambioTipo-pdf") }}?integrante_id=' + row.id + '" alt="Descargar PDF" title="Descargar PDF" target="_blank" style="margin-right: 5px;"><i class="fa fa-file-pdf"></i></a>';
+
+                                actionsHtml += '<a href="{{ route("integrantes.archivos") }}?integrante_id=' + row.id + '" alt="Descargar archivos" title="Descargar archivos" target="_blank" style="margin-right: 5px;"><i class="fa fa-download"></i></a>';
+
+
+
+
+                            }
+                            if(row.estado == 'Alta Creada') {
+                                @can('integrante-editar')
+                                    actionsHtml += '<form id="send-form-' + row.id + '" method="post" action="{{ route('integrantes.enviar', '') }}/' + row.id + '" style="display: none">';
+                                    actionsHtml += '{{ csrf_field() }}';
+
+                                    actionsHtml += '</form>';
+                                    actionsHtml += '<a href="" onclick="if(confirm(\'Luego de enviar la solicitud no podrá realizar modificaciones ¿Continua?\')) {event.preventDefault(); document.getElementById(\'send-form-' + row.id + '\').submit();} else {event.preventDefault();}" alt="Enviar Alta" title="Enviar Alta" style="margin-right: 5px;"><i class="fa fa-paper-plane"></i></a>';
+                                @endcan
+                            }
+
+                            if(row.estado == 'Baja Creada') {
+                                @can('integrante-eliminar')
+                                    actionsHtml += '<form id="sendbaja-form-' + row.id + '" method="post" action="{{ route('integrantes.enviarBaja', '') }}/' + row.id + '" style="display: none">';
+                                actionsHtml += '{{ csrf_field() }}';
+
+                                actionsHtml += '</form>';
+                                actionsHtml += '<a href="" onclick="if(confirm(\'Luego de enviar la solicitud no podrá realizar modificaciones ¿Continua?\')) {event.preventDefault(); document.getElementById(\'sendbaja-form-' + row.id + '\').submit();} else {event.preventDefault();}" alt="Enviar Baja" title="Enviar Baja" style="margin-right: 5px;"><i class="fa fa-paper-plane"></i></a>';
+                                @endcan
+                            }
+
+                            if(row.estado == 'Cambio Creado') {
+                                @can('integrante-editar')
+                                    actionsHtml += '<form id="sendcambio-form-' + row.id + '" method="post" action="{{ route('integrantes.enviarCambio', '') }}/' + row.id + '" style="display: none">';
+                                actionsHtml += '{{ csrf_field() }}';
+
+                                actionsHtml += '</form>';
+                                actionsHtml += '<a href="" onclick="if(confirm(\'Luego de enviar la solicitud no podrá realizar modificaciones ¿Continua?\')) {event.preventDefault(); document.getElementById(\'sendcambio-form-' + row.id + '\').submit();} else {event.preventDefault();}" alt="Enviar Cambio de colaborador a integrante" title="Enviar Cambio de colaborador a integrante" style="margin-right: 5px;"><i class="fa fa-paper-plane"></i></a>';
+                                @endcan
+                            }
+
+                            if(row.estado == 'Cambio Hs. Creado') {
+                                @can('integrante-editar')
+                                    actionsHtml += '<form id="sendcambioHS-form-' + row.id + '" method="post" action="{{ route('integrantes.enviarCambioHS', '') }}/' + row.id + '" style="display: none">';
+                                actionsHtml += '{{ csrf_field() }}';
+
+                                actionsHtml += '</form>';
+                                actionsHtml += '<a href="" onclick="if(confirm(\'Luego de enviar la solicitud no podrá realizar modificaciones ¿Continua?\')) {event.preventDefault(); document.getElementById(\'sendcambioHS-form-' + row.id + '\').submit();} else {event.preventDefault();}" alt="Enviar Cambio de dedicación horaria" title="Enviar Cambio de dedicación horaria" style="margin-right: 5px;"><i class="fa fa-paper-plane"></i></a>';
+                                @endcan
+                            }
+                            if(row.estado == 'Cambio Tipo Creado') {
+                                @can('integrante-editar')
+                                    actionsHtml += '<form id="sendcambioTipo-form-' + row.id + '" method="post" action="{{ route('integrantes.enviarCambioTipo', '') }}/' + row.id + '" style="display: none">';
+                                actionsHtml += '{{ csrf_field() }}';
+
+                                actionsHtml += '</form>';
+                                actionsHtml += '<a href="" onclick="if(confirm(\'Luego de enviar la solicitud no podrá realizar modificaciones ¿Continua?\')) {event.preventDefault(); document.getElementById(\'sendcambioTipo-form-' + row.id + '\').submit();} else {event.preventDefault();}" alt="Enviar Cambio de tipo" title="Enviar Cambio de tipo" style="margin-right: 5px;"><i class="fa fa-paper-plane"></i></a>';
+                                @endcan
+                            }
+                            if(row.estado == 'Alta Recibida') {
+                                @can('solicitud-admitir')
+                                    actionsHtml += '<form id="admit-form-' + row.id + '" method="post" action="{{ route('integrantes.admitir', '') }}/' + row.id + '" style="display: none">';
+                                actionsHtml += '{{ csrf_field() }}';
+
+                                actionsHtml += '</form>';
+                                actionsHtml += '<a href="" onclick="if(confirm(\'Está seguro?\')) {event.preventDefault(); document.getElementById(\'admit-form-' + row.id + '\').submit();} else {event.preventDefault();}" alt="Admitir alta" title="Admitir alta" style="margin-right: 5px;"><i class="fa fa-check-circle"></i></a>';
+                                @endcan
+                                    @can('solicitud-rechazar')
+                                    actionsHtml += '<a href="{{ route("integrantes.rechazar", ":id") }}" alt="Rechazar alta" title="Rechazar alta" style="margin-right: 5px;"><i class="fa fa-times-circle"></i></a>'.replace(':id', row.id);
+                                @endcan
+                            }
+
+                            if(row.estado == 'Baja Recibida') {
+                                @can('solicitud-admitir')
+                                    actionsHtml += '<form id="admitBaja-form-' + row.id + '" method="post" action="{{ route('integrantes.admitirBaja', '') }}/' + row.id + '" style="display: none">';
+                                actionsHtml += '{{ csrf_field() }}';
+
+                                actionsHtml += '</form>';
+                                actionsHtml += '<a href="" onclick="if(confirm(\'Está seguro?\')) {event.preventDefault(); document.getElementById(\'admitBaja-form-' + row.id + '\').submit();} else {event.preventDefault();}" alt="Admitir baja" title="Admitir baja" style="margin-right: 5px;"><i class="fa fa-check-circle"></i></a>';
+                                @endcan
+                                    @can('solicitud-rechazar')
+                                    actionsHtml += '<a href="{{ route("integrantes.rechazarBaja", ":id") }}" alt="Rechazar baja" title="Rechazar baja" style="margin-right: 5px;"><i class="fa fa-times-circle"></i></a>'.replace(':id', row.id);
+                                @endcan
+                            }
+
+
+                            if(row.estado == 'Cambio Recibido') {
+                                @can('solicitud-admitir')
+                                    actionsHtml += '<form id="admitCambio-form-' + row.id + '" method="post" action="{{ route('integrantes.admitirCambio', '') }}/' + row.id + '" style="display: none">';
+                                actionsHtml += '{{ csrf_field() }}';
+
+                                actionsHtml += '</form>';
+                                actionsHtml += '<a href="" onclick="if(confirm(\'Está seguro?\')) {event.preventDefault(); document.getElementById(\'admitCambio-form-' + row.id + '\').submit();} else {event.preventDefault();}" alt="Admitir cambio de colaborador a integrante" title="Admitir cambio de colaborador a integrante" style="margin-right: 5px;"><i class="fa fa-check-circle"></i></a>';
+                                @endcan
+                                    @can('solicitud-rechazar')
+                                    actionsHtml += '<a href="{{ route("integrantes.rechazarCambio", ":id") }}" alt="Rechazar cambio de colaborador a integrante" title="Rechazar cambio de colaborador a integrante" style="margin-right: 5px;"><i class="fa fa-times-circle"></i></a>'.replace(':id', row.id);
+                                @endcan
+                            }
+
+                            if(row.estado == 'Cambio Hs. Recibido') {
+                                @can('solicitud-admitir')
+                                    actionsHtml += '<form id="admitHS-form-' + row.id + '" method="post" action="{{ route('integrantes.admitirCambioHS', '') }}/' + row.id + '" style="display: none">';
+                                actionsHtml += '{{ csrf_field() }}';
+
+                                actionsHtml += '</form>';
+                                actionsHtml += '<a href="" onclick="if(confirm(\'Está seguro?\')) {event.preventDefault(); document.getElementById(\'admitHS-form-' + row.id + '\').submit();} else {event.preventDefault();}" alt="Admitir cambio de dedicación horaria" title="Admitir cambio de dedicación horaria" style="margin-right: 5px;"><i class="fa fa-check-circle"></i></a>';
+                                @endcan
+                                    @can('solicitud-rechazar')
+                                    actionsHtml += '<a href="{{ route("integrantes.rechazarCambioHS", ":id") }}" alt="Rechazar cambio de dedicación horaria" title="Rechazar cambio de dedicación horaria" style="margin-right: 5px;"><i class="fa fa-times-circle"></i></a>'.replace(':id', row.id);
+                                @endcan
+                            }
+                            if(row.estado == 'Cambio Tipo Recibido') {
+                                @can('solicitud-admitir')
+                                    actionsHtml += '<form id="admitTipo-form-' + row.id + '" method="post" action="{{ route('integrantes.admitirCambioTipo', '') }}/' + row.id + '" style="display: none">';
+                                actionsHtml += '{{ csrf_field() }}';
+
+                                actionsHtml += '</form>';
+                                actionsHtml += '<a href="" onclick="if(confirm(\'Está seguro?\')) {event.preventDefault(); document.getElementById(\'admitTipo-form-' + row.id + '\').submit();} else {event.preventDefault();}" alt="Admitir cambio de tipo" title="Admitir cambio de tipo" style="margin-right: 5px;"><i class="fa fa-check-circle"></i></a>';
+                                @endcan
+                                    @can('solicitud-rechazar')
+                                    actionsHtml += '<a href="{{ route("integrantes.rechazarCambioTipo", ":id") }}" alt="Rechazar cambio de tipo" title="Rechazar cambio de tipo" style="margin-right: 5px;"><i class="fa fa-times-circle"></i></a>'.replace(':id', row.id);
+                                @endcan
+                            }
+
+
+                            return actionsHtml;
 
                     },
             }

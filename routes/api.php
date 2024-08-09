@@ -14,9 +14,8 @@ use App\Http\Controllers\SolicitudSicadiController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('custom.auth')->group(function () {
+    Route::get('solicitud_sicadis/{id}', [SolicitudSicadiController::class, 'getInvestigadorById']);
+    Route::post('solicitud_sicadis/filter', [SolicitudSicadiController::class, 'filterInvestigadores']);
 });
 
-Route::get('solicitud_sicadis/{id}', [SolicitudSicadiController::class, 'getInvestigadorById']);
-Route::post('solicitud_sicadis/filter', [SolicitudSicadiController::class, 'filterInvestigadores']);

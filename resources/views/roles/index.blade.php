@@ -52,7 +52,7 @@
             <tr>
 
                 <td>{{ $role->name }}</td>
-                <td>@can('rol-editar')<a href="{{ route('roles.edit',$role->id) }}"><span class="glyphicon glyphicon-edit"></span></a>@endcan
+                <td>@can('rol-editar')<a href="{{ route('roles.edit',$role->id) }}" alt="Editar" title="Editar"><span class="glyphicon glyphicon-edit"></span></a>@endcan
 
                     @can('rol-eliminar')
                     <form id="delete-form-{{ $role->id }}" method="post" action="{{ route('roles.destroy',$role->id) }}" style="display: none">
@@ -68,7 +68,7 @@
                         }
                         else{
                         event.preventDefault();
-                        }" ><span class="glyphicon glyphicon-trash"></span></a>
+                        }" alt="Eliminar" title="Eliminar"><span class="glyphicon glyphicon-trash"></span></a>
                 </td>
 
             </tr>
