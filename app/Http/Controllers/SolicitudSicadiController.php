@@ -294,6 +294,11 @@ class SolicitudSicadiController extends Controller
     {
         try {
             $investigador = SolicitudSicadi::findOrFail($id);
+            // Construir la URL completa de la imagen
+            if ($investigador->foto) {
+                $investigador->foto = url('/images/sicadi/' . $investigador->foto);
+            }
+
             return response()->json(['success' => true, 'data' => $investigador], 200);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 404);
@@ -325,6 +330,13 @@ class SolicitudSicadiController extends Controller
 
         try {
             $investigadores = $query->get();
+
+            // Construir la URL completa de la imagen para cada investigador
+            foreach ($investigadores as $investigador) {
+                if ($investigador->foto) {
+                    $investigador->foto = url('/images/sicadi/' . $investigador->foto);
+                }
+            }
             return response()->json(['success' => true, 'data' => $investigadores], 200);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);

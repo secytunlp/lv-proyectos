@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -10,6 +11,7 @@ use Spatie\Permission\Models\Role;
 use DB;
 use Hash;
 use Illuminate\Support\Arr;
+use App\Http\Controllers\ProyectoController;
 
 
 class UserController extends Controller
@@ -302,6 +304,19 @@ class UserController extends Controller
         ]);*/
         //dd($request->rol_id);
         session(['selected_rol' => $request->rol_id]);
+        if ($request->rol_id==2){
+            $proyectoController = new ProyectoController();
+            $proyectoController->verificarDirector();
+        }
+        else{
+            // Obtener el rol seleccionado
+            $role = Role::find($request->rol_id);
+
+            // Verificar si el rol tiene el permiso 'proyecto-listar'
+            if ($role->permissions->contains('name', 'proyecto-listar')) {
+                session(['es_director' => 1]);
+            }
+        }
 
         // Obtener el rol seleccionado por el usuario
         //$selectedRole = Role::find($request->rol_id);

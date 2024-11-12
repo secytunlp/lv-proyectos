@@ -117,7 +117,8 @@
     <!-- page script -->
     <script>
         $(document).ready(function() {
-            $('#example1').DataTable({
+
+            var table = $('#example1').DataTable({
                 "processing": true, // Activar la indicación de procesamiento
                 "serverSide": true, // Habilitar el procesamiento del lado del servidor
                 "autoWidth": false, // Desactiva el ajuste automático del anchos
@@ -187,10 +188,12 @@
                         "render": function(data, type, row) {
                             // Construir HTML para las acciones
                             var actionsHtml = '';
-
+                            @can('investigador-listar')
+                                actionsHtml += '<a href="{{ route("investigadors.show", ":id") }}" alt="Ver" title="Ver" style="margin-right: 5px;"><span class="glyphicon glyphicon-eye-open"></span></a>'.replace(':id', row.id);
+                            @endcan
                             // Agregar enlace de edición si el usuario tiene permiso
                             @can('investigador-editar')
-                                actionsHtml += '<a href="{{ route("investigadors.edit", ":id") }}" alt="Editar" title="Editar"><span class="glyphicon glyphicon-edit"></span></a>'.replace(':id', row.id);
+                                actionsHtml += '<a href="{{ route("investigadors.edit", ":id") }}" alt="Editar" title="Editar" style="margin-right: 5px;"><span class="glyphicon glyphicon-edit"></span></a>'.replace(':id', row.id);
                             @endcan
 
                             // Agregar formulario de eliminación si el usuario tiene permiso
@@ -199,7 +202,7 @@
                             actionsHtml += '{{ csrf_field() }}';
                             actionsHtml += '{{ method_field('DELETE') }}';
                             actionsHtml += '</form>';
-                            actionsHtml += '<a href="" onclick="if(confirm(\'Está seguro?\')) {event.preventDefault(); document.getElementById(\'delete-form-' + row.id + '\').submit();} else {event.preventDefault();}" alt="Eliminar" title="Eliminar"><span class="glyphicon glyphicon-trash"></span></a>';
+                            actionsHtml += '<a href="" onclick="if(confirm(\'Está seguro?\')) {event.preventDefault(); document.getElementById(\'delete-form-' + row.id + '\').submit();} else {event.preventDefault();}" alt="Eliminar" title="Eliminar" style="margin-right: 5px;"><span class="glyphicon glyphicon-trash"></span></a>';
                             @endcan
 
                         return actionsHtml;
@@ -209,8 +212,40 @@
                 ],
                 "language": {
                     "url": "{{ asset('bower_components/datatables.net/lang/es-AR.json') }}"
+                },
+                "initComplete": function() {
+                    // Recuperar el valor del filtro desde la sesión
+                    var filtroGuardado = '{{ session('nombre_filtro_investigador', '') }}';
+
+                    // Establecer el valor en el input de búsqueda
+                    if (filtroGuardado) {
+                        $('#example1_filter input[type="search"]').val(filtroGuardado);
+                    }
+                    // Agregar botón "Limpiar Filtro" justo después del input de búsqueda
+                    $('#example1_filter').append('<button id="clearFilter" class="btn btn-secondary btn-sm" style="margin-left: 10px;">Limpiar Filtro</button>');
+
+                    // Asignar acción al botón "Limpiar Filtro"
+                    $('#clearFilter').click(function() {
+                        // Enviar una solicitud al servidor para limpiar la sesión
+                        $.post("{{ route('investigadors.clearFilter') }}", {
+                            _token: '{{ csrf_token() }}'
+                        })
+                            .done(function(response) {
+                                // Limpiar el input de búsqueda
+                                $('#example1_filter input[type="search"]').val('');
+
+                                // Hacer la búsqueda en la tabla (esto limpiará los resultados filtrados)
+                                table.search('').draw();
+
+                                //console.log('Filtro limpiado y tabla redibujada');
+                            })
+                            .fail(function(xhr) {
+                                console.error('Error al limpiar el filtro:', xhr.responseText);
+                            });
+                    });
                 }
             });
+
         });
 
     </script>

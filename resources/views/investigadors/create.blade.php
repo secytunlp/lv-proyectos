@@ -106,26 +106,32 @@
                                         </div>
                                     </div>
                                         <div class="row">
-                                            <div class="col-md-4">
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    {{Form::label('telefono', 'Teléfono')}}
+                                                    {{Form::text('telefono', '', ['class' => 'form-control','placeholder'=>'Teléfono'])}}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
                                                 <div class="form-group">
                                                     {{Form::label('calle', 'Calle')}}
                                                     {{Form::text('calle', '', ['class' => 'form-control','placeholder'=>'Calle'])}}
                                                 </div>
                                             </div>
-                                            <div class="col-md-3">
+                                            <div class="col-md-1">
                                                 <div class="form-group">
                                                     {{Form::label('nro', 'Número')}}
                                                     {{Form::text('nro', '', ['class' => 'form-control','placeholder'=>'Número'])}}
 
                                                 </div>
                                             </div>
-                                            <div class="col-md-2">
+                                            <div class="col-md-1">
                                                 <div class="form-group">
                                                     {{Form::label('piso', 'Piso')}}
                                                     {{Form::text('piso', '', ['class' => 'form-control','placeholder'=>'Piso'])}}
                                                 </div>
                                             </div>
-                                            <div class="col-md-2">
+                                            <div class="col-md-1">
                                                 <div class="form-group">
                                                     {{Form::label('depto', 'Departamento')}}
                                                     {{Form::text('depto', '', ['class' => 'form-control','placeholder'=>'Departamento'])}}
@@ -385,7 +391,7 @@
                                                     <tr>
 
                                                         <td>{{ Form::select('categorias[]',$categorias, '',['class' => 'form-control', 'style' => 'width: 60px']) }}</td>
-                                                        <td>{{ Form::select('catyears[]',$years, '',['class' => 'form-control', 'style' => 'width: 60px']) }}</td>
+                                                        <td>{{ Form::select('catyears[]',$years, '',['class' => 'form-control', 'style' => 'width: 80px']) }}</td>
                                                         <td>{{Form::date('catnotificacions[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
                                                         <td>{{ Form::select('catuniversidads[]',$universidades, '',['class' => 'form-control js-example-basic-single', 'style' => 'width: 300px']) }}</td>
 
@@ -424,7 +430,7 @@
                                                     <tr>
 
                                                         <td>{{ Form::select('sicadis[]',$sicadis, '',['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
-                                                        <td>{{ Form::select('sicadiyears[]',$years, '',['class' => 'form-control', 'style' => 'width: 60px']) }}</td>
+                                                        <td>{{ Form::select('sicadiyears[]',$years, '',['class' => 'form-control', 'style' => 'width: 80px']) }}</td>
                                                         <td>{{Form::date('sicadinotificacions[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
 
 
@@ -473,7 +479,7 @@
 
                                                         <td>{{Form::date('becahastas[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
                                                         <td>{{Form::checkbox('becaunlps[]', 1,false)}}</td>
-                                                        <td><a href="#" class="btn btn-danger removeCategoria"><i class="glyphicon glyphicon-remove"></i></a></td>
+                                                        <td><a href="#" class="btn btn-danger removeBeca"><i class="glyphicon glyphicon-remove"></i></a></td>
                                                     </tr>
 
                                                     </tbody>
@@ -611,7 +617,11 @@
         $('body').on('click', '.remove', function(e){
 
             e.preventDefault();
-            $(this).parent().parent().remove();
+            var confirmDelete = confirm('¿Estás seguro?');
+
+            if (confirmDelete) {
+                $(this).parent().parent().remove();
+            }
             if ($('#cuerpoTitulo tr').length === 0) {
                 $('#divMaterias').show();
             }
@@ -637,7 +647,11 @@
         $('body').on('click', '.removePost', function(e){
 
             e.preventDefault();
-            $(this).parent().parent().remove();
+            var confirmDelete = confirm('¿Estás seguro?');
+
+            if (confirmDelete) {
+                $(this).parent().parent().remove();
+            }
 
 
         });
@@ -665,7 +679,11 @@
         $('body').on('click', '.removeCargo', function(e){
 
             e.preventDefault();
-            $(this).parent().parent().remove();
+            var confirmDelete = confirm('¿Estás seguro?');
+
+            if (confirmDelete) {
+                $(this).parent().parent().remove();
+            }
 
 
         });
@@ -696,7 +714,11 @@
         $('body').on('click', '.removeCarrerainv', function(e){
 
             e.preventDefault();
-            $(this).parent().parent().remove();
+            var confirmDelete = confirm('¿Estás seguro?');
+
+            if (confirmDelete) {
+                $(this).parent().parent().remove();
+            }
 
 
         });
@@ -729,7 +751,11 @@
         $('body').on('click', '.removeCategoria', function(e){
 
             e.preventDefault();
-            $(this).parent().parent().remove();
+            var confirmDelete = confirm('¿Estás seguro?');
+
+            if (confirmDelete) {
+                $(this).parent().parent().remove();
+            }
 
 
         });
@@ -762,7 +788,11 @@
         $('body').on('click', '.removeSicadi', function(e){
 
             e.preventDefault();
-            $(this).parent().parent().remove();
+            var confirmDelete = confirm('¿Estás seguro?');
+
+            if (confirmDelete) {
+                $(this).parent().parent().remove();
+            }
 
 
         });
@@ -785,6 +815,7 @@
 
 
                 '<td>'+'{{ Form::checkbox('becaunlps[]',1,false) }}'+'</td>'+
+                '<td><a href="#" class="btn btn-danger removeBeca"><i class="glyphicon glyphicon-remove"></i></a></td>'+
                 '</tr>';
             $('#cuerpoBecas').append(tr);
 
@@ -795,7 +826,11 @@
         $('body').on('click', '.removeBeca', function(e){
 
             e.preventDefault();
-            $(this).parent().parent().remove();
+            var confirmDelete = confirm('¿Estás seguro?');
+
+            if (confirmDelete) {
+                $(this).parent().parent().remove();
+            }
 
 
         });
@@ -823,8 +858,11 @@
 
         // Función para obtener opciones de beca según la institución seleccionada
         function obtenerOpcionesBecaPorInstitucion(institucionSeleccionada) {
-            //console.log(institucionSeleccionada)
+            console.log(institucionSeleccionada)
             var opciones = @json(config('becas'));
+            if (!opciones) {
+                return ['']; // Opción por defecto si opciones es null o undefined
+            }
             if (opciones[institucionSeleccionada]) {
                 return opciones[institucionSeleccionada];
             }

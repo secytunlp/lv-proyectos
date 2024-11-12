@@ -39,7 +39,7 @@ class Investigador extends Model
 
     public function cargos() {
 
-        return $this->belongsToMany('App\Models\Cargo', 'investigador_cargos')->withPivot('deddoc','ingreso','facultad_id','activo','universidad_id');;
+        return $this->belongsToMany('App\Models\Cargo', 'investigador_cargos')->withPivot('deddoc','ingreso','facultad_id','activo','universidad_id');
     }
 
     public function carrerainvs() {

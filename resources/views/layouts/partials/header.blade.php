@@ -3,9 +3,9 @@
     <!-- Logo -->
     <a href="{{ url('/') }}" class="logo">
       <!-- mini logo for sidebar mini 50x50 pixels -->
-      <span class="logo-mini"><img src="{{ url('/images/logo.webp') }}" width="60px;"></span>
+      <span class="logo-mini"><img src="{{ url('/images/secyt.PNG') }}" width="100%"></span>
       <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg"><img src="{{ url('/images/logo.webp') }}" width="60px;"></span>
+      <span class="logo-lg"><img src="{{ url('/images/secyt.PNG') }}" width="100%"></span>
     </a>
 
       <!-- Header Navbar: style can be found in header.less -->

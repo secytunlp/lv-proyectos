@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Investigador;
+use App\Models\Integrante;
 use App\Models\Proyecto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Unidad;
 
 class ProyectoController extends Controller
 {
@@ -31,6 +34,38 @@ class ProyectoController extends Controller
         return view ('proyectos.index');
     }
 
+    public function verificarDirector()
+    {
+        $user = auth()->user();
+        $cuil = $user->cuil;
+
+        // Buscar investigador
+        $investigador = Investigador::whereHas('persona', function ($query) use ($cuil) {
+            $query->where('cuil', '=', $cuil);
+        })->first();
+
+        // Verificar si el investigador ha sido director de un proyecto acreditado
+        $fueDirector = Integrante::where('investigador_id', $investigador->id)
+            ->where('tipo', 'Director')
+            ->whereHas('proyecto', function ($query) {
+                $query->where('estado', 'Acreditado');
+            })
+            ->get();
+
+        // Si fue director, almacenar en la sesión
+        if (!$fueDirector->isEmpty()) {
+            session(['es_director' => 1]);
+        }
+    }
+
+    public function clearFilter(Request $request)
+    {
+        // Limpiar el valor del filtro en la sesión
+        $request->session()->forget('nombre_filtro_proyecto');
+        //Log::info('Sesion limpia:', $request->session()->all());
+        return response()->json(['status' => 'success']);
+    }
+
     public function dataTable(Request $request)
     {
         $columnas = ['proyectos.tipo','proyectos.codigo',  'proyectos.titulo', 'personas.apellido', 'proyectos.inicio', 'proyectos.fin', 'facultads.nombre','proyectos.estado']; // Define las columnas disponibles
@@ -51,6 +86,17 @@ class ProyectoController extends Controller
         ->leftJoin('investigadors', 'integrantes.investigador_id', '=', 'investigadors.id')
         ->leftJoin('personas', 'investigadors.persona_id', '=', 'personas.id');
 
+        if (!empty($busqueda)) {
+
+
+            $request->session()->put('nombre_filtro_proyecto', $busqueda);
+
+        }
+        else{
+            $busqueda = $request->session()->get('nombre_filtro_proyecto');
+
+        }
+
         // Aplicar la búsqueda
         if (!empty($busqueda)) {
             $query->where(function ($query) use ($columnas, $busqueda) {
@@ -60,7 +106,7 @@ class ProyectoController extends Controller
             });
         }
         $selectedRoleId = session('selected_rol');
-        if ($selectedRoleId==3){
+        if ($selectedRoleId==2){
             $user = auth()->user();
             $currentDate = date('Y-m-d');
 
@@ -130,9 +176,32 @@ class ProyectoController extends Controller
      * @param  \App\Models\Proyecto  $proyecto
      * @return \Illuminate\Http\Response
      */
-    public function show(Proyecto $proyecto)
+    public function show($id)
     {
-        //
+        $proyecto = Proyecto::find($id);
+
+
+        $facultades = DB::table('facultads')->pluck('nombre', 'id')->prepend('','');// Obtener todas las facultades directamente desde la tabla
+
+        /*$disciplinas = DB::table('disciplinas')->pluck('nombre', 'id')->prepend('','');
+        $especialidads = DB::table('especialidads')->pluck('nombre', 'id')->prepend('','');*/
+
+        $campos = DB::table('campos')->pluck('nombre', 'id')->prepend('','');
+
+        $unidads=Unidad::orderBy('nombre','ASC')->get();
+        $unidads->each->append('path_to_parent');
+        $unidads = $unidads->pluck('path_to_parent', 'id')->prepend('','');
+
+        $directorQuery = Integrante::select(DB::raw("CONCAT(personas.apellido, ', ', personas.nombre) as director_apellido"))
+            ->leftJoin('investigadors', 'integrantes.investigador_id', '=', 'investigadors.id')
+            ->leftJoin('proyectos', 'integrantes.proyecto_id', '=', 'proyectos.id')
+            ->leftJoin('personas', 'investigadors.persona_id', '=', 'personas.id');
+        $directorQuery->where('integrantes.tipo', 'Director');
+        $directorQuery->where('integrantes.proyecto_id', $id);
+        $director = $directorQuery->first();
+
+
+        return view('proyectos.show',compact('proyecto','facultades','unidads','campos','director'));
     }
 
     /**

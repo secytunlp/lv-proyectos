@@ -60,7 +60,8 @@ class IntegranteController extends Controller
     $resultados = $resultados->map(function($investigador) {
         $titulo = $investigador->titulos->first(); // Tomar solo el primer título
         $titulopost = $investigador->tituloposts->first(); // Tomar solo el primer título
-        $cargo = $investigador->cargos()->where('activo', true)->orderBy('deddoc', 'desc')->orderBy('orden', 'asc')->first(); // Obtener el cargo activo con mayor dedicación
+        $cargo = $investigador->cargos()->where('activo', true)->orderBy('deddoc', 'asc')->orderBy('orden', 'asc')->first(); // Obtener el cargo activo con mayor dedicación
+
         $carrerainv = $investigador->carrerainvs()->where('actual', true)->first();
         $sicadi = $investigador->sicadis()->where('actual', true)->first();
         $categoria = $investigador->categorias()->where('actual', true)->first();
@@ -153,6 +154,15 @@ class IntegranteController extends Controller
         return view('integrantes.index', compact('proyecto'));
     }
 
+
+    public function clearFilter(Request $request)
+    {
+        // Limpiar el valor del filtro en la sesión
+        $request->session()->forget('nombre_filtro_integrante');
+        //Log::info('Sesion limpia:', $request->session()->all());
+        return response()->json(['status' => 'success']);
+    }
+
     public function dataTable(Request $request)
     {
 
@@ -193,7 +203,16 @@ class IntegranteController extends Controller
             });
 
         }
+        if (!empty($busqueda)) {
 
+
+            $request->session()->put('nombre_filtro_integrante', $busqueda);
+
+        }
+        else{
+            $busqueda = $request->session()->get('nombre_filtro_integrante');
+
+        }
         // Aplicar la búsqueda
         if (!empty($busqueda)) {
             $query->where(function ($query) use ($columnas, $busqueda) {
@@ -204,7 +223,7 @@ class IntegranteController extends Controller
         }
 
 
-        if ($selectedRoleId == 3) {
+        if ($selectedRoleId == 2) {
 
             $currentDate = date('Y-m-d');
 
@@ -411,19 +430,20 @@ class IntegranteController extends Controller
             }
             else {
                 $investigador = $persona->investigador;
+                //dd($investigador);
+
+
+                // Almacenar el resultado de la validación en una variable
+                $resultadoValidacion = $this->validarHorasGuardar($request, $investigador, $proyecto_id);
+
+                // Verificar si la validación fue exitosa
+                if ($resultadoValidacion !== 'validacion_exitosa') {
+                    // Si no fue exitosa, retornar el resultado de la validación (que incluye el redirect()->back())
+                    return $resultadoValidacion;
+                }
             }
-            //dd($investigador);
+
             $input['investigador_id'] = $investigador->id; // Asignar el nuevo ident al input
-
-            // Almacenar el resultado de la validación en una variable
-            $resultadoValidacion = $this->validarHorasGuardar($request, $investigador, $proyecto_id);
-
-            // Verificar si la validación fue exitosa
-            if ($resultadoValidacion !== 'validacion_exitosa') {
-                // Si no fue exitosa, retornar el resultado de la validación (que incluye el redirect()->back())
-                return $resultadoValidacion;
-            }
-
 
         }catch(QueryException $ex){
 
@@ -504,9 +524,41 @@ class IntegranteController extends Controller
      * @param  \App\Models\Proyecto  $proyecto
      * @return \Illuminate\Http\Response
      */
-    public function show(Proyecto $proyecto)
+    public function show($id)
     {
-        //
+        $integrante = Integrante::find($id);
+
+        $proyectoId = $integrante->proyecto_id;
+        $proyecto = null;
+
+        // Si se proporciona un ID de proyecto, buscalo en la base de datos
+        if ($proyectoId) {
+            $proyecto = Proyecto::findOrFail($proyectoId);
+        }
+        //$provincias = DB::table('provincias')->OrderBy('nombre')->pluck('nombre', 'id'); // Obtener todas las provincias
+        $titulos=Titulo::where('nivel', 'Grado')->orderBy('nombre','ASC')->get();
+        $titulos = $titulos->pluck('full_name', 'id')->prepend('','');
+        $tituloposts=Titulo::where('nivel', 'Posgrado')->orderBy('nombre','ASC')->get();
+        $tituloposts = $tituloposts->pluck('full_name', 'id')->prepend('','');
+        $facultades = DB::table('facultads')->pluck('nombre', 'id')->prepend('','');// Obtener todas las facultades directamente desde la tabla
+        // Obtener los cargos ordenados por el campo 'orden' y seleccionar solo los campos 'id' y 'nombre'
+        $cargos = Cargo::orderBy('orden')->pluck('nombre', 'id')->prepend('', '');
+        $universidades=Universidad::orderBy('nombre','ASC')->get();
+        $universidades = $universidades->pluck('nombre', 'id')->prepend('','');
+        $unidads=Unidad::orderBy('nombre','ASC')->get();
+        $unidads->each->append('path_to_parent');
+        $unidads = $unidads->pluck('path_to_parent', 'id')->prepend('','');
+        $carrerainvs = Carrerainv::where('activo','1')->orderBy('orden')->pluck('nombre', 'id')->prepend('', '');
+        $organismos = DB::table('organismos')->where('activo','1')->pluck('codigo', 'id')->prepend('','');
+        $currentYear = date('Y');
+        $startYear = 1994;
+        $years = range($currentYear, $startYear);
+        $years = array_combine($years, $years); // Esto crea un array asociativo con los años como claves y valores
+        $categorias = Categoria::orderBy('id')->pluck('nombre', 'id')->prepend('', '');
+
+        $sicadis = Sicadi::orderBy('id')->pluck('nombre', 'id')->prepend('', '');
+
+        return view('integrantes.show',compact('titulos','tituloposts','facultades','cargos','universidades','unidads','carrerainvs','sicadis','years','organismos','categorias','sicadis','proyecto','integrante'));
     }
 
     /**
@@ -819,6 +871,7 @@ class IntegranteController extends Controller
             ->where(function ($query) {
                 $query->where('estado', '!=', 'Baja Creada')
                     ->orWhere('estado', '!=', 'Baja Recibida')
+                    ->orWhereNull('estado') // Agregamos los que tengan estado = null
                     ->orWhere('baja', '>', Carbon::now()->format('Y-m-d'))
                     ->orWhereNull('baja')
                     ->orWhere('baja', '0000-00-00');
@@ -826,7 +879,7 @@ class IntegranteController extends Controller
             ->whereHas('proyecto', function ($query) use ($proyecto_id) {
                 $query->where('estado', 'Acreditado')
                     ->where('id', '<>', $proyecto_id)
-                    ->where('fin', '>', Carbon::now()->subYears(1)->format('Y-m-d'));
+                    ->where('fin', '>', Carbon::now()->subYear()->endOfYear()->format('Y-m-d'));
             })
             ->get();
         $otroProyecto=array();
@@ -1089,8 +1142,13 @@ class IntegranteController extends Controller
 
                 $integranteMail = ($integrante->tipo=='Colaborador')?$integrante->tipo:'Integrante';
 
+
+                $userId = Auth::id();
+                $user = User::find($userId); // Obtener el usuario por su ID
                 // Preparar datos para el correo
                 $datosCorreo = [
+                    'from_email' => $user->email,
+                    'from_name' => $user->name,
                     'asunto' => 'Solicitud de ALTA de '.$integranteMail,
                     'codigo' => $integrante->proyecto->codigo,
                     'integranteMail' => $integranteMail,
@@ -1101,8 +1159,7 @@ class IntegranteController extends Controller
                 ];
 
 
-                //$user = User::find($userId); // Obtener el usuario por su ID
-                $userId = Auth::id();
+
                 // Generar el PDF y obtener la ruta
                 $pdfPath = $this->generateAltaPDF(new Request(['integrante_id' => $integrante->id]), true);
 
@@ -1214,6 +1271,8 @@ class IntegranteController extends Controller
 
             // Preparar datos para el correo
             $datosCorreo = [
+                'from_email' => Constants::MAIL_PROYECTOS,
+                'from_name' => Constants::NOMBRE_PROYECTOS,
                 'asunto' => 'Confirmación de solicitud de ALTA de '.$integranteMail,
                 'codigo' => $integrante->proyecto->codigo,
                 'integranteMail' => $integranteMail,
@@ -1303,6 +1362,8 @@ class IntegranteController extends Controller
 
             // Preparar datos para el correo
             $datosCorreo = [
+                'from_email' => Constants::MAIL_PROYECTOS,
+                'from_name' => Constants::NOMBRE_PROYECTOS,
                 'asunto' => 'Rechazo de solicitud de ALTA de '.$integranteMail,
                 'codigo' => $integrante->proyecto->codigo,
                 'integranteMail' => $integranteMail,
@@ -1382,6 +1443,7 @@ class IntegranteController extends Controller
 
         // Definir los mensajes de error personalizados
         $messages = [
+            'baja.required' => 'El campo Fecha de baja es obligatorio.',
             'baja.current_year' => 'Fecha de baja fuera del período.',
             'minint.accepted' => 'Debe marcar el checkbox de mínimo de integrantes.',
             'minded.accepted' => 'Debe marcar el checkbox de mínimo de mayor dedicación.',
@@ -1511,7 +1573,7 @@ class IntegranteController extends Controller
 
                 // Obtener el ID del usuario autenticado
                 $userId = Auth::id();
-
+                $user = User::find($userId);
                 // Generar el PDF y obtener la ruta
                 $pdfPath = $this->generateBajaPDF(new Request(['integrante_id' => $integrante->id]), true);
 
@@ -1519,6 +1581,8 @@ class IntegranteController extends Controller
 
                 // Preparar datos para el correo
                 $datosCorreo = [
+                    'from_email' => $user->email,
+                    'from_name' => $user->name,
                     'asunto' => 'Solicitud de Baja de '.$integranteMail,
                     'codigo' => $integrante->proyecto->codigo,
                     'integranteMail' => $integranteMail,
@@ -1579,6 +1643,8 @@ class IntegranteController extends Controller
 
             // Preparar datos para el correo
             $datosCorreo = [
+                'from_email' => Constants::MAIL_PROYECTOS,
+                'from_name' => Constants::NOMBRE_PROYECTOS,
                 'asunto' => 'Confirmación de solicitud de BAJA de '.$integranteMail,
                 'codigo' => $integrante->proyecto->codigo,
                 'integranteMail' => $integranteMail,
@@ -1660,6 +1726,8 @@ class IntegranteController extends Controller
 
             // Preparar datos para el correo
             $datosCorreo = [
+                'from_email' => Constants::MAIL_PROYECTOS,
+                'from_name' => Constants::NOMBRE_PROYECTOS,
                 'asunto' => 'Rechazo de solicitud de BAJA de '.$integranteMail,
                 'codigo' => $integrante->proyecto->codigo,
                 'integranteMail' => $integranteMail,
@@ -2002,11 +2070,13 @@ class IntegranteController extends Controller
 
                 // Obtener el ID del usuario autenticado
                 $userId = Auth::id();
-
-                $integranteMail = ($integrante->tipo=='Colaborador')?$integrante->tipo:'Integrante';
+                $user = User::find($userId); // Obtener el usuario por su ID
+                //$integranteMail = ($integrante->tipo=='Colaborador')?$integrante->tipo:'Integrante';
 
                 // Preparar datos para el correo
                 $datosCorreo = [
+                    'from_email' => $user->email,
+                    'from_name' => $user->name,
                     'asunto' => 'Solicitud de Cambio de Colaborador',
                     'codigo' => $integrante->proyecto->codigo,
                     'integranteMail' => 'Integrante',
@@ -2071,10 +2141,12 @@ class IntegranteController extends Controller
             $this->actualizarInvestigador($integrante,$investigador);
             $this->cambiarEstado($integrante,'Confirmación de cambio');
 
-            $integranteMail = ($integrante->tipo=='Colaborador')?$integrante->tipo:'Integrante';
+            //$integranteMail = ($integrante->tipo=='Colaborador')?$integrante->tipo:'Integrante';
 
             // Preparar datos para el correo
             $datosCorreo = [
+                'from_email' => Constants::MAIL_PROYECTOS,
+                'from_name' => Constants::NOMBRE_PROYECTOS,
                 'asunto' => 'Confirmación de solicitud de Cambio de Colaborador',
                 'codigo' => $integrante->proyecto->codigo,
                 'integranteMail' => 'Integrante',
@@ -2186,6 +2258,8 @@ class IntegranteController extends Controller
 
             // Preparar datos para el correo
             $datosCorreo = [
+                'from_email' => Constants::MAIL_PROYECTOS,
+                'from_name' => Constants::NOMBRE_PROYECTOS,
                 'asunto' => 'Rechazo de solicitud de CAMBIO de Colaborador',
                 'codigo' => $integrante->proyecto->codigo,
                 'integranteMail' => 'Colaborador',
@@ -2305,7 +2379,7 @@ class IntegranteController extends Controller
             $user = User::where('cuil', $director->cuil)->first();
             if ($user) {
                 // Enviar correo electrónico al usuario del director
-                Mail::to($user->email)->send(new SolicitudEnviada($datosCorreo, $integrante));
+                //Mail::to($user->email)->send(new SolicitudEnviada($datosCorreo, $integrante));
             }
         }
 
@@ -2319,7 +2393,7 @@ class IntegranteController extends Controller
 
         // Enviar correo electrónico a cada usuario
         foreach ($usuarios as $usuario) {
-            Mail::to($usuario->email)->send(new SolicitudEnviada($datosCorreo, $integrante));
+            //Mail::to($usuario->email)->send(new SolicitudEnviada($datosCorreo, $integrante));
         }
     }
 
@@ -2329,10 +2403,10 @@ class IntegranteController extends Controller
         $user = User::find($userId); // Obtener el usuario por su ID
 
         // Enviar correo electrónico al usuario
-        Mail::to($user->email)->send(new SolicitudEnviada($datosCorreo,$integrante, $adjuntarArchivos, $adjuntarPlanilla));
+        //Mail::to($user->email)->send(new SolicitudEnviada($datosCorreo,$integrante, $adjuntarArchivos, $adjuntarPlanilla));
 
         // Enviar correo electrónico a tu servidor (ejemplo)
-        Mail::to('marcosp@presi.unlp.edu.ar')->send(new SolicitudEnviada($datosCorreo,$integrante, $adjuntarArchivos, $adjuntarPlanilla));
+        //Mail::to('marcosp@presi.unlp.edu.ar')->send(new SolicitudEnviada($datosCorreo,$integrante, $adjuntarArchivos, $adjuntarPlanilla));
 
         // Obtener el nombre del rol correspondiente al id 4
         $roleName = Role::find(Constants::ID_ADMIN_FACULTAD_PROYECTOS)->name;
@@ -2344,7 +2418,7 @@ class IntegranteController extends Controller
 
         // Enviar correo electrónico a cada usuario
         foreach ($usuarios as $usuario) {
-            Mail::to($usuario->email)->send(new SolicitudEnviada($datosCorreo, $integrante, $adjuntarArchivos, $adjuntarPlanilla));
+            //Mail::to($usuario->email)->send(new SolicitudEnviada($datosCorreo, $integrante, $adjuntarArchivos, $adjuntarPlanilla));
         }
     }
 
@@ -2597,11 +2671,13 @@ class IntegranteController extends Controller
 
                 // Obtener el ID del usuario autenticado
                 $userId = Auth::id();
-
+                $user = User::find($userId); // Obtener el usuario por su ID
                 $integranteMail = ($integrante->tipo=='Colaborador')?$integrante->tipo:'Integrante';
 
                 // Preparar datos para el correo
                 $datosCorreo = [
+                    'from_email' => $user->email,
+                    'from_name' => $user->name,
                     'asunto' => 'Solicitud de Cambio de dedicación horaria',
                     'codigo' => $integrante->proyecto->codigo,
                     'integranteMail' => $integranteMail,
@@ -2718,6 +2794,8 @@ class IntegranteController extends Controller
 
             // Preparar datos para el correo
             $datosCorreo = [
+                'from_email' => Constants::MAIL_PROYECTOS,
+                'from_name' => Constants::NOMBRE_PROYECTOS,
                 'asunto' => 'Confirmación de solicitud de Cambio de dedicación horaria',
                 'codigo' => $integrante->proyecto->codigo,
                 'integranteMail' => $integranteMail,
@@ -2804,6 +2882,8 @@ class IntegranteController extends Controller
 
             // Preparar datos para el correo
             $datosCorreo = [
+                'from_email' => Constants::MAIL_PROYECTOS,
+                'from_name' => Constants::NOMBRE_PROYECTOS,
                 'asunto' => 'Rechazo de solicitud de CAMBIO de dedicación horaria',
                 'codigo' => $integrante->proyecto->codigo,
                 'integranteMail' => $integranteMail,
@@ -3176,15 +3256,14 @@ class IntegranteController extends Controller
             'estado' => $integrante->estado,
             'user_id' => $userId,
             'horas' => $integrante->horas,
-            'categoria_id' => $integrante->categoria_id,
-            'sicadi_id' => $integrante->sicadi_id,
+            'categoria_id' => ($integrante->categoria_id)?$integrante->categoria_id:null,
+            'sicadi_id' => ($integrante->sicadi_id)?$integrante->sicadi_id:null,
             'deddoc' => $integrante->deddoc,
-            'cargo_id' => $integrante->cargo_id,
-            'facultad_id' => $integrante->facultad_id,
-            'unidad_id' => $integrante->unidad_id,
-            'carrerainv_id' => $integrante->carrerainv_id,
-            'organismo_id' => $integrante->organismo_id,
-            'unidad_id' => $integrante->unidad_id,
+            'cargo_id' => ($integrante->cargo_id)?$integrante->cargo_id:null,
+            'facultad_id' => ($integrante->facultad_id)?$integrante->facultad_id:null,
+            'unidad_id' => ($integrante->unidad_id)?$integrante->unidad_id:null,
+            'carrerainv_id' => ($integrante->carrerainv_id)?$integrante->carrerainv_id:null,
+            'organismo_id' => ($integrante->organismo_id)?$integrante->organismo_id:null,
             'institucion' => ($integrante->institucion)?$integrante->institucion:null,
             'beca' => ($integrante->beca)?$integrante->beca:null,
             'consecuencias' => $integrante->consecuencias,
@@ -3198,6 +3277,7 @@ class IntegranteController extends Controller
 
     public function validarHorasGuardar($request,$investigador,$proyecto_id)
     {
+        //dd($request);
         $unProyecto=0;
         $dosProyectos=0;
         if ($request->tipo === 'Colaborador') {
@@ -3249,16 +3329,27 @@ class IntegranteController extends Controller
 
 
         }
-        elseif (!empty($request->becas[0]->beca)) {
+        elseif (!empty($request->becas[0])) {
 
             /*if ($integrante->beca!='RETENCION DE POSTGRADUADO'){
                 $unProyecto=1;
             }*/
-            if ($request->becas[0]->beca!='Beca posdoctoral'){
+            //dd($request->becas[0]->beca);
+            if ($request->becas[0]!='Beca posdoctoral'){
                 $unProyecto=1;
             }
-            if (!empty($request->becas[0]->institucion)) {
+            /*if (!empty($request->becas[0]->institucion)) {
                 if ($request->becas[0]->institucion=='CIN'){
+                    $maxHoras=12;
+                    $minHoras=12;
+                }
+                else{
+                    $maxHoras=40;
+                    $minHoras=40;
+                }
+            }*/
+            if (!empty($request->institucions[0])) {
+                if ($request->institucions[0]=='CIN'){
                     $maxHoras=12;
                     $minHoras=12;
                 }
@@ -3283,7 +3374,7 @@ class IntegranteController extends Controller
         elseif(in_array($request->carrerainvs[0], explode(",",Constants::CARRERAS_INVESTIGACION))){
             $dosProyectos = 1;
             $maxHoras = 35;
-            $minHoras=9;
+            $minHoras=10;
         }
         elseif (!empty($request->deddocs)) {
 
@@ -3291,7 +3382,7 @@ class IntegranteController extends Controller
                 case 'Exclusiva':
                     $dosProyectos = 1;
                     $maxHoras = 35;
-                    $minHoras=9;
+                    $minHoras=10;
                     break;
                 case 'Semi Exclusiva':
                     $dosProyectos = 1;
@@ -3310,12 +3401,12 @@ class IntegranteController extends Controller
 
         if (!$unProyecto){
 
-            if (!empty($request->becas[0]->beca)) {
+            if (!empty($request->becas[0])) {
 
 
-                if ($request->becas[0]->beca == 'Beca posdoctoral') {
+                if ($request->becas[0] == 'Beca posdoctoral') {
                     $dosProyectos = 1;
-                    $minHoras=9;
+                    $minHoras=10;
                 }
 
             }
@@ -3327,6 +3418,7 @@ class IntegranteController extends Controller
                 ->where(function ($query) {
                     $query->where('estado', '!=', 'Baja Creada')
                         ->where('estado', '!=', 'Baja Recibida')
+                        ->orWhereNull('estado') // Agregamos los que tengan estado = null
                         ->where(function ($q) {
                             $q->where('baja', '>', Carbon::now()->format('Y-m-d'))
                                 ->orWhereNull('baja')
@@ -3336,7 +3428,7 @@ class IntegranteController extends Controller
                 ->whereHas('proyecto', function ($query) use ($proyecto_id) {
                     $query->where('estado', 'Acreditado')
                         ->where('id', '<>', $proyecto_id)
-                        ->where('fin', '>', Carbon::now()->subYears(1)->format('Y-m-d'));
+                        ->where('fin', '>', Carbon::now()->subYear()->endOfYear()->format('Y-m-d'));
                 })
                 ->get();
             // Verificar si la colección de integrantes no está vacía
@@ -3467,7 +3559,7 @@ class IntegranteController extends Controller
         elseif(in_array($integrante->carrerainv_id, explode(",",Constants::CARRERAS_INVESTIGACION))){
             $dosProyectos = 1;
             $maxHoras = 35;
-            $minHoras=9;
+            $minHoras=10;
         }
         elseif (!empty($integrante->deddocs)) {
 
@@ -3475,7 +3567,7 @@ class IntegranteController extends Controller
                 case 'Exclusiva':
                     $dosProyectos = 1;
                     $maxHoras = 35;
-                    $minHoras=9;
+                    $minHoras=10;
                     break;
                 case 'Semi Exclusiva':
                     $dosProyectos = 1;
@@ -3499,7 +3591,7 @@ class IntegranteController extends Controller
 
                 if ($integrante->beca == 'Beca posdoctoral') {
                     $dosProyectos = 1;
-                    $minHoras=9;
+                    $minHoras=10;
                 }
 
 
@@ -3516,6 +3608,7 @@ class IntegranteController extends Controller
                 ->where(function ($query) {
                     $query->where('estado', '!=', 'Baja Creada')
                         ->where('estado', '!=', 'Baja Recibida')
+                        ->orWhereNull('estado') // Agregamos los que tengan estado = null
                         ->where(function ($q) {
                             $q->where('baja', '>', Carbon::now()->format('Y-m-d'))
                                 ->orWhereNull('baja')
@@ -3525,7 +3618,8 @@ class IntegranteController extends Controller
                 ->whereHas('proyecto', function ($query) use ($proyecto_id) {
                     $query->where('estado', 'Acreditado')
                         ->where('id', '<>', $proyecto_id)
-                        ->where('fin', '>', Carbon::now()->subYears(1)->format('Y-m-d'));
+                        // Modificar para que 'fin' sea mayor al 31/12 del año anterior
+                        ->where('fin', '>', Carbon::now()->subYear()->endOfYear()->format('Y-m-d'));
                 })
                 ->get();
             // Verificar si la colección de integrantes no está vacía
@@ -3653,6 +3747,7 @@ class IntegranteController extends Controller
         $rules = [
             'tipo' => 'required',
             'cambio' => 'required|date|current_year',
+            'horas' => 'required',
 
         ];
 
@@ -3665,6 +3760,9 @@ class IntegranteController extends Controller
 
         // Crear el validador con las reglas y mensajes
         $validator = Validator::make($request->all(), $rules, $messages);
+
+
+
 
         // Añadir la validación personalizada para verificar que horas y horas_anteriores sean distintos
         /*$validator->after(function ($validator) use ($request) {
@@ -3748,9 +3846,21 @@ class IntegranteController extends Controller
                 $input['estado'] = 'Cambio Tipo Creado';
                 $input['curriculum'] =null;
                 $input['actividades'] =null;
-                $integrante->update($input);
 
+                $integrante->update($input);
                 $this->guardarIntegrante($request,$integrante);
+
+
+                //dd($integrante);
+                $errores=array();
+                if (($integrante->horas_anteriores>$integrante->horas)&&empty($integrante->reduccion)) {
+                    $errores[] = 'En el caso de ser una reducción horaria, especificar las consecuencias que la misma tendrá en el desarrollo del proyecto';
+                }
+                $this->validarEnviar($integrante,$errores);
+                if (!empty($errores)) {
+                    return redirect()->back()->withErrors($errores)->withInput();
+                }
+
 
                 $this->cambiarEstado($integrante,'Iniciar cambio de tipo');
 
@@ -3857,11 +3967,13 @@ class IntegranteController extends Controller
 
                 // Obtener el ID del usuario autenticado
                 $userId = Auth::id();
-
+                $user = User::find($userId); // Obtener el usuario por su ID
                 $integranteMail = ($integrante->tipo=='Colaborador')?$integrante->tipo:'Integrante';
 
                 // Preparar datos para el correo
                 $datosCorreo = [
+                    'from_email' => $user->email,
+                    'from_name' => $user->name,
                     'asunto' => 'Solicitud de Cambio de tipo de integrante',
                     'codigo' => $integrante->proyecto->codigo,
                     'integranteMail' => $integranteMail,
@@ -3939,14 +4051,14 @@ class IntegranteController extends Controller
             $integrante->tipo = $estadoFiltrado->tipo;
             $integrante->horas = $estadoFiltrado->horas;
             $integrante->baja = $estadoFiltrado->baja;
-            $integrante->categoria_id = $estadoFiltrado->categoria_id;
-            $integrante->sicadi_id = $estadoFiltrado->sicadi_id;
+            $integrante->categoria_id = ($estadoFiltrado->categoria_id)?$estadoFiltrado->categoria_id:null;
+            $integrante->sicadi_id = ($estadoFiltrado->sicadi_id)?$estadoFiltrado->sicadi_id:null;
             $integrante->deddoc = $estadoFiltrado->deddoc;
-            $integrante->cargo_id = $estadoFiltrado->cargo_id;
-            $integrante->facultad_id = $estadoFiltrado->facultad_id;
-            $integrante->unidad_id = $estadoFiltrado->unidad_id;
-            $integrante->carrerainv_id = $estadoFiltrado->carrerainv_id;
-            $integrante->organismo_id = $estadoFiltrado->organismo_id;
+            $integrante->cargo_id = ($estadoFiltrado->cargo_id)?$estadoFiltrado->cargo_id:null;
+            $integrante->facultad_id = ($estadoFiltrado->facultad_id)?$estadoFiltrado->facultad_id:null;
+            $integrante->unidad_id = ($estadoFiltrado->unidad_id)?$estadoFiltrado->unidad_id:null;
+            $integrante->carrerainv_id = ($estadoFiltrado->carrerainv_id)?$estadoFiltrado->carrerainv_id:null;
+            $integrante->organismo_id = ($estadoFiltrado->organismo_id)?$estadoFiltrado->organismo_id:null;
             $integrante->institucion = ($estadoFiltrado->institucion)?$estadoFiltrado->institucion:null;
             $integrante->beca = ($estadoFiltrado->beca)?$estadoFiltrado->beca:null;
             $integrante->save();
@@ -4002,6 +4114,8 @@ class IntegranteController extends Controller
 
             // Preparar datos para el correo
             $datosCorreo = [
+                'from_email' => Constants::MAIL_PROYECTOS,
+                'from_name' => Constants::NOMBRE_PROYECTOS,
                 'asunto' => 'Confirmación de solicitud de Cambio de tipo de integrante',
                 'codigo' => $integrante->proyecto->codigo,
                 'integranteMail' => $integranteMail,
@@ -4110,6 +4224,8 @@ class IntegranteController extends Controller
 
             // Preparar datos para el correo
             $datosCorreo = [
+                'from_email' => Constants::MAIL_PROYECTOS,
+                'from_name' => Constants::NOMBRE_PROYECTOS,
                 'asunto' => 'Rechazo de solicitud de CAMBIO de tipo de integrante',
                 'codigo' => $integrante->proyecto->codigo,
                 'integranteMail' => $integranteMail,
@@ -4333,10 +4449,12 @@ class IntegranteController extends Controller
 
             $errores[] = 'Complete todos los campos del Cargo Docente en la pestaña Universidad';
         }
-        if (
-            (empty($integrante->cargo_id) && empty($integrante->carrerainv_id) && empty($integrante->beca))
-        ){
-            $errores[] = 'Si no posee cargo, debe ser becario o tener un cargo en la carrera de investigación';
+        if ($integrante->tipo != 'Colaborador') {
+            if (
+                (empty($integrante->cargo_id) && empty($integrante->carrerainv_id) && empty($integrante->beca))
+            ) {
+                $errores[] = 'Si no posee cargo, debe ser becario o tener un cargo en la carrera de investigación';
+            }
         }
 
 

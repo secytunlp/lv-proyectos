@@ -34,7 +34,7 @@
                     <div class="box">
                         <div class="box-header with-border">
                             <h3 class="box-title">Estados @if($integrante) - {{ $integrante->investigador->persona->apellido }} {{ $integrante->investigador->persona->nombre }} en el Proyecto {{ $integrante->proyecto->codigo }}@endif</h3>
-                            @if($integrante)<a class='pull-right btn btn-success' href="{{ route('integrante_estados.create', ['integrante_id' => $integrante->id]) }}">Nuevo</a>@endif
+                            @if($integrante)<a class='pull-right btn btn-success' href="{{ route('integrante_estados.create', ['integrante_id' => $integrante->id]) }}">Cambiar</a>@endif
                         </div>
                         @include('includes.messages')
 

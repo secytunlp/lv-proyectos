@@ -13,7 +13,12 @@ use App\Http\Controllers\ProyectoController;
 use App\Http\Controllers\IntegranteController;
 use App\Http\Controllers\IntegranteEstadoController;
 use App\Http\Controllers\SolicitudSicadiController;
-
+use App\Http\Controllers\JovenController;
+use App\Http\Controllers\JovenEstadoController;
+use App\Http\Controllers\JovenEvaluacionController;
+use App\Http\Controllers\JovenEvaluacionEstadoController;
+use App\Http\Controllers\ViajeController;
+use App\Http\Controllers\ViajeEstadoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,9 +47,11 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('select-rol', [UserController::class, 'selectRol'])->name('select-rol');
     Route::post('save-selected-rol', [UserController::class, 'saveSelectedRol'])->name('save-selected-rol');
 });
-
+Route::get('/home', function () {
+    return view('welcome'); // Cambia 'welcome' al nombre de tu vista
+})->middleware(['auth', 'CheckSelectedRolePermissions'])->name('home');
 Route::group(['middleware' => ['auth', 'CheckSelectedRolePermissions']], function() {
-    Route::get('/home', [ProyectoController::class, 'index'])->name('home');
+    //Route::get('/home', [JovenController::class, 'index'])->name('home');
     Route::resource('roles', RoleController::class);
     Route::resource('users', UserController::class);
     Route::get('perfil', [UserController::class, 'perfil'])->name('users.perfil');
@@ -62,6 +69,7 @@ Route::group(['middleware' => ['auth', 'CheckSelectedRolePermissions']], functio
 
     Route::resource('investigadors', InvestigadorController::class);
     Route::post('investigador-datatable', [InvestigadorController::class, 'dataTable'])->name('investigadors.dataTable');
+    Route::post('/investigadors/clear-filter', [InvestigadorController::class, 'clearFilter'])->name('investigadors.clearFilter');
 
     Route::resource('solicitud_sicadis', SolicitudSicadiController::class);
     Route::post('solicitud_sicadi-datatable', [SolicitudSicadiController::class, 'dataTable'])->name('solicitud_sicadis.dataTable');
@@ -70,6 +78,7 @@ Route::group(['middleware' => ['auth', 'CheckSelectedRolePermissions']], functio
 
     Route::resource('proyectos', ProyectoController::class);
     Route::post('proyecto-datatable', [ProyectoController::class, 'dataTable'])->name('proyectos.dataTable');
+    Route::post('/proyectos/clear-filter', [ProyectoController::class, 'clearFilter'])->name('proyectos.clearFilter');
 
     Route::get('integrantes/{integrante}/rechazar', [IntegranteController::class, 'rechazar'])->name('integrantes.rechazar');
     Route::put('integrantes/{integrante}/deny', [IntegranteController::class, 'saveDeny'])->name('integrantes.saveDeny');
@@ -95,6 +104,7 @@ Route::group(['middleware' => ['auth', 'CheckSelectedRolePermissions']], functio
     Route::post('anularTipo/{id}', [IntegranteController::class, 'anularTipo'])->name('integrantes.anularTipo');
     Route::resource('integrantes', IntegranteController::class);
     Route::post('integrante-datatable', [IntegranteController::class, 'dataTable'])->name('integrantes.dataTable');
+    Route::post('/integrantes/clear-filter', [IntegranteController::class, 'clearFilter'])->name('integrantes.clearFilter');
     Route::get('buscar_investigador', [IntegranteController::class, 'buscarInvestigador'])->name('integrantes.buscarInvestigador');
     Route::get('alta-pdf', [IntegranteController::class, 'generateAltaPDF'])->name('integrantes.alta-pdf');
     Route::get('baja-pdf', [IntegranteController::class, 'generateBajaPDF'])->name('integrantes.baja-pdf');
@@ -116,6 +126,62 @@ Route::group(['middleware' => ['auth', 'CheckSelectedRolePermissions']], functio
     Route::resource('integrante_estados', IntegranteEstadoController::class);
     Route::post('integrante_estado-datatable', [IntegranteEstadoController::class, 'dataTable'])->name('integrante_estados.dataTable');
 
+    Route::resource('jovens', JovenController::class);
+    Route::post('joven-datatable', [JovenController::class, 'dataTable'])->name('jovens.dataTable');
+    Route::post('/jovens/clear-filter', [JovenController::class, 'clearFilter'])->name('jovens.clearFilter');
+    Route::get('joven-pdf', [JovenController::class, 'generatePDF'])->name('jovens.solicitud-pdf');
+    Route::get('joven-archivos', [JovenController::class, 'archivos'])->name('jovens.archivos');
+    Route::post('enviar/{id}', [JovenController::class, 'enviar'])->name('jovens.enviar');
+    Route::post('admitirJoven/{id}', [JovenController::class, 'admitir'])->name('jovens.admitir');
+    Route::get('jovens/{joven}/rechazar', [JovenController::class, 'rechazar'])->name('jovens.rechazar');
+    Route::put('jovens/{joven}/deny', [JovenController::class, 'saveDeny'])->name('jovens.saveDeny');
+    Route::get('joven-exportar', [JovenController::class, 'exportar'])->name('jovens.exportar');
 
+    Route::resource('joven_estados', JovenEstadoController::class);
+    Route::post('joven_estado-datatable', [JovenEstadoController::class, 'dataTable'])->name('joven_estados.dataTable');
+
+    Route::resource('joven_evaluacions', JovenEvaluacionController::class);
+    Route::post('joven_evaluacion-datatable', [JovenEvaluacionController::class, 'dataTable'])->name('joven_evaluacions.dataTable');
+    Route::post('/joven_evaluacions/clear-filter', [JovenEvaluacionController::class, 'clearFilter'])->name('joven_evaluacions.clearFilter');
+    Route::get('/joven_evaluacions/{joven_id}/enviar', [JovenEvaluacionController::class, 'enviar'])->name('joven_evaluacions.enviar');
+    Route::post('aceptar/{id}', [JovenEvaluacionController::class, 'aceptar'])->name('joven_evaluacions.aceptar');
+    Route::get('joven_evaluacions/{joven}/rechazar', [JovenEvaluacionController::class, 'rechazar'])->name('joven_evaluacions.rechazar');
+    Route::put('joven_evaluacions/{joven}/deny', [JovenEvaluacionController::class, 'saveDeny'])->name('joven_evaluacions.saveDeny');
+    Route::get('joven_evaluacions/{joven}/evaluar', [JovenEvaluacionController::class, 'evaluar'])->name('joven_evaluacions.evaluar');
+    Route::put('joven_evaluacions/{joven}/saveEvaluar', [JovenEvaluacionController::class, 'saveEvaluar'])->name('joven_evaluacions.saveEvaluar');
+    Route::get('joven_evaluacions-pdf', [JovenEvaluacionController::class, 'generatePDF'])->name('joven_evaluacions.evaluacion-pdf');
+    Route::post('send/{id}', [JovenEvaluacionController::class, 'send'])->name('joven_evaluacions.send');
+    Route::get('/joven_evaluacions/{joven_id}/actualizar', [JovenEvaluacionController::class, 'actualizar'])->name('joven_evaluacions.actualizar');
+
+
+    Route::resource('joven_evaluacion_estados', JovenEvaluacionEstadoController::class);
+    Route::post('joven_evaluacion_estado-datatable', [JovenEvaluacionEstadoController::class, 'dataTable'])->name('joven_evaluacion_estados.dataTable');
+
+    Route::resource('viajes', ViajeController::class);
+    Route::post('viaje-datatable', [ViajeController::class, 'dataTable'])->name('viajes.dataTable');
+    Route::post('/viajes/clear-filter', [ViajeController::class, 'clearFilter'])->name('viajes.clearFilter');
+    Route::get('viaje-pdf', [ViajeController::class, 'generatePDF'])->name('viajes.solicitud-pdf');
+    Route::get('viaje-archivos', [ViajeController::class, 'archivos'])->name('viajes.archivos');
+    Route::post('enviar/{id}', [ViajeController::class, 'enviar'])->name('viajes.enviar');
+    Route::post('admitirViaje/{id}', [ViajeController::class, 'admitir'])->name('viajes.admitir');
+    Route::get('viajes/{viaje}/rechazar', [ViajeController::class, 'rechazar'])->name('viajes.rechazar');
+    Route::put('viajes/{viaje}/deny', [ViajeController::class, 'saveDeny'])->name('viajes.saveDeny');
+    Route::get('viaje-exportar', [ViajeController::class, 'exportar'])->name('viajes.exportar');
+
+    Route::resource('viaje_estados', ViajeEstadoController::class);
+    Route::post('viaje_estado-datatable', [ViajeEstadoController::class, 'dataTable'])->name('viaje_estados.dataTable');
+
+    Route::resource('viaje_evaluacions', ViajeEvaluacionController::class);
+    Route::post('viaje_evaluacion-datatable', [ViajeEvaluacionController::class, 'dataTable'])->name('viaje_evaluacions.dataTable');
+    Route::post('/viaje_evaluacions/clear-filter', [ViajeEvaluacionController::class, 'clearFilter'])->name('viaje_evaluacions.clearFilter');
+    Route::get('/viaje_evaluacions/{viaje_id}/enviar', [ViajeEvaluacionController::class, 'enviar'])->name('viaje_evaluacions.enviar');
+    Route::post('aceptar/{id}', [ViajeEvaluacionController::class, 'aceptar'])->name('viaje_evaluacions.aceptar');
+    Route::get('viaje_evaluacions/{viaje}/rechazar', [ViajeEvaluacionController::class, 'rechazar'])->name('viaje_evaluacions.rechazar');
+    Route::put('viaje_evaluacions/{viaje}/deny', [ViajeEvaluacionController::class, 'saveDeny'])->name('viaje_evaluacions.saveDeny');
+    Route::get('viaje_evaluacions/{viaje}/evaluar', [ViajeEvaluacionController::class, 'evaluar'])->name('viaje_evaluacions.evaluar');
+    Route::put('viaje_evaluacions/{viaje}/saveEvaluar', [ViajeEvaluacionController::class, 'saveEvaluar'])->name('viaje_evaluacions.saveEvaluar');
+    Route::get('viaje_evaluacions-pdf', [ViajeEvaluacionController::class, 'generatePDF'])->name('viaje_evaluacions.evaluacion-pdf');
+    Route::post('send/{id}', [ViajeEvaluacionController::class, 'send'])->name('viaje_evaluacions.send');
+    Route::get('/viaje_evaluacions/{viaje_id}/actualizar', [ViajeEvaluacionController::class, 'actualizar'])->name('viaje_evaluacions.actualizar');
 
 });

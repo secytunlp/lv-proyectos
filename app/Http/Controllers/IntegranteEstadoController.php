@@ -110,7 +110,7 @@ class IntegranteEstadoController extends Controller
             ->get();
 
         // Obtener la cantidad total de registros sin filtrar
-        $recordsTotal = Integrante::count();
+        $recordsTotal = IntegranteEstado::count();
 
         return response()->json([
             'data' => $datos,
@@ -542,20 +542,29 @@ class IntegranteEstadoController extends Controller
                     'estado' => $integrante->estado,
                     'user_id' => $userId,
                     'horas' => $integrante->horas,
-                    'categoria_id' => $integrante->categoria_id,
-                    'sicadi_id' => $integrante->sicadi_id,
+                    'categoria_id' => ($integrante->categoria_id)?$integrante->categoria_id:null,
+                    'sicadi_id' => ($integrante->sicadi_id)?$integrante->sicadi_id:null,
                     'deddoc' => $integrante->deddoc,
-                    'cargo_id' => $integrante->cargo_id,
-                    'facultad_id' => $integrante->facultad_id,
+                    'cargo_id' => ($integrante->cargo_id)?$integrante->cargo_id:null,
+                    'facultad_id' => ($integrante->facultad_id)?$integrante->facultad_id:null,
+                    'unidad_id' => ($integrante->unidad_id)?$integrante->unidad_id:null,
+                    'carrerainv_id' => ($integrante->carrerainv_id)?$integrante->carrerainv_id:null,
+                    'organismo_id' => ($integrante->organismo_id)?$integrante->organismo_id:null,
                     'unidad_id' => $integrante->unidad_id,
-                    'carrerainv_id' => $integrante->carrerainv_id,
-                    'organismo_id' => $integrante->organismo_id,
-                    'unidad_id' => $integrante->unidad_id,
-                    'institucion' => $integrante->institucion,
-                    'beca' => $integrante->beca,
+                    'institucion' => ($integrante->institucion)?$integrante->institucion:null,
+                    'beca' => ($integrante->beca)?$integrante->beca:null,
                     'desde' => Carbon::now(), // Establecer 'desde' como la fecha actual
                     'comentarios' => $input['comentarios'],
                 ]);
+
+
+
+
+
+
+
+
+
 
 
 

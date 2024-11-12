@@ -109,7 +109,7 @@
     <!-- page script -->
     <script>
         $(document).ready(function() {
-            $('#example1').DataTable({
+            var table = $('#example1').DataTable({
                 "processing": true, // Activar la indicación de procesamiento
                 "serverSide": true, // Habilitar el procesamiento del lado del servidor
                 "autoWidth": false, // Desactiva el ajuste automático del anchos
@@ -173,6 +173,9 @@
                         "render": function(data, type, row) {
                             // Construir HTML para las acciones
                             var actionsHtml = '';
+                            @can('proyecto-listar')
+                                actionsHtml += '<a href="{{ route("proyectos.show", ":id") }}" alt="Ver proyecto" title="Ver proyecto" style="margin-right: 5px;"><span class="glyphicon glyphicon-eye-open"></span></a>'.replace(':id', row.id);
+                            @endcan
 // Agregar enlace de edición si el usuario tiene permiso
                             @can('integrante-listar')
                                 actionsHtml += '<a href="{{ route("integrantes.index") }}?proyecto_id=' + row.id + '" alt="Integrantes" title="Integrantes"><i class="fa fa-user-friends"></i></a>';
@@ -186,6 +189,38 @@
                 ],
                 "language": {
                     "url": "{{ asset('bower_components/datatables.net/lang/es-AR.json') }}"
+                },
+                "initComplete": function() {
+                    // Recuperar el valor del filtro desde la sesión
+                    var filtroGuardado = '{{ session('nombre_filtro_proyecto', '') }}';
+
+                    // Establecer el valor en el input de búsqueda
+                    if (filtroGuardado) {
+                        $('#example1_filter input[type="search"]').val(filtroGuardado);
+                    }
+
+                    // Agregar botón "Limpiar Filtro" justo después del input de búsqueda
+                    $('#example1_filter').append('<button id="clearFilter" class="btn btn-secondary btn-sm" style="margin-left: 10px;">Limpiar Filtro</button>');
+
+                    // Asignar acción al botón "Limpiar Filtro"
+                    $('#clearFilter').click(function() {
+                        // Enviar una solicitud al servidor para limpiar la sesión
+                        $.post("{{ route('proyectos.clearFilter') }}", {
+                            _token: '{{ csrf_token() }}'
+                        })
+                            .done(function(response) {
+                                // Limpiar el input de búsqueda
+                                $('#example1_filter input[type="search"]').val('');
+
+                                // Hacer la búsqueda en la tabla (esto limpiará los resultados filtrados)
+                                table.search('').draw();
+
+                                //console.log('Filtro limpiado y tabla redibujada');
+                            })
+                            .fail(function(xhr) {
+                                console.error('Error al limpiar el filtro:', xhr.responseText);
+                            });
+                    });
                 }
             });
         });

@@ -30,4 +30,27 @@ class Unidad extends Model
 
         return $path . ' > ' . implode(' > ', $ancestors);
     }
+
+    /**
+     * Verifica si cualquiera de los IDs objetivo está en la jerarquía de esta unidad.
+     *
+     * @param array $targetIds
+     * @return bool
+     */
+    public function isInHierarchy(array $targetIds): bool
+    {
+        $current = $this;
+
+        // Recorre hacia arriba en la jerarquía
+        while ($current) {
+            if (in_array($current->id, $targetIds)) {
+                return true;
+            }
+
+            $current = $current->padre;
+        }
+
+        return false;
+    }
+
 }

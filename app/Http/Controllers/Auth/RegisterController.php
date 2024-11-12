@@ -124,8 +124,8 @@ class RegisterController extends Controller
         $user->assignRole($role);
 
         // Asigna el rol "director" al usuario recién creado
-        $role = Role::where('name', 'Director')->first();
-        $user->assignRole($role);
+        /*$role = Role::where('name', 'Director')->first();
+        $user->assignRole($role);*/
 
         return $user;
     }

@@ -107,26 +107,32 @@
                                         </div>
                                     </div>
                                         <div class="row">
-                                            <div class="col-md-4">
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    {{Form::label('telefono', 'Teléfono')}}
+                                                    {{Form::text('telefono', $investigador->persona->telefono, ['class' => 'form-control','placeholder'=>'Teléfono'])}}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
                                                 <div class="form-group">
                                                     {{Form::label('calle', 'Calle')}}
                                                     {{Form::text('calle', $investigador->persona->calle, ['class' => 'form-control','placeholder'=>'Calle'])}}
                                                 </div>
                                             </div>
-                                            <div class="col-md-3">
+                                            <div class="col-md-1">
                                                 <div class="form-group">
                                                     {{Form::label('nro', 'Número')}}
                                                     {{Form::text('nro', $investigador->persona->nro, ['class' => 'form-control','placeholder'=>'Número'])}}
 
                                                 </div>
                                             </div>
-                                            <div class="col-md-2">
+                                            <div class="col-md-1">
                                                 <div class="form-group">
                                                     {{Form::label('piso', 'Piso')}}
                                                     {{Form::text('piso', $investigador->persona->piso, ['class' => 'form-control','placeholder'=>'Piso'])}}
                                                 </div>
                                             </div>
-                                            <div class="col-md-2">
+                                            <div class="col-md-1">
                                                 <div class="form-group">
                                                     {{Form::label('depto', 'Departamento')}}
                                                     {{Form::text('depto', $investigador->persona->depto, ['class' => 'form-control','placeholder'=>'Departamento'])}}
@@ -396,7 +402,7 @@
                                                     <tr>
 
                                                         <td>{{ Form::select('categorias[]',$categorias, $categoria->pivot->categoria_id,['class' => 'form-control', 'style' => 'width: 60px']) }}</td>
-                                                        <td>{{ Form::select('catyears[]',['' => ''] +$years, $categoria->pivot->year,['class' => 'form-control', 'style' => 'width: 60px']) }}</td>
+                                                        <td>{{ Form::select('catyears[]',['' => ''] +$years, $categoria->pivot->year,['class' => 'form-control', 'style' => 'width: 80px']) }}</td>
                                                         <td>{{Form::date('catnotificacions[]',  ($categoria->pivot->notificacion)?date('Y-m-d', strtotime($categoria->pivot->notificacion)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
                                                         <td>{{ Form::select('catuniversidads[]',$universidades, $categoria->pivot->universidad_id,['class' => 'form-control js-example-basic-single', 'style' => 'width: 300px']) }}</td>
 
@@ -436,7 +442,7 @@
                                                     <tr>
 
                                                         <td>{{ Form::select('sicadis[]',$sicadis, $sicadi->pivot->sicadi_id,['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
-                                                        <td>{{ Form::select('sicadiyears[]',$years, $sicadi->pivot->year,['class' => 'form-control', 'style' => 'width: 60px']) }}</td>
+                                                        <td>{{ Form::select('sicadiyears[]',$years, $sicadi->pivot->year,['class' => 'form-control', 'style' => 'width: 80px']) }}</td>
                                                         <td>{{Form::date('sicadinotificacions[]', ($sicadi->pivot->notificacion)?date('Y-m-d', strtotime($sicadi->pivot->notificacion)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
 
 
@@ -486,7 +492,7 @@
 
                                                         <td>{{Form::date('becahastas[]', ($beca->hasta)?date('Y-m-d', strtotime($beca->hasta)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
                                                         <td>{{Form::checkbox('becaunlps[]', 1,($beca->unlp)?true:false)}}</td>
-                                                        <td><a href="#" class="btn btn-danger removeCategoria"><i class="glyphicon glyphicon-remove"></i></a></td>
+                                                        <td><a href="#" class="btn btn-danger removeBeca"><i class="glyphicon glyphicon-remove"></i></a></td>
                                                     </tr>
                                                     @endforeach
                                                     </tbody>
@@ -626,7 +632,11 @@
         $('body').on('click', '.remove', function(e){
 
             e.preventDefault();
-            $(this).parent().parent().remove();
+            var confirmDelete = confirm('¿Estás seguro?');
+
+            if (confirmDelete) {
+                $(this).parent().parent().remove();
+            }
             if ($('#cuerpoTitulo tr').length === 0) {
                 $('#divMaterias').show();
             }
@@ -652,7 +662,11 @@
         $('body').on('click', '.removePost', function(e){
 
             e.preventDefault();
-            $(this).parent().parent().remove();
+            var confirmDelete = confirm('¿Estás seguro?');
+
+            if (confirmDelete) {
+                $(this).parent().parent().remove();
+            }
 
 
         });
@@ -680,7 +694,11 @@
         $('body').on('click', '.removeCargo', function(e){
 
             e.preventDefault();
-            $(this).parent().parent().remove();
+            var confirmDelete = confirm('¿Estás seguro?');
+
+            if (confirmDelete) {
+                $(this).parent().parent().remove();
+            }
 
 
         });
@@ -711,7 +729,11 @@
         $('body').on('click', '.removeCarrerainv', function(e){
 
             e.preventDefault();
-            $(this).parent().parent().remove();
+            var confirmDelete = confirm('¿Estás seguro?');
+
+            if (confirmDelete) {
+                $(this).parent().parent().remove();
+            }
 
 
         });
@@ -744,7 +766,11 @@
         $('body').on('click', '.removeCategoria', function(e){
 
             e.preventDefault();
-            $(this).parent().parent().remove();
+            var confirmDelete = confirm('¿Estás seguro?');
+
+            if (confirmDelete) {
+                $(this).parent().parent().remove();
+            }
 
 
         });
@@ -777,7 +803,11 @@
         $('body').on('click', '.removeSicadi', function(e){
 
             e.preventDefault();
-            $(this).parent().parent().remove();
+            var confirmDelete = confirm('¿Estás seguro?');
+
+            if (confirmDelete) {
+                $(this).parent().parent().remove();
+            }
 
 
         });
@@ -800,6 +830,7 @@
 
 
                 '<td>'+'{{ Form::checkbox('becaunlps[]',1,false) }}'+'</td>'+
+                '<td><a href="#" class="btn btn-danger removeBeca"><i class="glyphicon glyphicon-remove"></i></a></td>'+
                 '</tr>';
             $('#cuerpoBecas').append(tr);
 
@@ -810,7 +841,11 @@
         $('body').on('click', '.removeBeca', function(e){
 
             e.preventDefault();
-            $(this).parent().parent().remove();
+            var confirmDelete = confirm('¿Estás seguro?');
+
+            if (confirmDelete) {
+                $(this).parent().parent().remove();
+            }
 
 
         });
@@ -840,6 +875,10 @@
         function obtenerOpcionesBecaPorInstitucion(institucionSeleccionada) {
             //console.log(institucionSeleccionada)
             var opciones = @json(config('becas'));
+            // Verificar si opciones es null o undefined
+            if (!opciones) {
+                return ['']; // Opción por defecto si opciones es null o undefined
+            }
             if (opciones[institucionSeleccionada]) {
                 return opciones[institucionSeleccionada];
             }

@@ -16,6 +16,7 @@ use App\Models\Cargo;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
 
 
 class InvestigadorController extends Controller
@@ -47,12 +48,23 @@ class InvestigadorController extends Controller
         return view ('investigadors.index');
     }
 
+
+    public function clearFilter(Request $request)
+    {
+        // Limpiar el valor del filtro en la sesión
+        $request->session()->forget('nombre_filtro_investigador');
+        //Log::info('Sesion limpia:', $request->session()->all());
+        return response()->json(['status' => 'success']);
+    }
+
+
     public function dataTable(Request $request)
     {
         $columnas = ['personas.nombre','ident', 'personas.apellido', 'cuil', 'categorias.nombre', 'sicadis.nombre', 'cargos.nombre','deddoc','beca','institucion', 'carrerainvs.nombre', 'organismos.codigo', 'facultads.nombre']; // Define las columnas disponibles
         $columnaOrden = $columnas[$request->input('order.0.column')];
         $orden = $request->input('order.0.dir');
-        $busqueda = $request->input('search.value');
+        // Obtener valor de búsqueda
+        $busqueda = $request->input('search.value', null);
 
 
 
@@ -66,6 +78,23 @@ class InvestigadorController extends Controller
             ->leftJoin('organismos', 'investigadors.organismo_id', '=', 'organismos.id')
             ->leftJoin('facultads', 'investigadors.facultad_id', '=', 'facultads.id');
 
+
+        /*Log::info("Busqueda antes: " . $busqueda);
+
+        Log::info('Sesion busqueda:', $request->session()->all());*/
+        if (!empty($busqueda)) {
+
+            //Log::info("Busqueda no vacia: " . $busqueda);
+            $request->session()->put('nombre_filtro_investigador', $busqueda);
+
+        }
+        else{
+            //Log::info("Busqueda vacia: " . $busqueda);
+            $busqueda = $request->session()->get('nombre_filtro_investigador');
+
+        }
+        /*Log::info("Busqueda despues: " . $busqueda);
+        Log::info('Sesion busqueda:', $request->session()->all());*/
         // Aplicar la búsqueda
         if (!empty($busqueda)) {
             $query->where(function ($query) use ($columnas, $busqueda) {
@@ -143,11 +172,30 @@ class InvestigadorController extends Controller
             'apellido' => 'required',
             'email' => 'required|email',
             'documento' => 'required',
+            'nacimiento' => 'nullable|date',
+            'fallecimiento' => 'nullable|date',
             'cuil' => 'nullable|regex:/^\d{2}-\d{8}-\d{1}$/', // Validación de cuil
-            'foto' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
-        ]);
+            'foto' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        'titulos.*' => 'nullable', // Titulos puede estar vacío
+        'egresos.*' => 'nullable|date_format:Y-m-d', // Validación del formato de fecha
+    ]);
 
-        $input = $request->all();
+    // Recoger datos del request
+    $input = $request->all();
+
+    // Validación de fechas de egreso
+    $errores = [];
+    if (!empty($request->titulos) && !empty($request->egresos)) {
+        foreach ($request->egresos as $index => $egreso) {
+            if (!empty($egreso) && !Carbon::canBeParsed($egreso)) {
+                $errores[] = "Formato de fecha no válido para el título '{$request->titulos[$index]}'";
+            }
+        }
+    }
+
+    if (!empty($errores)) {
+        return back()->withErrors($errores)->withInput();
+    }
 
         // Manejo de la imagen
         $input['foto'] ='';
@@ -467,7 +515,29 @@ class InvestigadorController extends Controller
     public function show($id)
     {
         $investigador = Investigador::find($id);
-        return view('investigadors.show',compact('investigador'));
+        //dd($investigador->titulos);
+        $provincias = DB::table('provincias')->OrderBy('nombre')->pluck('nombre', 'id'); // Obtener todas las provincias
+        $titulos=Titulo::where('nivel', 'Grado')->orderBy('nombre','ASC')->get();
+        $titulos = $titulos->pluck('full_name', 'id')->prepend('','');
+        $tituloposts=Titulo::where('nivel', 'Posgrado')->orderBy('nombre','ASC')->get();
+        $tituloposts = $tituloposts->pluck('full_name', 'id')->prepend('','');
+        $facultades = DB::table('facultads')->pluck('nombre', 'id')->prepend('','');// Obtener todas las facultades directamente desde la tabla
+        // Obtener los cargos ordenados por el campo 'orden' y seleccionar solo los campos 'id' y 'nombre'
+        $cargos = Cargo::orderBy('orden')->pluck('nombre', 'id')->prepend('', '');
+        $universidades=Universidad::orderBy('nombre','ASC')->get();
+        $universidades = $universidades->pluck('nombre', 'id')->prepend('','');
+        $unidads=Unidad::orderBy('nombre','ASC')->get();
+        $unidads->each->append('path_to_parent');
+        $unidads = $unidads->pluck('path_to_parent', 'id')->prepend('','');
+        $carrerainvs = Carrerainv::where('activo','1')->orderBy('orden')->pluck('nombre', 'id')->prepend('', '');
+        $organismos = DB::table('organismos')->where('activo','1')->pluck('codigo', 'id')->prepend('','');
+        $currentYear = date('Y');
+        $startYear = 1994;
+        $years = range($currentYear, $startYear);
+        $years = array_combine($years, $years); // Esto crea un array asociativo con los años como claves y valores
+        $categorias = Categoria::orderBy('id')->pluck('nombre', 'id')->prepend('', '');
+        $sicadis = Sicadi::orderBy('id')->pluck('nombre', 'id')->prepend('', '');
+        return view('investigadors.show',compact('investigador','provincias','titulos','tituloposts','facultades','cargos','universidades','unidads','carrerainvs','sicadis','years','organismos','categorias','sicadis'));
     }
 
     /**
@@ -513,16 +583,52 @@ class InvestigadorController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $this->validate($request, [
+
+
+        // Definir las reglas de validación
+        $rules = [
             'nombre' => 'required',
             'apellido' => 'required',
+            'cuil' => 'required|regex:/^\d{2}-\d{8}-\d{1}$/',
             'email' => 'required|email',
             'documento' => 'required',
-            'cuil' => 'nullable|regex:/^\d{2}-\d{8}-\d{1}$/', // Validación de cuil
-            'foto' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
-        ]);
+            'nacimiento' => 'nullable|date',
+            'fallecimiento' => 'nullable|date',
+            'titulos.*' => 'nullable', // Titulos puede estar vacío
+            'egresos.*' => 'nullable|date_format:Y-m-d', // Validación del formato de fecha
+        ];
 
+        // Definir los mensajes de error personalizados
+        $messages = [
+            'cuil.regex' => 'El formato del CUIL es inválido.',
+            'egresos.*.date_format' => 'Fecha inválida en el título de grado',
+        ];
+
+
+        // Crear el validador con las reglas y mensajes
+        $validator = Validator::make($request->all(), $rules, $messages);
+        // Validar y verificar si hay errores
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+        // Recoger datos del request
         $input = $request->all();
+
+        // Validación de fechas de egreso
+        /*$errores = [];
+        if (!empty($request->titulos) && !empty($request->egresos)) {
+            foreach ($request->egresos as $index => $egreso) {
+                if (!empty($egreso) && !Carbon::canBeParsed($egreso)) {
+                    $errores[] = "Formato de fecha no válido para el título '{$request->titulos[$index]}'";
+                }
+            }
+        }
+
+        if (!empty($errores)) {
+            return back()->withErrors($errores)->withInput();
+        }*/
 
         // Manejo de la imagen
         $input['foto'] ='';
@@ -767,7 +873,7 @@ class InvestigadorController extends Controller
 
                 $investigador->save();
             }
-
+            //dd($request->institucions);
             if (!empty($request->becas)) {
                 $institucionSeleccionad='';
                 $becaSeleccionada='';
@@ -805,9 +911,11 @@ class InvestigadorController extends Controller
                 }
             }
             if (!empty($request->becas)) {
-                $investigador->beca = $becaSeleccionada;
-                $investigador->institucion = $institucionSeleccionad;
-                $investigador->save();
+                if ($esRangoActual) {
+                    $investigador->beca = $becaSeleccionada;
+                    $investigador->institucion = $institucionSeleccionad;
+                    $investigador->save();
+                }
             }
 
             DB::commit();

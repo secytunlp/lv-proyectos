@@ -7,6 +7,8 @@ class Constants
     const YEAR = '2024';
     const CIERRE = '2024-10-01';
 
+    const MAIL_PROYECTOS = 'marcosp@presi.unlp.edu.ar';
+    const NOMBRE_PROYECTOS = 'Gestión de Proyectos - SECyT - UNLP';
     const PROYECTO_INICIO = '-01-01';
 
     const PROYECTO_FIN = '-12-31';
@@ -20,6 +22,48 @@ class Constants
     const MINIMO_MAYOR_DEDICACION = '2';
 
     const ID_ADMIN_FACULTAD_PROYECTOS = '4';
+
+    const MAIL_JOVENES = 'marcosp@presi.unlp.edu.ar';
+    const NOMBRE_JOVENES = 'Jóvenes Investigadores - SECyT - UNLP';
+    const YEAR_JOVENES = '2024';
+    const CIERRE_JOVENES = '2024-11-01';
+
+    const MONTO_JOVENES = '104000';
+
+    const RANGO_INI_JOVENES = '01/07/';
+
+    const RANGO_FIN_JOVENES = '30/06/';
+
+    const TOPE_EDAD_JOVENES = '35';
+
+    const DIA_EDAD_JOVENES = '30';
+
+    const MES_EDAD_JOVENES = '12';
+
+    const ID_UNIDAD_UNLP = '1850';
+
+    const ID_UNIDAD_UNLP_CONICET = '20419';
+
+    const YEAR_INGRESO_ATRAS_JOVENES = '4';
+
+    const RANGO_INGRESO_JOVENES = '01/01/';
+
+    const DIAS_YEAR = '365';
+
+    const YEAR_PROYECTOS = '1';
+
+    const YEAR_VIAJES = '2024';
+
+    const CIERRE_VIAJES = '2024-12-01';
+
+    const CATEGORIAS_FORMADOS = '6,7,8';
+
+    const MONTO_VIAJES = '300000';
+
+    const RANGO_INI_VIAJES = '01/07/';
+
+    const RANGO_FIN_VIAJES = '30/06/';
+
 
 }
 

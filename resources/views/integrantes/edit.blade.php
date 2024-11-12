@@ -31,25 +31,7 @@
 
 @endsection
 
-@php
-    // Define la función para obtener las opciones de beca por institución
-    function obtenerOpcionesBecaPorInstitucion($institucionSeleccionada) {
-        switch ($institucionSeleccionada) {
-            case 'ANPCyT':
-                return ['','Beca inicial'=>'Beca inicial', 'Beca superior'=>'Beca superior'];
-            case 'CIC':
-                return ['', 'Beca de entrenamiento'=>'Beca de entrenamiento','Beca doctoral'=>'Beca doctoral', 'Beca posdoctoral'=>'Beca posdoctoral'];
-            case 'CONICET':
-                return ['','Beca doctoral'=>'Beca doctoral', 'Beca posdoctoral'=>'Beca posdoctoral','Beca finalización del doctorado'=>'Beca finalización del doctorado'];
-            case 'UNLP':
-                return ['','Beca doctoral'=>'Beca doctoral', 'Beca posdoctoral'=>'Beca posdoctoral','Beca maestría'=>'Beca maestría','Beca Cofinanciada (UNLP-CIC)'=>'Beca Cofinanciada (UNLP-CIC)'];
-            case 'CIN':
-                return ['','EVC'=>'EVC'];
-            default:
-                return ['']; // Opción por defecto
-        }
-    }
-@endphp
+
 @section('content')
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
@@ -130,6 +112,17 @@
                                                     @endif
                                                 </div>
                                             </div>
+                                        </div>
+                                        <div class="row">
+
+                                            <div class="col-md-8">
+                                                <div class="form-group">
+                                                    <label for="importante" style="color: red">IMPORTANTE: EL CV deberá ser el generado (pdf/doc) por el sistema SIGEVA-UNLP (banco de datos de actividades de ciencia y técnica)</label>
+
+
+                                                </div>
+                                            </div>
+
                                         </div>
                                     </div>
                                     <div role="tabpanel" class="tab-pane" id="datos_personales">
@@ -486,7 +479,7 @@
                                                     <tr>
 
                                                         <td>{{ Form::select('institucions[]',[''=>'','ANPCyT'=>'ANPCyT','CIC'=>'CIC','CONICET'=>'CONICET','UNLP'=>'UNLP','CIN'=>'CIN','OTRA'=>'OTRA'], $integrante->institucion,['class' => 'form-control institucion_select', 'style' => 'width: 150px']) }}</td>
-                                                        <td>{{ Form::select('becas[]',obtenerOpcionesBecaPorInstitucion($integrante->institucion), $integrante->beca,['class' => 'form-control beca_select', 'style' => 'width: 150px']) }}</td>
+                                                        <td>{{ Form::select('becas[]',\App\Helpers\BecaHelper::obtenerOpcionesBecaPorInstitucion(old('institucions.0', $integrante->institucion)), $integrante->beca,['class' => 'form-control beca_select', 'style' => 'width: 150px']) }}</td>
 
                                                         <td>{{Form::date('becadesdes[]', ($integrante->alta_beca)?date('Y-m-d', strtotime($integrante->alta_beca)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
 
@@ -640,6 +633,9 @@
         function obtenerOpcionesBecaPorInstitucion(institucionSeleccionada) {
             //console.log(institucionSeleccionada)
             var opciones = @json(config('becas'));
+            if (!opciones) {
+                return ['']; // Opción por defecto si opciones es null o undefined
+            }
             if (opciones[institucionSeleccionada]) {
                 return opciones[institucionSeleccionada];
             }

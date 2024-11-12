@@ -156,13 +156,13 @@
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     {{Form::label('sedici', 'Perfil SEDICI')}}
-                                                    {{Form::email('sedici', $investigador->sedici, ['class' => 'form-control','placeholder'=>'Perfil SEDICI'])}}
+                                                    {{Form::text('sedici', $investigador->sedici, ['class' => 'form-control','placeholder'=>'Perfil SEDICI'])}}
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     {{Form::label('orcid', 'Número ORCID')}}
-                                                    {{Form::email('orcid', $investigador->orcid, ['class' => 'form-control','placeholder'=>'Número ORCID'])}}
+                                                    {{Form::text('orcid', $investigador->orcid, ['class' => 'form-control','placeholder'=>'Número ORCID'])}}
                                                 </div>
                                             </div>
 
@@ -173,13 +173,13 @@
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     {{Form::label('scholar', 'Perfil de Google Académico')}}
-                                                    {{Form::email('scholar', $investigador->scholar, ['class' => 'form-control','placeholder'=>'Perfil de Google Académico'])}}
+                                                    {{Form::text('scholar', $investigador->scholar, ['class' => 'form-control','placeholder'=>'Perfil de Google Académico'])}}
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     {{Form::label('scopus', 'Número SCOPUS')}}
-                                                    {{Form::email('scopus', $investigador->scopus, ['class' => 'form-control','placeholder'=>'Número SCOPUS'])}}
+                                                    {{Form::text('scopus', $investigador->scopus, ['class' => 'form-control','placeholder'=>'Número SCOPUS'])}}
                                                 </div>
                                             </div>
 
@@ -317,18 +317,19 @@
                                     </div>
                                     <div role="tabpanel" class="tab-pane" id="categorizacion">
                                         <div class="row">
-                                            <div class="col-md-4">
+                                            <div class="col-md-3">
                                                 <div class="form-group">
                                                     {{Form::label('presentacion_ua', 'U. Académica')}}
                                                     {{Form::text('presentacion_ua', $investigador->presentacion_ua, ['class' => 'form-control','placeholder'=>'U. Académica'])}}
                                                 </div>
                                             </div>
-                                            <div class="col-md-2">
+                                            <div class="col-md-3">
                                                 <div class="form-group">
-                                                    {{Form::label('categoria_spu', 'Categoría SPU')}}
-                                                    {{Form::text('categoria_spu', $investigador->categoria_spu, ['class' => 'form-control','placeholder'=>'Categoría SPU'])}}
+                                                    {{Form::label('mecanismo', 'Mecanismo')}}
+                                                    {{Form::text('mecanismo', $investigador->mecanismo, ['class' => 'form-control','placeholder'=>'Mecanismo'])}}
                                                 </div>
                                             </div>
+
 
 
                                         </div>
@@ -336,14 +337,20 @@
                                         <div class="row">
                                             <div class="col-md-2">
                                                 <div class="form-group">
+                                                    {{Form::label('categoria_spu', 'Categoría SPU')}}
+                                                    {{Form::text('categoria_spu', $investigador->categoria_spu, ['class' => 'form-control','placeholder'=>'Categoría SPU'])}}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group">
                                                     {{Form::label('categoria_solicitada', 'Categoría Solicitada')}}
                                                     {{Form::text('categoria_solicitada', $investigador->categoria_solicitada, ['class' => 'form-control','placeholder'=>'Categoría Solicitada'])}}
                                                 </div>
                                             </div>
-                                            <div class="col-md-4">
+                                            <div class="col-md-2">
                                                 <div class="form-group">
-                                                    {{Form::label('mecanismo', 'Mecanismo')}}
-                                                    {{Form::text('mecanismo', $investigador->mecanismo, ['class' => 'form-control','placeholder'=>'Mecanismo'])}}
+                                                    {{Form::label('categoria_asignada', 'Categoría Asignada')}}
+                                                    {{Form::text('categoria_asignada', $investigador->categoria_asignada, ['class' => 'form-control','placeholder'=>'Categoría Asignada'])}}
                                                 </div>
                                             </div>
 

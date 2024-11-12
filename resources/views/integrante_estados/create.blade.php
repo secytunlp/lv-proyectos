@@ -38,8 +38,8 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                <i class="fa fa-user-friends" aria-hidden="true"></i>Integrante
-                <small>Alta de integrante</small>
+                <i class="fa fa-user-friends" aria-hidden="true"></i>Estado del integrante
+                <small>Cambiar</small>
             </h1>
             <ol class="breadcrumb">
                 <li><a href="{{ route('home') }}"><i class="fa fa-dashboard"></i> Home</a></li>
@@ -569,6 +569,10 @@
         function obtenerOpcionesBecaPorInstitucion(institucionSeleccionada) {
             //console.log(institucionSeleccionada)
             var opciones = @json(config('becas'));
+            // Verificar si opciones es null o undefined
+            if (!opciones) {
+                return ['']; // Opción por defecto si opciones es null o undefined
+            }
             if (opciones[institucionSeleccionada]) {
                 return opciones[institucionSeleccionada];
             }

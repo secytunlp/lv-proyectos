@@ -107,6 +107,17 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="row">
+
+                                            <div class="col-md-8">
+                                                <div class="form-group">
+                                                    <label for="importante" style="color: red">IMPORTANTE: EL CV deberá ser el generado (pdf/doc) por el sistema SIGEVA-UNLP (banco de datos de actividades de ciencia y técnica)</label>
+
+
+                                                </div>
+                                            </div>
+
+                                        </div>
                                     </div>
                                     <div role="tabpanel" class="tab-pane" id="datos_personales">
 
@@ -782,6 +793,10 @@
         function obtenerOpcionesBecaPorInstitucion(institucionSeleccionada) {
             //console.log(institucionSeleccionada)
             var opciones = @json(config('becas'));
+            // Verificar si opciones es null o undefined
+            if (!opciones) {
+                return ['']; // Opción por defecto si opciones es null o undefined
+            }
             if (opciones[institucionSeleccionada]) {
                 return opciones[institucionSeleccionada];
             }
