@@ -86,6 +86,8 @@ Route::group(['middleware' => ['auth', 'CheckSelectedRolePermissions']], functio
     Route::get('solicitud_sicadis/{solicitud_sicadi}/rectificar', [SolicitudSicadiController::class, 'rectificar'])->name('solicitud_sicadis.rectificar');
     Route::put('solicitud_sicadis/{solicitud_sicadi}/rect', [SolicitudSicadiController::class, 'saveRect'])->name('solicitud_sicadis.saveRect');
     Route::get('solicitud_sicadi-exportar', [SolicitudSicadiController::class, 'exportar'])->name('solicitud_sicadis.exportar');
+    Route::get('/migrar-fotos-sicadi', [SolicitudSicadiController::class, 'migrarFotosSicadi'])->name('solicitud_sicadis.migrarFotos');
+
 
     Route::get('importar_sicadi', [SolicitudSicadiController::class, 'importar'])->name('solicitud_sicadis.importar');
     Route::post('solicitud-sicadis/importar', [SolicitudSicadiController::class, 'importprocess'])->name('solicitud_sicadis.importprocess');

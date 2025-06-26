@@ -7,7 +7,7 @@ use App\Models\SolicitudSicadi;
 use App\Models\SolicitudSicadiEstado;
 
 
-
+use App\Traits\SanitizesInput;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Auth; // Asegúrate de importar esta línea
 class SolicitudSicadiEstadoController extends Controller
 {
 
+    use SanitizesInput;
     function __construct()
     {
         $this->middleware('permission:solicitud_sicadi_estado-listar|solicitud_sicadi_estado-crear|solicitud_sicadi_estado-editar|solicitud_sicadi_estado-eliminar', ['only' => ['index','store','dataTable']]);
@@ -157,7 +158,7 @@ class SolicitudSicadiEstadoController extends Controller
         }
 
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
         $solicitud_sicadi_id=$input['solicitud_sicadi_id'];
 

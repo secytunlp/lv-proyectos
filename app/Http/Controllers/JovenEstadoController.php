@@ -8,6 +8,7 @@ use App\Models\JovenEstado;
 
 use App\Models\Proyecto;
 
+use App\Traits\SanitizesInput;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\Auth; // Asegúrate de importar esta línea
 
 class JovenEstadoController extends Controller
 {
-
+    use SanitizesInput;
     function __construct()
     {
         $this->middleware('permission:joven_estado-listar|joven_estado-crear|joven_estado-editar|joven_estado-eliminar', ['only' => ['index','store','dataTable']]);
@@ -160,7 +161,7 @@ class JovenEstadoController extends Controller
         }
 
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
         $joven_id=$input['joven_id'];
 

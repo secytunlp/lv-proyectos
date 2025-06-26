@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Constants;
 use App\Models\Investigador;
 use App\Models\Unidad;
+use App\Traits\SanitizesInput;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use App\Models\SolicitudSicadi;
@@ -26,10 +27,15 @@ use App\Mail\SicadiEnviada;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+
 
 class SolicitudSicadiController extends Controller
 
 {
+
+    use SanitizesInput;
     /**
      * Display a listing of the resource.
      *
@@ -451,13 +457,24 @@ class SolicitudSicadiController extends Controller
             'nombre' => 'required',
             'apellido' => 'required',
             'convocatoria_id' => 'required',
-            'email_institucional' => 'required|email',
-            'email_alternativo' => 'nullable|email',
+            'email_institucional' => [
+                'required',
+                'email',
+                'regex:/^[^@]+@[^@]+\.[^@]+$/i'
+            ],
+            'email_alternativo' => [
+                'nullable',
+                'email',
+                'regex:/^[^@]+@[^@]+\.[^@]+$/i'
+            ],
             'cuil' => 'required|regex:/^\d{2}-\d{8}-\d{1}$/', // Validación de cuil
-            'foto' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'curriculum' => 'file|mimes:pdf,doc,docx|max:4048',
-            'nacimiento' => 'nullable|date',
-
+            'foto' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'curriculum' => 'file|mimes:pdf,doc,docx|max:4096',
+            'nacimiento' => 'nullable|date|before:today',
+            'carrera_ingreso' => 'nullable|date|before:today',
+            'beca_inicio' => 'nullable|date',
+            'beca_fin' => 'nullable|date|after:beca_inicio',
+            'proyecto_fin' => 'nullable|date|after:proyecto_inicio',
         ];
 
         // Definir los mensajes de error personalizados
@@ -466,7 +483,8 @@ class SolicitudSicadiController extends Controller
             'curriculum.mimes' => 'El archivo de curriculum debe ser un documento de tipo: pdf, doc, docx.',
             'curriculum.max' => 'El archivo de curriculum no debe ser mayor a 4 MB.',
             'nacimiento.date' => 'La fecha de nacimiento debe ser una fecha válida.',
-
+            'nacimiento.before' => 'La fecha de nacimiento debe ser una fecha anterior a hoy.',
+            'carrera_ingreso.before' => 'La fecha de ingreso a la carrera en investigación debe ser una fecha anterior a hoy.',
         ];
 
         // Crear el validador con las reglas y mensajes
@@ -548,7 +566,7 @@ class SolicitudSicadiController extends Controller
         }
 
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
         $input['fecha']=Carbon::now();
         $input['notificacion'] = isset($request->notificacion) ? 1 : 0;
@@ -558,23 +576,22 @@ class SolicitudSicadiController extends Controller
 
             $user = auth()->user();
 
-            $cuil = $user->cuil;
+            //$cuil = $user->cuil;
             // Crear la carpeta si no existe
-            $destinationPath = public_path('/files/sicadi/' . Constants::YEAR_SICADI . '/' . $cuil);
+            /*$destinationPath = public_path('/files/sicadi/' . Constants::YEAR_SICADI . '/' . $cuil);
             if (!file_exists($destinationPath)) {
                 mkdir($destinationPath, 0777, true);
-            }
+            }*/
 
             //$input['alta']= Constants::YEAR.'-01-01';
             $input['estado'] = 'Creada';
             // Manejo de archivos
             $input['curriculum'] = '';
-            if ($files = $request->file('curriculum')) {
+            if ($request->hasFile('curriculum')) {
                 $file = $request->file('curriculum');
-                $name = 'CV_' . time() . '.' . $file->getClientOriginalExtension();
-
-                $file->move($destinationPath, $name);
-                $input['curriculum'] = "files/sicadi/" . Constants::YEAR_SICADI . "/$cuil/$name";
+                $filename = 'CV_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('public/files/sicadi/' . Constants::YEAR_SICADI, $filename);
+                $input['curriculum'] = Storage::url($path); // Genera URL tipo /storage/files/...
             }
         }
         else{
@@ -584,12 +601,19 @@ class SolicitudSicadiController extends Controller
 
         // Manejo de la imagen
         $input['foto'] ='';
-        if ($files = $request->file('foto')) {
+        if ($request->hasFile('foto')) {
             $image = $request->file('foto');
-            $name = $input['cuil'].'.'.$image->getClientOriginalExtension();
-            $destinationPath = public_path('/images/sicadi');
-            $image->move($destinationPath, $name);
-            $input['foto'] = "$name";
+
+            // Validar que no sea SVG (por seguridad)
+            if ($image->getClientOriginalExtension() === 'svg') {
+                return redirect()->back()
+                    ->withErrors(['foto' => 'No se permiten archivos SVG por razones de seguridad.'])
+                    ->withInput();
+            }
+
+            $filename = 'foto_' . Str::uuid() . '.' . $image->getClientOriginalExtension();
+            $path = $image->storeAs('public/images/sicadi', $filename);
+            $input['foto'] = Storage::url($path);
         }
 
         DB::beginTransaction();
@@ -709,44 +733,69 @@ class SolicitudSicadiController extends Controller
                 ->withInput();
         }
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
+
+        $solicitud = SolicitudSicadi::find($id);
 
         // Manejo de la imagen
         //$input['foto'] ='';
-        if ($files = $request->file('foto')) {
+        if ($request->hasFile('foto')) {
             $image = $request->file('foto');
-            $name = $input['cuil'].'.'.$image->getClientOriginalExtension();
-            $destinationPath = public_path('/images/sicadi');
-            $image->move($destinationPath, $name);
-            $input['foto'] = "$name";
+
+            // Validar que no sea SVG (por seguridad)
+            if ($image->getClientOriginalExtension() === 'svg') {
+                return redirect()->back()
+                    ->withErrors(['foto' => 'No se permiten archivos SVG por razones de seguridad.'])
+                    ->withInput();
+            }
+
+            // Eliminar imagen anterior si existe
+            if (!empty($solicitud->foto)) {
+                $rutaAnterior = str_replace('/storage/', 'public/', $solicitud->foto); // Ej: public/images/sicadi/foto_xyz.png
+                if (Storage::exists($rutaAnterior)) {
+                    Storage::delete($rutaAnterior);
+                }
+            }
+
+
+            $filename = 'foto_' . Str::uuid() . '.' . $image->getClientOriginalExtension();
+            $path = $image->storeAs('public/images/sicadi', $filename);
+            $input['foto'] = Storage::url($path);
         }
         $selectedRoleId = session('selected_rol');
         if ($selectedRoleId==2) {
             $input['fecha'] = Carbon::now();
             $input['notificacion'] = isset($request->notificacion) ? 1 : 0;
-            $user = auth()->user();
+            /*$user = auth()->user();
 
-            $cuil = $user->cuil;
+            $cuil = $user->cuil;*/
             // Crear la carpeta si no existe
-            $destinationPath = public_path('/files/sicadi/' . Constants::YEAR_SICADI . '/' . $cuil);
+            /*$destinationPath = public_path('/files/sicadi/' . Constants::YEAR_SICADI . '/' . $cuil);
             if (!file_exists($destinationPath)) {
                 mkdir($destinationPath, 0777, true);
-            }
+            }*/
 
             //$input['alta']= Constants::YEAR.'-01-01';
             //$input['estado']= 'Creada';
             // Manejo de archivos
             //$input['curriculum'] ='';
-            if ($files = $request->file('curriculum')) {
-                $file = $request->file('curriculum');
-                $name = 'CV_' . time() . '.' . $file->getClientOriginalExtension();
+            if ($request->hasFile('curriculum')) {
+                // Eliminar curriculum anterior si existe
+                if (!empty($solicitud->curriculum)) {
+                    $rutaAnterior = str_replace('/storage/', 'public/', $solicitud->curriculum); // Ej: public/files/sicadi/2025/CV_123.pdf
+                    if (Storage::exists($rutaAnterior)) {
+                        Storage::delete($rutaAnterior);
+                    }
+                }
 
-                $file->move($destinationPath, $name);
-                $input['curriculum'] = "files/sicadi/" . Constants::YEAR_SICADI . "/$cuil/$name";
+                $file = $request->file('curriculum');
+                $filename = 'CV_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('public/files/sicadi/' . Constants::YEAR_SICADI, $filename);
+                $input['curriculum'] = Storage::url($path); // Genera URL tipo /storage/files/...
             }
         }
 
-        $solicitud = SolicitudSicadi::find($id);
+
         DB::beginTransaction();
         $ok = 1;
 
@@ -858,12 +907,15 @@ class SolicitudSicadiController extends Controller
 
     public function getInvestigadorById($id)
     {
+        if (!is_numeric($id)) {
+            return response()->json(['success' => false, 'message' => 'ID inválido'], 400);
+        }
         try {
             $investigador = SolicitudSicadi::where('estado', 'Otorgada')->findOrFail($id);
 
             // Construir la URL completa de la imagen
             if ($investigador->foto) {
-                $investigador->foto = url('/images/sicadi/' . $investigador->foto);
+                $investigador->foto = asset($investigador->foto);
             }
             else{
                 $investigador->foto = url('/images/sicadi/nofoto.png');
@@ -877,67 +929,97 @@ class SolicitudSicadiController extends Controller
 
     public function filterInvestigadores(Request $request)
     {
-        $query = SolicitudSicadi::where('estado', 'Otorgada'); // <-- Agregamos filtro desde el inicio
+        // Validación de parámetros opcionales
+        $validator = Validator::make($request->all(), [
+            'nombre' => 'nullable|string|max:255',
+            'apellido' => 'nullable|string|max:255',
+            'cuil' => 'nullable|string|max:20',
+            'cargo_ua' => 'nullable|string|max:255',
+            'categoria_asignada' => 'nullable|string|max:100',
+            'ui_sigla' => 'nullable|string|max:100',
+            'subarea' => 'nullable|string|max:255',
+            'per_page' => 'nullable|integer|min:1|max:100',
+        ]);
 
-        // Añade los filtros según los parámetros proporcionados
-        if ($request->has('nombre')) {
-            //$query->where('nombre', 'like', '%' . $request->input('nombre') . '%');
-            $query->where(function ($q) use ($request) {
-                $q->where('nombre', 'like', '%' . $request->input('nombre') . '%')
-                    ->orWhere('apellido', 'like', '%' . $request->input('nombre') . '%');
-            });
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Parámetros inválidos.',
+                'errors' => $validator->errors(),
+            ], 422);
         }
-
-        if ($request->has('apellido')) {
-            //$query->where('apellido', 'like', '%' . $request->input('apellido') . '%');
-            $query->where(function ($q) use ($request) {
-                $q->where('nombre', 'like', '%' . $request->input('apellido') . '%')
-                    ->orWhere('apellido', 'like', '%' . $request->input('apellido') . '%');
-            });
-        }
-
-        if ($request->has('cuil')) {
-            $query->where('cuil', 'like', '%' . $request->input('cuil') . '%');
-        }
-
-        if ($request->has('cargo_ua')) {
-            $query->where('cargo_ua', 'like', '%' . $request->input('cargo_ua') . '%');
-        }
-
-        if ($request->has('categoria_asignada')) {
-            $query->where('categoria_asignada', $request->input('categoria_asignada'));
-        }
-
-        if ($request->has('ui_sigla')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('ui_sigla', 'like', '%' . $request->input('ui_sigla') . '%')
-                    ->orWhere('ui_nombre', 'like', '%' . $request->input('ui_sigla') . '%');
-            });
-        }
-
-        if ($request->has('subarea')) {
-            $query->where('subarea', 'like', '%' . $request->input('subarea') . '%');
-        }
-
-
-
-        // Añade más filtros según sea necesario
 
         try {
-            $investigadores = $query->get();
+            $query = SolicitudSicadi::where('estado', 'Otorgada');
 
-            // Construir la URL completa de la imagen para cada investigador
-            foreach ($investigadores as $investigador) {
-                if ($investigador->foto) {
-                    $investigador->foto = url('/images/sicadi/' . $investigador->foto);
-                }
-                else{
-                    $investigador->foto = url('/images/sicadi/nofoto.png');
-                }
+            // Filtros dinámicos
+            if ($request->filled('nombre')) {
+                $query->where(function ($q) use ($request) {
+                    $q->where('nombre', 'like', '%' . $request->nombre . '%')
+                        ->orWhere('apellido', 'like', '%' . $request->nombre . '%');
+                });
             }
-            return response()->json(['success' => true, 'data' => $investigadores], 200);
+
+            if ($request->filled('apellido')) {
+                $query->where(function ($q) use ($request) {
+                    $q->where('nombre', 'like', '%' . $request->apellido . '%')
+                        ->orWhere('apellido', 'like', '%' . $request->apellido . '%');
+                });
+            }
+
+            if ($request->filled('cuil')) {
+                $query->where('cuil', 'like', '%' . $request->cuil . '%');
+            }
+
+            if ($request->filled('cargo_ua')) {
+                $query->where('cargo_ua', 'like', '%' . $request->cargo_ua . '%');
+            }
+
+            if ($request->filled('categoria_asignada')) {
+                $query->where('categoria_asignada', $request->categoria_asignada);
+            }
+
+            if ($request->filled('ui_sigla')) {
+                $query->where(function ($q) use ($request) {
+                    $q->where('ui_sigla', 'like', '%' . $request->ui_sigla . '%')
+                        ->orWhere('ui_nombre', 'like', '%' . $request->ui_sigla . '%');
+                });
+            }
+
+            if ($request->filled('subarea')) {
+                $query->where('subarea', 'like', '%' . $request->subarea . '%');
+            }
+
+            // Paginación
+            $perPage = min($request->input('per_page', 20), 100); // Máximo 100 resultados por página
+            $investigadores = $query->paginate($perPage);
+
+            // Reemplazo de foto por la URL completa
+            $investigadores->getCollection()->transform(function ($investigador) {
+                $investigador->foto = $investigador->foto
+                    ? asset($investigador->foto)
+                    : url('/images/sicadi/nofoto.png');
+                return $investigador;
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $investigadores->items(),
+                'pagination' => [
+                    'total' => $investigadores->total(),
+                    'per_page' => $investigadores->perPage(),
+                    'current_page' => $investigadores->currentPage(),
+                    'last_page' => $investigadores->lastPage(),
+                ],
+            ], 200);
+
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+            \Log::error('Error al filtrar investigadores: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Ocurrió un error inesperado al obtener los investigadores.'
+            ], 500);
         }
     }
 
@@ -1365,12 +1447,20 @@ class SolicitudSicadiController extends Controller
             // Agrega aquí otros archivos que necesites
         ];
 
-        // Filtrar archivos válidos
-        $validFiles = array_filter($files, function($filePath) {
-            return $filePath && file_exists(public_path($filePath));
-        });
+        $validFiles = [];
 
-        // Verificar si hay archivos válidos
+        foreach ($files as $key => $url) {
+            if ($url) {
+                // Remover "/storage/" del inicio
+                $relativePath = str_replace('/storage/', '', $url);
+                $fullPath = storage_path('app/public/' . $relativePath);
+
+                if (file_exists($fullPath)) {
+                    $validFiles[$key] = $fullPath;
+                }
+            }
+        }
+
         if (empty($validFiles)) {
             return response()->json(['message' => 'No hay archivos para descargar.'], 404);
         }
@@ -1379,11 +1469,14 @@ class SolicitudSicadiController extends Controller
         $zipFileName = 'archivos_sicadi_' . $solicitud_sicadiId . '.zip';
         $zipFilePath = public_path('temp/' . $zipFileName);
 
+        // Crear carpeta temp si no existe
+        if (!file_exists(public_path('temp'))) {
+            mkdir(public_path('temp'), 0777, true);
+        }
+
         if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
-            foreach ($files as $fileKey => $filePath) {
-                if ($filePath && file_exists(public_path( $filePath))) {
-                    $zip->addFile(public_path($filePath), $fileKey . '_' . basename($filePath));
-                }
+            foreach ($validFiles as $fileKey => $fullPath) {
+                $zip->addFile($fullPath, $fileKey . '_' . basename($fullPath));
             }
             $zip->close();
         } else {
@@ -1664,8 +1757,18 @@ class SolicitudSicadiController extends Controller
     {
         $solicitud_sicadiId = $request->query('solicitud_sicadi_id');
 
-
         $solicitud_sicadi = SolicitudSicadi::find($solicitud_sicadiId);
+        $selectedRoleId = session('selected_rol');
+        if ($selectedRoleId==2){
+            $user = auth()->user();
+
+            if ($solicitud_sicadi->cuil!=$user->cuil){
+                abort(403, 'No autorizado.');
+            }
+
+        }
+
+
 
 
 
@@ -1896,7 +1999,7 @@ class SolicitudSicadiController extends Controller
             'comentarios' => 'required'
         ]);
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
         $solicitud = SolicitudSicadi::findOrFail($id);
 
@@ -1977,7 +2080,7 @@ class SolicitudSicadiController extends Controller
             'comentarios' => 'required'
         ]);
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
         $solicitud = SolicitudSicadi::findOrFail($id);
 
@@ -2153,4 +2256,40 @@ class SolicitudSicadiController extends Controller
         exit;
     }
 
+    public function migrarFotosSicadi()
+    {
+        $solicitudes = SolicitudSicadi::all();
+        $migradas = 0;
+
+        foreach ($solicitudes as $solicitud) {
+            $fotoNombre = $solicitud->foto;
+
+            if (empty($fotoNombre) || str_contains($fotoNombre, '/storage/')) {
+                continue;
+            }
+
+            $rutaActual = public_path('images/sicadi/' . $fotoNombre);
+
+            if (!file_exists($rutaActual)) {
+                continue;
+            }
+
+            $extension = pathinfo($fotoNombre, PATHINFO_EXTENSION);
+            $nuevoNombre = 'foto_' . Str::uuid() . '.' . $extension;
+            $nuevaRuta = 'public/images/sicadi/' . $nuevoNombre;
+
+            // Mover
+            Storage::put($nuevaRuta, file_get_contents($rutaActual));
+
+            // Actualizar DB
+            $solicitud->foto = Storage::url($nuevaRuta); // guarda como /storage/images/sicadi/...
+            $solicitud->save();
+
+            // Borrar original
+            unlink($rutaActual);
+            $migradas++;
+        }
+
+        return response()->json(['migradas' => $migradas]);
+    }
 }

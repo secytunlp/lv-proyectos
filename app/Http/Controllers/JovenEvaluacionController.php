@@ -14,6 +14,7 @@ use App\Models\JovenEvaluacionPuntajeOtro;
 use App\Models\JovenEvaluacionPuntajeProduccion;
 use App\Models\JovenEvaluacionPuntajeAnterior;
 use App\Models\JovenEvaluacionPuntajeJustificacion;
+use App\Traits\SanitizesInput;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -37,7 +38,7 @@ use App\Http\Controllers\JovenController;
 //use Barryvdh\DomPDF\Facade as PDF;
 class JovenEvaluacionController extends Controller
 {
-
+    use SanitizesInput;
     function __construct()
     {
         /*$this->middleware('permission:integrante-listar|integrante-crear|integrante-editar|integrante-eliminar', ['only' => ['index','store','dataTable','admitir']]);
@@ -844,7 +845,7 @@ class JovenEvaluacionController extends Controller
     public function saveEvaluar(Request $request, $id)
     {
         //dd($request);
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
         $evaluacion = JovenEvaluacion::findOrFail($id);
 
@@ -1138,7 +1139,7 @@ class JovenEvaluacionController extends Controller
             'comentarios' => 'required'
         ]);
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
         $joven = Joven::findOrFail($id);
 

@@ -12,6 +12,7 @@ use App\Models\Persona;
 use App\Models\Proyecto;
 use App\Models\Sicadi;
 use App\Models\User;
+use App\Traits\SanitizesInput;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use App\Models\Viaje;
@@ -36,6 +37,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class ViajeController extends Controller
 
 {
+    use SanitizesInput;
     /**
      * Display a listing of the resource.
      *
@@ -1043,7 +1045,7 @@ class ViajeController extends Controller
             return redirect()->back()->withErrors($errors)->withInput();
         }
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
         // Asegurarse de que los checkbox tienen valor 0 si no se enviaron
 
         $input['nacional'] = ($request->nacional_id='Nacional') ? 1 : 2;
@@ -1177,25 +1179,35 @@ class ViajeController extends Controller
         return redirect()->route('viajes.index')->with($respuestaID, $respuestaMSJ);
     }
 
+
+    private function safeRequest($request, $key, $default = null)
+    {
+        if (!isset($request->$key[0])) {
+            return $default;
+        }
+
+        return $this->sanitizeInput($request->$key[0]);
+    }
+
     public function guardarSolicitud(Request $request, $solicitud,$actualizar=false)
     {
 // Guardar el primer título pasado en $request->titulo en la columna titulo_id del investigador
         if (!empty($request->titulos)) {
-            $solicitud->titulo_id = $request->titulos[0];
-            $solicitud->egresogrado = $request->egresos[0];
+            $solicitud->titulo_id = $this->safeRequest($request, 'titulos');
+            $solicitud->egresogrado = $this->safeRequest($request, 'egresos');
             $titulo=Titulo::findOrFail($solicitud->titulo_id );
             $solicitud->titulogrado = $titulo->nombre.' ('.$titulo->universidad->nombre.')';
             $solicitud->save();
         }
 
         if (!empty($request->categorias)) {
-            $solicitud->categoria_id = $request->categorias[0];
+            $solicitud->categoria_id = $this->safeRequest($request, 'categorias');
 
             $solicitud->save();
         }
 
         if (!empty($request->sicadis)) {
-            $solicitud->sicadi_id = $request->sicadis[0];
+            $solicitud->sicadi_id = $this->safeRequest($request, 'sicadis');
 
             $solicitud->save();
         }
@@ -1203,19 +1215,19 @@ class ViajeController extends Controller
 
         // Guarda el mayor cargo encontrado en el investigador
         if (!empty($request->cargos)) {
-            $solicitud->cargo_id = $request->cargos[0];
-            $solicitud->deddoc = $request->deddocs[0];
-            $solicitud->ingreso_cargo = $request->ingresos[0];
-            $solicitud->facultad_id = $request->facultads[0];
+            $solicitud->cargo_id = $this->safeRequest($request, 'cargos');
+            $solicitud->deddoc = $this->safeRequest($request, 'deddocs');
+            $solicitud->ingreso_cargo = $this->safeRequest($request, 'ingresos');
+            $solicitud->facultad_id = $this->safeRequest($request, 'facultads');
 
             $solicitud->save();
         }
 
 
         if (!empty($request->carrerainvs)) {
-            $solicitud->carrerainv_id = $request->carrerainvs[0];
-            $solicitud->organismo_id = $request->organismos[0];
-            $solicitud->ingreso_carrerainv = $request->carringresos[0];
+            $solicitud->carrerainv_id = $this->safeRequest($request, 'carrerainvs');
+            $solicitud->organismo_id = $this->safeRequest($request, 'organismos');
+            $solicitud->ingreso_carrerainv = $this->safeRequest($request, 'carringresos');
             $solicitud->save();
         }
 
@@ -1370,9 +1382,9 @@ class ViajeController extends Controller
                                     DB::table('viaje_presupuestos')->insert([
                                         'viaje_id' => $solicitud->id,
                                         'tipo_presupuesto_id' => $tipoPresupuesto->id,
-                                        'fecha' => $fecha,
-                                        'detalle' => $detalle,
-                                        'monto' => $importe,
+                                        'fecha' => $this->sanitizeInput($fecha),
+                                        'detalle' => $this->sanitizeInput($detalle),
+                                        'monto' => $this->sanitizeInput($importe),
                                         'created_at' => now(),
                                         'updated_at' => now(),
                                     ]);
@@ -1403,8 +1415,8 @@ class ViajeController extends Controller
                                 DB::table('viaje_presupuestos')->insert([
                                     'viaje_id' => $solicitud->id,
                                     'tipo_presupuesto_id' => $tipoPresupuesto->id,
-                                    'fecha' => $fecha,
-                                    'detalle' => $detalles[$index],
+                                    'fecha' => $this->sanitizeInput($fecha),
+                                    'detalle' => $this->sanitizeInput($detalles[$index]),
                                     'monto' => ($importes[$index]) ? $importes[$index] : 0,
                                     'created_at' => now(), // Establece la fecha y hora de creación
                                     'updated_at' => now(), // Establece la fecha y hora de actualización
@@ -1542,7 +1554,7 @@ class ViajeController extends Controller
             return redirect()->back()->withErrors($errors)->withInput();
         }
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
         //dd($input);
         // Asegurarse de que los checkbox tienen valor 0 si no se enviaron
         $input['nacional'] = ($request->nacional_id='Nacional') ? 1 : 0;
@@ -1722,6 +1734,17 @@ class ViajeController extends Controller
     {
         $viajeId = $request->query('viaje_id');
 
+        $viaje = Viaje::find($viajeId);
+        $selectedRoleId = session('selected_rol');
+        if ($selectedRoleId==2){
+            $user = auth()->user();
+
+            if ($viaje->investigador->persona->cuil!=$user->cuil){
+                abort(403, 'No autorizado.');
+            }
+
+        }
+
         // Consulta base
 
 
@@ -1744,7 +1767,7 @@ class ViajeController extends Controller
 
         $query->where('viajes.id', $viajeId);
 
-        $viaje = Viaje::find($viajeId);
+
 
         $investigador = Investigador::find($viaje->investigador_id);
         $inicioYear = Carbon::create(Constants::YEAR_VIAJES, 1, 1); // 1 de enero del año
@@ -2491,7 +2514,7 @@ class ViajeController extends Controller
             'comentarios' => 'required'
         ]);
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
         $viaje = Viaje::findOrFail($id);
 

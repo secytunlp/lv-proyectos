@@ -8,6 +8,7 @@ use App\Models\Viaje;
 use App\Models\ViajeEvaluacion;
 use App\Models\ViajeEvaluacionEstado;
 
+use App\Traits\SanitizesInput;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -32,6 +33,7 @@ use App\Http\Controllers\ViajeController;
 class ViajeEvaluacionController extends Controller
 {
 
+    use SanitizesInput;
     function __construct()
     {
         /*$this->middleware('permission:integrante-listar|integrante-crear|integrante-editar|integrante-eliminar', ['only' => ['index','store','dataTable','admitir']]);
@@ -857,7 +859,7 @@ class ViajeEvaluacionController extends Controller
     public function saveEvaluar(Request $request, $id)
     {
         //dd($request);
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
         $evaluacion = ViajeEvaluacion::findOrFail($id);
 
@@ -1121,7 +1123,7 @@ class ViajeEvaluacionController extends Controller
             'comentarios' => 'required'
         ]);
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
         $viaje = Viaje::findOrFail($id);
 

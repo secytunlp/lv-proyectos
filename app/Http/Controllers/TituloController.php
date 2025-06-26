@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Titulo;
 use App\Models\Universidad;
+use App\Traits\SanitizesInput;
 class TituloController extends Controller
 {
+    use SanitizesInput;
     /**
      * Display a listing of the resource.
      *
@@ -104,7 +106,7 @@ class TituloController extends Controller
         ]);
 
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
 
         $titulo = Titulo::create($input);
@@ -155,8 +157,7 @@ class TituloController extends Controller
 
         ]);
 
-        $input = $request->all();
-
+        $input = $this->sanitizeInput($request->all());
 
 
 

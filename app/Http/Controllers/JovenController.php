@@ -12,6 +12,7 @@ use App\Models\Persona;
 use App\Models\Proyecto;
 use App\Models\Sicadi;
 use App\Models\User;
+use App\Traits\SanitizesInput;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use App\Models\Joven;
@@ -36,6 +37,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class JovenController extends Controller
 
 {
+    use SanitizesInput;
     /**
      * Display a listing of the resource.
      *
@@ -995,7 +997,7 @@ class JovenController extends Controller
             return redirect()->back()->withErrors($errors)->withInput();
         }
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
         // Asegurarse de que los checkbox tienen valor 0 si no se enviaron
         $input['doctorado'] = isset($request->doctorados[0]) ? 1 : 0;
         $input['director'] = isset($request->director) ? 1 : 0;
@@ -1072,38 +1074,48 @@ class JovenController extends Controller
         return redirect()->route('jovens.index')->with($respuestaID, $respuestaMSJ);
     }
 
+    private function safeRequest($request, $key, $default = null)
+    {
+        if (!isset($request->$key[0])) {
+            return $default;
+        }
+
+        return $this->sanitizeInput($request->$key[0]);
+    }
+
+
     public function guardarSolicitud(Request $request, $solicitud,$actualizar=false)
     {
 // Guardar el primer título pasado en $request->titulo en la columna titulo_id del investigador
         if (!empty($request->titulos)) {
-            $solicitud->titulo_id = $request->titulos[0];
-            $solicitud->egresogrado = $request->egresos[0];
+            $solicitud->titulo_id = $this->safeRequest($request, 'titulos');
+            $solicitud->egresogrado = $this->safeRequest($request, 'egresos');
             $solicitud->save();
         }
 
         // Guardar el primer título pasado en $request->titulopost en la columna titulopost_id del investigador
         if (!empty($request->tituloposts)) {
-            $solicitud->titulopost_id = $request->tituloposts[0];
-            $solicitud->egresoposgrado = $request->egresoposts[0];
+            $solicitud->titulopost_id = $this->safeRequest($request, 'tituloposts');
+            $solicitud->egresoposgrado = $this->safeRequest($request, 'egresoposts');
             $solicitud->save();
         }
 
 
         // Guarda el mayor cargo encontrado en el investigador
         if (!empty($request->cargos)) {
-            $solicitud->cargo_id = $request->cargos[0];
-            $solicitud->deddoc = $request->deddocs[0];
-            $solicitud->ingreso_cargo = $request->ingresos[0];
-            $solicitud->facultad_id = $request->facultads[0];
+            $solicitud->cargo_id = $this->safeRequest($request, 'cargos');
+            $solicitud->deddoc = $this->safeRequest($request, 'deddocs');
+            $solicitud->ingreso_cargo = $this->safeRequest($request, 'ingresos');
+            $solicitud->facultad_id = $this->safeRequest($request, 'facultads');
 
             $solicitud->save();
         }
 
 
         if (!empty($request->carrerainvs)) {
-            $solicitud->carrerainv_id = $request->carrerainvs[0];
-            $solicitud->organismo_id = $request->organismos[0];
-            $solicitud->ingreso_carrerainv = $request->carringresos[0];
+            $solicitud->carrerainv_id = $this->safeRequest($request, 'carrerainvs');
+            $solicitud->organismo_id = $this->safeRequest($request, 'organismos');
+            $solicitud->ingreso_carrerainv = $this->safeRequest($request, 'carringresos');
             $solicitud->save();
         }
 
@@ -1116,11 +1128,11 @@ class JovenController extends Controller
                 DB::table('joven_becas')
                     ->where('id', $request->idBecaActual)
                     ->update([
-                        'beca' => $request->becaActual,
-                        'institucion' => $request->institucionActual,
-                        'desde' => $request->becadesdeActual,
-                        'hasta' => $request->becahastaActual,
-                        'unlp' => $request->unlpActual,
+                        'beca' => $this->sanitizeInput($request->becaActual),
+                        'institucion' => $this->sanitizeInput($request->institucionActual),
+                        'desde' => $this->sanitizeInput($request->becadesdeActual),
+                        'hasta' => $this->sanitizeInput($request->becahastaActual),
+                        'unlp' => $this->sanitizeInput($request->unlpActual),
                         'actual' => 1,
                         'updated_at' => now(), // Actualiza la fecha de actualización
                     ]);
@@ -1128,11 +1140,11 @@ class JovenController extends Controller
                 // Si no hay idBecaActual, inserta un nuevo registro
                 DB::table('joven_becas')->insert([
                     'joven_id' => $solicitud->id,
-                    'beca' => $request->becaActual,
-                    'institucion' => $request->institucionActual,
-                    'desde' => $request->becadesdeActual,
-                    'hasta' => $request->becahastaActual,
-                    'unlp' => $request->unlpActual,
+                    'beca' => $this->sanitizeInput($request->becaActual),
+                    'institucion' => $this->sanitizeInput($request->institucionActual),
+                    'desde' => $this->sanitizeInput($request->becadesdeActual),
+                    'hasta' => $this->sanitizeInput($request->becahastaActual),
+                    'unlp' => $this->sanitizeInput($request->unlpActual),
                     'actual' => 1,
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -1151,24 +1163,24 @@ class JovenController extends Controller
                     DB::table('joven_becas')
                         ->where('id', $request->becas_id[$item])
                         ->update([
-                            'beca' => $request->becas[$item],
-                            'institucion' => $request->institucions[$item],
-                            'desde' => $request->becadesdes[$item],
-                            'hasta' => $request->becahastas[$item],
+                            'beca' => $this->sanitizeInput($request->becas[$item]),
+                            'institucion' => $this->sanitizeInput($request->institucions[$item]),
+                            'desde' => $this->sanitizeInput($request->becadesdes[$item]),
+                            'hasta' => $this->sanitizeInput($request->becahastas[$item]),
                             'unlp' => ($request->institucions[$item] == 'UNLP') ? 1 : 0,
-                            'agregada' => $request->becaagregadas[$item],
+                            'agregada' => $this->sanitizeInput($request->becaagregadas[$item]),
                             'updated_at' => now(), // Actualiza la fecha de actualización
                         ]);
                 } else {
                     // Inserta un nuevo registro si no hay becas_id
                     DB::table('joven_becas')->insert([
                         'joven_id' => $solicitud->id,
-                        'beca' => $request->becas[$item],
-                        'institucion' => $request->institucions[$item],
-                        'desde' => $request->becadesdes[$item],
-                        'hasta' => $request->becahastas[$item],
+                        'beca' => $this->sanitizeInput($request->becas[$item]),
+                        'institucion' => $this->sanitizeInput($request->institucions[$item]),
+                        'desde' => $this->sanitizeInput($request->becadesdes[$item]),
+                        'hasta' => $this->sanitizeInput($request->becahastas[$item]),
                         'unlp' => ($request->institucions[$item] == 'UNLP') ? 1 : 0,
-                        'agregada' => $request->becaagregadas[$item],
+                        'agregada' => $this->sanitizeInput($request->becaagregadas[$item]),
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
@@ -1303,11 +1315,11 @@ class JovenController extends Controller
                 DB::table('joven_proyectos')
                     ->where('id', $ids[$i])
                     ->update([
-                        'desde' => $inicios[$i],
-                        'hasta' => $fins[$i],
-                        'codigo' => $codigos[$i],
-                        'director' => $directores[$i],
-                        'titulo' => $titulos[$i],
+                        'desde' => $this->sanitizeInput($inicios[$i]),
+                        'hasta' => $this->sanitizeInput($fins[$i]),
+                        'codigo' => $this->sanitizeInput($codigos[$i]),
+                        'director' => $this->sanitizeInput($directores[$i]),
+                        'titulo' => $this->sanitizeInput($titulos[$i]),
                         'updated_at' => now(), // Actualiza la fecha de actualización
                     ]);
             } else {
@@ -1316,11 +1328,11 @@ class JovenController extends Controller
                 DB::table('joven_proyectos')->insert([
                     'joven_id' => $solicitud->id,
                     'proyecto_id' => null,
-                    'desde' => $inicios[$i],
-                    'hasta' => $fins[$i],
-                    'codigo' => $codigos[$i],
-                    'director' => $directores[$i],
-                    'titulo' => $titulos[$i],
+                    'desde' => $this->sanitizeInput($inicios[$i]),
+                    'hasta' => $this->sanitizeInput($fins[$i]),
+                    'codigo' => $this->sanitizeInput($codigos[$i]),
+                    'director' => $this->sanitizeInput($directores[$i]),
+                    'titulo' => $this->sanitizeInput($titulos[$i]),
                     'agregado' => 1,
                     'created_at' => now(), // Establece la fecha y hora de creación
                     'updated_at' => now(), // Establece la fecha y hora de actualización
@@ -1400,9 +1412,9 @@ class JovenController extends Controller
                                     DB::table('joven_presupuestos')->insert([
                                         'joven_id' => $solicitud->id,
                                         'tipo_presupuesto_id' => $tipoPresupuesto->id,
-                                        'fecha' => $fecha,
-                                        'detalle' => $detalle,
-                                        'monto' => $importe,
+                                        'fecha' => $this->sanitizeInput($fecha),
+                                        'detalle' => $this->sanitizeInput($detalle),
+                                        'monto' => $this->sanitizeInput($importe),
                                         'created_at' => now(),
                                         'updated_at' => now(),
                                     ]);
@@ -1433,8 +1445,8 @@ class JovenController extends Controller
                                 DB::table('joven_presupuestos')->insert([
                                     'joven_id' => $solicitud->id,
                                     'tipo_presupuesto_id' => $tipoPresupuesto->id,
-                                    'fecha' => $fecha,
-                                    'detalle' => $detalles[$index],
+                                    'fecha' => $this->sanitizeInput($fecha),
+                                    'detalle' => $this->sanitizeInput($detalles[$index]),
                                     'monto' => ($importes[$index]) ? $importes[$index] : 0,
                                     'created_at' => now(), // Establece la fecha y hora de creación
                                     'updated_at' => now(), // Establece la fecha y hora de actualización
@@ -1551,7 +1563,7 @@ class JovenController extends Controller
             return redirect()->back()->withErrors($errors)->withInput();
         }
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
         // Asegurarse de que los checkbox tienen valor 0 si no se enviaron
         $input['doctorado'] = isset($request->doctorados[0]) ? 1 : 0;
         $input['director'] = isset($request->director) ? 1 : 0;
@@ -1673,6 +1685,18 @@ class JovenController extends Controller
     {
         $jovenId = $request->query('joven_id');
 
+        $joven = Joven::find($jovenId);
+
+        $selectedRoleId = session('selected_rol');
+        if ($selectedRoleId==2){
+            $user = auth()->user();
+
+            if ($joven->investigador->persona->cuil!=$user->cuil){
+                abort(403, 'No autorizado.');
+            }
+
+        }
+
         // Consulta base
 
 
@@ -1693,7 +1717,7 @@ class JovenController extends Controller
 
         $query->where('jovens.id', $jovenId);
 
-        $joven = Joven::find($jovenId);
+
 
 
         $beca = $joven->becas()->where('actual', true)->first(); // Beca actual
@@ -2322,7 +2346,7 @@ class JovenController extends Controller
             'comentarios' => 'required'
         ]);
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
         $joven = Joven::findOrFail($id);
 

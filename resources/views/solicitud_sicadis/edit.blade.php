@@ -202,7 +202,7 @@ dirección de correo electrónico institucional declarada precedentemente')}}
                                                 <div class="form-group">
                                                     <label for="foto">Foto</label>
                                                     @if($investigador->foto)
-                                                        <img id="original" src="{{ url('images/sicadi/'.$investigador->foto) }}" height="200">
+                                                        <img id="original" src="{{ asset($investigador->foto) }}" height="200">
                                                     @endif
                                                     <input type="file" name="foto" class="form-control" placeholder="">
 
@@ -455,7 +455,7 @@ actualmente como Investigadora/or o CPA</span>
                                                         <label for="curriculum">Curriculum</label>
                                                         <input type="file" name="curriculum" class="form-control" placeholder="">
                                                         @if(!empty($investigador->curriculum))
-                                                            <a href="{{ url($investigador->curriculum) }}" target="_blank">Descargar Curriculum</a>
+                                                            <a href="{{ asset($investigador->curriculum) }}" target="_blank">Descargar Curriculum</a>
                                                         @endif
                                                     </div>
                                                 </div>

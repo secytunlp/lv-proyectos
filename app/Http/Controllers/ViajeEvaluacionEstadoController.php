@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use App\Models\ViajeEvaluacion;
 use App\Models\ViajeEvaluacionEstado;
 
+use App\Traits\SanitizesInput;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +19,7 @@ use Illuminate\Support\Facades\Auth; // Asegúrate de importar esta línea
 class ViajeEvaluacionEstadoController extends Controller
 {
 
+    use SanitizesInput;
     function __construct()
     {
        /* $this->middleware('permission:viaje_estado-listar|viaje_estado-crear|viaje_estado-editar|viaje_estado-eliminar', ['only' => ['index','store','dataTable']]);
@@ -157,7 +159,7 @@ class ViajeEvaluacionEstadoController extends Controller
         }
 
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
         $viaje_evaluacion_id=$input['viaje_evaluacion_id'];
 

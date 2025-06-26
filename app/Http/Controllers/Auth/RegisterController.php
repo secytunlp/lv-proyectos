@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use App\Models\User;
+use App\Traits\SanitizesInput;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -16,6 +17,8 @@ use Illuminate\Support\Facades\Log;
 
 class RegisterController extends Controller
 {
+
+    use SanitizesInput;
     /*
     |--------------------------------------------------------------------------
     | Register Controller
@@ -78,7 +81,7 @@ class RegisterController extends Controller
         try {
             $this->validator($request->all())->validate();
 
-            $user = $this->create($request->all());
+            $user = $this->create($this->sanitizeInput($request->all()));
 
             // Autenticar al usuario después de registrarse si es necesario
             // Auth::login($user);

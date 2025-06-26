@@ -17,11 +17,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
-
+use App\Traits\SanitizesInput;
 
 class InvestigadorController extends Controller
 
 {
+    use SanitizesInput;
     /**
      * Display a listing of the resource.
      *
@@ -181,7 +182,7 @@ class InvestigadorController extends Controller
     ]);
 
     // Recoger datos del request
-    $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
     // Validación de fechas de egreso
     $errores = [];
@@ -614,7 +615,7 @@ class InvestigadorController extends Controller
                 ->withInput();
         }
         // Recoger datos del request
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
         // Validación de fechas de egreso
         /*$errores = [];

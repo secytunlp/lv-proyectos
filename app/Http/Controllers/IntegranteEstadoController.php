@@ -22,10 +22,10 @@ use App\Constants;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator; // Importar la fachada Validator
 use Illuminate\Support\Facades\Auth; // Asegúrate de importar esta línea
-
+use App\Traits\SanitizesInput;
 class IntegranteEstadoController extends Controller
 {
-
+    use SanitizesInput;
     function __construct()
     {
         $this->middleware('permission:integrante_estado-listar|integrante_estado-crear|integrante_estado-editar|integrante_estado-eliminar', ['only' => ['index','store','dataTable']]);
@@ -193,7 +193,7 @@ class IntegranteEstadoController extends Controller
         }
 
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
         $integrante_id=$input['integrante_id'];
 

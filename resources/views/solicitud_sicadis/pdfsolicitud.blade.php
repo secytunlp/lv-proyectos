@@ -187,9 +187,13 @@
             de la Universidad Nacional de La Plata<br>
             <strong>{{$convocatoria}}</strong> <!-- Agregado el <strong> -->
         </div>
-        @if (!empty($foto) && file_exists(public_path('/images/sicadi/' . $foto)))
+        @php
+            $fotoPath = public_path(str_replace('/storage', 'storage', $foto));
+        @endphp
+
+        @if (!empty($foto) && file_exists($fotoPath))
             <div class="foto">
-                <img src="{{ public_path('/images/sicadi/' . $foto) }}" alt="Foto" class="logo">
+                <img src="{{ $fotoPath }}" alt="Foto" class="logo">
             </div>
         @endif
     </div>

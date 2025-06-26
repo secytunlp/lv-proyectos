@@ -26,15 +26,16 @@ use Illuminate\Support\Facades\Storage;
 use ZipArchive;
 
 use PDF;
-
+use App\Traits\SanitizesInput;
 use Illuminate\Support\Facades\Mail;
 use App\Models\User;
 use Spatie\Permission\Models\Role; // Importa la clase Role
 use App\Mail\SolicitudEnviada;
 //use Barryvdh\DomPDF\Facade as PDF;
+
 class IntegranteController extends Controller
 {
-
+    use SanitizesInput;
     function __construct()
     {
         $this->middleware('permission:integrante-listar|integrante-crear|integrante-editar|integrante-eliminar', ['only' => ['index','store','dataTable','admitir']]);
@@ -322,6 +323,17 @@ class IntegranteController extends Controller
         return view('integrantes.create',compact('titulos','tituloposts','facultades','cargos','universidades','unidads','carrerainvs','sicadis','years','organismos','categorias','sicadis','proyecto'));
     }
 
+    private function safeRequest($request, $key, $default = null)
+    {
+        if (!isset($request->$key[0])) {
+            return $default;
+        }
+
+        return $this->sanitizeInput($request->$key[0]);
+    }
+
+
+
     /**
      * Store a newly created resource in storage.
      *
@@ -371,7 +383,7 @@ class IntegranteController extends Controller
         }
 
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
 
         $proyecto_id=$input['proyecto_id'];
@@ -655,7 +667,7 @@ class IntegranteController extends Controller
         }
 
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
         $proyecto_id=$input['proyecto_id'];
 
@@ -829,6 +841,9 @@ class IntegranteController extends Controller
     {
         $integranteId = $request->query('integrante_id');
 
+
+
+
         // Consulta base
         $query = Integrante::select('integrantes.id as id','investigadors.id as investigador_id', 'proyectos.id as proyecto_id','integrantes.tipo as tipo', DB::raw("CONCAT(personas.apellido, ', ', personas.nombre) as persona_apellido"), 'cuil', 'categorias.nombre as categoria_nombre', 'sicadis.nombre as sicadi_nombre', 'cargos.nombre as cargo_nombre','integrantes.deddoc', 'integrantes.beca as beca','integrantes.institucion','integrantes.alta_beca','integrantes.baja_beca', 'carrerainvs.nombre as carrerainv_nombre', 'organismos.codigo as organismo_nombre','integrantes.alta as alta','integrantes.baja as baja','integrantes.cambio as cambio', 'integrantes.horas as horas', 'integrantes.horas_anteriores as horas_anteriores', 'facultads.nombre as facultad_nombre', 'integrantes.estado as estado', 'titulos.nombre as titulogrado_nombre', 'pos.nombre as tituloposgrado_nombre', 'unidads.nombre as unidad_nombre', 'unidads.sigla as unidad_sigla', 'universidads.nombre as universidad_nombre','integrantes.carrera','integrantes.total','integrantes.materias','integrantes.estado','integrantes.reduccion','integrantes.consecuencias','integrantes.motivos')
             ->leftJoin('categorias', 'integrantes.categoria_id', '=', 'categorias.id')
@@ -859,13 +874,25 @@ class IntegranteController extends Controller
 
         $proyecto = Proyecto::findOrFail($datos->proyecto_id);
         //dd($proyecto);
-        $directorQuery = Integrante::select(DB::raw("CONCAT(personas.apellido, ', ', personas.nombre) as director_apellido"))
+        $directorQuery = Integrante::select(DB::raw("CONCAT(personas.apellido, ', ', personas.nombre) as director_apellido, personas.cuil as director_cuil"))
             ->leftJoin('investigadors', 'integrantes.investigador_id', '=', 'investigadors.id')
             ->leftJoin('proyectos', 'integrantes.proyecto_id', '=', 'proyectos.id')
             ->leftJoin('personas', 'investigadors.persona_id', '=', 'personas.id');
         $directorQuery->where('integrantes.tipo', 'Director');
         $directorQuery->where('integrantes.proyecto_id', $datos->proyecto_id);
         $director = $directorQuery->first();
+
+        $selectedRoleId = session('selected_rol');
+        if ($selectedRoleId==2){
+            $user = auth()->user();
+
+            if ($director->director_cuil!=$user->cuil){
+                abort(403, 'No autorizado.');
+            }
+
+        }
+
+
         $proyecto_id=$datos->proyecto_id;
         $otrosProyecto = Integrante::where('investigador_id', $datos->investigador_id)
             ->where(function ($query) {
@@ -1344,7 +1371,7 @@ class IntegranteController extends Controller
             'comentarios' => 'required'
         ]);
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
         $integrante = Integrante::findOrFail($id);
 
@@ -1460,7 +1487,7 @@ class IntegranteController extends Controller
         }
 
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
         $integrante = Integrante::findOrFail($id);
 
@@ -1707,7 +1734,7 @@ class IntegranteController extends Controller
             'comentarios' => 'required'
         ]);
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
         $integrante = Integrante::findOrFail($id);
 
@@ -1846,7 +1873,7 @@ class IntegranteController extends Controller
         }
 
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
         $proyecto_id=$input['proyecto_id'];
 
@@ -2208,7 +2235,7 @@ class IntegranteController extends Controller
             'comentarios' => 'required'
         ]);
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
         $integrante = Integrante::findOrFail($id);
 
@@ -2498,7 +2525,7 @@ class IntegranteController extends Controller
         }
 
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
 
         $proyecto_id=$input['proyecto_id'];
@@ -2856,7 +2883,7 @@ class IntegranteController extends Controller
             'comentarios' => 'required'
         ]);
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
         $integrante = Integrante::findOrFail($id);
 
@@ -3779,7 +3806,7 @@ class IntegranteController extends Controller
         }
 
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
         $proyecto_id=$input['proyecto_id'];
 
@@ -4176,7 +4203,7 @@ class IntegranteController extends Controller
             'comentarios' => 'required'
         ]);
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
 
         $integrante = Integrante::findOrFail($id);
 
@@ -4268,8 +4295,8 @@ class IntegranteController extends Controller
     {
         // Guardar el primer título pasado en $request->titulo en la columna titulo_id del investigador
         if (!empty($request->titulos)) {
-            $integrante->titulo_id = $request->titulos[0];
-            $integrante->egresogrado = $request->egresos[0];
+            $integrante->titulo_id = $this->safeRequest($request, 'titulos');
+            $integrante->egresogrado = $this->safeRequest($request, 'egresos');
             $integrante->carrera = null;
             $integrante->total = null;
             $integrante->materias = null;
@@ -4278,8 +4305,8 @@ class IntegranteController extends Controller
 
         // Guardar el primer título pasado en $request->titulopost en la columna titulopost_id del investigador
         if (!empty($request->tituloposts)) {
-            $integrante->titulopost_id = $request->tituloposts[0];
-            $integrante->egresoposgrado = $request->egresoposts[0];
+            $integrante->titulopost_id = $this->safeRequest($request, 'tituloposts');
+            $integrante->egresoposgrado = $this->safeRequest($request, 'egresoposts');
             $integrante->save();
         }
 
@@ -4290,14 +4317,14 @@ class IntegranteController extends Controller
 
         if ($request->cargos[0]) {
             //log::info('Lo carga');
-            $integrante->cargo_id = $request->cargos[0];
+            $integrante->cargo_id = $this->safeRequest($request, 'cargos');
         }
         else{
             //log::info('No lo carga');
             $integrante->cargo_id = null;
         }
         if ($request->deddocs[0]) {
-            $integrante->deddoc = $request->deddocs[0];
+            $integrante->deddoc = $this->safeRequest($request, 'deddocs');
         }
         else{
             $integrante->deddoc = null;
@@ -4305,7 +4332,7 @@ class IntegranteController extends Controller
 
 
         if ($request->ingresos[0]) {
-            $integrante->alta_cargo = $request->ingresos[0];
+            $integrante->alta_cargo = $this->safeRequest($request, 'ingresos');
             if ($integrante->alta_cargo) {
                 // Verificar si $integrante->alta_cargo es una cadena y convertirla a Carbon si es necesario
                 if (is_string($integrante->alta_cargo)) {
@@ -4336,19 +4363,19 @@ class IntegranteController extends Controller
 
 
         if ($request->carrerainvs[0]) {
-            $integrante->carrerainv_id = $request->carrerainvs[0];
+            $integrante->carrerainv_id = $this->safeRequest($request, 'carrerainvs');
         }
         else {
             $integrante->carrerainv_id = null;
         }
         if ($request->organismos[0]) {
-            $integrante->organismo_id = $request->organismos[0];
+            $integrante->organismo_id = $this->safeRequest($request, 'organismos');
         }
         else {
             $integrante->organismo_id = null;
         }
         if ($request->carringresos[0]) {
-            $integrante->ingreso_carrerainv = $request->carringresos[0];
+            $integrante->ingreso_carrerainv = $this->safeRequest($request, 'carringresos');
         }
         else {
             $integrante->ingreso_carrerainv = null;
@@ -4359,19 +4386,19 @@ class IntegranteController extends Controller
 
 
         if ($request->becas[0]) {
-            $integrante->beca = $request->becas[0];
+            $integrante->beca = $this->safeRequest($request, 'becas');
         }
         else {
             $integrante->beca = null;
         }
         if ($request->institucions[0]) {
-            $integrante->institucion = $request->institucions[0];
+            $integrante->institucion = $this->safeRequest($request, 'institucions');
         }
         else {
             $integrante->institucion = null;
         }
         if ($request->becadesdes[0]) {
-            $integrante->alta_beca = $request->becadesdes[0];
+            $integrante->alta_beca = $this->safeRequest($request, 'becadesdes');
 
             if ($integrante->alta_beca){
                 // Verificar si $integrante->alta_beca es una cadena y convertirla a Carbon si es necesario
@@ -4399,7 +4426,7 @@ class IntegranteController extends Controller
             $integrante->alta_beca = null;
         }
         if ($request->becahastas[0]) {
-            $integrante->baja_beca = $request->becahastas[0];
+            $integrante->baja_beca = $this->safeRequest($request, 'becahastas');
         }
         else {
             $integrante->baja_beca = null;

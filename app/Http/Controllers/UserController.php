@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 
+use App\Traits\SanitizesInput;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -16,7 +17,7 @@ use App\Http\Controllers\ProyectoController;
 
 class UserController extends Controller
 {
-
+    use SanitizesInput;
     /**
      * Display a listing of the resource.
      *
@@ -118,7 +119,7 @@ class UserController extends Controller
             'roles' => 'required',
             'facultad_id' => 'nullable|exists:facultads,id', // Validación de facultad_id
             'cuil' => 'nullable|regex:/^\d{2}-\d{8}-\d{1}$/', // Validación de cuil
-            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+            'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
 
@@ -126,7 +127,7 @@ class UserController extends Controller
 
 
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
         $input['password'] = Hash::make($input['password']);
 
         if ($files = $request->file('image')) {
@@ -186,30 +187,51 @@ class UserController extends Controller
     {
         $this->validate($request, [
             'name' => 'required',
-            'email' => 'required|email|unique:users,email,'.$id,
+            'email' => [
+                'required',
+                'email',
+                'regex:/^[^@]+@[^@]+\.[^@]+$/i',
+                'unique:users,email,'.$id,
+            ],
+
             'password' => 'confirmed',
             'roles' => 'required',
             'facultad_id' => 'nullable|exists:facultads,id', // Validación de facultad_id
             'cuil' => 'nullable|regex:/^\d{2}-\d{8}-\d{1}$/', // Validación de cuil
-            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+            'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
         if(!empty($input['password'])){
             $input['password'] = Hash::make($input['password']);
         }else{
             $input = Arr::except($input,array('password'));
         }
-
+        $user = User::find($id);
         if ($files = $request->file('image')) {
             $image = $request->file('image');
-            $name = time().'.'.$image->getClientOriginalExtension();
+            $extension = strtolower($image->getClientOriginalExtension());
+
+            if ($extension === 'svg') {
+                return back()->withErrors(['image' => 'El formato SVG no está permitido.']);
+            }
+
+            // Eliminar imagen anterior
+            if (!empty($user->image)) {
+                $rutaAnterior = public_path('images/' . $user->image);
+                if (file_exists($rutaAnterior)) {
+                    unlink($rutaAnterior); // Borra físicamente la imagen anterior
+                }
+            }
+
+
+            $name = time().'.'.$extension;
             $destinationPath = public_path('/images');
             $image->move($destinationPath, $name);
             $input['image'] = "$name";
         }
 
-        $user = User::find($id);
+
         $user->update($input);
         DB::table('model_has_roles')->where('model_id',$id)->delete();
 
@@ -240,7 +262,12 @@ class UserController extends Controller
      */
     public function perfil(Request $request)
     {
-        $user = User::find($request->get('idUser'));
+        $id=$request->get('idUser');
+        if (auth()->id() != $id) {
+            abort(403, 'No autorizado.');
+        }
+        $user = User::find($id);
+
 
         $facultades = DB::table('facultads')->pluck('nombre', 'id');
         $userFacultad = $user->facultad_id; // Facultad asignada al usuario
@@ -257,6 +284,9 @@ class UserController extends Controller
     public function updatePerfil(Request $request)
     {
        $id=$request->get('idUser');
+        if (auth()->id() != $id) {
+            abort(403, 'No autorizado.');
+        }
         $this->validate($request, [
             'name' => 'required',
             'email' => 'required|email|unique:users,email,'.$id,
@@ -264,7 +294,7 @@ class UserController extends Controller
             'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
 
-        $input = $request->all();
+        $input = $this->sanitizeInput($request->all());
         if(!empty($input['password'])){
             $input['password'] = Hash::make($input['password']);
         }else{
@@ -273,7 +303,13 @@ class UserController extends Controller
 
         if ($files = $request->file('image')) {
             $image = $request->file('image');
-            $name = time().'.'.$image->getClientOriginalExtension();
+            $extension = strtolower($image->getClientOriginalExtension());
+
+            if ($extension === 'svg') {
+                return back()->withErrors(['image' => 'El formato SVG no está permitido.']);
+            }
+
+            $name = time().'.'.$extension;
             $destinationPath = public_path('/images');
             $image->move($destinationPath, $name);
             $input['image'] = "$name";
