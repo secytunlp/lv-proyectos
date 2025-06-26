@@ -141,6 +141,7 @@ class CheckSelectedRolePermissions
             'solicitud_sicadis.rectificar' => ['solicitud-rechazar'],
             'solicitud_sicadis.saveRect' => ['solicitud-rechazar'],
             'solicitud_sicadis.exportar' => ['solicitud-rechazar'],
+            'solicitud_sicadis.migrarFotos' => ['solicitud-rechazar'],
 
             'solicitud_sicadi_estados.index' => ['solicitud_sicadi_estado-listar'],
             'solicitud_sicadi_estados.dataTable' => ['solicitud_sicadi_estado-listar'],

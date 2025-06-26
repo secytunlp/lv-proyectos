@@ -36,8 +36,8 @@ class CustomAuth
      */
     private function isValidToken($token)
     {
-        // Implementa tu lógica para validar el token
-        // Ejemplo simple: compara con un token predefinido
-        return $token === 'rDoyf7pwG5dmm7JobqCuht7TAAeGiDtX';
+        $validToken = env('CUSTOM_AUTH_TOKEN');  // Lee la clave desde el .env
+        return $token === $validToken;
     }
+
 }
