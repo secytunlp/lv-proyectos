@@ -1579,9 +1579,12 @@ class SolicitudSicadiController extends Controller
         if (empty($solicitud->foto)) {
             $errores[] = 'Falta subir la foto';
         } else {
-            $filePath = public_path('/images/sicadi/' . $solicitud->foto);
-            if (!file_exists($filePath)) {
-                $errores[] = 'Hubo un error al subir la foto, intente nuevamente, si el problema persiste envíenos un mail a categorizacion1@presi.unlp.edu.ar';
+            // Quitar el prefijo "/storage/" para obtener el path real en storage/app/public/
+            $relativePath = str_replace('/storage/', '', $solicitud->foto);
+
+            // Verificar si el archivo existe
+            if (!Storage::disk('public')->exists($relativePath)) {
+                $errores[] = 'Hubo un error al subir la foto, intente nuevamente. Si el problema persiste, envíenos un mail a categorizacion1@presi.unlp.edu.ar';
             }
         }
 
@@ -1677,10 +1680,14 @@ class SolicitudSicadiController extends Controller
         if (empty($solicitud->curriculum)) {
             $errores[] = 'Falta subir el Curriculum';
         } else {
-            $filePath = public_path($solicitud->curriculum);
-            if (!file_exists($filePath)) {
+            // Quitar el prefijo "/storage/" para obtener el path real en storage/app/public/
+            $relativePath = str_replace('/storage/', '', $solicitud->curriculum);
+
+            // Verificar si el archivo existe
+            if (!Storage::disk('public')->exists($relativePath)) {
                 $errores[] = 'Hubo un error al subir el Curriculum, intente nuevamente, si el problema persiste envíenos un mail a categorizacion1@presi.unlp.edu.ar';
             }
+
         }
 
 
