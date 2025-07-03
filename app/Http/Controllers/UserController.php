@@ -309,7 +309,7 @@ class UserController extends Controller
                 'unique:users,email,'.$id,
             ],
             'password' => 'confirmed',
-            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+            'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         $input = $this->sanitizeInput($request->all());
