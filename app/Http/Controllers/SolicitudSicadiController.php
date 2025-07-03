@@ -762,6 +762,13 @@ class SolicitudSicadiController extends Controller
             $path = $image->storeAs('public/images/sicadi', $filename);
             $input['foto'] = Storage::url($path);
         }
+        if ($request->has('delete_image') && $solicitud->foto) {
+            $rutaAnterior = str_replace('/storage/', 'public/', $solicitud->foto); // Ej: public/images/sicadi/foto_xyz.png
+            if (Storage::exists($rutaAnterior)) {
+                Storage::delete($rutaAnterior);
+            }
+            $input['foto'] = null;
+        }
         $selectedRoleId = session('selected_rol');
         if ($selectedRoleId==2) {
             $input['fecha'] = Carbon::now();
@@ -792,6 +799,13 @@ class SolicitudSicadiController extends Controller
                 $filename = 'CV_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
                 $path = $file->storeAs('public/files/sicadi/' . Constants::YEAR_SICADI, $filename);
                 $input['curriculum'] = Storage::url($path); // Genera URL tipo /storage/files/...
+            }
+            if ($request->has('delete_cv') && $solicitud->curriculum) {
+                $rutaAnterior = str_replace('/storage/', 'public/', $solicitud->curriculum); // Ej: public/images/sicadi/foto_xyz.png
+                if (Storage::exists($rutaAnterior)) {
+                    Storage::delete($rutaAnterior);
+                }
+                $input['curriculum'] = null;
             }
         }
 
@@ -991,7 +1005,10 @@ class SolicitudSicadiController extends Controller
             }
 
             // Paginación
-            $perPage = min($request->input('per_page', 20), 100); // Máximo 100 resultados por página
+            $perPage = (int) $request->input('per_page', 20);
+            if ($perPage > 100 || $perPage < 1) {
+                $perPage = 100;
+            }
             $investigadores = $query->paginate($perPage);
 
             // Reemplazo de foto por la URL completa

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 use DB;
 use Hash;
@@ -115,6 +116,11 @@ class UserController extends Controller
         $this->validate($request, [
             'name' => 'required',
             'email' => 'required|email|unique:users,email',
+            'email' => [
+                'required',
+                'regex:/^[^@]+@[^@]+\.[^@]+$/i',
+                'unique:users,email',
+            ],
             'password' => 'required|min:6|confirmed',
             'roles' => 'required',
             'facultad_id' => 'nullable|exists:facultads,id', // Validación de facultad_id
@@ -132,7 +138,7 @@ class UserController extends Controller
 
         if ($files = $request->file('image')) {
             $image = $request->file('image');
-            $name = time().'.'.$image->getClientOriginalExtension();
+            $name = Str::uuid().'.'.$image->getClientOriginalExtension();
             $destinationPath = public_path('/images');
             $image->move($destinationPath, $name);
             $input['image'] = "$name";
@@ -225,10 +231,17 @@ class UserController extends Controller
             }
 
 
-            $name = time().'.'.$extension;
+            $name = Str::uuid().'.'.$extension;
             $destinationPath = public_path('/images');
             $image->move($destinationPath, $name);
             $input['image'] = "$name";
+        }
+        if ($request->has('delete_image') && $user->image) {
+            $imagePath = public_path('images/' . $user->image);
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+            }
+            $input['image'] = null;
         }
 
 
@@ -289,7 +302,12 @@ class UserController extends Controller
         }
         $this->validate($request, [
             'name' => 'required',
-            'email' => 'required|email|unique:users,email,'.$id,
+            'email' => [
+                'required',
+                'email',
+                'regex:/^[^@]+@[^@]+\.[^@]+$/i',
+                'unique:users,email,'.$id,
+            ],
             'password' => 'confirmed',
             'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
@@ -300,7 +318,7 @@ class UserController extends Controller
         }else{
             $input = Arr::except($input,array('password'));
         }
-
+        $user = User::find($id);
         if ($files = $request->file('image')) {
             $image = $request->file('image');
             $extension = strtolower($image->getClientOriginalExtension());
@@ -309,10 +327,26 @@ class UserController extends Controller
                 return back()->withErrors(['image' => 'El formato SVG no está permitido.']);
             }
 
-            $name = time().'.'.$extension;
+            // Eliminar imagen anterior
+            if (!empty($user->image)) {
+                $rutaAnterior = public_path('images/' . $user->image);
+                if (file_exists($rutaAnterior)) {
+                    unlink($rutaAnterior); // Borra físicamente la imagen anterior
+                }
+            }
+
+
+            $name = Str::uuid().'.'.$extension;
             $destinationPath = public_path('/images');
             $image->move($destinationPath, $name);
             $input['image'] = "$name";
+        }
+        if ($request->has('delete_image') && $user->image) {
+            $imagePath = public_path('images/' . $user->image);
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+            }
+            $input['image'] = null;
         }
 
         $user = User::find($id);

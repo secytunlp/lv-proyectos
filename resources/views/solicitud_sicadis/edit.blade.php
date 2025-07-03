@@ -203,6 +203,12 @@ dirección de correo electrónico institucional declarada precedentemente')}}
                                                     <label for="foto">Foto</label>
                                                     @if($investigador->foto)
                                                         <img id="original" src="{{ asset($investigador->foto) }}" height="200">
+                                                        <div class="checkbox">
+                                                            <label>
+                                                                <input type="checkbox" name="delete_image" value="1">
+                                                                Eliminar foto actual
+                                                            </label>
+                                                        </div>
                                                     @endif
                                                     <input type="file" name="foto" class="form-control" placeholder="">
 
@@ -456,6 +462,12 @@ actualmente como Investigadora/or o CPA</span>
                                                         <input type="file" name="curriculum" class="form-control" placeholder="">
                                                         @if(!empty($investigador->curriculum))
                                                             <a href="{{ asset($investigador->curriculum) }}" target="_blank">Descargar Curriculum</a>
+                                                            <div class="checkbox">
+                                                                <label>
+                                                                    <input type="checkbox" name="delete_cv" value="1">
+                                                                    Eliminar Curriculum actual
+                                                                </label>
+                                                            </div>
                                                         @endif
                                                     </div>
                                                 </div>

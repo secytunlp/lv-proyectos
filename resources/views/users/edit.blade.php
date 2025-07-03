@@ -89,6 +89,12 @@
                                             <label for="foto">Foto</label>
                                             @if($user->image)
                                                 <img id="original" src="{{ url('images/'.$user->image) }}" height="200">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox" name="delete_image" value="1">
+                                                        Eliminar foto actual
+                                                    </label>
+                                                </div>
                                             @endif
                                             <input type="file" name="image" class="form-control" placeholder="">
 
