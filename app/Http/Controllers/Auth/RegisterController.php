@@ -65,16 +65,33 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return \Illuminate\Contracts\Validation\Validator
      */
+
     protected function validator(array $data)
     {
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'cuil' => 'nullable|regex:/^\d{2}-\d{8}-\d{1}$/', // Validación de cuil
-            'facultad_id' => 'nullable|exists:facultads,id', // Validación de facultad_id
+            'email' => [
+                'required',
+                'string',
+                'max:255',
+                'unique:users',
+                'regex:/^[^@]+@[^@]+\.[^@]+$/i',
+            ],
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&.,;:])[A-Za-z\d@$!%*#?&.,;:]{8,}$/'
+            ],
+            'cuil' => 'nullable|regex:/^\d{2}-\d{8}-\d{1}$/',
+            'facultad_id' => 'nullable|exists:facultads,id',
+        ], [
+            'password.regex' => 'La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una minúscula, un número y un carácter especial.',
         ]);
     }
+
+
 // Método para registrar un nuevo usuario
     public function register(Request $request)
     {

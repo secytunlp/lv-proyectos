@@ -69,7 +69,7 @@
                                                 @endforeach
                                             </select>
                                         </div>
-                                    </div>s
+                                    </div>
                                     <div class="col-lg-offset-3 col-lg-6 col-md-2">
                                         <div class="form-group">
                                             <label for="password">Password</label>
@@ -88,7 +88,7 @@
                                         <div class="form-group">
                                             <label for="foto">Foto</label>
                                             @if($user->image)
-                                                <img id="original" src="{{ url('images/'.$user->image) }}" height="200">
+                                                <img id="original" src="{{ asset($user->image) }}" height="200">
                                                 <div class="checkbox">
                                                     <label>
                                                         <input type="checkbox" name="delete_image" value="1">
@@ -96,6 +96,8 @@
                                                     </label>
                                                 </div>
                                             @endif
+
+
                                             <input type="file" name="image" class="form-control" placeholder="">
 
                                         </div>

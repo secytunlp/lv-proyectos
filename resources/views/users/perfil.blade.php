@@ -89,7 +89,7 @@
                                         <div class="form-group">
                                             <label for="foto">Foto</label>
                                             @if(Auth::user()->image)
-                                                <img id="original" src="{{ url('images/'.Auth::user()->image) }}" height="200">
+                                                <img id="original" src="{{ asset(Auth::user()->image) }}" height="200">
                                                 <div class="checkbox">
                                                     <label>
                                                         <input type="checkbox" name="delete_image" value="1">

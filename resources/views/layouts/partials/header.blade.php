@@ -24,7 +24,7 @@
           <li class="dropdown user user-menu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                 @if(Auth::user()->image)
-              <img src="{{ url('/images/'.Auth::user()->image) }}" class="user-image" alt="User Image">
+              <img src="{{ asset(Auth::user()->image) }}" class="user-image" alt="User Image">
                 @else
                     <img src="{{ url('/images/user.png') }}" class="user-image" alt="User Image">
                 @endif
@@ -34,7 +34,7 @@
               <!-- User image -->
               <li class="user-header">
                   @if(Auth::user()->image)
-                <img src="{{ url('/images/'.Auth::user()->image) }}" class="img-circle" alt="User Image">
+                <img src="{{ asset(Auth::user()->image) }}" class="img-circle" alt="User Image">
                   @else
                       <img src="{{ url('/images/user.png') }}" class="img-circle" alt="User Image">
                   @endif

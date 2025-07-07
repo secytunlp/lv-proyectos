@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 
 use App\Traits\SanitizesInput;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 use DB;
@@ -115,18 +117,26 @@ class UserController extends Controller
     {
         $this->validate($request, [
             'name' => 'required',
-            'email' => 'required|email|unique:users,email',
             'email' => [
                 'required',
                 'regex:/^[^@]+@[^@]+\.[^@]+$/i',
                 'unique:users,email',
             ],
-            'password' => 'required|min:6|confirmed',
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&.,;:])[A-Za-z\d@$!%*#?&.,;:]{8,}$/',
+            ],
             'roles' => 'required',
-            'facultad_id' => 'nullable|exists:facultads,id', // Validación de facultad_id
-            'cuil' => 'nullable|regex:/^\d{2}-\d{8}-\d{1}$/', // Validación de cuil
-            'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
+            'facultad_id' => 'nullable|exists:facultads,id',
+            'cuil' => 'nullable|regex:/^\d{2}-\d{8}-\d{1}$/',
+            'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+        ], [
+            'password.regex' => 'La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una minúscula, un número y un carácter especial.',
         ]);
+
 
 
 
@@ -138,14 +148,37 @@ class UserController extends Controller
 
         if ($files = $request->file('image')) {
             $image = $request->file('image');
-            $name = Str::uuid().'.'.$image->getClientOriginalExtension();
-            $destinationPath = public_path('/images');
-            $image->move($destinationPath, $name);
-            $input['image'] = "$name";
-        }
+            $extension = strtolower($image->getClientOriginalExtension());
 
-        $user = User::create($input);
-        $user->assignRole($request->input('roles'));
+            if ($extension === 'svg') {
+                return back()->withErrors(['image' => 'El formato SVG no está permitido.']);
+            }
+            $filename = Str::uuid() . '.' . $extension;
+            $path = $image->storeAs('public/images', $filename);
+            $input['image'] = Storage::url($path);
+
+
+        }
+        try {
+            $user = User::create($input);
+            $user->assignRole($request->input('roles'));
+        } catch (QueryException $e) {
+            // Si se produce un error de duplicación de entrada, manejarlo aquí
+            if ($e->errorInfo[1] == 1062) {
+                //og::Info($e->getMessage());
+                // Verificar si el error es debido a duplicación de correo electrónico
+                if (strpos($e->getMessage(), 'for key \'email\'') !== false) {
+                    return redirect()->back()->withInput($request->except('password'))->withErrors(['email' => 'El correo electrónico ya está en uso']);
+                }
+                // Verificar si el error es debido a duplicación de cuil
+                elseif (strpos($e->getMessage(), 'for key \'cuil\'') !== false) {
+                    return redirect()->back()->withInput($request->except('password'))->withErrors(['cuil' => 'El CUIL ya está en uso']);
+                }
+            }
+
+            // En caso de otros errores de consulta, manejarlos según sea necesario
+            //return redirect()->back()->withErrors(['error' => 'Hubo un error al procesar la solicitud. Por favor, inténtelo de nuevo más tarde.']);
+        }
 
         return redirect()->route('users.index')
             ->with('success','Usuario creado con éxito');
@@ -197,15 +230,23 @@ class UserController extends Controller
                 'required',
                 'email',
                 'regex:/^[^@]+@[^@]+\.[^@]+$/i',
-                'unique:users,email,'.$id,
+                'unique:users,email,' . $id,
             ],
-
-            'password' => 'confirmed',
+            'password' => [
+                'nullable',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&.,;:])[A-Za-z\d@$!%*#?&.,;:]{8,}$/',
+            ],
             'roles' => 'required',
-            'facultad_id' => 'nullable|exists:facultads,id', // Validación de facultad_id
-            'cuil' => 'nullable|regex:/^\d{2}-\d{8}-\d{1}$/', // Validación de cuil
-            'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
+            'facultad_id' => 'nullable|exists:facultads,id',
+            'cuil' => 'nullable|regex:/^\d{2}-\d{8}-\d{1}$/',
+            'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+        ], [
+            'password.regex' => 'La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una minúscula, un número y un carácter especial.',
         ]);
+
 
         $input = $this->sanitizeInput($request->all());
         if(!empty($input['password'])){
@@ -222,19 +263,21 @@ class UserController extends Controller
                 return back()->withErrors(['image' => 'El formato SVG no está permitido.']);
             }
 
-            // Eliminar imagen anterior
+
             if (!empty($user->image)) {
-                $rutaAnterior = public_path('images/' . $user->image);
-                if (file_exists($rutaAnterior)) {
-                    unlink($rutaAnterior); // Borra físicamente la imagen anterior
+                $rutaAnterior = str_replace('/storage/', 'public/', $user->image); // Ej: public/images/sicadi/foto_xyz.png
+                if (Storage::exists($rutaAnterior)) {
+                    Storage::delete($rutaAnterior);
                 }
             }
 
 
-            $name = Str::uuid().'.'.$extension;
-            $destinationPath = public_path('/images');
-            $image->move($destinationPath, $name);
-            $input['image'] = "$name";
+
+
+            $filename = Str::uuid().'.'.$extension;
+            $path = $image->storeAs('public/images', $filename);
+            $input['image'] = Storage::url($path);
+
         }
         if ($request->has('delete_image') && $user->image) {
             $imagePath = public_path('images/' . $user->image);
@@ -244,11 +287,29 @@ class UserController extends Controller
             $input['image'] = null;
         }
 
+        try {
+            $user->update($input);
+            DB::table('model_has_roles')->where('model_id',$id)->delete();
 
-        $user->update($input);
-        DB::table('model_has_roles')->where('model_id',$id)->delete();
+            $user->assignRole($request->input('roles'));
+        } catch (QueryException $e) {
+            // Si se produce un error de duplicación de entrada, manejarlo aquí
+            if ($e->errorInfo[1] == 1062) {
+                //og::Info($e->getMessage());
+                // Verificar si el error es debido a duplicación de correo electrónico
+                if (strpos($e->getMessage(), 'for key \'email\'') !== false) {
+                    return redirect()->back()->withInput($request->except('password'))->withErrors(['email' => 'El correo electrónico ya está en uso']);
+                }
+                // Verificar si el error es debido a duplicación de cuil
+                elseif (strpos($e->getMessage(), 'for key \'cuil\'') !== false) {
+                    return redirect()->back()->withInput($request->except('password'))->withErrors(['cuil' => 'El CUIL ya está en uso']);
+                }
+            }
 
-        $user->assignRole($request->input('roles'));
+            // En caso de otros errores de consulta, manejarlos según sea necesario
+            //return redirect()->back()->withErrors(['error' => 'Hubo un error al procesar la solicitud. Por favor, inténtelo de nuevo más tarde.']);
+        }
+
 
         return redirect()->route('users.index')
             ->with('success','Usuario modificado con éxito');
@@ -308,9 +369,18 @@ class UserController extends Controller
                 'regex:/^[^@]+@[^@]+\.[^@]+$/i',
                 'unique:users,email,'.$id,
             ],
-            'password' => 'confirmed',
-            'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
+            'password' => [
+                'nullable',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&.,;:])[A-Za-z\d@$!%*#?&.,;:]{8,}$/',
+            ],
+            'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+        ], [
+            'password.regex' => 'La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una minúscula, un número y un carácter especial.',
         ]);
+
 
         $input = $this->sanitizeInput($request->all());
         if(!empty($input['password'])){
@@ -327,34 +397,55 @@ class UserController extends Controller
                 return back()->withErrors(['image' => 'El formato SVG no está permitido.']);
             }
 
-            // Eliminar imagen anterior
+
             if (!empty($user->image)) {
-                $rutaAnterior = public_path('images/' . $user->image);
-                if (file_exists($rutaAnterior)) {
-                    unlink($rutaAnterior); // Borra físicamente la imagen anterior
+                $rutaAnterior = str_replace('/storage/', 'public/', $user->image); // Ej: public/images/sicadi/foto_xyz.png
+                if (Storage::exists($rutaAnterior)) {
+                    Storage::delete($rutaAnterior);
                 }
             }
 
 
-            $name = Str::uuid().'.'.$extension;
-            $destinationPath = public_path('/images');
-            $image->move($destinationPath, $name);
-            $input['image'] = "$name";
+
+
+            $filename = Str::uuid().'.'.$extension;
+            $path = $image->storeAs('public/images', $filename);
+            $input['image'] = Storage::url($path);
         }
         if ($request->has('delete_image') && $user->image) {
-            $imagePath = public_path('images/' . $user->image);
-            if (file_exists($imagePath)) {
-                unlink($imagePath);
+           $rutaAnterior = str_replace('/storage/', 'public/', $user->image); // Ej: public/images/sicadi/foto_xyz.png
+            if (Storage::exists($rutaAnterior)) {
+                Storage::delete($rutaAnterior);
             }
+
             $input['image'] = null;
         }
 
-        $user = User::find($id);
-        $user->update($input);
+        try {
+            $user->update($input);
+        } catch (QueryException $e) {
+            // Si se produce un error de duplicación de entrada, manejarlo aquí
+            if ($e->errorInfo[1] == 1062) {
+                //og::Info($e->getMessage());
+                // Verificar si el error es debido a duplicación de correo electrónico
+                if (strpos($e->getMessage(), 'for key \'email\'') !== false) {
+                    return redirect()->back()->withInput($request->except('password'))->withErrors(['email' => 'El correo electrónico ya está en uso']);
+                }
+                // Verificar si el error es debido a duplicación de cuil
+                elseif (strpos($e->getMessage(), 'for key \'cuil\'') !== false) {
+                    return redirect()->back()->withInput($request->except('password'))->withErrors(['cuil' => 'El CUIL ya está en uso']);
+                }
+            }
+
+            // En caso de otros errores de consulta, manejarlos según sea necesario
+            //return redirect()->back()->withErrors(['error' => 'Hubo un error al procesar la solicitud. Por favor, inténtelo de nuevo más tarde.']);
+        }
 
 
-        return redirect()->route('users.index')
-            ->with('success','Perfil modificado con éxito');
+        return redirect()->route('home')
+            ->with('success', 'Perfil modificado con éxito');
+        /*return redirect()->route('users.index')
+            ->with('success','Perfil modificado con éxito');*/
     }
 
     public function selectRol()

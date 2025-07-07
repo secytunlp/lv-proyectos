@@ -119,7 +119,7 @@
                 columns: [
                     { data: 'image', name: 'image', render: function(data, type, row) {
                             if (data) {
-                                return '<img src="{{ url('images/') }}/' + data + '" class="img-circle" width="50px">';
+                                return '<img src="{{ asset('') }}' + data + '" class="img-circle" width="50px">';
                             } else {
                                 return '<img src="{{ url('images/user.png') }}" class="img-circle">';
                             }

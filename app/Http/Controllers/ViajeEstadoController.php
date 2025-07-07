@@ -94,10 +94,16 @@ class ViajeEstadoController extends Controller
         // Obtener la cantidad total de registros después de aplicar el filtro de búsqueda
         $recordsFiltered = $query->count();
 
+        // Protección contra consumo excesivo de recursos
+        $length = intval($request->input('length', 10));
+        $length = ($length > 0 && $length <= 100) ? $length : 10;
+
+        $start = intval($request->input('start', 0));
+        $start = ($start >= 0) ? $start : 0;
         // Obtener solo los elementos paginados
         $datos = $query->orderBy($columnaOrden, $orden)
-            ->skip($request->input('start'))
-            ->take($request->input('length'))
+            ->skip($start)
+            ->take($length)
             ->get();
 
         // Obtener la cantidad total de registros sin filtrar

@@ -99,6 +99,7 @@ class SolicitudSicadiController extends Controller
         $otorgadas = $request->input('otorgadas');
 
 
+
         // Consulta base
         $query = SolicitudSicadi::select('solicitud_sicadis.id as id', 'solicitud_sicadis.nombre as persona_nombre', 'cuil','solicitud_sicadis.fecha','presentacion_ua', DB::raw("CONCAT(sicadi_convocatorias.nombre, ' ', sicadi_convocatorias.tipo, ' ', sicadi_convocatorias.year) as convocatoria"), DB::raw("CONCAT(solicitud_sicadis.apellido, ', ', solicitud_sicadis.nombre) as persona_apellido"),'solicitud_sicadis.estado as estado', 'categoria_solicitada', 'categoria_asignada')
             ->leftJoin('sicadi_convocatorias', 'solicitud_sicadis.convocatoria_id', '=', 'sicadi_convocatorias.id')
@@ -266,10 +267,16 @@ class SolicitudSicadiController extends Controller
         // Obtener la cantidad total de registros después de aplicar el filtro de búsqueda
         $recordsFiltered = $query->count();
 
+        // Protección contra consumo excesivo de recursos
+        $length = intval($request->input('length', 10));
+        $length = ($length > 0 && $length <= 100) ? $length : 10;
+
+        $start = intval($request->input('start', 0));
+        $start = ($start >= 0) ? $start : 0;
         // Obtener solo los elementos paginados
         $datos = $query->orderBy($columnaOrden, $orden)
-            ->skip($request->input('start'))
-            ->take($request->input('length'))
+            ->skip($start)
+            ->take($length)
             ->get();
 
         // Obtener la cantidad total de registros sin filtrar
@@ -1458,6 +1465,19 @@ class SolicitudSicadiController extends Controller
         $solicitud_sicadiId = $request->query('solicitud_sicadi_id');
 
         $solicitud_sicadi = SolicitudSicadi::findOrFail($solicitud_sicadiId);
+        if (!$solicitud_sicadi) {
+            abort(403, 'No autorizado.');
+        }
+
+        $selectedRoleId = session('selected_rol');
+        if ($selectedRoleId==2){
+            $user = auth()->user();
+
+            if ($solicitud_sicadi->cuil!=$user->cuil){
+                abort(403, 'No autorizado.');
+            }
+
+        }
 
         $files = [
             'curriculum' => $solicitud_sicadi->curriculum,
@@ -1782,6 +1802,9 @@ class SolicitudSicadiController extends Controller
         $solicitud_sicadiId = $request->query('solicitud_sicadi_id');
 
         $solicitud_sicadi = SolicitudSicadi::find($solicitud_sicadiId);
+        if (!$solicitud_sicadi) {
+            abort(403, 'No autorizado.');
+        }
         $selectedRoleId = session('selected_rol');
         if ($selectedRoleId==2){
             $user = auth()->user();
