@@ -20,8 +20,10 @@ Route::middleware(['custom.auth', 'throttle:60,1'])->group(function () {
     Route::get('solicitud_sicadis/categorias', [SolicitudSicadiController::class, 'getCategorias']);
     Route::get('solicitud_sicadis/subareas', [SolicitudSicadiController::class, 'getSubareas']);
 
-    // Esta debe ir al final
-    Route::get('solicitud_sicadis/{id}', [SolicitudSicadiController::class, 'getInvestigadorById']);
+    // SIEMPRE al final
+    Route::get('solicitud_sicadis/{id}', [SolicitudSicadiController::class, 'getInvestigadorById'])
+        ->where('id', '[0-9]+'); // ?? restringís a solo números
 });
+
 
 

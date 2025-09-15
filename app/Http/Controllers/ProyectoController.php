@@ -61,13 +61,7 @@ class ProyectoController extends Controller
 
     }
 
-    public function clearFilter(Request $request)
-    {
-        // Limpiar el valor del filtro en la sesión
-        $request->session()->forget('nombre_filtro_proyecto');
-        //Log::info('Sesion limpia:', $request->session()->all());
-        return response()->json(['status' => 'success']);
-    }
+
 
     public function dataTable(Request $request)
     {
@@ -89,16 +83,7 @@ class ProyectoController extends Controller
         ->leftJoin('investigadors', 'integrantes.investigador_id', '=', 'investigadors.id')
         ->leftJoin('personas', 'investigadors.persona_id', '=', 'personas.id');
 
-        if (!empty($busqueda)) {
 
-
-            $request->session()->put('nombre_filtro_proyecto', $busqueda);
-
-        }
-        else{
-            $busqueda = $request->session()->get('nombre_filtro_proyecto');
-
-        }
 
         // Aplicar la búsqueda
         if (!empty($busqueda)) {

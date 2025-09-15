@@ -373,42 +373,44 @@
                         d.facultadplanilla = $('#facultadplanilla_id').val();
                         // Agrega otros parámetros si es necesario
                         // d.otroParametro = valor;
+                    },
+                    "error": function(xhr, error, thrown) {
+                        if (xhr.status === 401) {
+                            // Usuario no autenticado, redirigir al login
+                            window.location.href = "{{ route('login') }}";
+                        } else {
+                            console.error("Error al cargar los datos:", error);
+                        }
                     }
                 },
                 columns: columns,
                 "language": {
                     "url": "{{ asset('bower_components/datatables.net/lang/es-AR.json') }}"
                 },
-                "initComplete": function() {
-                    // Recuperar el valor del filtro desde la sesión
-                    var filtroGuardado = '{{ session('nombre_filtro_joven', '') }}';
-
-                    // Establecer el valor en el input de búsqueda
-                    if (filtroGuardado) {
-                        $('#example1_filter input[type="search"]').val(filtroGuardado);
+                stateSave: true,
+                // Guardar y restaurar el filtro externo
+                stateSaveParams: function (settings, data) {
+                    data.filtroPeriodo = $('#filtroPeriodo').val();
+                    data.estado = $('#estado').val();
+                    data.area = $('#area').val();
+                    data.facultadplanilla_id = $('#facultadplanilla_id').val();
+                },
+                stateLoadParams: function (settings, data) {
+                    if (data.filtroPeriodo) {
+                        $('#filtroPeriodo').val(data.filtroPeriodo).trigger('change');
                     }
-                    // Agregar botón "Limpiar Filtro" justo después del input de búsqueda
-                    $('#example1_filter').append('<button id="clearFilter" class="btn btn-secondary btn-sm" style="margin-left: 10px;">Limpiar Filtro</button>');
+                    if (data.estado) {
+                        $('#estado').val(data.estado).trigger('change');
+                    }
+                    if (data.area) {
+                        $('#area').val(data.area).trigger('change');
+                    }
+                    if (data.facultadplanilla_id) {
+                        $('#facultadplanilla_id').val(data.facultadplanilla_id).trigger('change');
+                    }
+                },
+                "initComplete": function() {
 
-                    // Asignar acción al botón "Limpiar Filtro"
-                    $('#clearFilter').click(function() {
-                        // Enviar una solicitud al servidor para limpiar la sesión
-                        $.post("{{ route('jovens.clearFilter') }}", {
-                            _token: '{{ csrf_token() }}'
-                        })
-                            .done(function(response) {
-                                // Limpiar el input de búsqueda
-                                $('#example1_filter input[type="search"]').val('');
-
-                                // Hacer la búsqueda en la tabla (esto limpiará los resultados filtrados)
-                                table.search('').draw();
-
-                                //console.log('Filtro limpiado y tabla redibujada');
-                            })
-                            .fail(function(xhr) {
-                                console.error('Error al limpiar el filtro:', xhr.responseText);
-                            });
-                    });
                 }
             });
             // Evento para manejar el cambio en el filtro de período

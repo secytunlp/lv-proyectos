@@ -122,6 +122,14 @@
                         d.joven_evaluacion_id = '{{ $joven_evaluacion ? $joven_evaluacion->id : '' }}'; // Enviar el ID del joven_evaluacion como filtro
                         // Agrega otros parámetros si es necesario
                         // d.otroParametro = valor;
+                    },
+                    "error": function(xhr, error, thrown) {
+                        if (xhr.status === 401) {
+                            // Usuario no autenticado, redirigir al login
+                            window.location.href = "{{ route('login') }}";
+                        } else {
+                            console.error("Error al cargar los datos:", error);
+                        }
                     }
                 },
                 columns: [
@@ -180,7 +188,9 @@
                 ],
                 "language": {
                     "url": "{{ asset('bower_components/datatables.net/lang/es-AR.json') }}"
-                }
+                },
+                stateSave: true,
+
             });
         });
 

@@ -227,6 +227,14 @@
                         d.otorgadas = $('#otorgadas').is(':checked') ? 1 : 0;
                         // Agrega otros parámetros si es necesario
                         // d.otroParametro = valor;
+                    },
+                    "error": function(xhr, error, thrown) {
+                        if (xhr.status === 401) {
+                            // Usuario no autenticado, redirigir al login
+                            window.location.href = "{{ route('login') }}";
+                        } else {
+                            console.error("Error al cargar los datos:", error);
+                        }
                     }
                 },
                 columns: [
@@ -334,63 +342,73 @@
                 "language": {
                     "url": "{{ asset('bower_components/datatables.net/lang/es-AR.json') }}"
                 },
-                "initComplete": function() {
-                    // Recuperar el valor del filtro desde la sesión
-                    var filtroGuardado = '{{ session('nombre_filtro_sicadi', '') }}';
-
-                    // Establecer el valor en el input de búsqueda
-                    if (filtroGuardado) {
-                        $('#example1_filter input[type="search"]').val(filtroGuardado);
+                stateSave: true,
+                // Guardar y restaurar el filtro externo
+                stateSaveParams: function (settings, data) {
+                    data.filtroYear = $('#filtroYear').val();
+                    data.estado = $('#estado').val();
+                    data.tipo = $('#tipo').val();
+                    data.mecanismo = $('#mecanismo').val();
+                    data.solicitad = $('#solicitad').val();
+                    data.presentacion_ua = $('#presentacion_ua').val();
+                    data.asignada = $('#asignada').val();
+                    data.otorgadas = $('#otorgadas').val();
+                },
+                stateLoadParams: function (settings, data) {
+                    if (data.filtroYear) {
+                        $('#filtroYear').val(data.filtroYear).trigger('change');
                     }
-                    // Agregar botón "Limpiar Filtro" justo después del input de búsqueda
-                    $('#example1_filter').append('<button id="clearFilter" class="btn btn-secondary btn-sm" style="margin-left: 10px;">Limpiar Filtro</button>');
+                    if (data.estado) {
+                        $('#estado').val(data.estado).trigger('change');
+                    }
+                    if (data.tipo) {
+                        $('#tipo').val(data.tipo).trigger('change');
+                    }
+                    if (data.mecanismo) {
+                        $('#mecanismo').val(data.mecanismo).trigger('change');
+                    }
+                    if (data.solicitad) {
+                        $('#solicitad').val(data.solicitad).trigger('change');
+                    }
+                    if (data.presentacion_ua) {
+                        $('#presentacion_ua').val(data.presentacion_ua).trigger('change');
+                    }
+                    if (data.asignada) {
+                        $('#asignada').val(data.asignada).trigger('change');
+                    }
+                    if (data.otorgadas) {
+                        $('#otorgadas').val(data.otorgadas).trigger('change');
+                    }
+                },
+                "initComplete": function() {
 
-                    // Asignar acción al botón "Limpiar Filtro"
-                    $('#clearFilter').click(function() {
-                        // Enviar una solicitud al servidor para limpiar la sesión
-                        $.post("{{ route('solicitud_sicadis.clearFilter') }}", {
-                            _token: '{{ csrf_token() }}'
-                        })
-                            .done(function(response) {
-                                // Limpiar el input de búsqueda
-                                $('#example1_filter input[type="search"]').val('');
-
-                                // Hacer la búsqueda en la tabla (esto limpiará los resultados filtrados)
-                                table.search('').draw();
-
-                                //console.log('Filtro limpiado y tabla redibujada');
-                            })
-                            .fail(function(xhr) {
-                                console.error('Error al limpiar el filtro:', xhr.responseText);
-                            });
-                    });
                 }
             });
             // Evento para manejar el cambio en el filtro de período
             $('#filtroYear').change(function() {
-                table.ajax.reload(); // Recargar la tabla cuando cambie el filtro de período
+               table.ajax.reload(null, false);
             });
             $('#tipo').change(function() {
-                table.ajax.reload(); // Recargar la tabla cuando cambie el filtro de período
+               table.ajax.reload(null, false);
             });
             $('#mecanismo').change(function() {
-                table.ajax.reload(); // Recargar la tabla cuando cambie el filtro de período
+               table.ajax.reload(null, false);
             });
             $('#solicitada').change(function() {
-                table.ajax.reload(); // Recargar la tabla cuando cambie el filtro de período
+               table.ajax.reload(null, false);
             });
             $('#estado').change(function() {
-                table.ajax.reload(); // Recargar la tabla cuando cambie el filtro de período
+               table.ajax.reload(null, false);
             });
 
             $('#presentacion_ua').change(function() {
-                table.ajax.reload(); // Recargar la tabla cuando cambie el filtro de período
+               table.ajax.reload(null, false);
             });
             $('#asignada').change(function() {
-                table.ajax.reload(); // Recargar la tabla cuando cambie el filtro de período
+               table.ajax.reload(null, false);
             });
             $('#otorgadas').click(function() {
-                table.ajax.reload(); // Recargar la tabla cuando cambie el filtro de período
+               table.ajax.reload(null, false);
             });
 
             $('#exportar-datos').click(function () {

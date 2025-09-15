@@ -86,17 +86,7 @@ class ViajeController extends Controller
         ]);
     }
 
-    public function clearFilter(Request $request)
-    {
-        // Limpiar el valor del filtro en la sesión
-        $request->session()->forget('nombre_filtro_viaje');
-        /*$request->session()->forget('periodo_filtro_viaje');
-        $request->session()->forget('estado_filtro_viaje');
-        $request->session()->forget('area_filtro_viaje');
-        $request->session()->forget('facultad_filtro_viaje');*/
-        //Log::info('Sesion limpia:', $request->session()->all());
-        return response()->json(['status' => 'success']);
-    }
+
 
     public function dataTable(Request $request)
     {
@@ -126,105 +116,34 @@ class ViajeController extends Controller
                 $query->select('viaje_ambitos.viaje_id', 'viaje_ambitos.ciudad', 'viaje_ambitos.pais', 'viaje_ambitos.desde', 'viaje_ambitos.hasta');
             }]);
 
-        // Filtrar por período si se proporciona
-        if (!empty($periodo)) {
 
-            $request->session()->put('periodo_filtro_viaje', $periodo);
-
-        }
-        else{
-            $periodo = $request->session()->get('periodo_filtro_viaje');
-
-        }
-        if ($periodo=='-1'){
-            $request->session()->forget('periodo_filtro_viaje');
-            $periodo='';
-        }
-        if (!empty($periodo)) {
+        if (!empty($periodo) && $periodo != '-1') {
             $query->where('viajes.periodo_id', $periodo);
         }
-        if (!empty($estado)) {
 
-            $request->session()->put('estado_filtro_viaje', $estado);
-
-        }
-        else{
-            $estado = $request->session()->get('estado_filtro_viaje');
-
-        }
-        if ($estado=='-1'){
-            $request->session()->forget('estado_filtro_viaje');
-            $estado='';
-        }
-        if (!empty($estado)) {
+        if (!empty($estado) && $estado != '-1') {
             $query->where('viajes.estado', $estado);
         }
-        if (!empty($area)) {
 
-            $request->session()->put('area_filtro_viaje', $area);
-
-        }
-        else{
-            $area = $request->session()->get('area_filtro_viaje');
-
-        }
-        if ($area=='-1'){
-            $request->session()->forget('area_filtro_viaje');
-            $area='';
-        }
-        if (!empty($area)) {
+        if (!empty($area) && $area != '-1') {
             $query->where('facultads.cat', $area);
         }
-        if (!empty($facultadplanilla)) {
 
-            $request->session()->put('facultad_filtro_viaje', $facultadplanilla);
-
-        }
-        else{
-            $facultadplanilla = $request->session()->get('facultad_filtro_viaje');
-
-        }
-        if ($facultadplanilla=='-1'){
-            $request->session()->forget('facultad_filtro_viaje');
-            $facultadplanilla='';
-        }
-        if (!empty($facultadplanilla)) {
+        if (!empty($facultadplanilla) && $facultadplanilla != '-1') {
             $query->where('facultads.id', $facultadplanilla);
         }
 
-        if (!empty($motivo)) {
-
-            $request->session()->put('motivo_filtro_viaje', $motivo);
-
-        }
-        else{
-            $motivo = $request->session()->get('motivo_filtro_viaje');
-
-        }
-        if ($motivo=='-1'){
-            $request->session()->forget('motivo_filtro_viaje');
-            $motivo='';
-        }
-        if (!empty($motivo)) {
+        if (!empty($motivo) && $motivo != '-1') {
             $query->where('viajes.motivo', $motivo);
         }
+
+
 
         if ($otorgadas) {
             $query->where('viajes.estado', 'like', '%otorgada%');
         }
 
 
-
-        if (!empty($busqueda)) {
-
-
-            $request->session()->put('nombre_filtro_viaje', $busqueda);
-
-        }
-        else{
-            $busqueda = $request->session()->get('nombre_filtro_viaje');
-
-        }
 
 
         // Aplicar la búsqueda

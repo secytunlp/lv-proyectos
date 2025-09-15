@@ -50,13 +50,6 @@ class InvestigadorController extends Controller
     }
 
 
-    public function clearFilter(Request $request)
-    {
-        // Limpiar el valor del filtro en la sesión
-        $request->session()->forget('nombre_filtro_investigador');
-        //Log::info('Sesion limpia:', $request->session()->all());
-        return response()->json(['status' => 'success']);
-    }
 
 
     public function dataTable(Request $request)
@@ -83,17 +76,7 @@ class InvestigadorController extends Controller
         /*Log::info("Busqueda antes: " . $busqueda);
 
         Log::info('Sesion busqueda:', $request->session()->all());*/
-        if (!empty($busqueda)) {
 
-            //Log::info("Busqueda no vacia: " . $busqueda);
-            $request->session()->put('nombre_filtro_investigador', $busqueda);
-
-        }
-        else{
-            //Log::info("Busqueda vacia: " . $busqueda);
-            $busqueda = $request->session()->get('nombre_filtro_investigador');
-
-        }
         /*Log::info("Busqueda despues: " . $busqueda);
         Log::info('Sesion busqueda:', $request->session()->all());*/
         // Aplicar la búsqueda

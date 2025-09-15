@@ -74,13 +74,7 @@ class JovenEvaluacionController extends Controller
     }
 
 
-    public function clearFilter(Request $request)
-    {
-        // Limpiar el valor del filtro en la sesión
-        $request->session()->forget('nombre_filtro_joven_evaluacion');
-        //Log::info('Sesion limpia:', $request->session()->all());
-        return response()->json(['status' => 'success']);
-    }
+
 
     public function dataTable(Request $request)
     {
@@ -140,16 +134,7 @@ class JovenEvaluacionController extends Controller
             });
 
         }*/
-        if (!empty($busqueda)) {
 
-
-            $request->session()->put('nombre_filtro_joven_evaluacion', $busqueda);
-
-        }
-        else{
-            $busqueda = $request->session()->get('nombre_filtro_joven_evaluacion');
-
-        }
         // Aplicar la búsqueda
         if (!empty($busqueda)) {
             $query->where(function ($query) use ($columnas, $busqueda) {

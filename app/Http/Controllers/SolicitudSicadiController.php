@@ -69,17 +69,7 @@ class SolicitudSicadiController extends Controller
         ]);
     }
 
-    public function clearFilter(Request $request)
-    {
-        // Limpiar el valor del filtro en la sesión
-        $request->session()->forget('nombre_filtro_sicadi');
-        /*$request->session()->forget('periodo_filtro_sicadi');
-        $request->session()->forget('estado_filtro_sicadi');
-        $request->session()->forget('area_filtro_sicadi');
-        $request->session()->forget('facultad_filtro_sicadi');*/
-        //Log::info('Sesion limpia:', $request->session()->all());
-        return response()->json(['status' => 'success']);
-    }
+
 
     public function dataTable(Request $request)
     {
@@ -105,140 +95,38 @@ class SolicitudSicadiController extends Controller
             ->leftJoin('sicadi_convocatorias', 'solicitud_sicadis.convocatoria_id', '=', 'sicadi_convocatorias.id')
             ;
 
-        if (!empty($filtroYear)) {
 
-            $request->session()->put('year_filtro_sicadi', $filtroYear);
-
-        }
-        else{
-            $filtroYear = $request->session()->get('year_filtro_sicadi');
-
-        }
-        if ($filtroYear=='-1'){
-            $request->session()->forget('filtroYear_filtro_sicadi');
-            $filtroYear='';
-        }
-        if (!empty($filtroYear)) {
+        if (!empty($filtroYear) && $filtroYear != '-1') {
             $query->where('sicadi_convocatorias.year', $filtroYear);
         }
 
-        if (!empty($tipo)) {
-
-            $request->session()->put('tipo_filtro_sicadi', $tipo);
-
-        }
-        else{
-            $tipo = $request->session()->get('tipo_filtro_sicadi');
-
-        }
-        if ($tipo=='-1'){
-            $request->session()->forget('tipo_filtro_sicadi');
-            $tipo='';
-        }
-        if (!empty($tipo)) {
+        if (!empty($tipo) && $tipo != '-1') {
             $query->where('sicadi_convocatorias.tipo', $tipo);
         }
 
-        if (!empty($mecanismo)) {
-
-            $request->session()->put('mecanismo_filtro_sicadi', $mecanismo);
-
-        }
-        else{
-            $mecanismo = $request->session()->get('mecanismo_filtro_sicadi');
-
-        }
-        if ($mecanismo=='-1'){
-            $request->session()->forget('mecanismo_filtro_sicadi');
-            $mecanismo='';
-        }
-        if (!empty($mecanismo)) {
+        if (!empty($mecanismo) && $mecanismo != '-1') {
             $query->where('solicitud_sicadis.mecanismo', $mecanismo);
         }
 
-        if (!empty($solicitada)) {
-
-            $request->session()->put('solicitada_filtro_sicadi', $solicitada);
-
-        }
-        else{
-            $solicitada = $request->session()->get('solicitada_filtro_sicadi');
-
-        }
-        if ($solicitada=='-1'){
-            $request->session()->forget('solicitada_filtro_sicadi');
-            $solicitada='';
-        }
-        if (!empty($solicitada)) {
+        if (!empty($solicitada) && $solicitada != '-1') {
             $query->where('solicitud_sicadis.categoria_solicitada', $solicitada);
         }
 
-        if (!empty($estado)) {
-
-            $request->session()->put('estado_filtro_sicadi', $estado);
-
-        }
-        else{
-            $estado = $request->session()->get('estado_filtro_sicadi');
-
-        }
-        if ($estado=='-1'){
-            $request->session()->forget('estado_filtro_sicadi');
-            $estado='';
-        }
-        if (!empty($estado)) {
+        if (!empty($estado) && $estado != '-1') {
             $query->where('solicitud_sicadis.estado', $estado);
         }
 
-        if (!empty($presentacion_ua)) {
-
-            $request->session()->put('facultad_filtro_sicadi', $presentacion_ua);
-
-        }
-        else{
-            $presentacion_ua = $request->session()->get('facultad_filtro_sicadi');
-
-        }
-        if ($presentacion_ua=='-1'){
-            $request->session()->forget('facultad_filtro_sicadi');
-            $presentacion_ua='';
-        }
-        if (!empty($presentacion_ua)) {
+        if (!empty($presentacion_ua) && $presentacion_ua != '-1') {
             $query->where('solicitud_sicadis.presentacion_ua', $presentacion_ua);
         }
 
-        if (!empty($asignada)) {
-
-            $request->session()->put('asignada_filtro_sicadi', $asignada);
-
-        }
-        else{
-            $asignada = $request->session()->get('asignada_filtro_sicadi');
-
-        }
-        if ($asignada=='-1'){
-            $request->session()->forget('asignada_filtro_sicadi');
-            $asignada='';
-        }
-        if (!empty($asignada)) {
+        if (!empty($asignada) && $asignada != '-1') {
             $query->where('solicitud_sicadis.categoria_asignada', $asignada);
         }
 
+
         if ($otorgadas) {
             $query->where('solicitud_sicadis.estado', 'like', '%otorgada%');
-        }
-
-
-
-        if (!empty($busqueda)) {
-
-
-            $request->session()->put('nombre_filtro_sicadi', $busqueda);
-
-        }
-        else{
-            $busqueda = $request->session()->get('nombre_filtro_sicadi');
-
         }
 
 
@@ -1769,7 +1657,7 @@ class SolicitudSicadiController extends Controller
                     unlink($pdfPath);
                 }
                 $respuestaID = 'success';
-                $respuestaMSJ = 'Solicitud enviada con éxito';
+                $respuestaMSJ = 'Solicitud enviada con éxito.<br>Recuerde que debe entregar la copia firmada de la planilla generada por la plataforma SICADI en la Secretaría de Ciencia y Técnica (o equivalente) de su Unidad Académica (UA), junto con toda la documentación solicitada según la categoría.<br>Más información  <a href="https://unlp.edu.ar/investigacion/categorizacion-de-docentes-investigadores-de-la-unlp-93068/" target="_blank">aquí</a>';
 
             } catch (QueryException $ex) {
                 // Manejar la excepción de la base de datos
@@ -1916,7 +1804,7 @@ class SolicitudSicadiController extends Controller
         Mail::to($user->email)->send(new SicadiEnviada($datosCorreo,$solicitud, $adjuntarArchivos, $adjuntarPlanilla));
 
         // Enviar correo electrónico a tu servidor (ejemplo)
-        Mail::to('marcosp@presi.unlp.edu.ar')->send(new SicadiEnviada($datosCorreo,$solicitud, $adjuntarArchivos, $adjuntarPlanilla));
+        Mail::to(Constants::MAIL_SICADI)->send(new SicadiEnviada($datosCorreo,$solicitud, $adjuntarArchivos, $adjuntarPlanilla));
 
         // Obtener el nombre del rol correspondiente al id 4
         $roleName = Role::find(Constants::ID_ADMIN_FACULTAD_PROYECTOS)->name;

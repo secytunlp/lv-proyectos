@@ -156,13 +156,7 @@ class IntegranteController extends Controller
     }
 
 
-    public function clearFilter(Request $request)
-    {
-        // Limpiar el valor del filtro en la sesión
-        $request->session()->forget('nombre_filtro_integrante');
-        //Log::info('Sesion limpia:', $request->session()->all());
-        return response()->json(['status' => 'success']);
-    }
+
 
     public function dataTable(Request $request)
     {
@@ -204,16 +198,7 @@ class IntegranteController extends Controller
             });
 
         }
-        if (!empty($busqueda)) {
 
-
-            $request->session()->put('nombre_filtro_integrante', $busqueda);
-
-        }
-        else{
-            $busqueda = $request->session()->get('nombre_filtro_integrante');
-
-        }
         // Aplicar la búsqueda
         if (!empty($busqueda)) {
             $query->where(function ($query) use ($columnas, $busqueda) {

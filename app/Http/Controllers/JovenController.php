@@ -86,17 +86,7 @@ class JovenController extends Controller
         ]);
     }
 
-    public function clearFilter(Request $request)
-    {
-        // Limpiar el valor del filtro en la sesión
-        $request->session()->forget('nombre_filtro_joven');
-        /*$request->session()->forget('periodo_filtro_joven');
-        $request->session()->forget('estado_filtro_joven');
-        $request->session()->forget('area_filtro_joven');
-        $request->session()->forget('facultad_filtro_joven');*/
-        //Log::info('Sesion limpia:', $request->session()->all());
-        return response()->json(['status' => 'success']);
-    }
+
 
     public function dataTable(Request $request)
     {
@@ -121,82 +111,24 @@ class JovenController extends Controller
                     ->with('user:id,name'); // Carga el usuario solo si el user_id no es null
             }]);
 
-        // Filtrar por período si se proporciona
-        if (!empty($periodo)) {
 
-            $request->session()->put('periodo_filtro_joven', $periodo);
 
-        }
-        else{
-            $periodo = $request->session()->get('periodo_filtro_joven');
-
-        }
-        if ($periodo=='-1'){
-            $request->session()->forget('periodo_filtro_joven');
-            $periodo='';
-        }
-        if (!empty($periodo)) {
+        if (!empty($periodo) && $periodo != '-1') {
             $query->where('jovens.periodo_id', $periodo);
         }
-        if (!empty($estado)) {
 
-            $request->session()->put('estado_filtro_joven', $estado);
-
-        }
-        else{
-            $estado = $request->session()->get('estado_filtro_joven');
-
-        }
-        if ($estado=='-1'){
-            $request->session()->forget('estado_filtro_joven');
-            $estado='';
-        }
-        if (!empty($estado)) {
+        if (!empty($estado) && $estado != '-1') {
             $query->where('jovens.estado', $estado);
         }
-        if (!empty($area)) {
 
-            $request->session()->put('area_filtro_joven', $area);
-
-        }
-        else{
-            $area = $request->session()->get('area_filtro_joven');
-
-        }
-        if ($area=='-1'){
-            $request->session()->forget('area_filtro_joven');
-            $area='';
-        }
-        if (!empty($area)) {
+        if (!empty($area) && $area != '-1') {
             $query->where('facultads.cat', $area);
         }
-        if (!empty($facultadplanilla)) {
 
-            $request->session()->put('facultad_filtro_joven', $facultadplanilla);
-
-        }
-        else{
-            $facultadplanilla = $request->session()->get('facultad_filtro_joven');
-
-        }
-        if ($facultadplanilla=='-1'){
-            $request->session()->forget('facultad_filtro_joven');
-            $facultadplanilla='';
-        }
-        if (!empty($facultadplanilla)) {
+        if (!empty($facultadplanilla) && $facultadplanilla != '-1') {
             $query->where('facultads.id', $facultadplanilla);
         }
 
-        if (!empty($busqueda)) {
-
-
-            $request->session()->put('nombre_filtro_joven', $busqueda);
-
-        }
-        else{
-            $busqueda = $request->session()->get('nombre_filtro_joven');
-
-        }
 
 
         // Aplicar la búsqueda

@@ -55,7 +55,7 @@ class CheckSelectedRolePermissions
             'investigadors.edit' => ['investigador-editar'],
             'investigadors.update' => ['investigador-editar'],
             'investigadors.destroy' => ['investigador-eliminar'],
-            'investigadors.clearFilter' => ['investigador-listar'],
+
 
             'proyectos.index' => ['proyecto-listar'],
             'proyectos.show' => ['proyecto-listar'],
@@ -65,10 +65,10 @@ class CheckSelectedRolePermissions
             'proyectos.edit' => ['proyecto-editar'],
             'proyectos.update' => ['proyecto-editar'],
             'proyectos.destroy' => ['proyecto-eliminar'],
-            'proyectos.clearFilter' => ['proyecto-listar'],
+
 
             'integrantes.index' => ['integrante-listar'],
-            'integrantes.clearFilter' => ['integrante-listar'],
+
             'integrantes.show' => ['integrante-listar'],
             'integrantes.dataTable' => ['integrante-listar'],
             'integrantes.create' => ['integrante-crear'],
@@ -131,7 +131,7 @@ class CheckSelectedRolePermissions
             'solicitud_sicadis.destroy' => ['solicitud_sicadi-eliminar'],
             'solicitud_sicadis.importar' => ['solicitud_sicadi-crear'],
             'solicitud_sicadis.importprocess' => ['solicitud_sicadi-crear'],
-            'solicitud_sicadis.clearFilter' => ['solicitud_sicadi-listar'],
+
             'solicitud_sicadis.solicitud-pdf' => ['solicitud-listar'],
             'solicitud_sicadis.archivos' => ['solicitud-listar'],
             'solicitud_sicadis.enviar' => ['solicitud-editar'],
@@ -155,7 +155,7 @@ class CheckSelectedRolePermissions
             'jovens.edit' => ['solicitud-editar'],
             'jovens.update' => ['solicitud-editar'],
             'jovens.destroy' => ['solicitud-eliminar'],
-            'jovens.clearFilter' => ['solicitud-listar'],
+
             'jovens.solicitud-pdf' => ['solicitud-listar'],
             'jovens.archivos' => ['solicitud-listar'],
             'jovens.enviar' => ['solicitud-editar'],
@@ -171,7 +171,7 @@ class CheckSelectedRolePermissions
 
             'joven_evaluacions.index' => ['evaluacion-listar'],
             'joven_evaluacions.dataTable' => ['evaluacion-listar'],
-            'joven_evaluacions.clearFilter' => ['evaluacion-listar'],
+
             'joven_evaluacions.create' => ['evaluacion-crear'],
             'joven_evaluacions.store' => ['evaluacion-crear'],
             'joven_evaluacions.enviar' => ['evaluacion-crear'],
@@ -199,7 +199,7 @@ class CheckSelectedRolePermissions
             'viajes.edit' => ['solicitud-editar'],
             'viajes.update' => ['solicitud-editar'],
             'viajes.destroy' => ['solicitud-eliminar'],
-            'viajes.clearFilter' => ['solicitud-listar'],
+
             'viajes.solicitud-pdf' => ['solicitud-listar'],
             'viajes.archivos' => ['solicitud-listar'],
             'viajes.enviar' => ['solicitud-editar'],
@@ -215,7 +215,7 @@ class CheckSelectedRolePermissions
 
             'viaje_evaluacions.index' => ['evaluacion-listar'],
             'viaje_evaluacions.dataTable' => ['evaluacion-listar'],
-            'viaje_evaluacions.clearFilter' => ['evaluacion-listar'],
+
             'viaje_evaluacions.create' => ['evaluacion-crear'],
             'viaje_evaluacions.store' => ['evaluacion-crear'],
             'viaje_evaluacions.enviar' => ['evaluacion-crear'],

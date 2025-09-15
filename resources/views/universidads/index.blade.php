@@ -125,7 +125,8 @@
                 scrollX: true,
                 "language": {
                     "url": "{{ asset('bower_components/datatables.net/lang/es-AR.json') }}"
-                }
+                },
+                stateSave: true,
             });
         });
 

@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'Simple'=>'Simple','Semi Exclusiva'=>'Semi Exclusiva','Exclusiva'=>'Exclusiva',
+    'Simple'=>'Simple','Semi Exclusiva'=>'Semi Exclusiva','Exclusiva'=>'Exclusiva','Sin Dedicación'=>'Sin Dedicación',
 ];

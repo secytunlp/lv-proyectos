@@ -36,6 +36,20 @@
             $('.load').hide();
             $('.wrapper').css('filter','blur(0)');
         });
+        $(function() {
+            function ajustarTabla() {
+                setTimeout(function () {
+                    if ($.fn.dataTable.isDataTable('#example1')) {
+                        $('#example1').DataTable().columns.adjust();
+
+                    }
+                }, 300); // un pequeño delay para que el DOM termine el cambio
+            }
+
+            $('.sidebar-toggle').on('click', function() {
+                ajustarTabla();
+            });
+        });
     </script>
     @section('footerSection')
     @show
