@@ -102,7 +102,7 @@
                         <!-- /.box-body -->
                     <!-- /.box-header -->
                         <div class="box-body">
-                            <table id="example1" class="table table-bordered table-striped">
+                            <table id="example1" class="table table-bordered table-striped table-hover">
                                 @php
                                     // Definir los roles permitidos
                                     $rolesPermitidos = [1, 4, 5, 7]; // Agrega aquí los roles permitidos

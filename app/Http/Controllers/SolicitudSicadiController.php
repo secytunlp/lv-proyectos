@@ -471,6 +471,13 @@ class SolicitudSicadiController extends Controller
 
             $user = auth()->user();
 
+            // 🔹 Validar que el CUIL coincida
+            if ($request->filled('cuil') && $request->cuil != $user->cuil) {
+                return redirect()->back()
+                    ->withErrors(['cuil' => 'El CUIL ingresado no coincide con el cargado en su perfil.'])
+                    ->withInput();
+            }
+
             //$cuil = $user->cuil;
             // Crear la carpeta si no existe
             /*$destinationPath = public_path('/files/sicadi/' . Constants::YEAR_SICADI . '/' . $cuil);
