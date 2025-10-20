@@ -427,12 +427,15 @@ class SolicitudSicadiController extends Controller
         // Crear el validador con las reglas y mensajes
         $validator = Validator::make($data, $rules, $messages);
 
-        // Añadir la validación personalizada para la fecha de cierre
+        // Validar fecha de cierre solo si el rol seleccionado es "solicitante" (ID = 2)
         $validator->after(function ($validator) use ($data) {
-            $today = now();
-            $cierreDate = \Carbon\Carbon::parse(Constants::CIERRE_SICADI);
-            if ($today->gt($cierreDate)) {
-                $validator->errors()->add('convocatoria', 'La convocatoria no está vigente.');
+            $selectedRoleId = session('selected_rol');
+            if ($selectedRoleId == 2) {
+                $today = now();
+                $cierreDate = \Carbon\Carbon::parse(Constants::CIERRE_SICADI);
+                if ($today->gt($cierreDate)) {
+                    $validator->errors()->add('convocatoria', 'La convocatoria no está vigente.');
+                }
             }
         });
 
