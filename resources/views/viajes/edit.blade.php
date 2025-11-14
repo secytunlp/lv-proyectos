@@ -600,6 +600,12 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
                                                     <input type="file" name="curriculum" class="form-control" placeholder="">
                                                     @if(!empty($viaje->curriculum))
                                                         <a href="{{ url($viaje->curriculum) }}" target="_blank">Descargar Curriculum</a>
+                                                        <div class="checkbox">
+                                                            <label>
+                                                                <input type="checkbox" name="delete_cv" value="1">
+                                                                Eliminar Curriculum actual
+                                                            </label>
+                                                        </div>
                                                     @endif
                                                 </div>
                                             </div>
@@ -769,6 +775,12 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
                                                         <input type="file" name="trabajo" class="form-control" placeholder="">
                                                         @if(!empty($viaje->trabajo))
                                                             <a href="{{ url($viaje->trabajo) }}" target="_blank">Descargar Copia del trabajo</a>
+                                                            <div class="checkbox">
+                                                                <label>
+                                                                    <input type="checkbox" name="delete_trabajo" value="1">
+                                                                    Eliminar Trabajo actual
+                                                                </label>
+                                                            </div>
                                                         @endif
                                                     </div>
                                                 </div>
@@ -778,6 +790,12 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
                                                         <input type="file" name="aceptacion" class="form-control" placeholder="">
                                                         @if(!empty($viaje->aceptacion))
                                                             <a href="{{ url($viaje->aceptacion) }}" target="_blank">Descargar Aceptación</a>
+                                                            <div class="checkbox">
+                                                                <label>
+                                                                    <input type="checkbox" name="delete_aceptacion" value="1">
+                                                                    Eliminar Aceptación actual
+                                                                </label>
+                                                            </div>
                                                         @endif
                                                     </div>
                                                 </div>
@@ -792,6 +810,12 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
                                                         <input type="file" name="invitacion" class="form-control" placeholder="">
                                                         @if(!empty($viaje->invitacion))
                                                             <a href="{{ url($viaje->invitacion) }}" target="_blank">Descargar Invitación</a>
+                                                            <div class="checkbox">
+                                                                <label>
+                                                                    <input type="checkbox" name="delete_invitacion" value="1">
+                                                                    Eliminar Invitación actual
+                                                                </label>
+                                                            </div>
                                                         @endif
                                                     </div>
                                                 </div>
@@ -801,6 +825,12 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
                                                         <input type="file" name="convenioB" class="form-control" placeholder="">
                                                         @if(!empty($viaje->convenioB))
                                                             <a href="{{ url($viaje->convenioB) }}" target="_blank">Descargar Convenio</a>
+                                                            <div class="checkbox">
+                                                                <label>
+                                                                    <input type="checkbox" name="delete_convenioB" value="1">
+                                                                    Eliminar Convenio actual
+                                                                </label>
+                                                            </div>
                                                         @endif
                                                     </div>
                                                 </div>
@@ -814,6 +844,12 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
                                                         <input type="file" name="aval" class="form-control" placeholder="">
                                                         @if(!empty($viaje->aval))
                                                             <a href="{{ url($viaje->aval) }}" target="_blank">Descargar Aval</a>
+                                                            <div class="checkbox">
+                                                                <label>
+                                                                    <input type="checkbox" name="delete_aval" value="1">
+                                                                    Eliminar Aval actual
+                                                                </label>
+                                                            </div>
                                                         @endif
                                                     </div>
                                                 </div>
@@ -925,6 +961,12 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
                                                         <input type="file" name="cvprofesor" class="form-control" placeholder="">
                                                         @if(!empty($viaje->cvprofesor))
                                                             <a href="{{ url($viaje->cvprofesor) }}" target="_blank">Descargar Invitación</a>
+                                                            <div class="checkbox">
+                                                                <label>
+                                                                    <input type="checkbox" name="delete_cvprofesor" value="1">
+                                                                    Eliminar Invitación actual
+                                                                </label>
+                                                            </div>
                                                         @endif
                                                     </div>
                                                 </div>
@@ -934,6 +976,12 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
                                                         <input type="file" name="convenioC" class="form-control" placeholder="">
                                                         @if(!empty($viaje->convenioC))
                                                             <a href="{{ url($viaje->convenioC) }}" target="_blank">Descargar Convenio</a>
+                                                            <div class="checkbox">
+                                                                <label>
+                                                                    <input type="checkbox" name="delete_convenioC" value="1">
+                                                                    Eliminar Convenio actual
+                                                                </label>
+                                                            </div>
                                                         @endif
                                                     </div>
                                                 </div>

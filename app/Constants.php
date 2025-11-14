@@ -5,7 +5,7 @@ namespace App;
 class Constants
 {
     const YEAR = '2024';
-    const CIERRE = '2024-10-01';
+    const CIERRE = '2025-12-01';
 
     const MAIL_PROYECTOS = 'marcosp@presi.unlp.edu.ar';
     const NOMBRE_PROYECTOS = 'Gestión de Proyectos - SECyT - UNLP';
@@ -27,7 +27,7 @@ class Constants
     const MAIL_JOVENES = 'marcosp@presi.unlp.edu.ar';
     const NOMBRE_JOVENES = 'Jóvenes Investigadores - SECyT - UNLP';
     const YEAR_JOVENES = '2024';
-    const CIERRE_JOVENES = '2024-11-01';
+    const CIERRE_JOVENES = '2025-12-01';
 
     const MONTO_JOVENES = '104000';
 
@@ -55,7 +55,7 @@ class Constants
 
     const YEAR_VIAJES = '2024';
 
-    const CIERRE_VIAJES = '2024-12-31';
+    const CIERRE_VIAJES = '2025-12-31';
 
     const CATEGORIAS_FORMADOS = '6,7,8';
 

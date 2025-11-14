@@ -496,6 +496,12 @@
                                                     <input type="file" name="resolucion" class="form-control" placeholder="">
                                                     @if(!empty($integrante->resolucion))
                                                         <a href="{{ url($integrante->resolucion) }}" target="_blank">Descargar Resolución</a>
+                                                        <div class="checkbox">
+                                                            <label>
+                                                                <input type="checkbox" name="delete_resolucion" value="1">
+                                                                Eliminar Resolución actual
+                                                            </label>
+                                                        </div>
                                                     @endif
                                                 </div>
                                             </div>

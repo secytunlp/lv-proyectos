@@ -16,8 +16,10 @@ use App\Models\Cargo;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Traits\SanitizesInput;
+use Illuminate\Support\Str;
 
 class InvestigadorController extends Controller
 
@@ -188,14 +190,32 @@ class InvestigadorController extends Controller
     }
 
         // Manejo de la imagen
-        $input['foto'] ='';
+        /*$input['foto'] ='';
         if ($files = $request->file('foto')) {
             $image = $request->file('foto');
             $name = time().'.'.$image->getClientOriginalExtension();
             $destinationPath = public_path('/images');
             $image->move($destinationPath, $name);
             $input['foto'] = "$name";
+        }*/
+
+        // Manejo de la imagen
+        $input['foto'] ='';
+        if ($request->hasFile('foto')) {
+            $image = $request->file('foto');
+
+            // Validar que no sea SVG (por seguridad)
+            if ($image->getClientOriginalExtension() === 'svg') {
+                return redirect()->back()
+                    ->withErrors(['foto' => 'No se permiten archivos SVG por razones de seguridad.'])
+                    ->withInput();
+            }
+
+            $filename = 'foto_' . Str::uuid() . '.' . $image->getClientOriginalExtension();
+            $path = $image->storeAs('public/images', $filename);
+            $input['foto'] = Storage::url($path);
         }
+
 
         DB::beginTransaction();
         $ok = 1;
@@ -621,14 +641,31 @@ class InvestigadorController extends Controller
         }*/
 
         // Manejo de la imagen
-        $input['foto'] ='';
+        /*$input['foto'] ='';
         if ($files = $request->file('foto')) {
             $image = $request->file('foto');
             $name = time().'.'.$image->getClientOriginalExtension();
             $destinationPath = public_path('/images');
             $image->move($destinationPath, $name);
             $input['foto'] = "$name";
+        }*/
+
+        $input['foto'] ='';
+        if ($request->hasFile('foto')) {
+            $image = $request->file('foto');
+
+            // Validar que no sea SVG (por seguridad)
+            if ($image->getClientOriginalExtension() === 'svg') {
+                return redirect()->back()
+                    ->withErrors(['foto' => 'No se permiten archivos SVG por razones de seguridad.'])
+                    ->withInput();
+            }
+
+            $filename = 'foto_' . Str::uuid() . '.' . $image->getClientOriginalExtension();
+            $path = $image->storeAs('public/images', $filename);
+            $input['foto'] = Storage::url($path);
         }
+
         $investigador = Investigador::find($id);
         DB::beginTransaction();
         $ok = 1;

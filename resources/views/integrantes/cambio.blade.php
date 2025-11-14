@@ -100,6 +100,12 @@
                                                     <input type="file" name="curriculum" class="form-control" placeholder="">
                                                     @if(!empty($integrante->curriculum))
                                                         <a href="{{ url($integrante->curriculum) }}" target="_blank">Descargar Curriculum</a>
+                                                        <div class="checkbox">
+                                                            <label>
+                                                                <input type="checkbox" name="delete_cv" value="1">
+                                                                Eliminar Curriculum actual
+                                                            </label>
+                                                        </div>
                                                     @endif
                                                 </div>
                                             </div>
@@ -109,6 +115,12 @@
                                                     <input type="file" name="actividades" class="form-control" placeholder="">
                                                     @if(!empty($integrante->actividades))
                                                         <a href="{{ url($integrante->actividades) }}" target="_blank">Descargar Plan</a>
+                                                        <div class="checkbox">
+                                                            <label>
+                                                                <input type="checkbox" name="delete_actividades" value="1">
+                                                                Eliminar Plan actual
+                                                            </label>
+                                                        </div>
                                                     @endif
                                                 </div>
                                             </div>
@@ -504,6 +516,12 @@
                                                     <input type="file" name="resolucion" class="form-control" placeholder="">
                                                     @if(!empty($integrante->resolucion))
                                                         <a href="{{ url($integrante->resolucion) }}" target="_blank">Descargar Resolución</a>
+                                                        <div class="checkbox">
+                                                            <label>
+                                                                <input type="checkbox" name="delete_resolucion" value="1">
+                                                                Eliminar Resolución actual
+                                                            </label>
+                                                        </div>
                                                     @endif
                                                 </div>
                                             </div>

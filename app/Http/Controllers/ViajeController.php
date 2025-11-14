@@ -24,7 +24,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 use ZipArchive;
 
@@ -983,77 +985,125 @@ class ViajeController extends Controller
 
         $cuil = $user->cuil;
         // Crear la carpeta si no existe
-        $destinationPath = public_path('/files/viajes/' . Constants::YEAR_VIAJES.'/'.$cuil);
+        /*$destinationPath = public_path('/files/viajes/' . Constants::YEAR_VIAJES.'/'.$cuil);
         if (!file_exists($destinationPath)) {
             mkdir($destinationPath, 0777, true);
-        }
+        }*/
 
         //$input['alta']= Constants::YEAR.'-01-01';
         $input['estado']= 'Creada';
         // Manejo de archivos
         $input['curriculum'] ='';
-        if ($files = $request->file('curriculum')) {
+        /*if ($files = $request->file('curriculum')) {
             $file = $request->file('curriculum');
             $name = 'CV_'.time().'.'.$file->getClientOriginalExtension();
 
             $file->move($destinationPath, $name);
             $input['curriculum'] = "files/viajes".Constants::YEAR_VIAJES."/$cuil/$name";
+        }*/
+        if ($request->hasFile('curriculum')) {
+            $file = $request->file('curriculum');
+            $filename = 'CV_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files/viajes/' . Constants::YEAR_VIAJES.'/'.$cuil, $filename);
+            $input['curriculum'] = Storage::url($path); // Genera URL tipo /storage/files/...
         }
         $input['trabajo'] ='';
-        if ($files = $request->file('trabajo')) {
+        /*if ($files = $request->file('trabajo')) {
             $file = $request->file('trabajo');
             $name = 'Trabajo_'.time().'.'.$file->getClientOriginalExtension();
 
             $file->move($destinationPath, $name);
             $input['trabajo'] = "files/viajes".Constants::YEAR_VIAJES."/$cuil/$name";
+        }*/
+        if ($request->hasFile('trabajo')) {
+            $file = $request->file('trabajo');
+            $filename = 'Trabajo_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files/viajes/' . Constants::YEAR_VIAJES.'/'.$cuil, $filename);
+            $input['trabajo'] = Storage::url($path); // Genera URL tipo /storage/files/...
         }
         $input['aceptacion'] ='';
-        if ($files = $request->file('aceptacion')) {
+        /*if ($files = $request->file('aceptacion')) {
             $file = $request->file('aceptacion');
             $name = 'Aceptacion_'.time().'.'.$file->getClientOriginalExtension();
 
             $file->move($destinationPath, $name);
             $input['aceptacion'] = "files/viajes".Constants::YEAR_VIAJES."/$cuil/$name";
+        }*/
+        if ($request->hasFile('aceptacion')) {
+            $file = $request->file('aceptacion');
+            $filename = 'Aceptacion_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files/viajes/' . Constants::YEAR_VIAJES.'/'.$cuil, $filename);
+            $input['aceptacion'] = Storage::url($path); // Genera URL tipo /storage/files/...
         }
         $input['invitacion'] ='';
-        if ($files = $request->file('invitacion')) {
+        /*if ($files = $request->file('invitacion')) {
             $file = $request->file('invitacion');
             $name = 'Invitacion_'.time().'.'.$file->getClientOriginalExtension();
 
             $file->move($destinationPath, $name);
             $input['invitacion'] = "files/viajes".Constants::YEAR_VIAJES."/$cuil/$name";
+        }*/
+        if ($request->hasFile('invitacion')) {
+            $file = $request->file('invitacion');
+            $filename = 'Invitacion_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files/viajes/' . Constants::YEAR_VIAJES.'/'.$cuil, $filename);
+            $input['invitacion'] = Storage::url($path); // Genera URL tipo /storage/files/...
         }
         $input['convenioB'] ='';
-        if ($files = $request->file('convenioB')) {
+        /*if ($files = $request->file('convenioB')) {
             $file = $request->file('convenioB');
             $name = 'ConvenioB_'.time().'.'.$file->getClientOriginalExtension();
 
             $file->move($destinationPath, $name);
             $input['convenioB'] = "files/viajes".Constants::YEAR_VIAJES."/$cuil/$name";
+        }*/
+        if ($request->hasFile('convenioB')) {
+            $file = $request->file('convenioB');
+            $filename = 'ConvenioB_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files/viajes/' . Constants::YEAR_VIAJES.'/'.$cuil, $filename);
+            $input['convenioB'] = Storage::url($path); // Genera URL tipo /storage/files/...
         }
         $input['convenioC'] ='';
-        if ($files = $request->file('convenioC')) {
+        /*if ($files = $request->file('convenioC')) {
             $file = $request->file('convenioC');
             $name = 'ConvenioC_'.time().'.'.$file->getClientOriginalExtension();
 
             $file->move($destinationPath, $name);
             $input['convenioC'] = "files/viajes".Constants::YEAR_VIAJES."/$cuil/$name";
+        }*/
+        if ($request->hasFile('convenioC')) {
+            $file = $request->file('convenioC');
+            $filename = 'ConvenioC_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files/viajes/' . Constants::YEAR_VIAJES.'/'.$cuil, $filename);
+            $input['convenioC'] = Storage::url($path); // Genera URL tipo /storage/files/...
         }
         $input['aval'] ='';
-        if ($files = $request->file('aval')) {
+        /*if ($files = $request->file('aval')) {
             $file = $request->file('aval');
             $name = 'Aval_'.time().'.'.$file->getClientOriginalExtension();
 
             $file->move($destinationPath, $name);
             $input['aval'] = "files/viajes".Constants::YEAR_VIAJES."/$cuil/$name";
+        }*/
+        if ($request->hasFile('aval')) {
+            $file = $request->file('aval');
+            $filename = 'Aval_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files/viajes/' . Constants::YEAR_VIAJES.'/'.$cuil, $filename);
+            $input['aval'] = Storage::url($path); // Genera URL tipo /storage/files/...
         }
         $input['cvprofesor'] ='';
-        if ($files = $request->file('cvprofesor')) {
+        /*if ($files = $request->file('cvprofesor')) {
             $file = $request->file('cvprofesor');
             $name = 'CVProfesor_'.time().'.'.$file->getClientOriginalExtension();
 
             $file->move($destinationPath, $name);
             $input['cvprofesor'] = "files/viajes".Constants::YEAR_VIAJES."/$cuil/$name";
+        }*/
+        if ($request->hasFile('cvprofesor')) {
+            $file = $request->file('cvprofesor');
+            $filename = 'CVProfesor_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files/viajes/' . Constants::YEAR_VIAJES.'/'.$cuil, $filename);
+            $input['cvprofesor'] = Storage::url($path); // Genera URL tipo /storage/files/...
         }
 
         DB::beginTransaction();
@@ -1491,80 +1541,255 @@ class ViajeController extends Controller
 
         $cuil = $user->cuil;
         // Crear la carpeta si no existe
-        $destinationPath = public_path('/files/viajes/' . Constants::YEAR_VIAJES.'/'.$cuil);
+        /*$destinationPath = public_path('/files/viajes/' . Constants::YEAR_VIAJES.'/'.$cuil);
         if (!file_exists($destinationPath)) {
             mkdir($destinationPath, 0777, true);
-        }
+        }*/
 
         //$input['alta']= Constants::YEAR.'-01-01';
         //$input['estado']= 'Creada';
         // Manejo de archivos
         //$input['curriculum'] ='';
-        if ($files = $request->file('curriculum')) {
+        /*if ($files = $request->file('curriculum')) {
             $file = $request->file('curriculum');
             $name = 'CV_'.time().'.'.$file->getClientOriginalExtension();
 
             $file->move($destinationPath, $name);
             $input['curriculum'] = "files/viajes".Constants::YEAR_VIAJES."/$cuil/$name";
+        }*/
+        $solicitud = Viaje::find($id);
+        if ($request->hasFile('curriculum')) {
+            // Eliminar curriculum anterior si existe
+            if (!empty($solicitud->curriculum)) {
+                $rutaAnterior = str_replace('/storage/', 'public/', $solicitud->curriculum); // Ej: public/files/sicadi/2025/CV_123.pdf
+                if (Storage::exists($rutaAnterior)) {
+                    Storage::delete($rutaAnterior);
+                }
+            }
+
+            $file = $request->file('curriculum');
+            $filename = 'CV_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files/viajes/' . Constants::YEAR_VIAJES.'/'.$cuil, $filename);
+            $input['curriculum'] = Storage::url($path); // Genera URL tipo /storage/files/...
+        }
+        if ($request->has('delete_cv') && $solicitud->curriculum) {
+            $rutaAnterior = str_replace('/storage/', 'public/', $solicitud->curriculum); // Ej: public/images/sicadi/foto_xyz.png
+            if (Storage::exists($rutaAnterior)) {
+                Storage::delete($rutaAnterior);
+            }
+            $input['curriculum'] = null;
         }
 
-        if ($files = $request->file('trabajo')) {
+        /*if ($files = $request->file('trabajo')) {
             $file = $request->file('trabajo');
             $name = 'Trabajo_'.time().'.'.$file->getClientOriginalExtension();
 
             $file->move($destinationPath, $name);
             $input['trabajo'] = "files/viajes".Constants::YEAR_VIAJES."/$cuil/$name";
+        }*/
+
+        if ($request->hasFile('trabajo')) {
+            // Eliminar trabajo anterior si existe
+            if (!empty($solicitud->trabajo)) {
+                $rutaAnterior = str_replace('/storage/', 'public/', $solicitud->trabajo); // Ej: public/files/sicadi/2025/CV_123.pdf
+                if (Storage::exists($rutaAnterior)) {
+                    Storage::delete($rutaAnterior);
+                }
+            }
+
+            $file = $request->file('trabajo');
+            $filename = 'Trabajo_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files/viajes/' . Constants::YEAR_VIAJES.'/'.$cuil, $filename);
+            $input['trabajo'] = Storage::url($path); // Genera URL tipo /storage/files/...
+        }
+        if ($request->has('delete_trabajo') && $solicitud->trabajo) {
+            $rutaAnterior = str_replace('/storage/', 'public/', $solicitud->trabajo); // Ej: public/images/sicadi/foto_xyz.png
+            if (Storage::exists($rutaAnterior)) {
+                Storage::delete($rutaAnterior);
+            }
+            $input['trabajo'] = null;
         }
 
-        if ($files = $request->file('aceptacion')) {
+        /*if ($files = $request->file('aceptacion')) {
             $file = $request->file('aceptacion');
             $name = 'Aceptacion_'.time().'.'.$file->getClientOriginalExtension();
 
             $file->move($destinationPath, $name);
             $input['aceptacion'] = "files/viajes".Constants::YEAR_VIAJES."/$cuil/$name";
+        }*/
+
+        if ($request->hasFile('aceptacion')) {
+            // Eliminar aceptacion anterior si existe
+            if (!empty($solicitud->aceptacion)) {
+                $rutaAnterior = str_replace('/storage/', 'public/', $solicitud->aceptacion); // Ej: public/files/sicadi/2025/CV_123.pdf
+                if (Storage::exists($rutaAnterior)) {
+                    Storage::delete($rutaAnterior);
+                }
+            }
+
+            $file = $request->file('aceptacion');
+            $filename = 'Aceptacion_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files/viajes/' . Constants::YEAR_VIAJES.'/'.$cuil, $filename);
+            $input['aceptacion'] = Storage::url($path); // Genera URL tipo /storage/files/...
+        }
+        if ($request->has('delete_aceptacion') && $solicitud->aceptacion) {
+            $rutaAnterior = str_replace('/storage/', 'public/', $solicitud->aceptacion); // Ej: public/images/sicadi/foto_xyz.png
+            if (Storage::exists($rutaAnterior)) {
+                Storage::delete($rutaAnterior);
+            }
+            $input['aceptacion'] = null;
         }
 
-        if ($files = $request->file('invitacion')) {
+        /*if ($files = $request->file('invitacion')) {
             $file = $request->file('invitacion');
             $name = 'Invitacion_'.time().'.'.$file->getClientOriginalExtension();
 
             $file->move($destinationPath, $name);
             $input['invitacion'] = "files/viajes".Constants::YEAR_VIAJES."/$cuil/$name";
+        }*/
+        if ($request->hasFile('invitacion')) {
+            // Eliminar invitacion anterior si existe
+            if (!empty($solicitud->invitacion)) {
+                $rutaAnterior = str_replace('/storage/', 'public/', $solicitud->invitacion); // Ej: public/files/sicadi/2025/CV_123.pdf
+                if (Storage::exists($rutaAnterior)) {
+                    Storage::delete($rutaAnterior);
+                }
+            }
+
+            $file = $request->file('invitacion');
+            $filename = 'Invitacion_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files/viajes/' . Constants::YEAR_VIAJES.'/'.$cuil, $filename);
+            $input['invitacion'] = Storage::url($path); // Genera URL tipo /storage/files/...
+        }
+        if ($request->has('delete_invitacion') && $solicitud->invitacion) {
+            $rutaAnterior = str_replace('/storage/', 'public/', $solicitud->invitacion); // Ej: public/images/sicadi/foto_xyz.png
+            if (Storage::exists($rutaAnterior)) {
+                Storage::delete($rutaAnterior);
+            }
+            $input['invitacion'] = null;
         }
 
-        if ($files = $request->file('convenioB')) {
+        /*if ($files = $request->file('convenioB')) {
             $file = $request->file('convenioB');
             $name = 'ConvenioB_'.time().'.'.$file->getClientOriginalExtension();
 
             $file->move($destinationPath, $name);
             $input['convenioB'] = "files/viajes".Constants::YEAR_VIAJES."/$cuil/$name";
+        }*/
+
+        if ($request->hasFile('convenioB')) {
+            // Eliminar convenioB anterior si existe
+            if (!empty($solicitud->convenioB)) {
+                $rutaAnterior = str_replace('/storage/', 'public/', $solicitud->convenioB); // Ej: public/files/sicadi/2025/CV_123.pdf
+                if (Storage::exists($rutaAnterior)) {
+                    Storage::delete($rutaAnterior);
+                }
+            }
+
+            $file = $request->file('convenioB');
+            $filename = 'ConvenioB_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files/viajes/' . Constants::YEAR_VIAJES.'/'.$cuil, $filename);
+            $input['convenioB'] = Storage::url($path); // Genera URL tipo /storage/files/...
+        }
+        if ($request->has('delete_convenioB') && $solicitud->convenioB) {
+            $rutaAnterior = str_replace('/storage/', 'public/', $solicitud->convenioB); // Ej: public/images/sicadi/foto_xyz.png
+            if (Storage::exists($rutaAnterior)) {
+                Storage::delete($rutaAnterior);
+            }
+            $input['convenioB'] = null;
         }
 
-        if ($files = $request->file('convenioC')) {
+        /*if ($files = $request->file('convenioC')) {
             $file = $request->file('convenioC');
             $name = 'ConvenioC_'.time().'.'.$file->getClientOriginalExtension();
 
             $file->move($destinationPath, $name);
             $input['convenioC'] = "files/viajes".Constants::YEAR_VIAJES."/$cuil/$name";
+        }*/
+
+        if ($request->hasFile('convenioC')) {
+            // Eliminar convenioC anterior si existe
+            if (!empty($solicitud->convenioC)) {
+                $rutaAnterior = str_replace('/storage/', 'public/', $solicitud->convenioC); // Ej: public/files/sicadi/2025/CV_123.pdf
+                if (Storage::exists($rutaAnterior)) {
+                    Storage::delete($rutaAnterior);
+                }
+            }
+
+            $file = $request->file('convenioC');
+            $filename = 'ConvenioC_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files/viajes/' . Constants::YEAR_VIAJES.'/'.$cuil, $filename);
+            $input['convenioC'] = Storage::url($path); // Genera URL tipo /storage/files/...
+        }
+        if ($request->has('delete_convenioC') && $solicitud->convenioC) {
+            $rutaAnterior = str_replace('/storage/', 'public/', $solicitud->convenioC); // Ej: public/images/sicadi/foto_xyz.png
+            if (Storage::exists($rutaAnterior)) {
+                Storage::delete($rutaAnterior);
+            }
+            $input['convenioC'] = null;
         }
 
-        if ($files = $request->file('aval')) {
+        /*if ($files = $request->file('aval')) {
             $file = $request->file('aval');
             $name = 'Aval_'.time().'.'.$file->getClientOriginalExtension();
 
             $file->move($destinationPath, $name);
             $input['aval'] = "files/viajes".Constants::YEAR_VIAJES."/$cuil/$name";
+        }*/
+
+        if ($request->hasFile('aval')) {
+            // Eliminar aval anterior si existe
+            if (!empty($solicitud->aval)) {
+                $rutaAnterior = str_replace('/storage/', 'public/', $solicitud->aval); // Ej: public/files/sicadi/2025/CV_123.pdf
+                if (Storage::exists($rutaAnterior)) {
+                    Storage::delete($rutaAnterior);
+                }
+            }
+
+            $file = $request->file('aval');
+            $filename = 'Aval_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files/viajes/' . Constants::YEAR_VIAJES.'/'.$cuil, $filename);
+            $input['aval'] = Storage::url($path); // Genera URL tipo /storage/files/...
         }
-        if ($files = $request->file('cvprofesor')) {
+        if ($request->has('delete_aval') && $solicitud->aval) {
+            $rutaAnterior = str_replace('/storage/', 'public/', $solicitud->aval); // Ej: public/images/sicadi/foto_xyz.png
+            if (Storage::exists($rutaAnterior)) {
+                Storage::delete($rutaAnterior);
+            }
+            $input['aval'] = null;
+        }
+
+        /*if ($files = $request->file('cvprofesor')) {
             $file = $request->file('cvprofesor');
             $name = 'CVProfesor_'.time().'.'.$file->getClientOriginalExtension();
 
             $file->move($destinationPath, $name);
             $input['cvprofesor'] = "files/viajes".Constants::YEAR_VIAJES."/$cuil/$name";
+        }*/
+
+        if ($request->hasFile('cvprofesor')) {
+            // Eliminar cvprofesor anterior si existe
+            if (!empty($solicitud->cvprofesor)) {
+                $rutaAnterior = str_replace('/storage/', 'public/', $solicitud->cvprofesor); // Ej: public/files/sicadi/2025/CV_123.pdf
+                if (Storage::exists($rutaAnterior)) {
+                    Storage::delete($rutaAnterior);
+                }
+            }
+
+            $file = $request->file('cvprofesor');
+            $filename = 'CVProfesor_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files/viajes/' . Constants::YEAR_VIAJES.'/'.$cuil, $filename);
+            $input['cvprofesor'] = Storage::url($path); // Genera URL tipo /storage/files/...
+        }
+        if ($request->has('delete_cvprofesor') && $solicitud->cvprofesor) {
+            $rutaAnterior = str_replace('/storage/', 'public/', $solicitud->cvprofesor); // Ej: public/images/sicadi/foto_xyz.png
+            if (Storage::exists($rutaAnterior)) {
+                Storage::delete($rutaAnterior);
+            }
+            $input['cvprofesor'] = null;
         }
 
 
-        $solicitud = Viaje::find($id);
         DB::beginTransaction();
         $ok = 1;
 

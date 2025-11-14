@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator; // Importar la fachada Validator
 use Illuminate\Support\Facades\Auth; // Asegúrate de importar esta línea
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use ZipArchive;
 
 use PDF;
@@ -380,39 +381,65 @@ class IntegranteController extends Controller
         $proyecto_id=$input['proyecto_id'];
 
         // Crear la carpeta si no existe
-        $destinationPath = public_path('/files/' . Constants::YEAR.'/'.$proyecto_id);
+        /*$destinationPath = public_path('/files/' . Constants::YEAR.'/'.$proyecto_id);
         if (!file_exists($destinationPath)) {
             mkdir($destinationPath, 0777, true);
-        }
+        }*/
 
 
         $input['alta']= Constants::YEAR.'-01-01';
         $input['estado']= 'Alta Creada';
         // Manejo de archivos
-        $input['curriculum'] ='';
+        /*$input['curriculum'] ='';
         if ($files = $request->file('curriculum')) {
             $file = $request->file('curriculum');
             $name = 'CV_'.time().'.'.$file->getClientOriginalExtension();
 
             $file->move($destinationPath, $name);
             $input['curriculum'] = "files/".Constants::YEAR."$proyecto_id/$name";
+        }*/
+
+        $input['curriculum'] = '';
+        if ($request->hasFile('curriculum')) {
+            $file = $request->file('curriculum');
+            $filename = 'CV_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files/' . Constants::YEAR.'/'.$proyecto_id, $filename);
+            $input['curriculum'] = Storage::url($path); // Genera URL tipo /storage/files/...
         }
 
-        $input['actividades'] ='';
+
+        /*$input['actividades'] ='';
         if ($files = $request->file('actividades')) {
             $file = $request->file('actividades');
             $name = 'PLAN_'.time().'.'.$file->getClientOriginalExtension();
 
             $file->move($destinationPath, $name);
             $input['actividades'] = "files/".Constants::YEAR."$proyecto_id/$name";
+        }*/
+
+        $input['actividades'] = '';
+        if ($request->hasFile('actividades')) {
+            $file = $request->file('actividades');
+            $filename = 'PLAN_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files/' . Constants::YEAR.'/'.$proyecto_id, $filename);
+            $input['actividades'] = Storage::url($path); // Genera URL tipo /storage/files/...
         }
-        $input['resolucion'] ='';
+
+        /*$input['resolucion'] ='';
         if ($files = $request->file('resolucion')) {
             $file = $request->file('resolucion');
             $name = 'RES_'.time().'.'.$file->getClientOriginalExtension();
 
             $file->move($destinationPath, $name);
             $input['resolucion'] = "files/".Constants::YEAR."$proyecto_id/$name";
+        }*/
+
+        $input['resolucion'] = '';
+        if ($request->hasFile('resolucion')) {
+            $file = $request->file('resolucion');
+            $filename = 'RES_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files/' . Constants::YEAR.'/'.$proyecto_id, $filename);
+            $input['resolucion'] = Storage::url($path); // Genera URL tipo /storage/files/...
         }
 
         DB::beginTransaction();
@@ -666,10 +693,10 @@ class IntegranteController extends Controller
 
 
         // Crear la carpeta si no existe
-        $destinationPath = public_path('/files/' . Constants::YEAR.'/'.$proyecto_id);
+        /*$destinationPath = public_path('/files/' . Constants::YEAR.'/'.$proyecto_id);
         if (!file_exists($destinationPath)) {
             mkdir($destinationPath, 0777, true);
-        }
+        }*/
 
 
         $integrante = Integrante::find($id);
@@ -678,7 +705,7 @@ class IntegranteController extends Controller
         $input['estado']= 'Alta Creada';*/
         // Manejo de archivos
         //$input['curriculum'] ='';
-        if ($files = $request->file('curriculum')) {
+        /*if ($files = $request->file('curriculum')) {
             // Eliminar el archivo anterior si existe
             if ($integrante && $integrante->curriculum) {
                 $oldFile = public_path($integrante->curriculum);
@@ -693,10 +720,32 @@ class IntegranteController extends Controller
 
             $file->move($destinationPath, $name);
             $input['curriculum'] = "files/".Constants::YEAR."/$proyecto_id/$name";
+        }*/
+
+        if ($request->hasFile('curriculum')) {
+            // Eliminar curriculum anterior si existe
+            if (!empty($integrante->curriculum)) {
+                $rutaAnterior = str_replace('/storage/', 'public/', $integrante->curriculum); // Ej: public/files/sicadi/2025/CV_123.pdf
+                if (Storage::exists($rutaAnterior)) {
+                    Storage::delete($rutaAnterior);
+                }
+            }
+
+            $file = $request->file('curriculum');
+            $filename = 'CV_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files/' . Constants::YEAR.'/'.$proyecto_id, $filename);
+            $input['curriculum'] = Storage::url($path); // Genera URL tipo /storage/files/...
+        }
+        if ($request->has('delete_cv') && $integrante->curriculum) {
+            $rutaAnterior = str_replace('/storage/', 'public/', $integrante->curriculum); // Ej: public/images/sicadi/foto_xyz.png
+            if (Storage::exists($rutaAnterior)) {
+                Storage::delete($rutaAnterior);
+            }
+            $input['curriculum'] = null;
         }
 
         //$input['actividades'] ='';
-        if ($files = $request->file('actividades')) {
+        /*if ($files = $request->file('actividades')) {
             // Eliminar el archivo anterior si existe
             if ($integrante && $integrante->actividades) {
                 $oldFile = public_path($integrante->actividades);
@@ -709,9 +758,31 @@ class IntegranteController extends Controller
 
             $file->move($destinationPath, $name);
             $input['actividades'] = "files/".Constants::YEAR."/$proyecto_id/$name";
+        }*/
+
+        if ($request->hasFile('actividades')) {
+            // Eliminar actividades anterior si existe
+            if (!empty($integrante->actividades)) {
+                $rutaAnterior = str_replace('/storage/', 'public/', $integrante->actividades); // Ej: public/files/sicadi/2025/CV_123.pdf
+                if (Storage::exists($rutaAnterior)) {
+                    Storage::delete($rutaAnterior);
+                }
+            }
+
+            $file = $request->file('actividades');
+            $filename = 'PLAN_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files/' . Constants::YEAR.'/'.$proyecto_id, $filename);
+            $input['actividades'] = Storage::url($path); // Genera URL tipo /storage/files/...
+        }
+        if ($request->has('delete_actividades') && $integrante->actividades) {
+            $rutaAnterior = str_replace('/storage/', 'public/', $integrante->actividades); // Ej: public/images/sicadi/foto_xyz.png
+            if (Storage::exists($rutaAnterior)) {
+                Storage::delete($rutaAnterior);
+            }
+            $input['actividades'] = null;
         }
 
-        if ($files = $request->file('resolucion')) {
+        /*if ($files = $request->file('resolucion')) {
             // Eliminar el archivo anterior si existe
             if ($integrante && $integrante->resolucion) {
                 $oldFile = public_path($integrante->resolucion);
@@ -724,6 +795,28 @@ class IntegranteController extends Controller
 
             $file->move($destinationPath, $name);
             $input['resolucion'] = "files/".Constants::YEAR."/$proyecto_id/$name";
+        }*/
+
+        if ($request->hasFile('resolucion')) {
+            // Eliminar resolucion anterior si existe
+            if (!empty($integrante->resolucion)) {
+                $rutaAnterior = str_replace('/storage/', 'public/', $integrante->resolucion); // Ej: public/files/sicadi/2025/CV_123.pdf
+                if (Storage::exists($rutaAnterior)) {
+                    Storage::delete($rutaAnterior);
+                }
+            }
+
+            $file = $request->file('resolucion');
+            $filename = 'RES_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files//' . Constants::YEAR.'/'.$proyecto_id, $filename);
+            $input['resolucion'] = Storage::url($path); // Genera URL tipo /storage/files/...
+        }
+        if ($request->has('delete_resolucion') && $integrante->resolucion) {
+            $rutaAnterior = str_replace('/storage/', 'public/', $integrante->resolucion); // Ej: public/images/sicadi/foto_xyz.png
+            if (Storage::exists($rutaAnterior)) {
+                Storage::delete($rutaAnterior);
+            }
+            $input['resolucion'] = null;
         }
 
         DB::beginTransaction();
@@ -1872,10 +1965,10 @@ class IntegranteController extends Controller
 
 
         // Crear la carpeta si no existe
-        $destinationPath = public_path('/files/' . Constants::YEAR.'/'.$proyecto_id);
+        /*$destinationPath = public_path('/files/' . Constants::YEAR.'/'.$proyecto_id);
         if (!file_exists($destinationPath)) {
             mkdir($destinationPath, 0777, true);
-        }
+        }*/
         $input['alta']= Constants::YEAR.'-01-01';
 
         $integrante = Integrante::find($id);
@@ -1884,25 +1977,30 @@ class IntegranteController extends Controller
         $input['estado']= 'Alta Creada';*/
         // Manejo de archivos
         //$input['curriculum'] ='';
-        if ($files = $request->file('curriculum')) {
-            // Eliminar el archivo anterior si existe
-            if ($integrante && $integrante->curriculum) {
-                $oldFile = public_path($integrante->curriculum);
-                //log::info('Archivo: '.$oldFile );
-                if (file_exists($oldFile)) {
-                    unlink($oldFile);
+        if ($request->hasFile('curriculum')) {
+            // Eliminar curriculum anterior si existe
+            if (!empty($integrante->curriculum)) {
+                $rutaAnterior = str_replace('/storage/', 'public/', $integrante->curriculum); // Ej: public/files/sicadi/2025/CV_123.pdf
+                if (Storage::exists($rutaAnterior)) {
+                    Storage::delete($rutaAnterior);
                 }
             }
 
             $file = $request->file('curriculum');
-            $name = 'CV_'.time().'.'.$file->getClientOriginalExtension();
-
-            $file->move($destinationPath, $name);
-            $input['curriculum'] = "files/".Constants::YEAR."/$proyecto_id/$name";
+            $filename = 'CV_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files//' . Constants::YEAR.'/'.$proyecto_id, $filename);
+            $input['curriculum'] = Storage::url($path); // Genera URL tipo /storage/files/...
+        }
+        if ($request->has('delete_cv') && $integrante->curriculum) {
+            $rutaAnterior = str_replace('/storage/', 'public/', $integrante->curriculum); // Ej: public/images/sicadi/foto_xyz.png
+            if (Storage::exists($rutaAnterior)) {
+                Storage::delete($rutaAnterior);
+            }
+            $input['curriculum'] = null;
         }
 
         //$input['actividades'] ='';
-        if ($files = $request->file('actividades')) {
+        /*if ($files = $request->file('actividades')) {
             // Eliminar el archivo anterior si existe
             if ($integrante && $integrante->actividades) {
                 $oldFile = public_path($integrante->actividades);
@@ -1915,9 +2013,31 @@ class IntegranteController extends Controller
 
             $file->move($destinationPath, $name);
             $input['actividades'] = "files/".Constants::YEAR."/$proyecto_id/$name";
+        }*/
+
+        if ($request->hasFile('actividades')) {
+            // Eliminar actividades anterior si existe
+            if (!empty($integrante->actividades)) {
+                $rutaAnterior = str_replace('/storage/', 'public/', $integrante->actividades); // Ej: public/files/sicadi/2025/CV_123.pdf
+                if (Storage::exists($rutaAnterior)) {
+                    Storage::delete($rutaAnterior);
+                }
+            }
+
+            $file = $request->file('actividades');
+            $filename = 'PLAN_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files/' . Constants::YEAR.'/'.$proyecto_id, $filename);
+            $input['actividades'] = Storage::url($path); // Genera URL tipo /storage/files/...
+        }
+        if ($request->has('delete_actividades') && $integrante->actividades) {
+            $rutaAnterior = str_replace('/storage/', 'public/', $integrante->actividades); // Ej: public/images/sicadi/foto_xyz.png
+            if (Storage::exists($rutaAnterior)) {
+                Storage::delete($rutaAnterior);
+            }
+            $input['actividades'] = null;
         }
 
-        if ($files = $request->file('resolucion')) {
+        /*if ($files = $request->file('resolucion')) {
             // Eliminar el archivo anterior si existe
             if ($integrante && $integrante->resolucion) {
                 $oldFile = public_path($integrante->resolucion);
@@ -1930,6 +2050,28 @@ class IntegranteController extends Controller
 
             $file->move($destinationPath, $name);
             $input['resolucion'] = "files/".Constants::YEAR."/$proyecto_id/$name";
+        }*/
+
+        if ($request->hasFile('resolucion')) {
+            // Eliminar resolucion anterior si existe
+            if (!empty($integrante->resolucion)) {
+                $rutaAnterior = str_replace('/storage/', 'public/', $integrante->resolucion); // Ej: public/files/sicadi/2025/CV_123.pdf
+                if (Storage::exists($rutaAnterior)) {
+                    Storage::delete($rutaAnterior);
+                }
+            }
+
+            $file = $request->file('resolucion');
+            $filename = 'RES_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files//' . Constants::YEAR.'/'.$proyecto_id, $filename);
+            $input['resolucion'] = Storage::url($path); // Genera URL tipo /storage/files/...
+        }
+        if ($request->has('delete_resolucion') && $integrante->resolucion) {
+            $rutaAnterior = str_replace('/storage/', 'public/', $integrante->resolucion); // Ej: public/images/sicadi/foto_xyz.png
+            if (Storage::exists($rutaAnterior)) {
+                Storage::delete($rutaAnterior);
+            }
+            $input['resolucion'] = null;
         }
 
         DB::beginTransaction();
@@ -2526,12 +2668,12 @@ class IntegranteController extends Controller
 
         $integrante = Integrante::find($id);
         // Crear la carpeta si no existe
-        $destinationPath = public_path('/files/' . Constants::YEAR.'/'.$proyecto_id);
+        /*$destinationPath = public_path('/files/' . Constants::YEAR.'/'.$proyecto_id);
         if (!file_exists($destinationPath)) {
             mkdir($destinationPath, 0777, true);
-        }
+        }*/
 
-        if ($files = $request->file('resolucion')) {
+        /*if ($files = $request->file('resolucion')) {
             // Eliminar el archivo anterior si existe
             if ($integrante && $integrante->resolucion) {
                 $oldFile = public_path($integrante->resolucion);
@@ -2544,6 +2686,28 @@ class IntegranteController extends Controller
 
             $file->move($destinationPath, $name);
             $input['resolucion'] = "files/".Constants::YEAR."/$proyecto_id/$name";
+        }*/
+
+        if ($request->hasFile('resolucion')) {
+            // Eliminar resolucion anterior si existe
+            if (!empty($integrante->resolucion)) {
+                $rutaAnterior = str_replace('/storage/', 'public/', $integrante->resolucion); // Ej: public/files/sicadi/2025/CV_123.pdf
+                if (Storage::exists($rutaAnterior)) {
+                    Storage::delete($rutaAnterior);
+                }
+            }
+
+            $file = $request->file('resolucion');
+            $filename = 'RES_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files//' . Constants::YEAR.'/'.$proyecto_id, $filename);
+            $input['resolucion'] = Storage::url($path); // Genera URL tipo /storage/files/...
+        }
+        if ($request->has('delete_resolucion') && $integrante->resolucion) {
+            $rutaAnterior = str_replace('/storage/', 'public/', $integrante->resolucion); // Ej: public/images/sicadi/foto_xyz.png
+            if (Storage::exists($rutaAnterior)) {
+                Storage::delete($rutaAnterior);
+            }
+            $input['resolucion'] = null;
         }
 
 
@@ -3807,12 +3971,12 @@ class IntegranteController extends Controller
         $integrante = Integrante::find($id);
 
         // Crear la carpeta si no existe
-        $destinationPath = public_path('/files/' . Constants::YEAR.'/'.$proyecto_id);
+        /*$destinationPath = public_path('/files/' . Constants::YEAR.'/'.$proyecto_id);
         if (!file_exists($destinationPath)) {
             mkdir($destinationPath, 0777, true);
-        }
+        }*/
 
-        if ($files = $request->file('resolucion')) {
+        /*if ($files = $request->file('resolucion')) {
             // Eliminar el archivo anterior si existe
             if ($integrante && $integrante->resolucion) {
                 $oldFile = public_path($integrante->resolucion);
@@ -3825,6 +3989,28 @@ class IntegranteController extends Controller
 
             $file->move($destinationPath, $name);
             $input['resolucion'] = "files/".Constants::YEAR."/$proyecto_id/$name";
+        }*/
+
+        if ($request->hasFile('resolucion')) {
+            // Eliminar resolucion anterior si existe
+            if (!empty($integrante->resolucion)) {
+                $rutaAnterior = str_replace('/storage/', 'public/', $integrante->resolucion); // Ej: public/files/sicadi/2025/CV_123.pdf
+                if (Storage::exists($rutaAnterior)) {
+                    Storage::delete($rutaAnterior);
+                }
+            }
+
+            $file = $request->file('resolucion');
+            $filename = 'RES_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files//' . Constants::YEAR.'/'.$proyecto_id, $filename);
+            $input['resolucion'] = Storage::url($path); // Genera URL tipo /storage/files/...
+        }
+        if ($request->has('delete_resolucion') && $integrante->resolucion) {
+            $rutaAnterior = str_replace('/storage/', 'public/', $integrante->resolucion); // Ej: public/images/sicadi/foto_xyz.png
+            if (Storage::exists($rutaAnterior)) {
+                Storage::delete($rutaAnterior);
+            }
+            $input['resolucion'] = null;
         }
 
         DB::beginTransaction();

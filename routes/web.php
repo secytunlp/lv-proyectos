@@ -149,7 +149,7 @@ Route::group(['middleware' => ['auth', 'CheckSelectedRolePermissions']], functio
 
     Route::get('joven-pdf', [JovenController::class, 'generatePDF'])->name('jovens.solicitud-pdf');
     Route::get('joven-archivos', [JovenController::class, 'archivos'])->name('jovens.archivos');
-    Route::post('enviar/{id}', [JovenController::class, 'enviar'])->name('jovens.enviar');
+    Route::post('enviarJoven/{id}', [JovenController::class, 'enviar'])->name('jovens.enviar');
     Route::post('admitirJoven/{id}', [JovenController::class, 'admitir'])->name('jovens.admitir');
     Route::get('jovens/{joven}/rechazar', [JovenController::class, 'rechazar'])->name('jovens.rechazar');
     Route::put('jovens/{joven}/deny', [JovenController::class, 'saveDeny'])->name('jovens.saveDeny');

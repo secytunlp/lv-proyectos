@@ -683,6 +683,12 @@ a) detallar el mismo y b) justificar su pedido. En el caso de solicitar bibliogr
                                                     <input type="file" name="curriculum" class="form-control" placeholder="">
                                                     @if(!empty($joven->curriculum))
                                                         <a href="{{ url($joven->curriculum) }}" target="_blank">Descargar Curriculum</a>
+                                                        <div class="checkbox">
+                                                            <label>
+                                                                <input type="checkbox" name="delete_cv" value="1">
+                                                                Eliminar Curriculum actual
+                                                            </label>
+                                                        </div>
                                                     @endif
                                                 </div>
                                             </div>

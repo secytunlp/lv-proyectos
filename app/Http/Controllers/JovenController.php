@@ -24,7 +24,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 use ZipArchive;
 
@@ -947,21 +949,27 @@ class JovenController extends Controller
 
         $cuil = $user->cuil;
         // Crear la carpeta si no existe
-        $destinationPath = public_path('/files/jovenes/' . Constants::YEAR_JOVENES.'/'.$cuil);
+        /*$destinationPath = public_path('/files/jovenes/' . Constants::YEAR_JOVENES.'/'.$cuil);
         if (!file_exists($destinationPath)) {
             mkdir($destinationPath, 0777, true);
-        }
+        }*/
 
         //$input['alta']= Constants::YEAR.'-01-01';
         $input['estado']= 'Creada';
         // Manejo de archivos
         $input['curriculum'] ='';
-        if ($files = $request->file('curriculum')) {
+        /*if ($files = $request->file('curriculum')) {
             $file = $request->file('curriculum');
             $name = 'CV_'.time().'.'.$file->getClientOriginalExtension();
 
             $file->move($destinationPath, $name);
             $input['curriculum'] = "files/jovenes".Constants::YEAR_JOVENES."/$cuil/$name";
+        }*/
+        if ($request->hasFile('curriculum')) {
+            $file = $request->file('curriculum');
+            $filename = 'CV_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files/jovenes/' . Constants::YEAR_JOVENES.'/'.$cuil, $filename);
+            $input['curriculum'] = Storage::url($path); // Genera URL tipo /storage/files/...
         }
 
         DB::beginTransaction();
@@ -1513,23 +1521,45 @@ class JovenController extends Controller
 
         $cuil = $user->cuil;
         // Crear la carpeta si no existe
-        $destinationPath = public_path('/files/jovenes/' . Constants::YEAR_JOVENES.'/'.$cuil);
+        /*$destinationPath = public_path('/files/jovenes/' . Constants::YEAR_JOVENES.'/'.$cuil);
         if (!file_exists($destinationPath)) {
             mkdir($destinationPath, 0777, true);
-        }
+        }*/
 
         //$input['alta']= Constants::YEAR.'-01-01';
         //$input['estado']= 'Creada';
         // Manejo de archivos
         //$input['curriculum'] ='';
-        if ($files = $request->file('curriculum')) {
+        /*if ($files = $request->file('curriculum')) {
             $file = $request->file('curriculum');
             $name = 'CV_'.time().'.'.$file->getClientOriginalExtension();
 
             $file->move($destinationPath, $name);
             $input['curriculum'] = "files/jovenes".Constants::YEAR_JOVENES."/$cuil/$name";
-        }
+        }*/
         $solicitud = Joven::find($id);
+        if ($request->hasFile('curriculum')) {
+            // Eliminar curriculum anterior si existe
+            if (!empty($solicitud->curriculum)) {
+                $rutaAnterior = str_replace('/storage/', 'public/', $solicitud->curriculum); // Ej: public/files/sicadi/2025/CV_123.pdf
+                if (Storage::exists($rutaAnterior)) {
+                    Storage::delete($rutaAnterior);
+                }
+            }
+
+            $file = $request->file('curriculum');
+            $filename = 'CV_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/files/jovenes/' . Constants::YEAR_JOVENES.'/'.$cuil, $filename);
+            $input['curriculum'] = Storage::url($path); // Genera URL tipo /storage/files/...
+        }
+        if ($request->has('delete_cv') && $solicitud->curriculum) {
+            $rutaAnterior = str_replace('/storage/', 'public/', $solicitud->curriculum); // Ej: public/images/sicadi/foto_xyz.png
+            if (Storage::exists($rutaAnterior)) {
+                Storage::delete($rutaAnterior);
+            }
+            $input['curriculum'] = null;
+        }
+
         DB::beginTransaction();
         $ok = 1;
 
