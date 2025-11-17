@@ -7,6 +7,12 @@
 
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
+@if (app()->environment('local'))
+    <div style="background:#d9534f;color:white;padding:10px;text-align:center;font-weight:bold;">
+        ⚠ ESTÁS UTILIZANDO EL ENTORNO DE DESARROLLO (DEV).
+    </div>
+@endif
+
 <div class="wrapper">
 
     @include('layouts.partials.header')
