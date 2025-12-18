@@ -63,10 +63,10 @@ class SolicitudSicadiController extends Controller
         $currentConvocatoria = ($request->session()->get('convocatoria_filtro_sicadi'))?$request->session()->get('convocatoria_filtro_sicadi'):Constants::SICADI_ACTUAL;*/
 
         $currentAnio = request('filtroYear') ?? Constants::YEAR_SICADI;
-        return view('solicitud_sicadis.index', [
+        $areas = AreaHelper::areas();
+        $subareas = AreaHelper::subareas();
 
-            'currentAnio' =>  $currentAnio
-        ]);
+        return view('solicitud_sicadis.index', compact('currentAnio','areas', 'subareas'));
     }
 
 
@@ -74,7 +74,7 @@ class SolicitudSicadiController extends Controller
     public function dataTable(Request $request)
     {
 
-        $columnas = ['solicitud_sicadis.nombre', 'solicitud_sicadis.apellido', 'cuil','solicitud_sicadis.fecha','presentacion_ua','sicadi_convocatorias.nombre','solicitud_sicadis.estado', 'categoria_solicitada', 'categoria_asignada']; // Define las columnas disponibles
+        $columnas = ['solicitud_sicadis.nombre', 'solicitud_sicadis.apellido', 'cuil','solicitud_sicadis.fecha','presentacion_ua','sicadi_convocatorias.nombre','solicitud_sicadis.estado', 'categoria_solicitada', 'categoria_asignada','area','subarea']; // Define las columnas disponibles
         $columnaOrden = $columnas[$request->input('order.0.column')];
         $orden = $request->input('order.0.dir');
         $busqueda = $request->input('search.value');
@@ -87,12 +87,15 @@ class SolicitudSicadiController extends Controller
 
         $presentacion_ua = $request->input('presentacion_ua');
         $otorgadas = $request->input('otorgadas');
+        $area = $request->input('area');
+        $subarea = $request->input('subarea');
 
 
 
         // Consulta base
-        $query = SolicitudSicadi::select('solicitud_sicadis.id as id', 'solicitud_sicadis.nombre as persona_nombre', 'cuil','solicitud_sicadis.fecha','presentacion_ua', DB::raw("CONCAT(sicadi_convocatorias.nombre, ' ', sicadi_convocatorias.tipo, ' ', sicadi_convocatorias.year) as convocatoria"), DB::raw("CONCAT(solicitud_sicadis.apellido, ', ', solicitud_sicadis.nombre) as persona_apellido"),'solicitud_sicadis.estado as estado', 'categoria_solicitada', 'categoria_asignada')
+        $query = SolicitudSicadi::select('solicitud_sicadis.id as id', 'solicitud_sicadis.nombre as persona_nombre', 'cuil','solicitud_sicadis.fecha','presentacion_ua', DB::raw("CONCAT(sicadi_convocatorias.nombre, ' ', sicadi_convocatorias.tipo, ' ', sicadi_convocatorias.year) as convocatoria"), DB::raw("CONCAT(solicitud_sicadis.apellido, ', ', solicitud_sicadis.nombre) as persona_apellido"),'solicitud_sicadis.estado as estado', 'categoria_solicitada', 'categoria_asignada','solicitud_sicadis.area','solicitud_sicadis.subarea')
             ->leftJoin('sicadi_convocatorias', 'solicitud_sicadis.convocatoria_id', '=', 'sicadi_convocatorias.id')
+
             ;
 
 
@@ -130,6 +133,13 @@ class SolicitudSicadiController extends Controller
         }
 
 
+        if (!empty($area) && $area != '-1') {
+            $query->where('solicitud_sicadis.area', $area);
+        }
+
+        if (!empty($subarea) && $subarea != '-1') {
+            $query->where('solicitud_sicadis.subarea', $subarea);
+        }
 
         // Aplicar la búsqueda
         if (!empty($busqueda)) {
@@ -385,14 +395,17 @@ class SolicitudSicadiController extends Controller
         // Crear el validador con las reglas y mensajes
         $validator = Validator::make($data, $rules, $messages);
 
-        // Añadir la validación personalizada para la fecha de cierre
-        $validator->after(function ($validator) use ($data) {
-            $today = now();
-            $cierreDate = \Carbon\Carbon::parse(Constants::CIERRE_SICADI);
-            if ($today->gt($cierreDate)) {
-                $validator->errors()->add('convocatoria', 'La convocatoria no está vigente.');
-            }
-        });
+        $selectedRoleId = session('selected_rol');
+        if ($selectedRoleId==2){
+            // Añadir la validación personalizada para la fecha de cierre
+            $validator->after(function ($validator) use ($data) {
+                $today = now();
+                $cierreDate = \Carbon\Carbon::parse(Constants::CIERRE_SICADI);
+                if ($today->gt($cierreDate)) {
+                    $validator->errors()->add('convocatoria', 'La convocatoria no está vigente.');
+                }
+            });
+        }
 
         return $validator;
     }
@@ -2093,11 +2106,11 @@ class SolicitudSicadiController extends Controller
 
     public function exportar(Request $request)
     {
-        $columnas = ['solicitud_sicadis.nombre', 'solicitud_sicadis.apellido', 'cuil','solicitud_sicadis.fecha','presentacion_ua','sicadi_convocatorias.nombre','solicitud_sicadis.estado', 'categoria_solicitada', 'categoria_asignada']; // Define las columnas disponibles
+        $columnas = ['solicitud_sicadis.nombre', 'solicitud_sicadis.apellido', 'cuil','solicitud_sicadis.fecha','presentacion_ua','sicadi_convocatorias.nombre','solicitud_sicadis.estado', 'categoria_solicitada', 'categoria_asignada','area','subarea']; // Define las columnas disponibles
         // La lógica de exportación a Excel va aquí
         $filtros = $request->all();
 
-        $query = SolicitudSicadi::select('solicitud_sicadis.id as id', 'solicitud_sicadis.nombre as persona_nombre', 'cuil','solicitud_sicadis.fecha','presentacion_ua', DB::raw("CONCAT(sicadi_convocatorias.nombre, ' ', sicadi_convocatorias.tipo, ' ', sicadi_convocatorias.year) as convocatoria"), DB::raw("CONCAT(solicitud_sicadis.apellido, ', ', solicitud_sicadis.nombre) as persona_apellido"),'solicitud_sicadis.estado as estado', 'categoria_solicitada', 'categoria_asignada')
+        $query = SolicitudSicadi::select('solicitud_sicadis.id as id', 'solicitud_sicadis.nombre as persona_nombre', 'cuil','solicitud_sicadis.fecha','presentacion_ua', DB::raw("CONCAT(sicadi_convocatorias.nombre, ' ', sicadi_convocatorias.tipo, ' ', sicadi_convocatorias.year) as convocatoria"), DB::raw("CONCAT(solicitud_sicadis.apellido, ', ', solicitud_sicadis.nombre) as persona_apellido"),'solicitud_sicadis.estado as estado', 'categoria_solicitada', 'categoria_asignada','area','subarea')
             ->leftJoin('sicadi_convocatorias', 'solicitud_sicadis.convocatoria_id', '=', 'sicadi_convocatorias.id')
         ;
 
@@ -2125,6 +2138,14 @@ class SolicitudSicadiController extends Controller
 
         if (!empty($filtros['asignada'])&&$filtros['asignada']!=-1) {
             $query->where('solicitud_sicadis.categoria_asignada', $filtros['asignada']);
+        }
+
+        if (!empty($filtros['area'])) {
+            $query->where('solicitud_sicadis.area', $filtros['area']);
+        }
+
+        if (!empty($filtros['subarea'])) {
+            $query->where('solicitud_sicadis.subarea', $filtros['subarea']);
         }
 
         if (!empty($filtros['busqueda'])) {
@@ -2164,6 +2185,8 @@ class SolicitudSicadiController extends Controller
         $sheet->setCellValue('G1', 'U. Académica');
         $sheet->setCellValue('H1', 'Solicitada');
         $sheet->setCellValue('I1', 'Asignada');
+        $sheet->setCellValue('J1', 'Área');
+        $sheet->setCellValue('K1', 'Subárea');
 
 
 
@@ -2182,6 +2205,8 @@ class SolicitudSicadiController extends Controller
             $sheet->setCellValue('G' . $row, $item->presentacion_ua);
             $sheet->setCellValue('H' . $row, $item->categoria_solicitada);
             $sheet->setCellValue('I' . $row, $item->categoria_asignada);
+            $sheet->setCellValue('J' . $row, $item->area);
+            $sheet->setCellValue('K' . $row, $item->subarea);
 
             $row++;
         }

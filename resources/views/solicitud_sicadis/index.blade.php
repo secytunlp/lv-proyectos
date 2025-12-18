@@ -103,6 +103,7 @@
 
                                     </div>
                                 </div>
+
                                 <div class="col-md-1">
                                     <div class="form-group">
                                         {{Form::label('asignada', 'Asignada')}}
@@ -117,6 +118,12 @@
 
 
                                     </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <x-select-areas
+                                        :areas="$areas"
+                                        :subareas="$subareas"
+                                    />
                                 </div>
                             </div>
                             <!-- /.form-group -->
@@ -138,8 +145,8 @@
 
                                     <th>Solicitada</th>
                                     <th>Asignada</th>
-
-
+                                    <th>Área</th>
+                                    <th>Subárea</th>
                                     <th>Acciones</th>
                                 </tr>
                                 </thead>
@@ -161,7 +168,8 @@
 
                                     <th>Solicitada</th>
                                     <th>Asignada</th>
-
+                                    <th>Área</th>
+                                    <th>Subárea</th>
 
                                     <th>Acciones</th>
                                 </tr>
@@ -225,6 +233,8 @@
                         d.presentacion_ua = $('#presentacion_ua').val();
                         d.asignada = $('#asignada').val();
                         d.otorgadas = $('#otorgadas').is(':checked') ? 1 : 0;
+                        d.area = $('#area').val();
+                        d.subarea = $('#subarea').val();
                         // Agrega otros parámetros si es necesario
                         // d.otroParametro = valor;
                     },
@@ -261,7 +271,8 @@
 
                     {data: 'categoria_solicitada', name: 'categoria_solicitada'},
                     {data: 'categoria_asignada', name: 'categoria_asignada'},
-
+                    {data: 'area', name: 'area'},
+                    {data: 'subarea', name: 'subarea'},
 
 
 
@@ -353,6 +364,8 @@
                     data.presentacion_ua = $('#presentacion_ua').val();
                     data.asignada = $('#asignada').val();
                     data.otorgadas = $('#otorgadas').val();
+                    data.area = $('#area').val();
+                    data.subarea = $('#subarea').val();
                 },
                 stateLoadParams: function (settings, data) {
                     if (data.filtroYear) {
@@ -378,6 +391,12 @@
                     }
                     if (data.otorgadas) {
                         $('#otorgadas').val(data.otorgadas).trigger('change');
+                    }
+                    if (data.area) {
+                        $('#area').val(data.area).trigger('change');
+                    }
+                    if (data.subarea) {
+                        $('#subarea').val(data.subarea).trigger('change');
                     }
                 },
                 "initComplete": function() {
@@ -411,6 +430,14 @@
                table.ajax.reload(null, false);
             });
 
+            $('#area').change(function() {
+                table.ajax.reload(null, false);
+            });
+
+            $('#subarea').change(function() {
+                table.ajax.reload(null, false);
+            });
+
             $('#exportar-datos').click(function () {
                 // Recoge los filtros actuales del DataTable
                 var filtros = {
@@ -423,8 +450,11 @@
                     presentacion_ua: $('#presentacion_ua').val(),
                     asignada: $('#asignada').val(),
                     otorgada: $('#otorgada').val(),
+                    area: $('#area').val(),
+                    subarea: $('#subarea').val(),
                     // Captura el valor del filtro nativo del DataTable
                     busqueda: $('input[type="search"]').val() // Ajusta el selector según tu configuración
+
 
                 };
 

@@ -38,8 +38,8 @@
        @if(auth()->user()->permissions->contains('name', 'evaluacion-listar'))<li><a href="{{ route('joven_evaluacions.index') }}"><i class="fa fa-th-list"></i>Evaluaciones Jóvenes</a></li>@endif
        @if(auth()->user()->permissions->contains('name', 'solicitud-listar'))<li><a href="{{ route('viajes.index') }}"><i class="fa fa-plane"></i>Viajes/Estadías</a></li>@endif
        @if(auth()->user()->permissions->contains('name', 'evaluacion-listar'))<li><a href="{{ route('viaje_evaluacions.index') }}"><i class="fa fa-th-list"></i>Evaluaciones Viajes/Estadías</a></li>@endif
-  {{--@endif
-  @if(auth()->user()->permissions->contains('name', 'solicitud_sicadi-listar'))<li><a href="{{ route('solicitud_sicadis.index') }}"><i class="fa fa-layer-group"></i>SICADI</a></li>@endif--}}
+  {{--@endif--}}
+  @if(auth()->user()->permissions->contains('name', 'solicitud_sicadi-listar'))<li><a href="{{ route('solicitud_sicadis.index') }}"><i class="fa fa-layer-group"></i>SICADI</a></li>@endif
 </ul>
 </section>
 <!-- /.sidebar -->

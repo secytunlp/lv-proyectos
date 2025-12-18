@@ -1096,7 +1096,7 @@ switch ($motivo) {
                                 Viáticos - Días: {{$detalles[1]}} - Lugar: {{$detalles[2]}}
                             @elseif($concepto === 'Pasajes')
 
-                                Pasajes - {{$detalles[1]}} - Destino: {{$detalles[2]}}
+                                Pasajes - {{ $detalles[1] ?? '' }} - Destino: {{ $detalles[2] ?? '' }}
                             @elseif($concepto === 'Alojamiento')
 
                                 Alojamiento - Noches: {{$detalles[1]}} - Lugar: {{$detalles[2]}}
