@@ -1093,18 +1093,18 @@ switch ($motivo) {
                             @endphp
                             @if($concepto === 'Viaticos')
 
-                                Viáticos - Días: {{$detalles[1]}} - Lugar: {{$detalles[2]}}
+                                Viáticos - Días: {{$detalles[1] ?? '' }} - Lugar: {{$detalles[2] ?? ''}}
                             @elseif($concepto === 'Pasajes')
 
                                 Pasajes - {{ $detalles[1] ?? '' }} - Destino: {{ $detalles[2] ?? '' }}
                             @elseif($concepto === 'Alojamiento')
 
-                                Alojamiento - Noches: {{$detalles[1]}} - Lugar: {{$detalles[2]}}
+                                Alojamiento - Noches: {{$detalles[1] ?? ''}} - Lugar: {{$detalles[2] ?? ''}}
                             @elseif($concepto === 'Inscripcion')
 
-                                Inscripción - Descripción: {{$detalles[1]}}
+                                Inscripción - Descripción: {{$detalles[1] ?? ''}}
                             @elseif($concepto === 'Otros')
-                                Otros - Descripción: {{$detalles[1]}}
+                                Otros - Descripción: {{$detalles[1] ?? ''}}
                             @endif
                         @else
 

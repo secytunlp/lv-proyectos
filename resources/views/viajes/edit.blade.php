@@ -1148,7 +1148,7 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
                                                             @else
                                                                 @foreach ($viaje->presupuestos->where('tipo_presupuesto_id', $tipoPresupuesto->id) as $presupuesto)
                                                                     @php
-                                                                        $detalles = explode('|', $presupuesto->detalle);
+                                                                        $detalles = array_pad(explode('|', $presupuesto->detalle), 3, null);
                                                                         $concepto = $detalles[0];
                                                                     @endphp
                                                                     <tr>
