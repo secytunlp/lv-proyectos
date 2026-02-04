@@ -2270,11 +2270,14 @@ class ViajeController extends Controller
         foreach ($presupuestos as $presupuesto) {
             $totalMonto += $presupuesto->monto;
         }
-        if ($solicitud->monto!=$totalMonto) {
-
-            $errores[] = 'El total de la pestaña presupuesto debe ser igual al monto declarado en la pestaña Montos';
+        // Validamos que haya seleccionado un monto
+        if ($solicitud->monto <= 0) {
+            $errores[] = 'Debe seleccionar un monto en la pestaña Montos.';
         }
-
+// Validamos que el total de presupuestos coincida con el monto seleccionado
+        elseif ($solicitud->monto != $totalMonto) {
+            $errores[] = 'El total de la pestaña presupuesto debe ser igual al monto declarado en la pestaña Montos.';
+        }
 
 
         if (empty($solicitud->curriculum)) {
