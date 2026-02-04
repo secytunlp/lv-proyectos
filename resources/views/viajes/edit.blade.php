@@ -418,7 +418,7 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
                                                         <tbody id="cuerpoBecaActual">
                                                         <tr>
 
-                                                            <td>{{ Form::select('institucion',[''=>'','ANPCyT'=>'ANPCyT','CIC'=>'CIC','CONICET'=>'CONICET','UNLP'=>'UNLP','CIN'=>'CIN','OTRA'=>'OTRA'], $viaje->institucion,['class' => 'form-control institucionActual_select', 'style' => 'width: 150px']) }}</td>
+                                                            <td>{{ Form::select('institucion',[''=>'','ANPCyT'=>'ANPCyT','CIC'=>'CIC','CONICET'=>'CONICET','UNLP'=>'UNLP','CIN'=>'CIN'], $viaje->institucion,['class' => 'form-control institucionActual_select', 'style' => 'width: 150px']) }}</td>
 
                                                             <td>{{ Form::select('beca', \App\Helpers\BecaHelper::obtenerOpcionesBecaPorInstitucion($viaje->institucion), $viaje->beca, ['class' => 'form-control becaActual_select', 'style' => 'width: 150px']) }}
                                                             </td>
@@ -552,9 +552,10 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
 
                                             <div class="col-md-8">
                                                 <div class="form-group">
+                                                    <strong>FORMADOS</strong>
                                                     <ul class="desc">
-                                                        <li>Se considerará  postulantes <strong>formados</strong> a los docentes-investigadores con categoría I, II, III o miembro de organismos de CyT con categoría de Adjunto o superior o antecedentes equivalentes </li>
-                                                        <li>Se considerará  postulante <strong>en formación</strong> a los docentes-investigadores con categoría IV, V, miembro de organismos de CyT con categoría de Asistente, Becarios, Tesistas o antecedentes equivalentes</li>
+                                                        <li>Docentes-investigadores con categoría SPU/PRINUAR (I, II o III) o SICADI (DI1, DI2 o DI3). </li>
+                                                        <li>Docentes-investigadores con categoría SPU PRINUAR (IV, V), SICADI (DI4 o DI5) o sin categoría y miembros de la carrera del investigador científico CIC/CONICET con categoría de Adjunto o superior</li>
                                                     </ul>
 
 
@@ -567,7 +568,24 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
 
                                             <div class="col-md-8">
                                                 <div class="form-group">
-                                                    <label for="actividades" style="color: grey">Si usted tiene categoría IV o V y es Investigador de un organismo de CyT con categoría de Adjunto o superior debe seleccionar Investigador Formado</label>
+                                                    <strong>EN FORMACIÓN</strong>
+                                                    <ul class="desc">
+                                                        <li>Docentes-investigadores con categoría SPU/PRINUAR (IV o V) o SICADI (DI4 o DI5). </li>
+                                                        <li>Docentes investigadores miembros de la carrera del investigador CIC/CONICET con categoría de asistente.</li>
+                                                        <li>Becario de Posgrado o Posdoctorado de la UNLP/CIC/CONICET.</li>
+                                                    </ul>
+
+
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+                                        <div class="row">
+
+                                            <div class="col-md-8">
+                                                <div class="form-group">
+                                                    <label for="actividades" style="color: grey">Si el postulante no está categorizado y no pertenece a la carrera del investigador científico CIC/CONICET podrá indicar si se presenta como formado o en formación.  No obstante, los coordinadores en conjunto con las CATs resolverán su inclusión en una u otra categoría.</label>
 
 
                                                 </div>
@@ -586,7 +604,7 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     {{Form::label('motivo', 'Motivo')}}
-                                                    {{Form::select('motivo',  [''=>'Seleccionar...','A) Reuniones Científicas'=>'A) Reuniones Científicas','B) Estadía de trabajo para investigar en ámbitos académicos externos a la UNLP'=>'B) Estadía de trabajo para investigar en ámbitos académicos externos a la UNLP','C) ESTADÍA DE TRABAJO EN LA UNLP PARA UN INVESTIGADOR INVITADO'=>'C) ESTADÍA DE TRABAJO EN LA UNLP PARA UN INVESTIGADOR INVITADO'],$viaje->motivo, ['class' => 'form-control', 'style' => 'width: 100%','id'=>'motivo'])}}
+                                                    {{Form::select('motivo',  [''=>'Seleccionar...','A) Reuniones Científicas'=>'A) Reuniones Científicas','B) Estadía de trabajo para investigar en ámbitos académicos externos a la UNLP'=>'B) Estadía de trabajo para investigar en ámbitos académicos externos a la UNLP','C) Estadía de Trabajo en la UNLP para un Investigador Invitado'=>'C) Estadía de Trabajo en la UNLP para un Investigador Invitado'],$viaje->motivo, ['class' => 'form-control', 'style' => 'width: 100%','id'=>'motivo'])}}
 
                                                 </div>
                                             </div>
@@ -763,8 +781,7 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
 
                                                     <div class="form-group">
                                                         {{Form::label('modalidad', 'Modalidad de la presentación')}}
-                                                        {{Form::text('modalidad', $viaje->modalidad, ['class' => 'form-control'])}}
-
+                                                        {{Form::select('modalidad',  [''=>'','Presentación oral'=>'Presentación oral','Poster'=>'Poster'],$viaje->modalidad, ['class' => 'form-control', 'style' => 'width: 100%','id'=>'modalidad'])}}
                                                     </div>
                                                 </div>
                                             </div>
@@ -801,6 +818,20 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
                                                 </div>
 
                                             </div>
+                                            <div class="row">
+
+                                                <div class="col-md-8">
+                                                    <div class="form-group">
+                                                        <span for="actividades" style="color: grey">La presentación debe corresponder a uno o más trabajos científicos de los que es autor o coautor <strong>y que han sido sometidos a referato por un comité científico/evaluador</strong></span>
+
+
+                                                    </div>
+                                                </div>
+
+
+                                            </div>
+
+
                                         </div>
                                         <div id="divB" style="display: none">
                                             <div class="row">
@@ -1071,146 +1102,245 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
                                     <div role="tabpanel" class="tab-pane" id="presupuesto">
                                         @foreach ($tipoPresupuestos as $tipoPresupuesto)
                                             <fieldset style="border: 1px solid #ccc; padding: 10px;">
-                                                <legend style="border-bottom: none; margin-bottom: -10px; display: inline-block;width: auto;">{{$tipoPresupuesto->nombre}}</legend>
+                                                <!--<legend style="border-bottom: none; margin-bottom: -10px; display: inline-block;width: auto;">{{$tipoPresupuesto->nombre}}</legend>-->
 
                                                 <div class="form-group col-md-12">
 
-                                                    <div class="table-responsive">
-                                                        <table class="table" style="width: 70%">
-                                                            <thead>
+                                                        <div class="table-responsive">
+                                                            <table class="table" style="width: 70%">
+                                                                <thead>
 
 
-                                                            <th>Fecha</th>
-                                                            <th>Descripción/Concepto</th>
-                                                            <th>Importe</th>
+                                                                <th>Fecha</th>
+                                                                <th>Descripción/Concepto</th>
+                                                                <th>Importe</th>
 
-                                                            <th><a href="#" class="addRowPresupuesto" data-tipo-id="{{$tipoPresupuesto->id}}"><i class="glyphicon glyphicon-plus"></i></a></th>
-                                                            </thead>
-                                                            <tbody class="cuerpoPresupuesto" data-tipo-id="{{$tipoPresupuesto->id}}">
-                                                            @if(old('presupuesto'.$tipoPresupuesto->id.'fechas'))
-                                                                @foreach(old('presupuesto'.$tipoPresupuesto->id.'fechas') as $index => $fecha)
-                                                                    <tr>
-                                                                        <td>
-                                                                            {{Form::date('presupuesto'.$tipoPresupuesto->id.'fechas[]', $fecha, ['class' => 'form-control', 'style' => 'width:150px;'])}}
-                                                                        </td>
-                                                                        @if($tipoPresupuesto->id == 2)
+                                                                <th><a href="#" class="addRowPresupuesto" data-tipo-id="{{$tipoPresupuesto->id}}"><i class="glyphicon glyphicon-plus"></i></a></th>
+                                                                </thead>
+                                                                <tbody class="cuerpoPresupuesto" data-tipo-id="{{$tipoPresupuesto->id}}">
+                                                                @if(old('presupuesto'.$tipoPresupuesto->id.'fechas'))
+                                                                    @foreach(old('presupuesto'.$tipoPresupuesto->id.'fechas') as $index => $fecha)
+                                                                        <tr>
                                                                             <td>
-                                                                                <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
-                                                                                    {{ Form::select('presupuesto'.$tipoPresupuesto->id.'conceptos[]',
-                                                                                        [''=>'','Viaticos'=>'Viáticos','Pasajes'=>'Pasajes','Inscripcion'=>'Inscripción','Otros'=>'Otros'],
-                                                                                        old('presupuesto'.$tipoPresupuesto->id.'conceptos.'.$index),
-                                                                                        ['class' => 'form-control', 'style' => 'width: 120px', 'onchange' => 'seleccionarConcepto(this)']
-                                                                                    )}}
-                                                                                    <div class="extra-fields" style="display: flex; gap: 10px; align-items: center;">
-                                                                                        @if(old('presupuesto'.$tipoPresupuesto->id.'conceptos.'.$index) === 'Viaticos')
-                                                                                            {{ Form::text('presupuesto'.$tipoPresupuesto->id.'dias[]', old('presupuesto'.$tipoPresupuesto->id.'dias.'.$index),
-                                                                                                ['class' => 'form-control ds_dias', 'placeholder' => 'Días', 'style' => 'width:150px']
-                                                                                            )}}
-                                                                                            {{ Form::text('presupuesto'.$tipoPresupuesto->id.'lugar[]', old('presupuesto'.$tipoPresupuesto->id.'lugar.'.$index),
-                                                                                                ['class' => 'form-control ds_lugar', 'placeholder' => 'Lugar', 'style' => 'width:150px']
-                                                                                            )}}
-                                                                                        @elseif(old('presupuesto'.$tipoPresupuesto->id.'conceptos.'.$index) === 'Pasajes')
-                                                                                            {{ Form::select('presupuesto'.$tipoPresupuesto->id.'pasajes[]',
-                                                                                                ['' => '', 'Aereo' => 'Aéreo', 'Omnibus' => 'Omnibus', 'Automovil' => 'Automóvil'],
-                                                                                                old('presupuesto'.$tipoPresupuesto->id.'pasajes.'.$index),
-                                                                                                ['class' => 'form-control ds_pasajes', 'style' => ' width:120px']
-                                                                                            )}}
-                                                                                            {{ Form::text('presupuesto'.$tipoPresupuesto->id.'destino[]', old('presupuesto'.$tipoPresupuesto->id.'destino.'.$index),
-                                                                                                ['class' => 'form-control ds_destino', 'placeholder' => 'Destino', 'style' => 'width:150px']
-                                                                                            )}}
-                                                                                        @elseif(old('presupuesto'.$tipoPresupuesto->id.'conceptos.'.$index) === 'Inscripcion')
-                                                                                            {{ Form::text('presupuesto'.$tipoPresupuesto->id.'inscripcion[]', old('presupuesto'.$tipoPresupuesto->id.'inscripcion.'.$index),
-                                                                                                ['class' => 'form-control ds_inscripcion', 'placeholder' => 'Descripción', 'style' => 'width:150px']
-                                                                                            )}}
-                                                                                        @elseif(old('presupuesto'.$tipoPresupuesto->id.'conceptos.'.$index) === 'Otros')
-                                                                                            {{ Form::text('presupuesto'.$tipoPresupuesto->id.'otros[]', old('presupuesto'.$tipoPresupuesto->id.'otros.'.$index),
-                                                                                                ['class' => 'form-control ds_otros', 'placeholder' => 'Otros', 'style' => 'width:150px']
-                                                                                            )}}
-                                                                                        @endif
+                                                                                {{Form::date('presupuesto'.$tipoPresupuesto->id.'fechas[]', $fecha, ['class' => 'form-control', 'style' => 'width:150px;'])}}
+                                                                            </td>
+                                                                            @if($tipoPresupuesto->id == 2)
+                                                                                <td>
+                                                                                    <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+
+                                                                                        {{ Form::select(
+                                                                                            'presupuesto'.$tipoPresupuesto->id.'conceptos[]',
+                                                                                            [''=>'','Viaticos'=>'Viáticos','Pasajes'=>'Pasajes','Inscripcion'=>'Inscripción'],
+                                                                                            $concepto ?? old('presupuesto'.$tipoPresupuesto->id.'conceptos.'.$index),
+                                                                                            ['class'=>'form-control','style'=>'width:120px','onchange'=>'seleccionarConcepto(this)']
+                                                                                        ) }}
+
+                                                                                        <div class="extra-fields" style="display:flex; gap:10px; align-items:center;">
+
+                                                                                            {{-- VIÁTICOS --}}
+                                                                                            @if(($concepto ?? old('presupuesto'.$tipoPresupuesto->id.'conceptos.'.$index)) === 'Viaticos')
+                                                                                                {{ Form::text(
+                                                                                                    'presupuesto'.$tipoPresupuesto->id.'dias[]',
+                                                                                                    $detalles[1] ?? old('presupuesto'.$tipoPresupuesto->id.'dias.'.$index),
+                                                                                                    ['class'=>'form-control ds_dias','placeholder'=>'Días','style'=>'width:120px']
+                                                                                                ) }}
+
+                                                                                                {{ Form::text(
+                                                                                                    'presupuesto'.$tipoPresupuesto->id.'lugar[]',
+                                                                                                    $detalles[2] ?? old('presupuesto'.$tipoPresupuesto->id.'lugar.'.$index),
+                                                                                                    ['class'=>'form-control ds_lugar','placeholder'=>'Lugar','style'=>'width:150px']
+                                                                                                ) }}
+
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}pasajes[]" value="">
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}destino[]" value="">
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}inscripcion[]" value="">
+
+
+                                                                                                {{-- PASAJES --}}
+                                                                                            @elseif(($concepto ?? old('presupuesto'.$tipoPresupuesto->id.'conceptos.'.$index)) === 'Pasajes')
+                                                                                                {{ Form::select(
+                                                                                                    'presupuesto'.$tipoPresupuesto->id.'pasajes[]',
+                                                                                                    [''=>'','Aereo'=>'Aéreo','Omnibus'=>'Omnibus','Automovil'=>'Automóvil','Otros'=>'Otros'],
+                                                                                                    $detalles[1] ?? old('presupuesto'.$tipoPresupuesto->id.'pasajes.'.$index),
+                                                                                                    ['class'=>'form-control ds_pasajes','style'=>'width:120px']
+                                                                                                ) }}
+
+                                                                                                {{ Form::text(
+                                                                                                    'presupuesto'.$tipoPresupuesto->id.'destino[]',
+                                                                                                    $detalles[2] ?? old('presupuesto'.$tipoPresupuesto->id.'destino.'.$index),
+                                                                                                    ['class'=>'form-control ds_destino','placeholder'=>'Destino','style'=>'width:150px']
+                                                                                                ) }}
+
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}dias[]" value="">
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}lugar[]" value="">
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}inscripcion[]" value="">
+
+
+                                                                                                {{-- INSCRIPCIÓN --}}
+                                                                                            @elseif(($concepto ?? old('presupuesto'.$tipoPresupuesto->id.'conceptos.'.$index)) === 'Inscripcion')
+                                                                                                {{ Form::text(
+                                                                                                    'presupuesto'.$tipoPresupuesto->id.'inscripcion[]',
+                                                                                                    $detalles[1] ?? old('presupuesto'.$tipoPresupuesto->id.'inscripcion.'.$index),
+                                                                                                    ['class'=>'form-control ds_inscripcion','placeholder'=>'Descripción','style'=>'width:200px']
+                                                                                                ) }}
+
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}dias[]" value="">
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}lugar[]" value="">
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}pasajes[]" value="">
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}destino[]" value="">
+
+
+
+
+                                                                                                {{-- SIN CONCEPTO --}}
+                                                                                            @else
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}dias[]" value="">
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}lugar[]" value="">
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}pasajes[]" value="">
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}destino[]" value="">
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}inscripcion[]" value="">
+
+                                                                                            @endif
+
+                                                                                        </div>
                                                                                     </div>
-                                                                                </div>
-                                                                            </td>
-                                                                        @else
+                                                                                </td>
+
+                                                                            @else
+                                                                                <td>
+                                                                                    {{ Form::text('presupuesto'.$tipoPresupuesto->id.'detalles[]', old('presupuesto'.$tipoPresupuesto->id.'detalles.'.$index), ['class' => 'form-control', 'style' => 'width: 400px']) }}
+                                                                                </td>
+                                                                            @endif
                                                                             <td>
-                                                                                {{ Form::text('presupuesto'.$tipoPresupuesto->id.'detalles[]', old('presupuesto'.$tipoPresupuesto->id.'detalles.'.$index), ['class' => 'form-control', 'style' => 'width: 400px']) }}
+                                                                                {{Form::number('presupuesto'.$tipoPresupuesto->id.'importes[]', old('presupuesto'.$tipoPresupuesto->id.'importes.'.$index), ['class' => 'form-control', 'style' => 'width:150px;'])}}
                                                                             </td>
-                                                                        @endif
-                                                                        <td>
-                                                                            {{Form::number('presupuesto'.$tipoPresupuesto->id.'importes[]', old('presupuesto'.$tipoPresupuesto->id.'importes.'.$index), ['class' => 'form-control', 'style' => 'width:150px;'])}}
-                                                                        </td>
-                                                                        <td>
-                                                                            <a href="#" class="btn btn-danger removePresupuesto">
-                                                                                <i class="glyphicon glyphicon-remove"></i>
-                                                                            </a>
-                                                                        </td>
-                                                                    </tr>
-                                                                @endforeach
-                                                            @else
-                                                                @foreach ($viaje->presupuestos->where('tipo_presupuesto_id', $tipoPresupuesto->id) as $presupuesto)
-                                                                    @php
-                                                                        $detalles = array_pad(explode('|', $presupuesto->detalle), 3, null);
-                                                                        $concepto = $detalles[0];
-                                                                    @endphp
-                                                                    <tr>
-                                                                        <td>
-                                                                            {{Form::date('presupuesto'.$tipoPresupuesto->id.'fechas[]', ($presupuesto->fecha)?date('Y-m-d', strtotime($presupuesto->fecha)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}
-                                                                            {{Form::hidden('presupuesto'.$tipoPresupuesto->id.'ids[]',$presupuesto->id)}}
-                                                                        </td>
-                                                                        @if($tipoPresupuesto->id == 2)
                                                                             <td>
-                                                                                <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
-                                                                                    {{ Form::select('presupuesto'.$tipoPresupuesto->id.'conceptos[]',
-                                                                                        [''=>'','Viaticos'=>'Viáticos','Pasajes'=>'Pasajes','Inscripcion'=>'Inscripción','Otros'=>'Otros'],
-                                                                                        $concepto,
-                                                                                        ['class' => 'form-control', 'style' => 'width: 120px', 'onchange' => 'seleccionarConcepto(this)']
-                                                                                    )}}
-                                                                                    <div class="extra-fields" style="display: flex; gap: 10px; align-items: center;">
-                                                                                        @if($concepto === 'Viaticos')
-                                                                                            {{ Form::text('presupuesto'.$tipoPresupuesto->id.'dias[]', $detalles[1], ['class' => 'form-control ds_dias', 'placeholder' => 'Días', 'style' => 'width:150px']) }}
-                                                                                            {{ Form::text('presupuesto'.$tipoPresupuesto->id.'lugar[]', $detalles[2], ['class' => 'form-control ds_lugar', 'placeholder' => 'Lugar', 'style' => 'width:150px']) }}
-                                                                                        @elseif($concepto === 'Pasajes')
-                                                                                            {{ Form::select('presupuesto'.$tipoPresupuesto->id.'pasajes[]',
-                                                                                                ['' => '', 'Aereo' => 'Aéreo', 'Omnibus' => 'Omnibus', 'Automovil' => 'Automóvil'],
-                                                                                                $detalles[1],
-                                                                                                ['class' => 'form-control ds_pasajes', 'style' => ' width:120px']
-                                                                                            )}}
-                                                                                            {{ Form::text('presupuesto'.$tipoPresupuesto->id.'destino[]', $detalles[2], ['class' => 'form-control ds_destino', 'placeholder' => 'Destino', 'style' => 'width:150px']) }}
-                                                                                        @elseif($concepto === 'Inscripcion')
-                                                                                            {{ Form::text('presupuesto'.$tipoPresupuesto->id.'inscripcion[]', $detalles[1], ['class' => 'form-control ds_inscripcion', 'placeholder' => 'Descripción', 'style' => 'width:150px']) }}
-                                                                                        @elseif($concepto === 'Otros')
-                                                                                            {{ Form::text('presupuesto'.$tipoPresupuesto->id.'otros[]', $detalles[1], ['class' => 'form-control ds_otros', 'placeholder' => 'Otros', 'style' => 'width:150px']) }}
-                                                                                        @endif
+                                                                                <a href="#" class="btn btn-danger removePresupuesto">
+                                                                                    <i class="glyphicon glyphicon-remove"></i>
+                                                                                </a>
+                                                                            </td>
+                                                                        </tr>
+                                                                    @endforeach
+                                                                @else
+                                                                    @foreach ($viaje->presupuestos->where('tipo_presupuesto_id', $tipoPresupuesto->id) as $presupuesto)
+                                                                        @php
+                                                                            $detalles = array_pad(explode('|', $presupuesto->detalle), 3, null);
+                                                                            $concepto = $detalles[0];
+                                                                        @endphp
+                                                                        <tr>
+                                                                            <td>
+                                                                                {{Form::date('presupuesto'.$tipoPresupuesto->id.'fechas[]', ($presupuesto->fecha)?date('Y-m-d', strtotime($presupuesto->fecha)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}
+                                                                                {{Form::hidden('presupuesto'.$tipoPresupuesto->id.'ids[]',$presupuesto->id)}}
+                                                                            </td>
+                                                                            @if($tipoPresupuesto->id == 2)
+                                                                                <td>
+                                                                                    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
+                                                                                        {{ Form::select('presupuesto'.$tipoPresupuesto->id.'conceptos[]',
+                                                                                            [''=>'','Viaticos'=>'Viáticos','Pasajes'=>'Pasajes','Inscripcion'=>'Inscripción'],
+                                                                                            $concepto,
+                                                                                            ['class' => 'form-control', 'style' => 'width: 120px', 'onchange' => 'seleccionarConcepto(this)']
+                                                                                        )}}
+                                                                                        @php
+                                                                                            $conceptoActual = $concepto;
+                                                                                        @endphp
+                                                                                        <div class="extra-fields" style="display:flex; gap:10px; align-items:center;">
+
+                                                                                            {{-- VIÁTICOS --}}
+                                                                                            @if($conceptoActual === 'Viaticos')
+                                                                                                {{ Form::text(
+                                                                                                    'presupuesto'.$tipoPresupuesto->id.'dias[]',
+                                                                                                    $detalles[1],
+                                                                                                    ['class'=>'form-control ds_dias','placeholder'=>'Días','style'=>'width:120px']
+                                                                                                ) }}
+
+                                                                                                {{ Form::text(
+                                                                                                    'presupuesto'.$tipoPresupuesto->id.'lugar[]',
+                                                                                                    $detalles[2],
+                                                                                                    ['class'=>'form-control ds_lugar','placeholder'=>'Lugar','style'=>'width:150px']
+                                                                                                ) }}
+
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}pasajes[]" value="">
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}destino[]" value="">
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}inscripcion[]" value="">
+
+
+                                                                                                {{-- PASAJES --}}
+                                                                                            @elseif($conceptoActual === 'Pasajes')
+                                                                                                {{ Form::select(
+                                                                                                    'presupuesto'.$tipoPresupuesto->id.'pasajes[]',
+                                                                                                    [''=>'','Aereo'=>'Aéreo','Omnibus'=>'Omnibus','Automovil'=>'Automóvil','Otros'=>'Otros'],
+                                                                                                    $detalles[1],
+                                                                                                    ['class'=>'form-control ds_pasajes','style'=>'width:120px']
+                                                                                                ) }}
+
+                                                                                                {{ Form::text(
+                                                                                                    'presupuesto'.$tipoPresupuesto->id.'destino[]',
+                                                                                                    $detalles[2],
+                                                                                                    ['class'=>'form-control ds_destino','placeholder'=>'Destino','style'=>'width:150px']
+                                                                                                ) }}
+
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}dias[]" value="">
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}lugar[]" value="">
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}inscripcion[]" value="">
+
+
+                                                                                                {{-- INSCRIPCIÓN --}}
+                                                                                            @elseif($conceptoActual === 'Inscripcion')
+                                                                                                {{ Form::text(
+                                                                                                    'presupuesto'.$tipoPresupuesto->id.'inscripcion[]',
+                                                                                                    $detalles[1],
+                                                                                                    ['class'=>'form-control ds_inscripcion','placeholder'=>'Descripción','style'=>'width:200px']
+                                                                                                ) }}
+
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}dias[]" value="">
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}lugar[]" value="">
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}pasajes[]" value="">
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}destino[]" value="">
+
+
+
+
+                                                                                                {{-- SIN CONCEPTO --}}
+                                                                                            @else
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}dias[]" value="">
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}lugar[]" value="">
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}pasajes[]" value="">
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}destino[]" value="">
+                                                                                                <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}inscripcion[]" value="">
+
+                                                                                            @endif
+
+                                                                                        </div>
                                                                                     </div>
-                                                                                </div>
-                                                                            </td>
-                                                                        @else
+                                                                                </td>
+                                                                            @else
+                                                                                <td>
+                                                                                    {{ Form::text('presupuesto'.$tipoPresupuesto->id.'detalles[]', $detalles[0], ['class' => 'form-control', 'style' => 'width: 400px']) }}
+                                                                                </td>
+                                                                            @endif
                                                                             <td>
-                                                                                {{ Form::text('presupuesto'.$tipoPresupuesto->id.'detalles[]', $detalles[0], ['class' => 'form-control', 'style' => 'width: 400px']) }}
+                                                                                {{Form::number('presupuesto'.$tipoPresupuesto->id.'importes[]', $presupuesto->monto, ['class' => 'form-control', 'style' => 'width:150px;'])}}
                                                                             </td>
-                                                                        @endif
-                                                                        <td>
-                                                                            {{Form::number('presupuesto'.$tipoPresupuesto->id.'importes[]', $presupuesto->monto, ['class' => 'form-control', 'style' => 'width:150px;'])}}
-                                                                        </td>
-                                                                        <td>
-                                                                            <a href="#" class="btn btn-danger removePresupuesto">
-                                                                                <i class="glyphicon glyphicon-remove"></i>
-                                                                            </a>
-                                                                        </td>
-                                                                    </tr>
-                                                                @endforeach
-                                                            @endif
-                                                            </tbody>
-                                                            <tfoot>
-                                                            <tr>
-                                                                <td colspan="2" style="text-align: right;">Subtotal:</td>
-                                                                <td><input type="text" class="form-control subtotalPresupuesto" readonly style="width:150px;"></td>
-                                                            </tr>
-                                                            </tfoot>
+                                                                            <td>
+                                                                                <a href="#" class="btn btn-danger removePresupuesto">
+                                                                                    <i class="glyphicon glyphicon-remove"></i>
+                                                                                </a>
+                                                                            </td>
+                                                                        </tr>
+                                                                    @endforeach
+                                                                @endif
+                                                                </tbody>
+                                                                <tfoot>
+                                                                <tr>
+                                                                    <td colspan="2" style="text-align: right;">Subtotal:</td>
+                                                                    <td><input type="text" class="form-control subtotalPresupuesto" readonly style="width:150px;"></td>
+                                                                </tr>
+                                                                </tfoot>
 
 
 
-                                                        </table>
-                                                    </div>
+                                                            </table>
+                                                        </div>
                                                 </div>
 
                                             </fieldset>
@@ -1272,17 +1402,26 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
                                         <div class="row">
                                             <div class="col-md-4">
                                                 <div class="form-group">
-                                                    {{Form::label('monto', 'MONTO SOLICITADO A LA UNLP (indicar el monto total en pesos)')}}
+                                                    {{Form::label('monto', 'MONTO SOLICITADO A LA UNLP')}}
 
 
                                                 </div>
                                             </div>
                                         </div>
+
                                         <div class="row">
                                             <div class="col-md-1">
                                                 <div class="form-group">
 
-                                                    {{Form::number('monto',$viaje->monto, ['class' => 'form-control'])}}
+                                                    {{ Form::select(
+                                                            'monto',
+                                                            $montosViajes,
+                                                            old('monto', $viaje->monto),
+                                                            [
+                                                                'class' => 'form-control',
+                                                                'placeholder' => 'Seleccione el destino', 'style' => 'width: 400px'
+                                                            ]
+                                                        ) }}
 
                                                 </div>
                                             </div>
@@ -1502,7 +1641,7 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
                     '<option value="Viaticos">Viáticos</option>' +
                     '<option value="Pasajes">Pasajes</option>' +
                     '<option value="Inscripcion">Inscripción</option>' +
-                    '<option value="Otros">Otros</option>' +
+
                     '</select>' +
                     // Div para campos adicionales (extraFields)
                     '<div class="extra-fields" style="display: flex; gap: 10px; align-items: center;">' +
@@ -1514,11 +1653,12 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
                     '<option value="Aereo">Aéreo</option>' +
                     '<option value="Omnibus">Omnibus</option>' +
                     '<option value="Automovil">Automóvil</option>' +
+                    '<option value="Otros">Otros</option>' +
                     '</select>' +
 
                     '<input type="text" name="presupuesto' + tipoId + 'destino[]" class="form-control ds_destino" placeholder="Destino" style="display:none; width: 150px; margin-top: 5px;">' +
                     '<input type="text" name="presupuesto' + tipoId + 'inscripcion[]" class="form-control ds_inscripcion" placeholder="Descripción" style="display:none; width: 150px; margin-top: 5px;">' +
-                    '<input type="text" name="presupuesto' + tipoId + 'otros[]" class="form-control ds_otros" placeholder="Otros" style="display:none; width: 150px; margin-top: 5px;">' +
+
                     '</div>' + // Cierre de extra-fields
                     '</div>' + // Cierre del div principal
                     '</td>' +
@@ -1564,7 +1704,7 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
             var row = $(select).closest('tr');
 
             // Ocultar todos los campos primero
-            row.find('.ds_dias, .ds_lugar, .ds_pasajes, .ds_destino, .ds_inscripcion, .ds_otros').hide();
+            row.find('.ds_dias, .ds_lugar, .ds_pasajes, .ds_destino, .ds_inscripcion').hide();
 
             // Mostrar los campos en función del valor seleccionado
             if (value === 'Viaticos') {
@@ -1573,8 +1713,6 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
                 row.find('.ds_pasajes, .ds_destino').show();
             } else if (value === 'Inscripcion') {
                 row.find('.ds_inscripcion').show();
-            } else if (value === 'Otros') {
-                row.find('.ds_otros').show();
             }
         }
 
@@ -1616,7 +1754,7 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
                 $('#divA').show();
             } else if (selectedOption === 'B) Estadía de trabajo para investigar en ámbitos académicos externos a la UNLP') {
                 $('#divB').show();
-            } else if (selectedOption === 'C) ESTADÍA DE TRABAJO EN LA UNLP PARA UN INVESTIGADOR INVITADO') {
+            } else if (selectedOption === 'C) Estadía de Trabajo en la UNLP para un Investigador Invitado') {
                 $('#divC').show();
             }
         });

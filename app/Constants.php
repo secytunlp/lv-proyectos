@@ -53,13 +53,26 @@ class Constants
 
     const YEAR_PROYECTOS = '1';
 
-    const YEAR_VIAJES = '2024';
+    const YEAR_VIAJES = '2026';
 
-    const CIERRE_VIAJES = '2025-12-31';
+    const CIERRE_VIAJES = '2026-12-31';
 
     const CATEGORIAS_FORMADOS = '6,7,8';
 
-    const MONTO_VIAJES = '300000';
+    const MONTOS_VIAJES = [
+        'BA_CABA'       => 210000,
+        'INTERIOR'      => 420000,
+        'SUDAMERICA'    => 560000,
+        'RESTO_MUNDO'   => 840000,
+    ];
+
+    const MONTOS_VIAJES_LABELS = [
+        'BA_CABA'       => 'Prov. Buenos Aires y CABA',
+        'INTERIOR'      => 'Todo el país excepto Prov. Bs. As.',
+        'SUDAMERICA'    => 'Países de Sudamérica',
+        'RESTO_MUNDO'   => 'Resto del mundo',
+    ];
+
 
     const RANGO_INI_VIAJES = '01/09/';
 

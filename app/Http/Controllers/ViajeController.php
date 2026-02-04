@@ -710,7 +710,13 @@ class ViajeController extends Controller
             return redirect()->route('viajes.index')->withErrors(['message' => 'Ya existe una solicitud para este período.']);
         }
 
-        return view('viajes.create',compact('titulos','sicadis','facultades','cargos','universidades','unidads','carrerainvs','years','organismos','investigador','titulo','categorias','cargo','carrerainv','beca','proyectosActuales','tipoPresupuestos','periodo','tipoInvestigador'));
+        $montosViajes = [];
+        foreach (Constants::MONTOS_VIAJES as $key => $monto) {
+            $label = Constants::MONTOS_VIAJES_LABELS[$key] ?? $key;
+            $montosViajes[$monto] = $label . ' ($' . number_format($monto, 0, ',', '.') . ')';
+        }
+
+        return view('viajes.create',compact('titulos','sicadis','facultades','cargos','universidades','unidads','carrerainvs','years','organismos','investigador','titulo','categorias','cargo','carrerainv','beca','proyectosActuales','tipoPresupuestos','periodo','tipoInvestigador','montosViajes'));
     }
 
 
@@ -904,27 +910,31 @@ class ViajeController extends Controller
         }
 
         // Verifica que el monto total no supere el máximo permitido
-        if ($totalMonto > Constants::MONTO_VIAJES) {
-            $errores[] = 'El monto total no puede superar el límite máximo de $' . number_format(Constants::MONTO_VIAJES, 2, ',', '.');
+        $montoSeleccionado = (float) $request->monto;
+
+        if ($totalMonto > $montoSeleccionado) {
+            $errores[] = 'El monto total no puede superar el límite máximo de $' . number_format($montoSeleccionado, 2, ',', '.');
         }
 
         $desdes = $request->input('ambitodesdes');
         $hastas = $request->input('ambitohastas');
-        $rangoInicio = \DateTime::createFromFormat('d/m/Y', Constants::RANGO_INI_VIAJES.Constants::YEAR_VIAJES);
+        $rangoInicio = \DateTime::createFromFormat('!d/m/Y', Constants::RANGO_INI_VIAJES.Constants::YEAR_VIAJES);
         $yearAgo = intval(Constants::YEAR_VIAJES)+1;
-        $rangoFin = \DateTime::createFromFormat('d/m/Y', Constants::RANGO_FIN_VIAJES.$yearAgo);
+        $rangoFin = \DateTime::createFromFormat('!d/m/Y', Constants::RANGO_FIN_VIAJES.$yearAgo);
         if (!empty($desdes)){
             foreach ($desdes as $index => $desde) {
                 $fechaDesde = \DateTime::createFromFormat('Y-m-d', $desde);
                 $fechaHasta = \DateTime::createFromFormat('Y-m-d', $hastas[$index]);
+                //Log::info('desde: ', $fechaDesde.' rango: '.$rangoInicio.' - '.$rangoFin);
 
                 // Verificar que ambas fechas estén dentro del rango
                 if ($fechaDesde < $rangoInicio || $fechaDesde > $rangoFin) {
                     $errores["ambitodesdes.$index"] = 'Fecha desde fuera del rango '.Constants::RANGO_INI_VIAJES.Constants::YEAR_VIAJES.' - '.Constants::RANGO_FIN_VIAJES.$yearAgo.' en Lugar';
                 }
-                if ($fechaHasta < $rangoInicio || $fechaHasta > $rangoFin) {
+                /*if ($fechaHasta < $rangoInicio || $fechaHasta > $rangoFin) {
                     $errores["ambitohastas.$index"] = 'Fecha hasta fuera del rango '.Constants::RANGO_INI_VIAJES.Constants::YEAR_VIAJES.' - '.Constants::RANGO_FIN_VIAJES.$yearAgo.' en Lugar';
-                }
+                }*/
+
                 if ($request->trabajodesde && $request->trabajohasta){
                     $desdeTrabajo = \DateTime::createFromFormat('Y-m-d', $request->trabajodesde);
                     $hastaTrabajo = \DateTime::createFromFormat('Y-m-d', $request->trabajohasta);
@@ -1496,9 +1506,15 @@ class ViajeController extends Controller
         $periodo = DB::table('periodos')->where('nombre', Constants::YEAR_VIAJES)->first();
 
 
+        $montosViajes = [];
+        foreach (Constants::MONTOS_VIAJES as $key => $monto) {
+            $label = Constants::MONTOS_VIAJES_LABELS[$key] ?? $key;
+            $montosViajes[$monto] = $label . ' ($' . number_format($monto, 0, ',', '.') . ')';
+        }
 
 
-        return view('viajes.edit',compact('titulos','facultades','cargos','universidades','unidads','carrerainvs','years','organismos','viaje','proyectosActuales','tipoPresupuestos','periodo','categorias','sicadis'));
+
+        return view('viajes.edit',compact('titulos','facultades','cargos','universidades','unidads','carrerainvs','years','organismos','viaje','proyectosActuales','tipoPresupuestos','periodo','categorias','sicadis','montosViajes'));
     }
 
     /**
@@ -2260,13 +2276,6 @@ class ViajeController extends Controller
         }
 
 
-        if (($totalMonto<=0)||($totalMonto>Constants::MONTO_VIAJES))  {
-
-            $errores[] = 'El monto total debe ser mayor que 0 (cero) y no puede superar el límite máximo de $' . number_format(Constants::MONTO_VIAJES, 2, ',', '.');
-        }
-
-
-
 
         if (empty($solicitud->curriculum)) {
             $errores[] = 'Falta subir el Curriculum';
@@ -2319,9 +2328,9 @@ class ViajeController extends Controller
 
             foreach ($ambitos as $ambito){
                 //dd($ambito);
-                $rangoInicio = \DateTime::createFromFormat('d/m/Y', Constants::RANGO_INI_VIAJES.Constants::YEAR_VIAJES);
+                $rangoInicio = \DateTime::createFromFormat('!d/m/Y', Constants::RANGO_INI_VIAJES.Constants::YEAR_VIAJES);
                 $yearAgo = intval(Constants::YEAR_VIAJES)+1;
-                $rangoFin = \DateTime::createFromFormat('d/m/Y', Constants::RANGO_FIN_VIAJES.$yearAgo);
+                $rangoFin = \DateTime::createFromFormat('!d/m/Y', Constants::RANGO_FIN_VIAJES.$yearAgo);
                 //dd($ambito->desde);
                 $desdeAmbito = \DateTime::createFromFormat('Y-m-d H:i:s', $ambito->desde);
                 $hastaAmbito = \DateTime::createFromFormat('Y-m-d H:i:s', $ambito->hasta);
@@ -2336,9 +2345,9 @@ class ViajeController extends Controller
                 if ($desdeAmbito < $rangoInicio || $desdeAmbito > $rangoFin) {
                     $errores[] = 'Fecha desde fuera del rango '.Constants::RANGO_INI_VIAJES.Constants::YEAR_VIAJES.' - '.Constants::RANGO_FIN_VIAJES.$yearAgo.' en Lugar';
                 }
-                if ($hastaAmbito < $rangoInicio || $hastaAmbito > $rangoFin) {
+                /*if ($hastaAmbito < $rangoInicio || $hastaAmbito > $rangoFin) {
                     $errores[] = 'Fecha hasta fuera del rango '.Constants::RANGO_INI_VIAJES.Constants::YEAR_VIAJES.' - '.Constants::RANGO_FIN_VIAJES.$yearAgo.' en Lugar';
-                }
+                }*/
                 if ($solicitud->trabajodesde && $solicitud->trabajohasta){
                     $desdeTrabajo = \DateTime::createFromFormat('Y-m-d H:i:s', $solicitud->trabajodesde);
                     $hastaTrabajo = \DateTime::createFromFormat('Y-m-d H:i:s', $solicitud->trabajohasta);

@@ -1028,38 +1028,51 @@ a) detallar el mismo y b) justificar su pedido. En el caso de solicitar bibliogr
                 tr = '<tr>' +
 
                     '<td><input type="date" name="presupuesto' + tipoId + 'fechas[]" class="form-control" style="width: 150px;"></td>' +
-                    '<td>' +
 
-                    '<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;"><select name="presupuesto' + tipoId + 'conceptos[]" class="form-control" onchange="seleccionarConcepto(this)" style="width: 120px;">' +
+                    '<td>' +
+                    '<div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">' +
+
+                    '<select name="presupuesto' + tipoId + 'conceptos[]" class="form-control" onchange="seleccionarConcepto(this)" style="width:120px;">' +
                     '<option value="">-- seleccionar --</option>' +
                     '<option value="Viaticos">Viáticos</option>' +
                     '<option value="Pasajes">Pasajes</option>' +
                     '<option value="Inscripcion">Inscripción</option>' +
                     '<option value="Otros">Otros</option>' +
                     '</select>' +
-                    // Div para campos adicionales (extraFields)
-                    '<div class="extra-fields" style="display: flex; gap: 10px; align-items: center;">' +
-                    '<input type="text" name="presupuesto' + tipoId + 'dias[]" class="form-control ds_dias" placeholder="Días" style="display:none; width: 150px; margin-top: 5px;">' +
-                    '<input type="text" name="presupuesto' + tipoId + 'lugar[]" class="form-control ds_lugar" placeholder="Lugar" style="display:none; width: 150px; margin-top: 5px;">' +
 
-                    '<select name="presupuesto' + tipoId + 'pasajes[]" class="form-control ds_pasajes" style="display:none; width: 150px; margin-top: 5px;">' +
+                    '<div class="extra-fields" style="display:flex; gap:10px;">' +
+
+                    // 👇 TODOS LOS CAMPOS SIEMPRE EXISTEN
+                    '<input type="hidden" name="presupuesto' + tipoId + 'dias[]" value="">' +
+                    '<input type="hidden" name="presupuesto' + tipoId + 'lugar[]" value="">' +
+                    '<input type="hidden" name="presupuesto' + tipoId + 'pasajes[]" value="">' +
+                    '<input type="hidden" name="presupuesto' + tipoId + 'destino[]" value="">' +
+                    '<input type="hidden" name="presupuesto' + tipoId + 'inscripcion[]" value="">' +
+                    '<input type="hidden" name="presupuesto' + tipoId + 'otros[]" value="">' +
+
+                    // inputs visibles (se pisan los hidden)
+                    '<input type="text" class="form-control ds_dias" placeholder="Días" style="display:none; width:150px;">' +
+                    '<input type="text" class="form-control ds_lugar" placeholder="Lugar" style="display:none; width:150px;">' +
+
+                    '<select class="form-control ds_pasajes" style="display:none; width:150px;">' +
                     '<option value="">-- seleccionar --</option>' +
                     '<option value="Aereo">Aéreo</option>' +
                     '<option value="Omnibus">Omnibus</option>' +
                     '<option value="Automovil">Automóvil</option>' +
                     '</select>' +
 
-                    '<input type="text" name="presupuesto' + tipoId + 'destino[]" class="form-control ds_destino" placeholder="Destino" style="display:none; width: 150px; margin-top: 5px;">' +
-                    '<input type="text" name="presupuesto' + tipoId + 'inscripcion[]" class="form-control ds_inscripcion" placeholder="Descripción" style="display:none; width: 150px; margin-top: 5px;">' +
-                    '<input type="text" name="presupuesto' + tipoId + 'otros[]" class="form-control ds_otros" placeholder="Otros" style="display:none; width: 150px; margin-top: 5px;">' +
-                    '</div>' + // Cierre de extra-fields
-                    '</div>' + // Cierre del div principal
-                    '</td>' +
-                    '<td><input type="number" name="presupuesto' + tipoId + 'importes[]" class="form-control" style="width: 150px;"></td>' +
-                    '<td><a href="#" class="btn btn-danger removePresupuesto"><i class="glyphicon glyphicon-remove"></i></a></td>' +
+                    '<input type="text" class="form-control ds_destino" placeholder="Destino" style="display:none; width:150px;">' +
+                    '<input type="text" class="form-control ds_inscripcion" placeholder="Descripción" style="display:none; width:150px;">' +
+                    '<input type="text" class="form-control ds_otros" placeholder="Otros" style="display:none; width:150px;">' +
 
+                    '</div></div></td>' +
+
+                    '<td><input type="number" name="presupuesto' + tipoId + 'importes[]" class="form-control" style="width:150px;"></td>' +
+
+                    '<td><a href="#" class="btn btn-danger removePresupuesto"><i class="glyphicon glyphicon-remove"></i></a></td>' +
                     '</tr>';
-            } else {
+            }
+            else {
                 // Lógica por defecto para otros tipos
                 tr = '<tr>' +
                     '<td><input type="date" name="presupuesto' + tipoId + 'fechas[]" class="form-control" style="width: 150px;"></td>' +
