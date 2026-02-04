@@ -1416,7 +1416,7 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
                                                     {{ Form::select(
                                                             'monto',
                                                             $montosViajes,
-                                                            old('monto', $viaje->monto),
+                                                            old('monto', (int) $viaje->monto),
                                                             [
                                                                 'class' => 'form-control',
                                                                 'placeholder' => 'Seleccione el destino', 'style' => 'width: 400px'

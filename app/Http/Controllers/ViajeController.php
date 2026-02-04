@@ -910,11 +910,11 @@ class ViajeController extends Controller
         }
 
         // Verifica que el monto total no supere el máximo permitido
-        $montoSeleccionado = (float) $request->monto;
+        /*$montoSeleccionado = (float) $request->monto;
 
         if ($totalMonto > $montoSeleccionado) {
             $errores[] = 'El monto total no puede superar el límite máximo de $' . number_format($montoSeleccionado, 2, ',', '.');
-        }
+        }*/
 
         $desdes = $request->input('ambitodesdes');
         $hastas = $request->input('ambitohastas');
