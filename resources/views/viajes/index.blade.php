@@ -83,7 +83,7 @@
                                 <div class="col-md-1">
                                     <div class="form-group">
                                         {{Form::label('motivo', 'Motivo')}}
-                                        {{ Form::select('motivo',['-1'=>'Todos','A) Reuniones Científicas'=>'A','B) Estadía de trabajo para investigar en ámbitos académicos externos a la UNLP'=>'B','C) ESTADÍA DE TRABAJO EN LA UNLP PARA UN INVESTIGADOR INVITADO'=>'C'], '',['class' => 'form-control']) }}
+                                        {{ Form::select('motivo',['-1'=>'Todos','A) Reuniones Científicas'=>'A','B) Estadía de trabajo para investigar en ámbitos académicos externos a la UNLP'=>'B','C) Estadía de Trabajo en la UNLP para un Investigador Invitado'=>'C'], '',['class' => 'form-control']) }}
 
 
                                     </div>

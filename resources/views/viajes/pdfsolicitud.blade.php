@@ -123,7 +123,7 @@ switch ($motivo) {
     case 'B) Estadía de trabajo para investigar en ámbitos académicos externos a la UNLP':
         $motivoLetra='B';
         break;
-    case 'C) ESTADÍA DE TRABAJO EN LA UNLP PARA UN INVESTIGADOR INVITADO':
+    case 'C) Estadía de Trabajo en la UNLP para un Investigador Invitado':
         $motivoLetra='C';
         break;
 
@@ -254,7 +254,7 @@ switch ($motivo) {
     <div class="content">
         <div>BECARIO</div>
         <div class="content" style="margin-top: 10px;">
-            <span style="display: inline-block;width: 70px;">Institución</span> <span style="display: inline-block; border: 1px solid #ccc;width: 625px; padding-top: {{ $beca_institucion ? '0' : '15px' }}; background-color: #e1e1e1;">{{ $beca_institucion }}</span>
+            <span style="display: inline-block;width: 70px;">Institución</span> <span style="display: inline-block; border: 1px solid #ccc;width: 625px; padding-top: {{ $beca_institucion ? '0' : '15px' }}; background-color: #e1e1e1;">{{ ($beca_unlp)?'Universidad Nacional de La Plata':$beca_institucion }}</span>
 
         </div>
 
@@ -1051,9 +1051,9 @@ switch ($motivo) {
     <div><strong>Indicar y describir la aplicación del subsidio en caso que le sea otorgado. La descripcion deberá ser lo mas
             detallada y precisa posible.</strong></div>
 </div>
-<div class="content">
+<!--<div class="content">
     <div style="text-align: center"><strong>PRESUPUESTO ESTIMADO PRELIMINAR</strong></div>
-</div>
+</div>-->
 <div class="content">
     <div>{{$tituloAmbitos}}</div>
     <table>
@@ -1073,8 +1073,8 @@ switch ($motivo) {
 @foreach ($tipoPresupuestos as $tipoPresupuesto)
 
     <div class="content">
-        <div>{{$tipoPresupuesto->nombre}}</div>
-
+        <div>PRESUPUESTO ESTIMADO PRELIMINAR</div>
+        <div style="font-size: 10px;">En caso de ser adjudicado el subsidio, el monto máximo será el indicado en las pautas del llamado en el ítem “montos a asignar” según el lugar donde realizará la actividad</div>
         <table>
             <tr style="background-color: #999999;">
                 <th>FECHA</th><th>DESCRIPCION / CONCEPTO</th><th>Importe</th>

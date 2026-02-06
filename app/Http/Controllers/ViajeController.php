@@ -92,7 +92,7 @@ class ViajeController extends Controller
 
     public function dataTable(Request $request)
     {
-        $columnas = ['personas.nombre','periodos.nombre', 'personas.apellido', 'viajes.fecha','viajes.estado', 'facultads.cat', 'facultads.nombre', '','viajes.diferencia', 'viajes.puntaje',DB::raw("CASE viajes.motivo WHEN 'A) Reuniones Científicas' THEN 'A' ELSE CASE viajes.motivo WHEN 'B) Estadía de trabajo para investigar en ámbitos académicos externos a la UNLP' THEN 'B' ELSE CASE viajes.motivo WHEN 'C) ESTADÍA DE TRABAJO EN LA UNLP PARA UN INVESTIGADOR INVITADO' THEN 'C' ELSE '' END END END"),'viajes.monto']; // Define las columnas disponibles
+        $columnas = ['personas.nombre','periodos.nombre', 'personas.apellido', 'viajes.fecha','viajes.estado', 'facultads.cat', 'facultads.nombre', '','viajes.diferencia', 'viajes.puntaje',DB::raw("CASE viajes.motivo WHEN 'A) Reuniones Científicas' THEN 'A' ELSE CASE viajes.motivo WHEN 'B) Estadía de trabajo para investigar en ámbitos académicos externos a la UNLP' THEN 'B' ELSE CASE viajes.motivo WHEN 'C) Estadía de Trabajo en la UNLP para un Investigador Invitado' THEN 'C' ELSE '' END END END"),'viajes.monto']; // Define las columnas disponibles
         $columnaOrden = $columnas[$request->input('order.0.column')];
         $orden = $request->input('order.0.dir');
         $busqueda = $request->input('search.value');
@@ -104,7 +104,7 @@ class ViajeController extends Controller
         $otorgadas = $request->input('otorgadas');
         //dd($otorgadas);
         // Consulta base
-        $query = Viaje::select('viajes.id as id', 'personas.nombre as persona_nombre', 'periodos.nombre as periodo_nombre', DB::raw("CONCAT(personas.apellido, ', ', personas.nombre) as persona_apellido"),'viajes.fecha as fecha','viajes.estado as estado', 'facultads.cat as facultad_cat', 'facultads.nombre as facultad_nombre','viajes.diferencia','viajes.puntaje',DB::raw("CASE viajes.motivo WHEN 'A) Reuniones Científicas' THEN 'A' ELSE CASE viajes.motivo WHEN 'B) Estadía de trabajo para investigar en ámbitos académicos externos a la UNLP' THEN 'B' ELSE CASE viajes.motivo WHEN 'C) ESTADÍA DE TRABAJO EN LA UNLP PARA UN INVESTIGADOR INVITADO' THEN 'C' ELSE '' END END END AS motivo"),'viajes.monto')
+        $query = Viaje::select('viajes.id as id', 'personas.nombre as persona_nombre', 'periodos.nombre as periodo_nombre', DB::raw("CONCAT(personas.apellido, ', ', personas.nombre) as persona_apellido"),'viajes.fecha as fecha','viajes.estado as estado', 'facultads.cat as facultad_cat', 'facultads.nombre as facultad_nombre','viajes.diferencia','viajes.puntaje',DB::raw("CASE viajes.motivo WHEN 'A) Reuniones Científicas' THEN 'A' ELSE CASE viajes.motivo WHEN 'B) Estadía de trabajo para investigar en ámbitos académicos externos a la UNLP' THEN 'B' ELSE CASE viajes.motivo WHEN 'C) Estadía de Trabajo en la UNLP para un Investigador Invitado' THEN 'C' ELSE '' END END END AS motivo"),'viajes.monto')
             ->leftJoin('periodos', 'viajes.periodo_id', '=', 'periodos.id')
             ->leftJoin('investigadors', 'viajes.investigador_id', '=', 'investigadors.id')
             ->leftJoin('personas', 'investigadors.persona_id', '=', 'personas.id')
@@ -272,7 +272,7 @@ class ViajeController extends Controller
 
 
 
-        $query = Viaje::select('viajes.id as id', 'personas.nombre as persona_nombre', 'periodos.nombre as periodo_nombre', DB::raw("CONCAT(personas.apellido, ', ', personas.nombre) as persona_apellido"),'viajes.fecha as fecha','viajes.estado as estado', 'facultads.cat as facultad_cat', 'facultads.nombre as facultad_nombre','viajes.diferencia','viajes.puntaje','personas.cuil','viajes.email','viajes.disciplina',DB::raw("CASE viajes.motivo WHEN 'A) Reuniones Científicas' THEN 'A' ELSE CASE viajes.motivo WHEN 'B) Estadía de trabajo para investigar en ámbitos académicos externos a la UNLP' THEN 'B' ELSE CASE viajes.motivo WHEN 'C) ESTADÍA DE TRABAJO EN LA UNLP PARA UN INVESTIGADOR INVITADO' THEN 'C' ELSE '' END END END AS motivo"), 'cargos.nombre as cargo_nombre',DB::raw("
+        $query = Viaje::select('viajes.id as id', 'personas.nombre as persona_nombre', 'periodos.nombre as periodo_nombre', DB::raw("CONCAT(personas.apellido, ', ', personas.nombre) as persona_apellido"),'viajes.fecha as fecha','viajes.estado as estado', 'facultads.cat as facultad_cat', 'facultads.nombre as facultad_nombre','viajes.diferencia','viajes.puntaje','personas.cuil','viajes.email','viajes.disciplina',DB::raw("CASE viajes.motivo WHEN 'A) Reuniones Científicas' THEN 'A' ELSE CASE viajes.motivo WHEN 'B) Estadía de trabajo para investigar en ámbitos académicos externos a la UNLP' THEN 'B' ELSE CASE viajes.motivo WHEN 'C) Estadía de Trabajo en la UNLP para un Investigador Invitado' THEN 'C' ELSE '' END END END AS motivo"), 'cargos.nombre as cargo_nombre',DB::raw("
             CASE
                 WHEN categorias.id = 1 THEN categorias.nombre
                 ELSE CONCAT(categorias.nombre, '/', sicadis.nombre)
@@ -1296,6 +1296,30 @@ class ViajeController extends Controller
             }
         }
 
+        $solicitud->montos()->delete();
+        if (!empty($request->montoinstitucions)) {
+
+            foreach ($request->montoinstitucions as $index => $institucion) {
+
+                $caracter = $request->montocaracters[$index] ?? null;
+                $importe  = $request->montomontos[$index] ?? null;
+
+                // Evita insertar filas vacías
+                if (!empty($institucion) || !empty($caracter) || !empty($importe)) {
+
+                    DB::table('viaje_montos')->insert([
+                        'viaje_id'   => $solicitud->id,
+                        'institucion'=> $this->sanitizeInput($institucion),
+                        'caracter'   => $this->sanitizeInput($caracter),
+                        'monto'    => $this->sanitizeInput($importe),
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+        }
+
+
         $solicitud->presupuestos()->delete();
         $tipoPresupuestos = DB::table('tipo_presupuestos')->where('activo', true)->get();
         foreach ($tipoPresupuestos as $tipoPresupuesto) {
@@ -1914,7 +1938,7 @@ class ViajeController extends Controller
         // Consulta base
 
 
-        $query = Viaje::select('viajes.id as id','viajes.estado as estado','viajes.fecha as fecha', 'personas.nombre as persona_nombre', 'periodos.nombre as periodo_nombre', DB::raw("CONCAT(personas.apellido, ', ', personas.nombre) as persona_apellido"), 'cuil','viajes.calle','viajes.nro','viajes.piso','viajes.depto','viajes.cp','viajes.email','viajes.telefono','viajes.notificacion','viajes.scholar','titulos.nombre as titulo', 'viajes.egresogrado', DB::raw("CONCAT(unidads.nombre, ' - ', unidads.sigla) as unidad"),'unidads.direccion as direccion_unidad','unidads.telefono as telefono_unidad', 'facultads.cat as facultad_cat','cargos.nombre as cargo','viajes.deddoc as dedicacion', 'facultads.nombre as facultad_nombre', 'facultadplanilla.nombre as facultadplanilla_nombre', 'viajes.institucion as beca_institucion', 'viajes.beca as beca_beca', 'viajes.periodobeca as beca_periodo',DB::raw("CONCAT(unidadbeca.nombre, ' - ', unidadbeca.sigla) as unidadbeca"),'viajes.objetivo', 'carrerainvs.nombre as carrerainv_nombre', 'organismos.nombre as organismo_nombre','viajes.ingreso_carrerainv', DB::raw("CONCAT(unidadcarrera.nombre, ' - ', unidadcarrera.sigla) as unidadcarrera"), 'categorias.nombre as categoria_nombre', 'sicadis.nombre as sicadi_nombre','viajes.tipo','viajes.motivo','viajes.monto','viajes.objetivo','viajes.relevanciaA','viajes.congreso','viajes.congresonombre','viajes.titulotrabajo','viajes.autores','viajes.nacional','viajes.lugartrabajo','viajes.trabajodesde','viajes.trabajohasta','viajes.relevancia','viajes.link','viajes.resumen','viajes.modalidad','viajes.profesor','viajes.lugarprofesor','viajes.libros','viajes.compilados','viajes.capitulos','viajes.articulos','viajes.congresos','viajes.patentes','viajes.intelectuales','viajes.informes','viajes.tesis','viajes.becas','viajes.tesinas','viajes.generalB','viajes.especificoB','viajes.actividadesB','viajes.cronogramaB','viajes.justificacionB','viajes.aportesB','viajes.relevanciaB','viajes.objetivosC','viajes.planC','viajes.relacionProyectoC','viajes.aportesC','viajes.actividadesC')
+        $query = Viaje::select('viajes.id as id','viajes.estado as estado','viajes.fecha as fecha', 'personas.nombre as persona_nombre', 'periodos.nombre as periodo_nombre', DB::raw("CONCAT(personas.apellido, ', ', personas.nombre) as persona_apellido"), 'cuil','viajes.calle','viajes.nro','viajes.piso','viajes.depto','viajes.cp','viajes.email','viajes.telefono','viajes.notificacion','viajes.scholar','titulos.nombre as titulo', 'viajes.egresogrado', DB::raw("CONCAT(unidads.nombre, ' - ', unidads.sigla) as unidad"),'unidads.direccion as direccion_unidad','unidads.telefono as telefono_unidad', 'facultads.cat as facultad_cat','cargos.nombre as cargo','viajes.deddoc as dedicacion', 'facultads.nombre as facultad_nombre', 'facultadplanilla.nombre as facultadplanilla_nombre', 'viajes.institucion as beca_institucion', 'viajes.beca as beca_beca', 'viajes.periodobeca as beca_periodo', 'viajes.unlp as beca_unlp',DB::raw("CONCAT(unidadbeca.nombre, ' - ', unidadbeca.sigla) as unidadbeca"),'viajes.objetivo', 'carrerainvs.nombre as carrerainv_nombre', 'organismos.nombre as organismo_nombre','viajes.ingreso_carrerainv', DB::raw("CONCAT(unidadcarrera.nombre, ' - ', unidadcarrera.sigla) as unidadcarrera"), 'categorias.nombre as categoria_nombre', 'sicadis.nombre as sicadi_nombre','viajes.tipo','viajes.motivo','viajes.monto','viajes.objetivo','viajes.relevanciaA','viajes.congreso','viajes.congresonombre','viajes.titulotrabajo','viajes.autores','viajes.nacional','viajes.lugartrabajo','viajes.trabajodesde','viajes.trabajohasta','viajes.relevancia','viajes.link','viajes.resumen','viajes.modalidad','viajes.profesor','viajes.lugarprofesor','viajes.libros','viajes.compilados','viajes.capitulos','viajes.articulos','viajes.congresos','viajes.patentes','viajes.intelectuales','viajes.informes','viajes.tesis','viajes.becas','viajes.tesinas','viajes.generalB','viajes.especificoB','viajes.actividadesB','viajes.cronogramaB','viajes.justificacionB','viajes.aportesB','viajes.relevanciaB','viajes.objetivosC','viajes.planC','viajes.relacionProyectoC','viajes.aportesC','viajes.actividadesC')
             ->leftJoin('periodos', 'viajes.periodo_id', '=', 'periodos.id')
             ->leftJoin('investigadors', 'viajes.investigador_id', '=', 'investigadors.id')
             ->leftJoin('personas', 'investigadors.persona_id', '=', 'personas.id')
@@ -2019,6 +2043,7 @@ class ViajeController extends Controller
             'beca_institucion' => $datos->beca_institucion,
             'beca_beca' => $datos->beca_beca,
             'beca_periodo' => $datos->beca_periodo,
+            'beca_unlp' => $datos->beca_unlp,
             'unidadbeca' => $datos->unidadbeca,
             'resumen_beca' => $resumen_beca,
 
@@ -2265,19 +2290,19 @@ class ViajeController extends Controller
             $errores[] = 'Debe ingresar un solo lugar';
         }
         // Tu lógica para calcular el monto total
-        $totalMonto = 0;
+        /*$totalMonto = 0;
         $presupuestos = $solicitud->presupuestos()->get(); // Beca actual
         foreach ($presupuestos as $presupuesto) {
             $totalMonto += $presupuesto->monto;
-        }
+        }*/
         // Validamos que haya seleccionado un monto
         if ($solicitud->monto <= 0) {
             $errores[] = 'Debe seleccionar un monto en la pestaña Montos.';
         }
 // Validamos que el total de presupuestos coincida con el monto seleccionado
-        elseif ($solicitud->monto != $totalMonto) {
+        /*elseif ($solicitud->monto != $totalMonto) {
             $errores[] = 'El total de la pestaña presupuesto debe ser igual al monto declarado en la pestaña Montos.';
-        }
+        }*/
 
 
         if (empty($solicitud->curriculum)) {
@@ -2407,7 +2432,7 @@ class ViajeController extends Controller
 
         }
 
-        if ($solicitud->motivo == 'C) ESTADÍA DE TRABAJO EN LA UNLP PARA UN INVESTIGADOR INVITADO'){
+        if ($solicitud->motivo == 'C) Estadía de Trabajo en la UNLP para un Investigador Invitado'){
             if ($solicitud->tipo == 'Investigador En Formación'){
                 $errores[] = 'Solo pueden solicitar subsidios Tipo C los Investigadores Formados';
             }

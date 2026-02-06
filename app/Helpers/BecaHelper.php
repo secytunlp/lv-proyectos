@@ -2,14 +2,18 @@
 
 namespace App\Helpers;
 
+use Illuminate\Support\Facades\Log;
+
 class BecaHelper
 {
     public static function obtenerOpcionesBecaPorInstitucion($institucionSeleccionada)
     {
+        //dd($institucionSeleccionada);
+
         switch ($institucionSeleccionada) {
-            case 'ANPCyT':
+            case 'AGENCIA i+D+i':
                 return ['','Beca inicial'=>'Beca inicial', 'Beca superior'=>'Beca superior'];
-            case 'CIC':
+            case 'CIC PBA':
                 return ['', 'Beca de entrenamiento'=>'Beca de entrenamiento','Beca doctoral'=>'Beca doctoral', 'Beca posdoctoral'=>'Beca posdoctoral'];
             case 'CONICET':
                 return ['','Beca doctoral'=>'Beca doctoral', 'Beca posdoctoral'=>'Beca posdoctoral','Beca finalización del doctorado'=>'Beca finalización del doctorado'];
@@ -25,9 +29,9 @@ class BecaHelper
     public static function obtenerOpcionesBecaPorInstitucionAnterior($institucionSeleccionada)
     {
         switch ($institucionSeleccionada) {
-            case 'ANPCyT':
+            case 'AGENCIA i+D+i':
                 return ['','Beca inicial'=>'Beca inicial', 'Beca superior'=>'Beca superior'];
-            case 'CIC':
+            case 'CIC PBA':
                 return ['', 'Beca de entrenamiento'=>'Beca de entrenamiento','Beca doctoral'=>'Beca doctoral', 'Beca posdoctoral'=>'Beca posdoctoral'];
             case 'CONICET':
                 return ['','Beca doctoral'=>'Beca doctoral', 'Beca posdoctoral'=>'Beca posdoctoral','Beca finalización del doctorado'=>'Beca finalización del doctorado','TIPO I'=>'TIPO I','TIPO II'=>'TIPO II','CONICET 2'=>'CONICET 2'];

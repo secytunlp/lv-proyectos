@@ -576,7 +576,7 @@ class ViajeEvaluacionController extends Controller
         $motivoMap = [
             'A) Reuniones Científicas' => 'A',
             'B) Estadía de trabajo para investigar en ámbitos académicos externos a la UNLP' => 'B',
-            'C) ESTADÍA DE TRABAJO EN LA UNLP PARA UN INVESTIGADOR INVITADO' => 'C',
+            'C) Estadía de Trabajo en la UNLP para un Investigador Invitado' => 'C',
         ];
 
         $tipo = $tipoMap[$viaje->tipo] ?? null;
@@ -724,7 +724,7 @@ class ViajeEvaluacionController extends Controller
         $motivoMap = [
             'A) Reuniones Científicas' => 'A',
             'B) Estadía de trabajo para investigar en ámbitos académicos externos a la UNLP' => 'B',
-            'C) ESTADÍA DE TRABAJO EN LA UNLP PARA UN INVESTIGADOR INVITADO' => 'C',
+            'C) Estadía de Trabajo en la UNLP para un Investigador Invitado' => 'C',
         ];
 
         $tipo = $tipoMap[$viaje->tipo] ?? null;

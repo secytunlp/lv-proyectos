@@ -234,9 +234,12 @@ en la dirección de correo electrónico declarada precedentemente')}}
 
                                                         <tbody id="cuerpoCargos">
                                                         <tr>
-
+                                                            @php
+                                                                $dedicaciones = config('dedicaciones');
+                                                                unset($dedicaciones['Sin Dedicación']);
+                                                            @endphp
                                                             <td>{{ Form::select('cargos[]',$cargos, $viaje->cargo_id,['class' => 'form-control', 'style' => 'width: 200px']) }}</td>
-                                                            <td>{{ Form::select('deddocs[]',[''=>'','Exclusiva'=>'Exclusiva','Semi Exclusiva'=>'Semi Exclusiva','Simple'=>'Simple'], $viaje->deddoc,['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
+                                                            <td>{{ Form::select('deddocs[]',['' => ''] + $dedicaciones, $viaje->deddoc,['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
                                                             <td>{{Form::date('ingresos[]', ($viaje->ingreso_cargo) ? date('Y-m-d', strtotime($viaje->ingreso_cargo)) : '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
                                                             <td>{{ Form::select('facultads[]',$facultades, $viaje->facultad_id,['class' => 'form-control', 'style' => 'width: 300px']) }}</td>
 
@@ -417,8 +420,12 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
 
                                                         <tbody id="cuerpoBecaActual">
                                                         <tr>
-
-                                                            <td>{{ Form::select('institucion',[''=>'','ANPCyT'=>'ANPCyT','CIC'=>'CIC','CONICET'=>'CONICET','UNLP'=>'UNLP','CIN'=>'CIN'], $viaje->institucion,['class' => 'form-control institucionActual_select', 'style' => 'width: 150px']) }}</td>
+                                                            @php
+                                                                $instituciones = config('becaEntidades');
+                                                                unset($instituciones['Otra']);
+                                                                $instituciones['CIN'] = 'CIN';
+                                                            @endphp
+                                                            <td>{{ Form::select('institucion',[''=>'']+$instituciones, $viaje->institucion,['class' => 'form-control institucionActual_select', 'style' => 'width: 150px']) }}</td>
 
                                                             <td>{{ Form::select('beca', \App\Helpers\BecaHelper::obtenerOpcionesBecaPorInstitucion($viaje->institucion), $viaje->beca, ['class' => 'form-control becaActual_select', 'style' => 'width: 150px']) }}
                                                             </td>
@@ -1458,7 +1465,7 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
 
                                                                 <!-- Importe -->
                                                                 <td>
-                                                                    {{ Form::number('montomontos[]', $monto->importe ?? old("montomontos.$index"), ['class' => 'form-control', 'style' => 'width:150px;']) }}
+                                                                    {{ Form::number('montomontos[]', $monto->monto ?? old("montomontos.$index"), ['class' => 'form-control', 'style' => 'width:150px;']) }}
                                                                 </td>
 
                                                                 <td>

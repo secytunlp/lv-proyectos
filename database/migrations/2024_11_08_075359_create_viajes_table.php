@@ -68,7 +68,7 @@ class CreateViajesTable extends Migration
             $table->enum('motivo', [
                 'A) Reuniones Científicas:',
                 'B) Estadía de trabajo para investigar en ámbitos académicos externos a la UNLP:',
-                'C) ESTADÍA DE TRABAJO EN LA UNLP PARA UN INVESTIGADOR INVITADO:'
+                'C) Estadía de Trabajo en la UNLP para un Investigador Invitado:'
             ]);
             $table->text('objetivo')->nullable();
             $table->string('curriculum', 255)->nullable();
