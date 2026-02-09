@@ -939,13 +939,8 @@ class ViajeEvaluacionController extends Controller
                 if ($request->has($inputName)) {
                     $id_evento = $request->input($inputName);
                 }
-                $cantidad = NULL;
-                $inputName = 'puntajeitem' . $i;
-                if ($request->has($inputName)) {
-                    $cantidad = $request->input($inputName);
-                }
                 $puntaje = NULL;
-                $inputName = 'valoritem' . $i;
+                $inputName = 'puntajeevento' . $i;
                 if ($request->has($inputName)) {
                     $puntaje = $request->input($inputName);
                 }
@@ -963,7 +958,6 @@ class ViajeEvaluacionController extends Controller
                         'viaje_evaluacion_id' => $id, // Supongo que tienes un objeto $investigador disponible
                         'viaje_evaluacion_planilla_id' => $request->viaje_evaluacion_planilla_id,
                         'viaje_evaluacion_planilla_evento_max_id' => $id_evento,
-                        'cantidad' => $cantidad,
                         'puntaje' => $puntaje,
                         'justificacion' => $justificacion,
                         'created_at' => now(), // Establece la fecha y hora de creación
