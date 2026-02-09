@@ -760,7 +760,7 @@ class ViajeEvaluacionController extends Controller
 
         //dd($categoriaMaximos);
         $categoria_id = 1;
-        if ($viaje->sicadi_id) {
+        if (($viaje->sicadi_id)&&($viaje->sicadi_id!=1)) {
             $categoria_id = $viaje->sicadi_id;
         }
         else{
