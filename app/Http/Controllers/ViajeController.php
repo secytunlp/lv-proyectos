@@ -2015,6 +2015,11 @@ class ViajeController extends Controller
         $template = 'viajes.pdfsolicitud';
         $presupuestos = $viaje->presupuestos()->get();
 
+        $montosViajesLugares = [];
+        foreach (Constants::MONTOS_VIAJES as $key => $monto) {
+            $montosViajesLugares[$monto] = Constants::MONTOS_VIAJES_LABELS[$key] ?? $key;
+        }
+
         $data = [
             'estado' => $datos->estado,
             'year' => $datos->periodo_nombre,
@@ -2064,6 +2069,7 @@ class ViajeController extends Controller
             'motivo' => $datos->motivo,
             'ambitos' => $ambitos,
             'monto' => $datos->monto,
+            'montosViajesLugares' => $montosViajesLugares,
             'montos' => $montos,
             'objetivo' => $datos->objetivo,
             'relevanciaA' => $datos->relevanciaA,

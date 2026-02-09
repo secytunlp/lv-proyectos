@@ -489,8 +489,11 @@ switch ($motivo) {
 @endif
 <div class="content">
     <div class="content" style="margin-top: 10px;">
-        <span style="display: inline-block;width: 300px;">MONTO SOLICITADO A LA UNLP (en pesos)</span> <span style="display: inline-block; border: 1px solid #ccc;width: 100px; padding-top: {{ $monto ? '0' : '15px' }}; background-color: #e1e1e1;">{{ '$' . number_format($monto, 2, ',', '.') }}</span>
-
+        @if(intval($year)<2026)
+            <span style="display: inline-block;width: 300px;">MONTO SOLICITADO A LA UNLP (en pesos)</span> <span style="display: inline-block; border: 1px solid #ccc;width: 100px; padding-top: {{ $monto ? '0' : '15px' }}; background-color: #e1e1e1;">{{ '$' . number_format($monto, 2, ',', '.') }}</span>
+        @else
+           <span style="display: inline-block;width: 300px;">MONTO SOLICITADO A LA UNLP (en pesos)</span> <span style="display: inline-block; border: 1px solid #ccc;width: 395px; padding-top: {{ $monto ? '0' : '15px' }}; background-color: #e1e1e1;">{{$montosViajesLugares[intval($monto)] ?? ''}} - {{ '$' . number_format($monto, 2, ',', '.') }}</span>
+        @endif
     </div>
 
 </div>
@@ -1051,9 +1054,11 @@ switch ($motivo) {
     <div><strong>Indicar y describir la aplicación del subsidio en caso que le sea otorgado. La descripcion deberá ser lo mas
             detallada y precisa posible.</strong></div>
 </div>
-<!--<div class="content">
-    <div style="text-align: center"><strong>PRESUPUESTO ESTIMADO PRELIMINAR</strong></div>
-</div>-->
+@if(intval($year)<2026)
+    <div class="content">
+        <div style="text-align: center"><strong>PRESUPUESTO ESTIMADO PRELIMINAR</strong></div>
+    </div>
+@endif
 <div class="content">
     <div>{{$tituloAmbitos}}</div>
     <table>
@@ -1073,8 +1078,12 @@ switch ($motivo) {
 @foreach ($tipoPresupuestos as $tipoPresupuesto)
 
     <div class="content">
-        <div>PRESUPUESTO ESTIMADO PRELIMINAR</div>
-        <div style="font-size: 10px;">En caso de ser adjudicado el subsidio, el monto máximo será el indicado en las pautas del llamado en el ítem “montos a asignar” según el lugar donde realizará la actividad</div>
+        @if(intval($year)<2026)
+            <div>{{$tipoPresupuesto->nombre}}</div>
+        @else
+            <div>PRESUPUESTO ESTIMADO PRELIMINAR</div>
+            <div style="font-size: 10px;">En caso de ser adjudicado el subsidio, el monto máximo será el indicado en las pautas del llamado en el ítem “montos a asignar” según el lugar donde realizará la actividad</div>
+        @endif
         <table>
             <tr style="background-color: #999999;">
                 <th>FECHA</th><th>DESCRIPCION / CONCEPTO</th><th>Importe</th>
