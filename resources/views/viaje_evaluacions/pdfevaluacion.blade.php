@@ -600,7 +600,7 @@
                     </tr>
                     @if($puntajePlan && $puntajePlan->justificacion)
                         <tr>
-                            <td style="text-align: left;background-color: #e1e1e1;" colspan="4"><strong>Justificación:</strong> {!!  $puntajePlan->justificacion !!}</td>
+                            <td style="text-align: left;background-color: #e1e1e1;word-wrap: break-word; word-break: break-word; white-space: normal;" colspan="4"><strong>Justificación:</strong> {!!  $puntajePlan->justificacion !!}</td>
                         </tr>
                     @endif
                     @php
@@ -712,7 +712,7 @@
                 </tr>
                 @if($puntajeEvento && $puntajeEvento->justificacion)
                         <tr>
-                            <td style="text-align: left;background-color: #e1e1e1;" colspan="4"><strong>Justificación:</strong> {!!  $puntajeEvento->justificacion !!}</td>
+                            <td style="text-align: left;background-color: #e1e1e1;word-wrap: break-word; word-break: break-word; white-space: normal;" colspan="4"><strong>Justificación:</strong> {!!  $puntajeEvento->justificacion !!}</td>
                         </tr>
                 @endif
                 @php
