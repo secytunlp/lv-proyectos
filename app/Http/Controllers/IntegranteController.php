@@ -854,7 +854,9 @@ class IntegranteController extends Controller
                 $input['categoria_id']= $integrante->categoria_id;
                 $input['sicadi_id']= $integrante->sicadi_id;
 
+                //
                 $integrante->update($input);
+
 
                 $this->guardarIntegrante($request,$integrante,$integrante->alta);
 
@@ -4470,8 +4472,15 @@ class IntegranteController extends Controller
 
     public function guardarIntegrante(Request $request, $integrante,$alta='')
     {
+        //dd($request,$integrante);
         // Guardar el primer título pasado en $request->titulo en la columna titulo_id del investigador
-        if (!empty($request->titulos)) {
+
+        $titulos = collect($request->titulos)
+            ->filter()
+            ->values();
+
+        if ($titulos->isNotEmpty()) {
+
             $integrante->titulo_id = $this->safeRequest($request, 'titulos');
             $integrante->egresogrado = $this->safeRequest($request, 'egresos');
             $integrante->carrera = null;
@@ -4480,8 +4489,11 @@ class IntegranteController extends Controller
             $integrante->save();
         }
 
-        // Guardar el primer título pasado en $request->titulopost en la columna titulopost_id del investigador
-        if (!empty($request->tituloposts)) {
+        $tituloposts = collect($request->tituloposts)
+            ->filter()
+            ->values();
+
+        if ($tituloposts->isNotEmpty()) {
             $integrante->titulopost_id = $this->safeRequest($request, 'tituloposts');
             $integrante->egresoposgrado = $this->safeRequest($request, 'egresoposts');
             $integrante->save();
