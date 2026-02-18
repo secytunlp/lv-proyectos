@@ -468,9 +468,14 @@
                                                     </thead>
 
                                                     <tbody id="cuerpoBecas">
+                                                    @php
+                                                        $instituciones = config('becaEntidades');
+                                                        unset($instituciones['Otra']);
+                                                        $instituciones['CIN'] = 'CIN';
+                                                    @endphp
                                                     <tr>
 
-                                                        <td>{{ Form::select('institucions[]',[''=>'','ANPCyT'=>'ANPCyT','CIC'=>'CIC','CONICET'=>'CONICET','UNLP'=>'UNLP','CIN'=>'CIN','OTRA'=>'OTRA'], $integrante->institucion,['class' => 'form-control institucion_select', 'style' => 'width: 150px']) }}</td>
+                                                        <td>{{ Form::select('institucions[]',[''=>'']+$instituciones, $integrante->institucion,['class' => 'form-control institucion_select', 'style' => 'width: 150px']) }}</td>
                                                         <td>{{ Form::select('becas[]',\App\Helpers\BecaHelper::obtenerOpcionesBecaPorInstitucion(old('institucions.0', $integrante->institucion)), $integrante->beca,['class' => 'form-control beca_select', 'style' => 'width: 150px']) }}</td>
 
                                                         <td>{{Form::date('becadesdes[]', ($integrante->alta_beca)?date('Y-m-d', strtotime($integrante->alta_beca)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>

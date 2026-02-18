@@ -4486,8 +4486,14 @@ class IntegranteController extends Controller
             $integrante->carrera = null;
             $integrante->total = null;
             $integrante->materias = null;
-            $integrante->save();
+
         }
+        else {
+            // 👇 SI LO BORRÓ, LIMPIAR
+            $integrante->titulo_id = null;
+            $integrante->egresogrado = null;
+        }
+
 
         $tituloposts = collect($request->tituloposts)
             ->filter()
@@ -4496,10 +4502,15 @@ class IntegranteController extends Controller
         if ($tituloposts->isNotEmpty()) {
             $integrante->titulopost_id = $this->safeRequest($request, 'tituloposts');
             $integrante->egresoposgrado = $this->safeRequest($request, 'egresoposts');
-            $integrante->save();
+
+        }
+        else {
+            // 👇 SI LO BORRÓ, LIMPIAR
+            $integrante->titulopost_id = null;
+            $integrante->egresoposgrado = null;
         }
 
-
+        //$integrante->save();
 
 
         //log::info('Cargo: '.$request->cargos[0] );
@@ -4548,7 +4559,7 @@ class IntegranteController extends Controller
         else{
             $integrante->alta_cargo = null;
         }
-        $integrante->save();
+        //$integrante->save();
 
 
         if ($request->carrerainvs[0]) {
@@ -4569,7 +4580,7 @@ class IntegranteController extends Controller
         else {
             $integrante->ingreso_carrerainv = null;
         }
-        $integrante->save();
+        //$integrante->save();
 
 
 
