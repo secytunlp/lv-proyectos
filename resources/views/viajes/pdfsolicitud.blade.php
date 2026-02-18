@@ -204,6 +204,7 @@ switch ($motivo) {
     </div>
 
 </div>
+@if(intval($year)<2026)
 <div class="content">
     <div class="content" style="margin-top: 10px;">
         <span style="display: inline-block;width: 70px;">Dirección</span> <span style="display: inline-block; border: 1px solid #ccc;width: 400px; padding-top: {{ $direccion_unidad ? '0' : '15px' }}; background-color: #e1e1e1;">{{ $direccion_unidad }}</span><span style="display: inline-block;width: 35px;"></span>
@@ -211,6 +212,7 @@ switch ($motivo) {
     </div>
 
 </div>
+@endif
 <div class="content">
     <div class="content" style="margin-top: 10px;">
         <span style="display: inline-block;width: 150px;">Cargo docente UNLP</span> <span style="display: inline-block; border: 1px solid #ccc;width: 300px; padding-top: {{ $cargo ? '0' : '15px' }}; background-color: #e1e1e1;">{{ $cargo }}</span><span style="display: inline-block;width: 35px;"></span>
