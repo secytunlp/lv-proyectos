@@ -4676,7 +4676,7 @@ class IntegranteController extends Controller
 
             $errores[] = 'Complete todos los campos del Cargo Docente en la pestaña Universidad';
         }
-        if ($integrante->tipo != 'Colaborador') {
+        if (($integrante->tipo != 'Colaborador') && ($integrante->tipo != 'Becario, Tesista')){
             if (
                 (empty($integrante->cargo_id) && empty($integrante->carrerainv_id) && empty($integrante->beca))
             ) {
