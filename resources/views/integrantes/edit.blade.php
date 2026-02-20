@@ -368,7 +368,7 @@
 
                                                         <td>{{ Form::select('carrerainvs[]',$carrerainvs, $integrante->carrerainv_id,['class' => 'form-control', 'style' => 'width: 200px']) }}</td>
                                                         <td>{{ Form::select('organismos[]',$organismos, $integrante->organismo_id,['class' => 'form-control', 'style' => 'width: 150px']) }}</td>
-                                                        <td>{{Form::date('carringresos[]', ($integrante->ingreso_carrera)?date('Y-m-d', strtotime($integrante->ingreso_carrera)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
+                                                        <td>{{Form::date('carringresos[]', ($integrante->ingreso_carrerainv)?date('Y-m-d', strtotime($integrante->ingreso_carrerainv)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
 
 
                                                         <!--<td>{{ Form::radio('actual', 1, true,['id' => 'actual_1']) }}</td>
