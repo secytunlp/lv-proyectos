@@ -39,7 +39,7 @@ class SyncDocentes extends Command
     public function handle()
     {
         $this->info('Iniciando sincronización...');
-
+        $skippedRows = [];
         DB::connection('mysql_origen')
             ->table('docente')
             ->select([
@@ -116,6 +116,18 @@ class SyncDocentes extends Command
                         }
                     }
 
+                    // Si no se pudo generar cuil, guardamos la fila en skipped
+                    if ($cuil === null) {
+                        $skippedRows[] = [
+                            'id' => $row->id,
+                            'nombre' => $row->ds_nombre,
+                            'apellido' => $row->ds_apellido,
+                            'documento' => $row->nu_documento,
+                            'precuil' => $precuil,
+                            'postcuil' => $postcuil,
+                        ];
+                    }
+
                     return [
                         'id' => $row->id,
                         'nombre' => trim($row->nombre),
@@ -152,5 +164,12 @@ class SyncDocentes extends Command
             });
 
         $this->info('Sincronización finalizada ✔');
+        $this->info('Filas omitidas por cuil inválido: ' . count($skippedRows));
+
+        if (!empty($skippedRows)) {
+            foreach ($skippedRows as $skip) {
+                $this->line("ID {$skip['id']} - {$skip['apellido']}, {$skip['nombre']} - DOC: {$skip['documento']} - precuil: {$skip['precuil']} postcuil: {$skip['postcuil']}");
+            }
+        }
     }
 }
