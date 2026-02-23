@@ -65,7 +65,7 @@ class SyncDocentes extends Command
                 'dt_nacimiento as nacimiento'
             ])
             ->orderBy('cd_docente')
-            ->chunk(1000, function ($rows) {
+            ->chunk(1000, function ($rows) use (&$totalFilas, &$totalInsertadas, &$totalOmitidas, &$skippedRows){
                 $totalFilas += count($rows);
                 $data = collect($rows)->map(function ($row) {
 
