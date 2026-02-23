@@ -12,14 +12,14 @@ class SyncDocentes extends Command
      *
      * @var string
      */
-    protected $signature = 'command:name';
+    protected $signature = 'sync:docentes';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Sincroniza docentes desde DB origen a personas';
 
     /**
      * Create a new command instance.
