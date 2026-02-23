@@ -40,6 +40,9 @@ class SyncDocentes extends Command
     {
         $this->info('Iniciando sincronización...');
         $skippedRows = [];
+        $totalFilas = 0;
+        $totalInsertadas = 0;
+        $totalOmitidas = 0;
         DB::connection('mysql_origen')
             ->table('docente')
             ->select([
@@ -63,7 +66,7 @@ class SyncDocentes extends Command
             ])
             ->orderBy('cd_docente')
             ->chunk(1000, function ($rows) {
-
+                $totalFilas += count($rows);
                 $data = collect($rows)->map(function ($row) {
 
                     // 🧹 LIMPIEZA DE FECHA
@@ -126,6 +129,7 @@ class SyncDocentes extends Command
                             'precuil' => $precuil,
                             'postcuil' => $postcuil,
                         ];
+                        $totalOmitidas++;
                     }
 
                     return [
@@ -161,6 +165,7 @@ class SyncDocentes extends Command
                             'provincia_id','cp','telefono','email','nacimiento'
                         ]
                     );
+                $totalInsertadas += count($data);
             });
 
         $this->info('Sincronización finalizada ✔');
@@ -171,5 +176,8 @@ class SyncDocentes extends Command
                 $this->line("ID {$skip['id']} - {$skip['apellido']}, {$skip['nombre']} - DOC: {$skip['documento']} - precuil: {$skip['precuil']} postcuil: {$skip['postcuil']}");
             }
         }
+        $this->info("Total filas leídas: $totalFilas");
+        $this->info("Filas insertadas/actualizadas: $totalInsertadas");
+        $this->info("Filas omitidas por cuil inválido: $totalOmitidas");
     }
 }
