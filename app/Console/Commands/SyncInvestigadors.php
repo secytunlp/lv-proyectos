@@ -25,34 +25,35 @@ class SyncInvestigadors extends Command
         $totalOmitidas = 0;
 
         DB::connection('mysql_origen')
-            ->table('docente')
-            ->selectRaw("
-                cd_docente as id,
-                nu_ident as ident,
-                cd_docente as persona_id,
-                cd_categoria as categoria_id,
-                cd_categoriasicadi as sicadi_id,
-                CASE cd_carrerainv WHEN '11' THEN null WHEN '10' THEN null ELSE cd_carrerainv END as carrerainv_id,
-                CASE cd_organismo WHEN '7' THEN null ELSE cd_organismo END as organismo_id,
-                CASE cd_facultad WHEN '574' THEN null ELSE cd_facultad END as facultad_id,
-                CASE cd_cargo WHEN '6' THEN null ELSE cd_cargo END as cargo_id,
-                CASE ds_deddoc
+                    ->table('docente as d')
+                    ->leftJoin('deddoc as dd', 'd.cd_deddoc', '=', 'dd.cd_deddoc')
+                    ->selectRaw("
+                d.cd_docente as id,
+                d.nu_ident as ident,
+                d.cd_docente as persona_id,
+                d.cd_categoria as categoria_id,
+                d.cd_categoriasicadi as sicadi_id,
+                CASE d.cd_carrerainv WHEN '11' THEN null WHEN '10' THEN null ELSE d.cd_carrerainv END as carrerainv_id,
+                CASE d.cd_organismo WHEN '7' THEN null ELSE d.cd_organismo END as organismo_id,
+                CASE d.cd_facultad WHEN '574' THEN null ELSE d.cd_facultad END as facultad_id,
+                CASE d.cd_cargo WHEN '6' THEN null ELSE d.cd_cargo END as cargo_id,
+                CASE dd.ds_deddoc
                     WHEN 's/d' THEN null
                     WHEN 'SI-1' THEN 'Simple'
                     WHEN 'SE-1' THEN 'Semi Exclusiva'
-                    ELSE ds_deddoc
+                    ELSE dd.ds_deddoc
                 END as deddoc,
-                cd_universidad as universidad_id,
-                CASE cd_titulo WHEN '9999' THEN null ELSE cd_titulo END as titulo_id,
-                CASE cd_titulopost WHEN '9999' THEN null ELSE cd_titulopost END as titulopost_id,
-                cd_unidad as unidad_id,
-                ds_orgbeca as institucion,
-                ds_tipobeca as beca,
-                nu_materias as materias,
-                nu_totalMat as total,
-                ds_carrera as carrera
+                d.cd_universidad as universidad_id,
+                CASE d.cd_titulo WHEN '9999' THEN null ELSE d.cd_titulo END as titulo_id,
+                CASE d.cd_titulopost WHEN '9999' THEN null ELSE d.cd_titulopost END as titulopost_id,
+                d.cd_unidad as unidad_id,
+                d.ds_orgbeca as institucion,
+                d.ds_tipobeca as beca,
+                d.nu_materias as materias,
+                d.nu_totalMat as total,
+                d.ds_carrera as carrera
             ")
-            ->orderBy('cd_docente')
+            ->orderBy('d.cd_docente')
             ->chunk(1000, function ($rows) use (&$totalFilas, &$totalInsertadas, &$totalOmitidas, &$skippedRows) {
 
                 $totalFilas += count($rows);
