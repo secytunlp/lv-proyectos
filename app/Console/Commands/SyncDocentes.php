@@ -91,7 +91,14 @@ class SyncDocentes extends Command
 
                     if ($documento !== '') {
 
+                        $documento = preg_replace('/\D/', '', (string)$row->documento); // solo números
+
+                        if (strlen($documento) > 8) {
+                            $documento = substr($documento, 0, 8); // deja los primeros 8
+                        }
                         $doc = str_pad($documento, 8, '0', STR_PAD_LEFT);
+
+
 
                         // validar que sean numéricos
                         if (is_numeric($precuil) && is_numeric($postcuil)) {
@@ -103,9 +110,9 @@ class SyncDocentes extends Command
                             $cuil = $precuil . '-' . $doc . '-' . $postcuil;
 
                             // seguridad absoluta
-                            if (strlen($cuil) !== 13) {
+                            /*if (strlen($cuil) !== 13) {
                                 $cuil = null;
-                            }
+                            }*/
                         }
                     }
 
