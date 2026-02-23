@@ -83,20 +83,30 @@ class SyncDocentes extends Command
                     // 🧹 LIMPIEZA DE TELÉFONO (básica)
                     $telefono = $row->telefono ? trim($row->telefono) : null;
 
-                    $precuil = $row->nu_precuil;
-                    $postcuil = $row->nu_postcuil;
-                    $documento = $row->documento;
+                    $precuil = trim((string)$row->nu_precuil);
+                    $postcuil = trim((string)$row->nu_postcuil);
+                    $documento = trim((string)$row->documento);
 
                     $cuil = null;
 
-                    if ($documento !== null && $documento !== '') {
+                    if ($documento !== '') {
 
                         $doc = str_pad($documento, 8, '0', STR_PAD_LEFT);
 
-                        $pre = ($precuil !== null && $precuil !== '') ? $precuil : '00';
-                        $post = ($postcuil !== null && $postcuil !== '') ? $postcuil : '0';
+                        // validar que sean numéricos
+                        if (is_numeric($precuil) && is_numeric($postcuil)) {
 
-                        $cuil = $pre . '-' . $doc . '-' . $post;
+                            // normalizar (ej: 0 → 00 si querés consistencia)
+                            $precuil = str_pad($precuil, 2, '0', STR_PAD_LEFT);
+                            $postcuil = str_pad($postcuil, 1, '0', STR_PAD_LEFT);
+
+                            $cuil = $precuil . '-' . $doc . '-' . $postcuil;
+
+                            // seguridad absoluta
+                            if (strlen($cuil) !== 13) {
+                                $cuil = null;
+                            }
+                        }
                     }
 
                     return [
