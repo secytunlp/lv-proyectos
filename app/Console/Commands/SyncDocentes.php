@@ -83,15 +83,25 @@ class SyncDocentes extends Command
                     // 🧹 LIMPIEZA DE TELÉFONO (básica)
                     $telefono = $row->telefono ? trim($row->telefono) : null;
 
+                    $precuil = preg_replace('/\D/', '', $row->nu_precuil);
+                    $postcuil = preg_replace('/\D/', '', $row->nu_postcuil);
+                    $documento = preg_replace('/\D/', '', $row->documento);
+
+                    $cuil = null;
+
+                    if ($precuil && $postcuil && $documento) {
+                        $cuil = substr($precuil, 0, 2) . '-' .
+                            str_pad(substr($documento, 0, 8), 8, '0', STR_PAD_LEFT) . '-' .
+                            substr($postcuil, 0, 1);
+                    }
+
                     return [
                         'id' => $row->id,
                         'nombre' => trim($row->nombre),
                         'apellido' => trim($row->apellido),
                         'documento' => $row->documento,
 
-                        'cuil' => $row->nu_precuil
-                            ? $row->nu_precuil . '-' . str_pad($row->documento, 8, '0', STR_PAD_LEFT) . '-' . $row->nu_postcuil
-                            : null,
+                        'cuil' => $cuil,
 
                         'genero' => $row->genero ?: null,
                         'calle' => $row->calle ?: null,
