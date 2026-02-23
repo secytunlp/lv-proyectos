@@ -238,9 +238,12 @@ en la dirección de correo electrónico declarada precedentemente')}}
 
                                                     <tbody id="cuerpoCargos">
                                                     <tr>
-
+                                                        @php
+                                                            $dedicaciones = config('dedicaciones');
+                                                            unset($dedicaciones['Sin Dedicación']);
+                                                        @endphp
                                                         <td>{{ Form::select('cargos[]',$cargos, $joven->cargo_id,['class' => 'form-control', 'style' => 'width: 200px']) }}</td>
-                                                        <td>{{ Form::select('deddocs[]',[''=>'','Exclusiva'=>'Exclusiva','Semi Exclusiva'=>'Semi Exclusiva','Simple'=>'Simple'], $joven->deddoc,['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
+                                                        <td>{{ Form::select('deddocs[]',['' => ''] + $dedicaciones, $joven->deddoc,['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
                                                         <td>{{Form::date('ingresos[]',
             ($joven->ingreso_cargo) ? date('Y-m-d', strtotime($joven->ingreso_cargo)) : '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
                                                         <td>{{ Form::select('facultads[]',$facultades, $joven->facultad_id,['class' => 'form-control', 'style' => 'width: 300px']) }}</td>

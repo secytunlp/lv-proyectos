@@ -417,7 +417,13 @@ class JovenController extends Controller
         $tituloposts = $tituloposts->pluck('full_name', 'id')->prepend('','');
         $facultades = DB::table('facultads')->pluck('nombre', 'id')->prepend('','');// Obtener todas las facultades directamente desde la tabla
         // Obtener los cargos ordenados por el campo 'orden' y seleccionar solo los campos 'id' y 'nombre'
-        $cargos = Cargo::orderBy('orden')->pluck('nombre', 'id')->prepend('', '');
+        //$cargos = Cargo::orderBy('orden')->pluck('nombre', 'id')->prepend('', '');
+        $idsExcluir = [6, 12, 13, 14];
+
+        $cargos = Cargo::whereNotIn('id', $idsExcluir)
+            ->orderBy('orden')
+            ->pluck('nombre', 'id')
+            ->prepend('', '');
         $universidades=Universidad::orderBy('nombre','ASC')->get();
         $universidades = $universidades->pluck('nombre', 'id')->prepend('','');
         $unidads=Unidad::orderBy('nombre','ASC')->get();
@@ -1443,7 +1449,13 @@ class JovenController extends Controller
         $tituloposts = $tituloposts->pluck('full_name', 'id')->prepend('','');
         $facultades = DB::table('facultads')->pluck('nombre', 'id')->prepend('','');// Obtener todas las facultades directamente desde la tabla
         // Obtener los cargos ordenados por el campo 'orden' y seleccionar solo los campos 'id' y 'nombre'
-        $cargos = Cargo::orderBy('orden')->pluck('nombre', 'id')->prepend('', '');
+        //$cargos = Cargo::orderBy('orden')->pluck('nombre', 'id')->prepend('', '');
+        $idsExcluir = [6, 12, 13, 14];
+
+        $cargos = Cargo::whereNotIn('id', $idsExcluir)
+            ->orderBy('orden')
+            ->pluck('nombre', 'id')
+            ->prepend('', '');
         $universidades=Universidad::orderBy('nombre','ASC')->get();
         $universidades = $universidades->pluck('nombre', 'id')->prepend('','');
         $unidads=Unidad::orderBy('nombre','ASC')->get();

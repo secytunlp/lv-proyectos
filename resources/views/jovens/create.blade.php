@@ -240,9 +240,12 @@ en la dirección de correo electrónico declarada precedentemente')}}
 
                                                         <tbody id="cuerpoCargos">
                                                         <tr>
-
+                                                            @php
+                                                                $dedicaciones = config('dedicaciones');
+                                                                unset($dedicaciones['Sin Dedicación']);
+                                                            @endphp
                                                             <td>{{ Form::select('cargos[]',$cargos, ($cargo)?$cargo->id:'',['class' => 'form-control', 'style' => 'width: 200px']) }}</td>
-                                                            <td>{{ Form::select('deddocs[]',[''=>'','Exclusiva'=>'Exclusiva','Semi Exclusiva'=>'Semi Exclusiva','Simple'=>'Simple'], ($cargo)?$cargo->pivot->deddoc:'',['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
+                                                            <td>{{ Form::select('deddocs[]',['' => ''] + $dedicaciones, ($cargo)?$cargo->pivot->deddoc:'',['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
                                                             <td>{{Form::date('ingresos[]', ($cargo) ?
             (($cargo->pivot->ingreso) ? date('Y-m-d', strtotime($cargo->pivot->ingreso)) : '')
             : '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
