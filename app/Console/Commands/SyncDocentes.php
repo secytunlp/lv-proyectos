@@ -104,8 +104,8 @@ class SyncDocentes extends Command
                         if (is_numeric($precuil) && is_numeric($postcuil)) {
 
                             // normalizar (ej: 0 → 00 si querés consistencia)
-                            $precuil = str_pad($precuil, 2, '0', STR_PAD_LEFT);
-                            $postcuil = str_pad($postcuil, 1, '0', STR_PAD_LEFT);
+                            $precuil = substr(str_pad($precuil, 2, '0', STR_PAD_LEFT), 0, 2);
+                            $postcuil = substr(str_pad($postcuil, 1, '0', STR_PAD_LEFT), 0, 1);
 
                             $cuil = $precuil . '-' . $doc . '-' . $postcuil;
 
