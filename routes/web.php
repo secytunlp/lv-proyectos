@@ -23,15 +23,6 @@ use App\Http\Controllers\ViajeEstadoController;
 use App\Http\Controllers\ViajeEvaluacionController;
 use App\Http\Controllers\ViajeEvaluacionEstadoController;
 
-
-use Illuminate\Support\Facades\DB;
-
-Route::get('/test-db', function () {
-    dd(
-        DB::connection('mysql')->table('personas')->count(),
-        DB::connection('mysql_origen')->table('docente')->count()
-    );
-});
 /*
 |--------------------------------------------------------------------------
 | Web Routes
