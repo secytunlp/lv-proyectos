@@ -1039,40 +1039,80 @@ class JovenController extends Controller
     public function guardarSolicitud(Request $request, $solicitud,$actualizar=false)
     {
 // Guardar el primer título pasado en $request->titulo en la columna titulo_id del investigador
-        if (!empty($request->titulos)) {
+
+        $titulos = collect($request->titulos)
+            ->filter()
+            ->values();
+
+        if ($titulos->isNotEmpty()) {
+
             $solicitud->titulo_id = $this->safeRequest($request, 'titulos');
             $solicitud->egresogrado = $this->safeRequest($request, 'egresos');
-            $solicitud->save();
+
+
+        }
+        else {
+            // 👇 SI LO BORRÓ, LIMPIAR
+            $solicitud->titulo_id = null;
+            $solicitud->egresogrado = null;
         }
 
-        // Guardar el primer título pasado en $request->titulopost en la columna titulopost_id del investigador
-        if (!empty($request->tituloposts)) {
+
+
+        $tituloposts = collect($request->tituloposts)
+            ->filter()
+            ->values();
+
+        if ($tituloposts->isNotEmpty()) {
             $solicitud->titulopost_id = $this->safeRequest($request, 'tituloposts');
             $solicitud->egresoposgrado = $this->safeRequest($request, 'egresoposts');
-            $solicitud->save();
+
+        }
+        else {
+            // 👇 SI LO BORRÓ, LIMPIAR
+            $solicitud->titulopost_id = null;
+            $solicitud->egresoposgrado = null;
         }
 
 
-        // Guarda el mayor cargo encontrado en el investigador
-        if (!empty($request->cargos)) {
+        $cargos = collect($request->cargos)
+            ->filter()
+            ->values();
+
+        if ($cargos->isNotEmpty()) {
             $solicitud->cargo_id = $this->safeRequest($request, 'cargos');
             $solicitud->deddoc = $this->safeRequest($request, 'deddocs');
             $solicitud->ingreso_cargo = $this->safeRequest($request, 'ingresos');
             $solicitud->facultad_id = $this->safeRequest($request, 'facultads');
 
-            $solicitud->save();
+        }
+        else {
+            // 👇 SI LO BORRÓ, LIMPIAR
+            $solicitud->cargo_id = null;
+            $solicitud->deddoc = null;
+            $solicitud->ingreso_cargo = null;
+            $solicitud->facultad_id = null;
         }
 
+        $carrerainvs = collect($request->carrerainvs)
+            ->filter()
+            ->values();
 
-        if (!empty($request->carrerainvs)) {
+        if ($carrerainvs->isNotEmpty()) {
             $solicitud->carrerainv_id = $this->safeRequest($request, 'carrerainvs');
             $solicitud->organismo_id = $this->safeRequest($request, 'organismos');
             $solicitud->ingreso_carrerainv = $this->safeRequest($request, 'carringresos');
-            $solicitud->save();
+
+        }
+        else {
+            // 👇 SI LO BORRÓ, LIMPIAR
+            $solicitud->carrerainv_id = null;;
+            $solicitud->organismo_id = null;;
+            $solicitud->ingreso_carrerainv = null;;
         }
 
 
-
+        $solicitud->save();
         if ($request->institucionActual) {
 
             if (!empty($request->idBecaActual)) {
@@ -1103,6 +1143,12 @@ class JovenController extends Controller
                 ]);
             }
 
+        }else {
+            // 🔥 no viene beca actual → borrar la actual
+            DB::table('joven_becas')
+                ->where('joven_id', $solicitud->id)
+                ->where('actual', 1)
+                ->delete();
         }
 
         if (!empty($request->becas)) {
