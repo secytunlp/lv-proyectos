@@ -328,7 +328,8 @@
     <div>Breve descripción de las actividades de I/D que plantea en el marco del proyecto en que se desempeña el solicitante</div>
 </div>
 <div class="content">
-        <span style="display: inline-block; border: 1px solid #ccc; width: 695px; padding-top: {{ $objetivo ? '0' : '15px' }}; background-color: #e1e1e1;  white-space: pre-wrap;">
+        <span style="display: inline-block; border: 1px solid #ccc; width: 695px; padding-top: {{ $objetivo ? '0' : '15px' }}; background-color: #e1e1e1;  white-space: pre-wrap;word-break: break-word;
+                 overflow-wrap: break-word;">
             {!! nl2br(e($objetivo)) !!}
         </span>
 </div>
