@@ -337,15 +337,39 @@ class SyncInvestigadors extends Command
 
                 $data = collect($rows)->map(function ($row) use (&$skippedRows, &$totalOmitidas) {
 
-                    // Validaciones básicas: si persona_id o ident están vacíos, lo omitimos
+                    // Validaciones básicas: persona_id o ident vacíos
                     if (empty($row->persona_id) || empty($row->ident)) {
                         $skippedRows[] = [
                             'id' => $row->id,
-                            'ident' => $row->ident,
                             'persona_id' => $row->persona_id,
+                            'ident' => $row->ident,
+                            'motivo' => 'Falta persona_id o ident',
+                            'beca' => $row->beca,
                         ];
                         $totalOmitidas++;
                         return null;
+                    }
+
+                    // Valores válidos de beca (ENUM)
+                    $becaValidas = [
+                        'TIPO I','TIPO II','TIPO A','TIPO B','Beca doctoral','Beca posdoctoral','Beca inicial',
+                        'Beca superior','EVC','Formación Superior','RETENCION DE POSTGRADUADO','Beca finalización del doctorado',
+                        'Beca de entrenamiento','Beca maestría','Iniciación','TIPO B (MAESTRÍA)','TIPO A - Maestría',
+                        'TIPO B (DOCTORADO)','TIPO I-DOCTORAL','TIPO I PAISES LATINOAMERICANOS'
+                    ];
+
+                    $becaFinal = in_array($row->beca, $becaValidas) ? $row->beca : null;
+
+                    // Validación de beca inválida
+                    if (is_null($becaFinal) && !empty($row->beca)) {
+                        $skippedRows[] = [
+                            'id' => $row->id,
+                            'persona_id' => $row->persona_id,
+                            'ident' => $row->ident,
+                            'motivo' => 'Beca inválida',
+                            'beca' => $row->beca,
+                        ];
+                        $totalOmitidas++;
                     }
 
                     return [
@@ -364,7 +388,7 @@ class SyncInvestigadors extends Command
                         'titulopost_id' => $row->titulopost_id ?: null,
                         'unidad_id' => $row->unidad_id ?: null,
                         'institucion' => $row->institucion ?: null,
-                        'beca' => $row->beca ?: null,
+                        'beca' => $becaFinal,
                         'materias' => $row->materias ?: null,
                         'total' => $row->total ?: null,
                         'carrera' => $row->carrera ?: null,
@@ -396,7 +420,9 @@ class SyncInvestigadors extends Command
         if (!empty($skippedRows)) {
             $this->info("Detalle de filas omitidas:");
             foreach ($skippedRows as $skip) {
-                $this->line("ID {$skip['id']} - Persona: {$skip['persona_id']} - Ident: {$skip['ident']}");
+                $this->line(
+                    "ID {$skip['id']} - Persona: {$skip['persona_id']} - Ident: {$skip['ident']} - Motivo: {$skip['motivo']} - Beca: {$skip['beca']}"
+                );
             }
         }
     }
