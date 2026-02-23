@@ -344,29 +344,46 @@ class SyncInvestigadors extends Command
                             'persona_id' => $row->persona_id,
                             'ident' => $row->ident,
                             'motivo' => 'Falta persona_id o ident',
+                            'institucion' => $row->institucion,
                             'beca' => $row->beca,
                         ];
                         $totalOmitidas++;
                         return null;
                     }
 
-                    // Valores válidos de beca (ENUM)
+                    // Validación de beca
                     $becaValidas = [
                         'TIPO I','TIPO II','TIPO A','TIPO B','Beca doctoral','Beca posdoctoral','Beca inicial',
                         'Beca superior','EVC','Formación Superior','RETENCION DE POSTGRADUADO','Beca finalización del doctorado',
                         'Beca de entrenamiento','Beca maestría','Iniciación','TIPO B (MAESTRÍA)','TIPO A - Maestría',
                         'TIPO B (DOCTORADO)','TIPO I-DOCTORAL','TIPO I PAISES LATINOAMERICANOS'
                     ];
-
                     $becaFinal = in_array($row->beca, $becaValidas) ? $row->beca : null;
 
-                    // Validación de beca inválida
+                    // Validación de institución
+                    $institucionValidas = ['ANPCyT','CIC','CONICET','UNLP','OTRA','CIN'];
+                    $institucionFinal = in_array($row->institucion, $institucionValidas) ? $row->institucion : null;
+
+                    // Omitir si beca o institucion inválida
                     if (is_null($becaFinal) && !empty($row->beca)) {
                         $skippedRows[] = [
                             'id' => $row->id,
                             'persona_id' => $row->persona_id,
                             'ident' => $row->ident,
                             'motivo' => 'Beca inválida',
+                            'institucion' => $row->institucion,
+                            'beca' => $row->beca,
+                        ];
+                        $totalOmitidas++;
+                    }
+
+                    if (is_null($institucionFinal) && !empty($row->institucion)) {
+                        $skippedRows[] = [
+                            'id' => $row->id,
+                            'persona_id' => $row->persona_id,
+                            'ident' => $row->ident,
+                            'motivo' => 'Institución inválida',
+                            'institucion' => $row->institucion,
                             'beca' => $row->beca,
                         ];
                         $totalOmitidas++;
@@ -387,7 +404,7 @@ class SyncInvestigadors extends Command
                         'titulo_id' => $row->titulo_id ?: null,
                         'titulopost_id' => $row->titulopost_id ?: null,
                         'unidad_id' => $row->unidad_id ?: null,
-                        'institucion' => $row->institucion ?: null,
+                        'institucion' => $institucionFinal,
                         'beca' => $becaFinal,
                         'materias' => $row->materias ?: null,
                         'total' => $row->total ?: null,
@@ -421,7 +438,7 @@ class SyncInvestigadors extends Command
             $this->info("Detalle de filas omitidas:");
             foreach ($skippedRows as $skip) {
                 $this->line(
-                    "ID {$skip['id']} - Persona: {$skip['persona_id']} - Ident: {$skip['ident']} - Motivo: {$skip['motivo']} - Beca: {$skip['beca']}"
+                    "ID {$skip['id']} - Persona: {$skip['persona_id']} - Ident: {$skip['ident']} - Motivo: {$skip['motivo']} - Institución: {$skip['institucion']} - Beca: {$skip['beca']}"
                 );
             }
         }
