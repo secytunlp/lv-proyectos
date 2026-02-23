@@ -413,6 +413,7 @@ class SyncInvestigadors extends Command
                 })->filter()->toArray();
 
                 if (!empty($data)) {
+                    DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=0');
                     DB::connection('mysql')
                         ->table('investigadors')
                         ->upsert(
@@ -425,6 +426,7 @@ class SyncInvestigadors extends Command
                                 'materias','total','carrera'
                             ]
                         );
+                    DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=1');
                     $totalInsertadas += count($data);
                 }
             });
