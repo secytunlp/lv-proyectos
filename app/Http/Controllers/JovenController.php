@@ -1794,7 +1794,7 @@ class JovenController extends Controller
             'justificacion' => $datos->justificacion,
             'tipoPresupuestos' => $tipoPresupuestos,
             'presupuestos' => $presupuestos,
-            'carrerainv' => $datos->carrerainv_nombre,
+            'carrerainv' => $datos->carrerainvs_nombre,
             'organismo' => $datos->organismo_nombre,
             'ingreso_carrera' => $datos->ingreso_carrera,
             'unidadcarrera' => $datos->unidadcarrerainv,
