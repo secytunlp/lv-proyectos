@@ -65,23 +65,45 @@ class SyncDocentes extends Command
             ->chunk(1000, function ($rows) {
 
                 $data = collect($rows)->map(function ($row) {
+
+                    // 🧹 LIMPIEZA DE FECHA
+                    $nacimiento = $row->nacimiento;
+
+                    if (
+                        empty($nacimiento) ||
+                        $nacimiento === '0000-00-00' ||
+                        $nacimiento === '0000-00-00 00:00:00'
+                    ) {
+                        $nacimiento = null;
+                    }
+
+                    // 🧹 LIMPIEZA DE EMAIL (opcional pero recomendable)
+                    $email = filter_var($row->email, FILTER_VALIDATE_EMAIL) ? $row->email : null;
+
+                    // 🧹 LIMPIEZA DE TELÉFONO (básica)
+                    $telefono = $row->telefono ? trim($row->telefono) : null;
+
                     return [
                         'id' => $row->id,
-                        'nombre' => $row->nombre,
-                        'apellido' => $row->apellido,
+                        'nombre' => trim($row->nombre),
+                        'apellido' => trim($row->apellido),
                         'documento' => $row->documento,
-                        'cuil' => $row->nu_precuil . '-' . str_pad($row->documento, 8, '0', STR_PAD_LEFT) . '-' . $row->nu_postcuil,
-                        'genero' => $row->genero,
-                        'calle' => $row->calle,
-                        'nro' => $row->nro,
-                        'piso' => $row->piso,
-                        'depto' => $row->depto,
-                        'localidad' => $row->localidad,
-                        'provincia_id' => $row->provincia_id,
-                        'cp' => $row->cp,
-                        'telefono' => $row->telefono,
-                        'email' => $row->email,
-                        'nacimiento' => $row->nacimiento,
+
+                        'cuil' => $row->nu_precuil
+                            ? $row->nu_precuil . '-' . str_pad($row->documento, 8, '0', STR_PAD_LEFT) . '-' . $row->nu_postcuil
+                            : null,
+
+                        'genero' => $row->genero ?: null,
+                        'calle' => $row->calle ?: null,
+                        'nro' => $row->nro ?: null,
+                        'piso' => $row->piso ?: null,
+                        'depto' => $row->depto ?: null,
+                        'localidad' => $row->localidad ?: null,
+                        'provincia_id' => $row->provincia_id ?: null,
+                        'cp' => $row->cp ?: null,
+                        'telefono' => $telefono,
+                        'email' => $email,
+                        'nacimiento' => $nacimiento,
                     ];
                 })->toArray();
 
