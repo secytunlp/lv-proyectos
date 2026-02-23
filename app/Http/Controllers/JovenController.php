@@ -1796,7 +1796,7 @@ class JovenController extends Controller
             'presupuestos' => $presupuestos,
             'carrerainv' => $datos->carrerainvs_nombre,
             'organismo' => $datos->organismo_nombre,
-            'ingreso_carrera' => $datos->ingreso_carrera,
+            'ingreso_carrera' => $datos->ingreso_carrerainv,
             'unidadcarrera' => $datos->unidadcarrerainv,
         ];
         //dd($data);
@@ -1940,8 +1940,8 @@ class JovenController extends Controller
         }
         $esCarrera=0;
         if (
-            (empty($solicitud->carrerainv_id) && empty($solicitud->organismo_id) && empty($solicitud->ingreso_carrera) && empty($solicitud->unidadcarrera_id)) ||
-            (!empty($solicitud->carrerainv_id) && !empty($solicitud->organismo_id) && !empty($solicitud->ingreso_carrera) && !empty($solicitud->unidadcarrera_id) )
+            (empty($solicitud->carrerainv_id) && empty($solicitud->organismo_id) && empty($solicitud->ingreso_carrerainv) && empty($solicitud->unidadcarrera_id)) ||
+            (!empty($solicitud->carrerainv_id) && !empty($solicitud->organismo_id) && !empty($solicitud->ingreso_carrerainv) && !empty($solicitud->unidadcarrera_id) )
         ) {
 
         }else{
@@ -1951,8 +1951,8 @@ class JovenController extends Controller
         if (!empty($solicitud->carrerainv_id)){
             $esCarrera=1;
         }
-        if (!empty($solicitud->ingreso_carrera) ) {
-            $ingreso = $solicitud->ingreso_carrera;
+        if (!empty($solicitud->ingreso_carrerainv) ) {
+            $ingreso = $solicitud->ingreso_carrerainv;
             $rango = intval(Constants::YEAR_JOVENES)-intval(Constants::YEAR_INGRESO_ATRAS_JOVENES);
             $fechaDesde = Carbon::parse($ingreso);
             $fechaHasta = Carbon::parse(Constants::RANGO_INGRESO_JOVENES.$rango);

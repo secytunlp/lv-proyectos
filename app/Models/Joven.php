@@ -9,7 +9,7 @@ class Joven extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['investigador_id', 'periodo_id', 'estado','email','notificacion','fecha','nacimiento','telefono','calle','nro','piso','depto','cp', 'titulo_id','egresogrado', 'titulopost_id','egresoposgrado','doctorado','unidad_id','cargo_id','deddoc','ingreso_cargo', 'facultad_id', 'facultadplanilla_id','director', 'carrerainv_id', 'organismo_id','ingreso_carrera','unidadcarrera_id','unidadbeca_id','puntaje','diferencia','observaciones','objetivo','curriculum','justificacion','disciplina'];
+    protected $fillable = ['investigador_id', 'periodo_id', 'estado','email','notificacion','fecha','nacimiento','telefono','calle','nro','piso','depto','cp', 'titulo_id','egresogrado', 'titulopost_id','egresoposgrado','doctorado','unidad_id','cargo_id','deddoc','ingreso_cargo', 'facultad_id', 'facultadplanilla_id','director', 'carrerainv_id', 'organismo_id','ingreso_carrerainv','unidadcarrera_id','unidadbeca_id','puntaje','diferencia','observaciones','objetivo','curriculum','justificacion','disciplina'];
 
 
     public function investigador() {
