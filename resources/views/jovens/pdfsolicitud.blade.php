@@ -243,6 +243,15 @@
     </div>
 
 </div>
+@if(intval($year)>2025)
+    <div class="content">
+        <div>RESUMEN DE LA BECA</div>
+    </div>
+
+    <div class="content">
+        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $resumen_beca ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $resumen_beca)) !!}</span>
+    </div>
+@endif
 @endif
 @if(!empty($becas))
     <div class="content">
