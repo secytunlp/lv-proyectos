@@ -5,10 +5,10 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
-class SyncCategorias extends Command
+class SyncSicadis extends Command
 {
-    protected $signature = 'sync:categorias';
-    protected $description = 'Sincroniza categorias desde DB origen a personas';
+    protected $signature = 'sync:sicadis';
+    protected $description = 'Sincroniza sicadis desde DB origen a personas';
 
     public function handle()
     {
@@ -21,13 +21,13 @@ class SyncCategorias extends Command
             ->table('docente')
             ->select([
                 'cd_docente as investigador_id',
-                'cd_categoria as categoria_id',
+                'cd_sicadi as sicadi_id',
                 'cd_univcat as universidad_id'
             ])
 
-            ->whereNotNull('cd_categoria')
+            ->whereNotNull('cd_sicadi')
 
-            ->whereIn('cd_categoria', [6,7,8,9,10])
+            ->whereIn('cd_sicadi', [6,7,8,9,10])
 
             ->get();
 
@@ -38,15 +38,15 @@ class SyncCategorias extends Command
         $data = $rows->map(function ($row) {
 
             // evitar basura
-            if (!$row->investigador_id || !$row->categoria_id) {
+            if (!$row->investigador_id || !$row->sicadi_id) {
                 return null;
             }
 
             return [
                 'investigador_id' => (int) $row->investigador_id,
-                'categoria_id' => (int) $row->categoria_id,
+                'sicadi_id' => (int) $row->sicadi_id,
                 'universidad_id' => (int) $row->universidad_id,
-                'year' => null,
+                'year' => 2023,
                 'actual' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -60,10 +60,10 @@ class SyncCategorias extends Command
         DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=0');
 
         DB::connection('mysql')
-            ->table('investigador_categorias')
+            ->table('investigador_sicadis')
             ->upsert(
                 $data,
-                ['investigador_id', 'categoria_id'],
+                ['investigador_id', 'sicadi_id', 'year'],
                 ['updated_at']
             );
 
