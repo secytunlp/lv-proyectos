@@ -81,7 +81,7 @@ class SyncUnidads extends Command
                 })->toArray();
 
                 DB::connection('mysql')
-                    ->table('personas')
+                    ->table('unidads')
                     ->upsert(
                         $data,
                         ['id'],
