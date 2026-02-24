@@ -368,7 +368,19 @@ class SyncInvestigadors extends Command
 
                     // Validación de institución
                     $institucionValidas = ['ANPCyT','CIC','CONICET','UNLP','OTRA','CIN'];
-                    $institucionFinal = in_array($row->institucion, $institucionValidas) ? $row->institucion : null;
+
+// normalizar una sola vez
+                    $institucionValidasNorm = array_flip(array_map(function($i) {
+                        return mb_strtoupper(trim($i));
+                    }, $institucionValidas));
+
+// normalizar valor entrante
+                    $institucionRow = mb_strtoupper(trim((string)$row->institucion));
+
+// comparar
+                    $institucionFinal = isset($institucionValidasNorm[$institucionRow])
+                        ? trim($row->institucion)
+                        : null;
 
                     // Omitir si beca o institucion inválida
                     if (is_null($becaFinal) && !empty($row->beca)) {
