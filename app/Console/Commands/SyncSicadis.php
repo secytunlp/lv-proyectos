@@ -21,13 +21,13 @@ class SyncSicadis extends Command
             ->table('docente')
             ->select([
                 'cd_docente as investigador_id',
-                'cd_sicadi as sicadi_id',
+                'cd_categoriasicadi as sicadi_id',
                 'cd_univcat as universidad_id'
             ])
 
-            ->whereNotNull('cd_sicadi')
+            ->whereNotNull('cd_categoriasicadi')
 
-            ->whereIn('cd_sicadi', [6,7,8,9,10])
+            ->whereIn('cd_categoriasicadi', [6,7,8,9,10])
 
             ->get();
 
