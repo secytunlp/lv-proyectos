@@ -315,8 +315,6 @@ class SyncBecasUNLP extends Command
                     }
 
                     return [
-                        'id' => $row->id,
-
                         'investigador_id' => $row->investigador_id,
                         'institucion' => 'UNLP',
                         'beca' => $becaFinal,
