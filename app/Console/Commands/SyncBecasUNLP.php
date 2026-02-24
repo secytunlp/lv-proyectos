@@ -254,7 +254,7 @@ class SyncBecasUNLP extends Command
                        ds_tipobeca
                    END AS beca, dt_desde as desde, dt_hasta as hasta, ds_resumen as resumen
             ")
-            ->orderBy('d.cd_docente')
+            ->orderBy('cd_beca')
             ->chunk(1000, function ($rows) use (&$totalFilas, &$totalInsertadas, &$totalOmitidas, &$skippedRows) {
 
                 $totalFilas += count($rows);
