@@ -76,7 +76,7 @@ class SyncUnidads extends Command
                         'direccion' => $row->direccion ?: null,
                         'email' => $row->email ?: null,
                         'facultad_id' => $row->facultad_id ?: null,
-                        'activa' => $row->activa ?: 0
+                        'activa' => is_numeric($row->activa) ? (int)$row->activa : 0
                     ];
                 })->toArray();
                 DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=0');
