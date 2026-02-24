@@ -79,7 +79,7 @@ class SyncUnidads extends Command
                         'activa' => $row->activa ?: 0
                     ];
                 })->toArray();
-
+                DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=0');
                 DB::connection('mysql')
                     ->table('unidads')
                     ->upsert(
@@ -90,6 +90,7 @@ class SyncUnidads extends Command
                             'sigla','direccion','email','facultad_id','activa'
                         ]
                     );
+                DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=1');
                 $totalInsertadas += count($data);
             });
 
