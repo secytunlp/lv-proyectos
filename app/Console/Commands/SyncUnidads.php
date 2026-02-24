@@ -86,7 +86,7 @@ class SyncUnidads extends Command
                         $data,
                         ['id'],
                         [
-                            'nombre','padre_id','hijos','cuil','codigo',
+                            'nombre','padre_id','hijos','tipo','codigo',
                             'sigla','direccion','email','facultad_id','activa'
                         ]
                     );
