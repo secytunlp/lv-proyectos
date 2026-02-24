@@ -355,7 +355,16 @@ class SyncInvestigadors extends Command
                     $becaValidas = [
                         'Beca inicial','Beca superior','Beca de entrenamiento','Beca doctoral','Beca posdoctoral','Beca finalización del doctorado','Beca maestría','Formación Superior','Iniciación','TIPO I','TIPO II','TIPO A','Tipo A - Maestría','Tipo A - Doctorado','Beca Cofinanciada (UNLP-CIC)','Especial de Maestría','TIPO B','TIPO B (DOCTORADO)','TIPO B (MAESTRÍA)','BECA DE PERFECCIONAMIENTO','CONICET 2','RETENCION DE POSTGRADUADO','EVC'
                     ];
-                    $becaFinal = in_array($row->beca, $becaValidas) ? $row->beca : null;
+                    // normalizar array válido (una sola vez idealmente, fuera del map)
+                    $becaValidasNorm = array_map(function($b) {
+                        return mb_strtoupper(trim($b));
+                    }, $becaValidas);
+
+// normalizar valor entrante
+                    $becaRow = mb_strtoupper(trim((string)$row->beca));
+
+// comparar
+                    $becaFinal = in_array($becaRow, $becaValidasNorm) ? trim($row->beca) : null;
 
                     // Validación de institución
                     $institucionValidas = ['ANPCyT','CIC','CONICET','UNLP','OTRA','CIN'];
