@@ -21,8 +21,7 @@ class SyncSicadis extends Command
             ->table('docente')
             ->select([
                 'cd_docente as investigador_id',
-                'cd_categoriasicadi as sicadi_id',
-                'cd_univcat as universidad_id'
+                'cd_categoriasicadi as sicadi_id'
             ])
 
             ->whereNotNull('cd_categoriasicadi')
@@ -45,7 +44,6 @@ class SyncSicadis extends Command
             return [
                 'investigador_id' => (int) $row->investigador_id,
                 'sicadi_id' => (int) $row->sicadi_id,
-                'universidad_id' => (int) $row->universidad_id,
                 'year' => 2023,
                 'actual' => 1,
                 'created_at' => now(),
