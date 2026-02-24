@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class SyncCategorias extends Command
 {
-    protected $signature = 'sync:carreras';
+    protected $signature = 'sync:categorias';
     protected $description = 'Sincroniza categorias desde DB origen a personas';
 
     public function handle()
