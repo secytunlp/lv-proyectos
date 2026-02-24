@@ -56,7 +56,7 @@ class SyncTitulosPost extends Command
             ->upsert(
                 $data,
                 ['investigador_id', 'titulo_id'],
-                []
+                ['updated_at']
             );
 
         DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=1');
