@@ -58,7 +58,7 @@ class SyncUnidads extends Command
                 'cd_facultad as facultad_id',
                 'bl_activa as activa'
             ])
-
+            ->orderBy('cd_unidad')
             ->chunk(1000, function ($rows) use (&$totalFilas, &$totalInsertadas, &$totalOmitidas, &$skippedRows){
                 $totalFilas += count($rows);
                 $data = collect($rows)->map(function ($row) {
