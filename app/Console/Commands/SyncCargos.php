@@ -62,7 +62,9 @@ class SyncCargos extends Command
                         'investigador_id' => (int) $row->investigador_id,
                         'cargo_id' => (int) $row->cargo_id,
                         'deddoc' => $deddoc,
-                        'ingreso' => $row->ingreso ?: null,
+                        'ingreso' => ($row->ingreso && $row->ingreso !== '0000-00-00')
+                            ? $row->ingreso
+                            : null,
                         'facultad_id' => $row->facultad_id ?: null,
                         'activo' => 1,
                         'universidad_id' => 11,
