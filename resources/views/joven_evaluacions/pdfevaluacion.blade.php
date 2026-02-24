@@ -244,7 +244,7 @@
 
             $puntajeAntAcad = $evaluacion->puntaje_ant_acads->where('joven_evaluacion_planilla_ant_acad_max_id', $antAcadMaximo->id)->first();
 
-            $puntaje=($puntajeAntAcad)?(int) $puntajeAntAcad->puntaje:'';
+            $puntaje=($puntajeAntAcad)?(float) $puntajeAntAcad->puntaje:'';
 
 
         @endphp

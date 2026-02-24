@@ -44,7 +44,7 @@ class SyncSicadis extends Command
             return [
                 'investigador_id' => (int) $row->investigador_id,
                 'sicadi_id' => (int) $row->sicadi_id,
-                'year' => 2023,
+                'year' => 2024,
                 'actual' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
