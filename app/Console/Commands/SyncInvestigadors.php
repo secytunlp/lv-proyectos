@@ -312,7 +312,7 @@ class SyncInvestigadors extends Command
                    WHEN 'Beca incial' THEN 'Beca inicial'
                    WHEN 'Beca de nivel inicial' THEN 'Beca inicial'
                    WHEN 'Becas internas postdoctorales' THEN 'Beca posdoctoral'
-                   WHEN 'Beca Inicial FONCyTL' THEN 'Beca inicial'
+                   WHEN 'Beca Inicial FONCyT' THEN 'Beca inicial'
                    WHEN 'BECA TIPO 1 DOCTORADO' THEN 'TIPO I'
                    WHEN 'Concursos de becas internas doctorales y destinadas a postulantes provenientes de paises latinoamericanos' THEN 'TIPO I'
                    WHEN 'BECA INTERNA DE POSTGRADO TIPO I (3 AÑOS)' THEN 'TIPO I'
