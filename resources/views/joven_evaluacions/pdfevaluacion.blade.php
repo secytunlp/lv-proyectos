@@ -896,7 +896,9 @@
     <div style="background-color: #000;color:#FFF">Observaciones</div>
 </div>
 <div class="content">
-    <span style="display: inline-block; border: 1px solid #ccc;width: 695px; padding-top: {{ $evaluacion->observaciones ? '0' : '15px' }};">{{ $evaluacion->observaciones }}</span>
+    <span style="display: inline-block; border: 1px solid #ccc;width: 695px; padding-top: {{ $evaluacion->observaciones ? '0' : '15px' }};white-space: pre-wrap;word-break: break-word;
+                 overflow-wrap: break-word;">
+        {!! nl2br(e($evaluacion->observaciones)) !!}</span>
 </div>
 
 <div class="signature-aclaracion">
