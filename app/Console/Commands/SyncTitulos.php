@@ -49,15 +49,6 @@ class SyncTitulos extends Command
             ->values()
             ->toArray();
 
-        $duplicates = collect($data)
-            ->groupBy(function ($i) {
-                return $i['investigador_id'] . '-' . $i['titulo_id'];
-            })
-            ->filter(function ($g) {
-                return $g->count() > 1;
-            });
-
-        dd($duplicates);
 
         DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=0');
 
@@ -66,7 +57,7 @@ class SyncTitulos extends Command
             ->upsert(
                 $data,
                 ['investigador_id', 'titulo_id'],
-                []
+                ['updated_at']
             );
 
         DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=1');
