@@ -353,10 +353,7 @@ class SyncInvestigadors extends Command
 
                     // Validación de beca
                     $becaValidas = [
-                        'TIPO I','TIPO II','TIPO A','TIPO B','Beca doctoral','Beca posdoctoral','Beca inicial',
-                        'Beca superior','EVC','Formación Superior','RETENCION DE POSTGRADUADO','Beca finalización del doctorado',
-                        'Beca de entrenamiento','Beca maestría','Iniciación','TIPO B (MAESTRÍA)','TIPO A - Maestría',
-                        'TIPO B (DOCTORADO)','TIPO I-DOCTORAL','TIPO I PAISES LATINOAMERICANOS'
+                        'Beca inicial','Beca superior','Beca de entrenamiento','Beca doctoral','Beca posdoctoral','Beca finalización del doctorado','Beca maestría','Formación Superior','Iniciación','TIPO I','TIPO II','TIPO A','Tipo A - Maestría','Tipo A - Doctorado','Beca Cofinanciada (UNLP-CIC)','Especial de Maestría','TIPO B','TIPO B (DOCTORADO)','TIPO B (MAESTRÍA)','BECA DE PERFECCIONAMIENTO','CONICET 2','RETENCION DE POSTGRADUADO','EVC'
                     ];
                     $becaFinal = in_array($row->beca, $becaValidas) ? $row->beca : null;
 
