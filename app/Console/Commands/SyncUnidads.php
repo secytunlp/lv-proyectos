@@ -72,7 +72,7 @@ class SyncUnidads extends Command
                         'padre_id' => trim($row->padre_id),
                         'hijos' => $row->hijos,
                         'codigo' => $row->codigo ?: null,
-                        'sigla' => $row->sigla ?: null,
+                        'sigla' => $row->sigla ? substr(trim($row->sigla), 0, 15) : null,
                         'direccion' => $row->direccion ?: null,
                         'email' => $row->email ?: null,
                         'facultad_id' => $row->facultad_id ?: null,
