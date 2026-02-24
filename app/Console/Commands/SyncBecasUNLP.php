@@ -283,7 +283,7 @@ class SyncBecasUNLP extends Command
                     // Omitir si beca o institucion inválida
                     if (is_null($becaFinal) && !empty($row->beca)) {
                         $skippedRows[] = [
-                            'id' => $row->id,
+
                             'investigador_id' => $row->investigador_id,
 
                             'motivo' => 'Beca inválida',
