@@ -350,7 +350,7 @@ class SyncBecasUNLP extends Command
             $this->info("Detalle de filas omitidas:");
             foreach ($skippedRows as $skip) {
                 $this->line(
-                    "ID {$skip['id']} - Persona: {$skip['persona_id']} - Ident: {$skip['ident']} - Motivo: {$skip['motivo']} - Institución: {$skip['institucion']} - Beca: {$skip['beca']}"
+                    "Investigador: {$skip['investigador_id']} - Motivo: {$skip['motivo']} - Beca: {$skip['beca']}"
                 );
             }
         }
