@@ -76,7 +76,7 @@ class SyncUnidads extends Command
                         'direccion' => $row->direccion ?: null,
                         'email' => $row->email ?: null,
                         'facultad_id' => $row->facultad_id ?: null,
-                        'activa' => $row->activa ?: null
+                        'activa' => $row->activa ?: 0
                     ];
                 })->toArray();
 
