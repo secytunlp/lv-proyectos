@@ -383,7 +383,7 @@ END as estado, integrante.ds_curriculum as curriculum, integrante.ds_actividades
                    WHEN 'DOCTORAL TIPOI' THEN 'TIPO I'
                    WHEN 'DOCTORAL, TIPO 1' THEN 'TIPO I'
                    WHEN 'BECA INTERNA TIPO A' THEN 'TIPO A'
-                   WHEN 'INVESTIGACION TIPO \"A\" THEN 'TIPO A'
+                   WHEN 'INVESTIGACION TIPO "A" THEN 'TIPO A'
                    WHEN 'BECA LATINOAMERICANA DOCTORAL TIPO I' THEN 'TIPO I'
                    WHEN 'ESTIMULO DE VOCACIONES CIENÍTICAS' THEN 'EVC'
                    WHEN 'BECAS DE ENTRENAMIENTO FAU' THEN 'Beca de entrenamiento'
