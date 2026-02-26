@@ -168,8 +168,8 @@ END as estado, integrante.ds_curriculum as curriculum, integrante.ds_actividades
                    WHEN 'INSTITUTO DE ASTROFÍSICA CANARIAS' THEN 'OTRA'
                    ELSE
                        CASE
-                           WHEN bl_becaEstimulo = 1 THEN 'CIN'
-                           ELSE ds_orgbeca
+                           WHEN integrante.bl_becaEstimulo = 1 THEN 'CIN'
+                           ELSE integrante.ds_orgbeca
                            END
                    END AS institucion,
        CASE integrante.ds_tipobeca
@@ -395,8 +395,8 @@ END as estado, integrante.ds_curriculum as curriculum, integrante.ds_actividades
                    WHEN 'Cofinanciadas CIC-UNLP' THEN 'Beca Cofinanciada (UNLP-CIC)'
                    ELSE
                    CASE
-                       WHEN bl_becaEstimulo = 1 THEN 'EVC'
-                       ELSE ds_tipobeca
+                       WHEN integrante.bl_becaEstimulo = 1 THEN 'EVC'
+                       ELSE integrante.ds_tipobeca
                        END
                    END AS beca,
     CASE
