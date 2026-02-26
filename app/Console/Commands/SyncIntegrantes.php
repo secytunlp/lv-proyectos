@@ -674,7 +674,7 @@ END as estado, integrante.ds_curriculum as curriculum, integrante.ds_actividades
                     DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=0');
 
                 DB::connection('mysql')
-                    ->table('proyectos')
+                    ->table('integrantes')
                     ->upsert(
                         $data,
                         ['id'],
