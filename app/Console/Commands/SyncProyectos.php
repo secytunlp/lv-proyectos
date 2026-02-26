@@ -73,21 +73,20 @@ class SyncProyectos extends Command
 
                     $estadoRow = trim((string)$row->estado);
 
-                    $estadoFinal = in_array($estadoRow, $estadosValidos)
-                        ? trim($row->estado)
-                        : null;
-
-                    if (is_null($estadoFinal)) {
+                    if (!empty($estadoRow) && !in_array($estadoRow, $estadosValidos)) {
+                        // Solo omitimos si tiene valor y no está en la lista
                         $skippedRows[] = [
                             'id' => $row->id,
-                            'motivo' => 'Estado inválido',
+                            'motivo' => 'Estado inválida',
                             'estado' => $row->estado,
                             'tipo' => $row->tipo,
                             'investigacion' => $row->investigacion
                         ];
                         $totalOmitidas++;
-                        return null;
+                        return null; // omite la fila
                     }
+
+                    $estadoFinal = empty($estadoRow) ? null : $estadoRow;
 
                     // 🧹 LIMPIEZA DE FECHA
                     $inicio = $row->inicio;
@@ -116,21 +115,20 @@ class SyncProyectos extends Command
 
                     $tipoRow = trim((string)$row->tipo);
 
-                    $tipoFinal = in_array($tipoRow, $tiposValidos)
-                        ? trim($row->tipo)
-                        : null;
-
-                    if (is_null($tipoFinal)) {
+                    if (!empty($tipoRow) && !in_array($tipoRow, $tiposValidos)) {
+                        // Solo omitimos si tiene valor y no está en la lista
                         $skippedRows[] = [
                             'id' => $row->id,
-                            'motivo' => 'Tipo inválido',
+                            'motivo' => 'Tipo inválida',
                             'estado' => $row->estado,
                             'tipo' => $row->tipo,
                             'investigacion' => $row->investigacion
                         ];
                         $totalOmitidas++;
-                        return null;
+                        return null; // omite la fila
                     }
+
+                    $tipoFinal = empty($tipoRow) ? null : $tipoRow;
 
                     $valoresValidos = ['Aplicada','Básica','Desarrollo','Creación'];
                     $investigacionRow = trim((string)$row->investigacion);
