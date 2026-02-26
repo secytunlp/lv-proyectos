@@ -399,6 +399,7 @@ class SyncBecasOtras extends Command
                             'beca' => $row->beca,
                         ];
                         $totalOmitidas++;
+                        return null;
                     }
 
                     if (is_null($institucionFinal) && !empty($row->institucion)) {
@@ -410,6 +411,7 @@ class SyncBecasOtras extends Command
                             'beca' => $row->beca,
                         ];
                         $totalOmitidas++;
+                        return null;
                     }
 
                     // 🧹 LIMPIEZA DE FECHA
