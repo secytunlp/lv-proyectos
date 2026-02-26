@@ -440,6 +440,8 @@ class SyncBecasOtras extends Command
                         'unlp' => 0,
                         'desde' => $desde,
                         'hasta' => $hasta,
+                        'created_at' => now(),
+                        'updated_at' => now(),
 
                     ];
                 })->filter()->toArray();
@@ -450,10 +452,8 @@ class SyncBecasOtras extends Command
                         ->table('investigador_becas')
                         ->upsert(
                             $data,
-                            ['investigador_id','institucion','beca','desde','hasta'], // clave única
-                            [
-                                'unlp','updated_at'
-                            ]
+                            ['investigador_id','institucion','beca'], // clave única
+                            ['desde','hasta','unlp','updated_at']
                         );
                     DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=1');
                     $totalInsertadas += count($data);

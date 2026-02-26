@@ -322,6 +322,8 @@ class SyncBecasUNLP extends Command
                         'desde' => $desde,
                         'hasta' => $hasta,
                         'resumen' => $row->resumen ?: null,
+                        'created_at' => now(),
+                        'updated_at' => now(),
                     ];
                 })->filter()->toArray();
 

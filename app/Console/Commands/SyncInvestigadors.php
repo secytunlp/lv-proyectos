@@ -438,6 +438,8 @@ class SyncInvestigadors extends Command
                         'materias' => $row->materias ?: null,
                         'total' => $row->total ?: null,
                         'carrera' => $row->carrera ?: null,
+                        'created_at' => now(),
+                        'updated_at' => now(),
                     ];
                 })->filter()->toArray();
 

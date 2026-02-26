@@ -151,6 +151,8 @@ class SyncDocentes extends Command
                         'telefono' => $telefono,
                         'email' => $email,
                         'nacimiento' => $nacimiento,
+                        'created_at' => now(),
+                        'updated_at' => now(),
                     ];
                 })->toArray();
 
