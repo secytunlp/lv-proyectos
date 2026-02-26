@@ -580,7 +580,7 @@ class ViajeController extends Controller
         if ($subsidioObtenido) {
             // El investigador obtuvo subsidio en el periodo anterior
 
-            return redirect()->route('viajes.index')->withErrors(['message' => 'No podrá completar su solicitud por haber obtenido el subsidio en la convocatoria anterior según lo establecido en el punto 18 del Anexo I de las pautas del llamo  (Resolución N° 11/19) donde se establece que: “No se podrán presentar aquellos postulantes que hayan sido beneficiados con el subsidio en la convocatoria anterior (los que han renunciado se consideran como subsidios otorgados).No puede completar la Solicitud por haber obtenido el subsidio en el período anterior']);
+            return redirect()->route('viajes.index')->withErrors(['message' => 'No podrá completar su solicitud por haber obtenido el subsidio en la convocatoria anterior según lo establecido en las pautas del llamado donde se establece que: “No se podrán presentar aquellos postulantes que hayan sido beneficiados con el subsidio en la convocatoria anterior (los que han renunciado se consideran como subsidios otorgados). No puede completar la Solicitud por haber obtenido el subsidio en el período anterior']);
         }
 
 
