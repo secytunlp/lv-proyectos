@@ -146,7 +146,7 @@ class SyncProyectos extends Command
                         $skippedRows[] = [
                             'id' => $row->id,
                             'motivo' => 'Investigacion inválido',
-                            'investigacion' => $row->investigacion,
+                            'estado' => $row->estado,
                             'tipo' => $row->tipo,
                             'investigacion' => $row->investigacion
                         ];
