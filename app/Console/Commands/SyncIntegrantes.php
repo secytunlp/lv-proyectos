@@ -424,7 +424,7 @@ END as estado, integrante.ds_curriculum as curriculum, integrante.ds_actividades
            WHEN '9999' THEN null
            ELSE integrante.cd_titulopost END as titulopost_id,
        integrante.nu_materias as materias, integrante.nu_totalMat as total, integrante.ds_carrera as carrera")
-            ->orderBy('cd_proyecto')
+            ->orderBy('oid')
             ->chunk(1000, function ($rows) use (&$totalFilas, &$totalInsertadas, &$totalOmitidas, &$skippedRows){
                 $totalFilas += count($rows);
                 $data = collect($rows)->map(function ($row) use (&$skippedRows, &$totalOmitidas) {
