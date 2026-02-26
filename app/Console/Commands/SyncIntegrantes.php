@@ -663,7 +663,7 @@ END as estado, integrante.ds_curriculum as curriculum, integrante.ds_actividades
                         'titulo_id' => $row->titulo_id ?: null,
                         'titulopost_id' => $row->titulopost_id ?: null,
                         'materias' => trim($row->materias),
-                        'total' => trim($row->total),
+                        'total' => is_numeric($row->total) ? (int)$row->total : null,
                         'carrera' => trim($row->carrera),
                         'created_at' => now(),
                         'updated_at' => now(),
