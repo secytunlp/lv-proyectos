@@ -429,6 +429,22 @@ END as estado, integrante.ds_curriculum as curriculum, integrante.ds_actividades
                 $totalFilas += count($rows);
                 $data = collect($rows)->map(function ($row) use (&$skippedRows, &$totalOmitidas) {
 
+                    // Validación de proyecto
+                    if (empty($row->proyecto_id)) {
+                        $skippedRows[] = [
+                            'id' => $row->id,
+                            'motivo' => 'Sin proyecto_id',
+                            'estado' => $row->estado,
+                            'tipo' => $row->tipo,
+                            'deddoc' => $row->deddoc,
+                            'institucion' => $row->institucion,
+                            'beca' => $row->beca,
+                        ];
+                        $totalOmitidas++;
+                        return null; // omite la fila
+                    }
+
+
                     $estadosValidos = [
                         'Alta Creada','Alta Recibida','','Baja Creada','Baja Recibida','Cambio Creado','Cambio Recibido','Cambio Hs. Creado','Cambio Hs. Recibido','Cambio Tipo Creado','Cambio Tipo Recibido'
                     ];
