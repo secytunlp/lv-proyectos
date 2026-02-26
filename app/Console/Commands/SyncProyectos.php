@@ -71,7 +71,7 @@ class SyncProyectos extends Command
                         'Creado','Recibido','Admitido','No Admitido','Acreditado','En evaluación','No acreditado','Evaluado','Retirado'
                     ];
 
-                    $estadoRow = mb_strtoupper(trim((string)$row->estado));
+                    $estadoRow = trim((string)$row->estado);
 
                     $estadoFinal = in_array($estadoRow, $estadosValidos)
                         ? trim($row->estado)
