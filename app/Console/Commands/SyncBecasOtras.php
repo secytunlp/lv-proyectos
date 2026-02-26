@@ -329,24 +329,22 @@ class SyncBecasOtras extends Command
                                ELSE NULL
                     END AS hasta
             ")
-            ->whereNot(function($q) {
-                $q->where(function($q2) {
-                    $q2->where('bl_becario', 1)
-                        ->orWhere('bl_becaEstimulo', 1);
-                })
-                    ->whereNotNull('ds_tipobeca')
-                    ->where('ds_tipobeca', '!=', '')
-                    ->where('ds_tipobeca', '!=', 'No declarado')
-                    ->where(function($q3) {
-                        $q3->whereNotNull('ds_orgbeca')
-                            ->orWhere(function($q4) {
-                                $q4->where('ds_orgbeca', 'NOT LIKE', '%unlp%')
-                                    ->where('ds_orgbeca', 'NOT LIKE', '%U.N.L.P%')
-                                    ->where('ds_orgbeca', 'NOT LIKE', '%DE LA PLATA%')
-                                    ->where('ds_orgbeca', 'NOT LIKE', '%FACULTAD%')
-                                    ->where('ds_orgbeca', 'NOT LIKE', '%FCNYM%')
-                                    ->where('ds_orgbeca', 'NOT LIKE', '%FUNDACION CIENCIAS EXACTAS%');
-                            });
+            ->where(function($q) {
+                $q->where('bl_becario', 1)
+                    ->orWhere('bl_becaEstimulo', 1);
+            })
+            ->whereNotNull('ds_tipobeca')
+            ->where('ds_tipobeca', '!=', '')
+            ->where('ds_tipobeca', '!=', 'No declarado')
+            ->where(function($q) {
+                $q->whereNotNull('ds_orgbeca')
+                    ->orWhere(function($q2) {
+                        $q2->where('ds_orgbeca', 'NOT LIKE', '%unlp%')
+                            ->where('ds_orgbeca', 'NOT LIKE', '%U.N.L.P%')
+                            ->where('ds_orgbeca', 'NOT LIKE', '%DE LA PLATA%')
+                            ->where('ds_orgbeca', 'NOT LIKE', '%FACULTAD%')
+                            ->where('ds_orgbeca', 'NOT LIKE', '%FCNYM%')
+                            ->where('ds_orgbeca', 'NOT LIKE', '%FUNDACION CIENCIAS EXACTAS%');
                     });
             })
             ->orderBy('cd_docente')
