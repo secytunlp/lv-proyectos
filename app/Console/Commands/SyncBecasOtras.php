@@ -163,7 +163,7 @@ class SyncBecasOtras extends Command
                    WHEN 'BECA DOCTORAL PG T II 11' THEN 'TIPO II'
                    WHEN 'UNLP 1' THEN 'TIPO A'
                    WHEN 'Agencia 1' THEN 'Beca inicial'
-                   WHEN 'Agencia 1' THEN 'Beca Inicial FONCyT'
+                   WHEN 'Beca Inicial FONCyT' THEN 'Beca inicial'
                    WHEN 'RETENCIÓN DE GRADUADOS FORMADOS POR LA UNLP' THEN 'RETENCION DE POSTGRADUADO'
                    WHEN 'BECA POSTGRADO TIPO II CON PAISES LATINOAMERICANOSI' THEN 'TIPO II'
                    WHEN 'DOCTORAL I' THEN 'TIPO I'
