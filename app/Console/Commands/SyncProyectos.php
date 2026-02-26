@@ -144,7 +144,10 @@ class SyncProyectos extends Command
                         'created_at' => now(),
                         'updated_at' => now(),
                     ];
-                })->toArray();
+                })->filter()->toArray();
+
+                if (!empty($data)) {
+                    DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=0');
 
                 DB::connection('mysql')
                     ->table('proyectos')
@@ -159,7 +162,9 @@ class SyncProyectos extends Command
                             'key1','key2','key3','key4','key5','key6'
                         ]
                     );
-                $totalInsertadas += count($data);
+                    DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=1');
+                    $totalInsertadas += count($data);
+                }
             });
 
         $this->info('Sincronización finalizada ✔');
