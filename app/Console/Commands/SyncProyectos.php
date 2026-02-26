@@ -81,7 +81,9 @@ class SyncProyectos extends Command
                         $skippedRows[] = [
                             'id' => $row->id,
                             'motivo' => 'Estado inválido',
-                            'estado' => $row->estado
+                            'estado' => $row->estado,
+                            'tipo' => $row->tipo,
+                            'investigacion' => $row->investigacion
                         ];
                         $totalOmitidas++;
                         return null;
@@ -108,11 +110,53 @@ class SyncProyectos extends Command
                         $fin = null;
                     }
 
+                    $tiposValidos = [
+                        'I+D','PPID','PIIT-AP','PIO'
+                    ];
 
+                    $tipoRow = trim((string)$row->tipo);
+
+                    $tipoFinal = in_array($tipoRow, $tiposValidos)
+                        ? trim($row->tipo)
+                        : null;
+
+                    if (is_null($tipoFinal)) {
+                        $skippedRows[] = [
+                            'id' => $row->id,
+                            'motivo' => 'Tipo inválido',
+                            'estado' => $row->estado,
+                            'tipo' => $row->tipo,
+                            'investigacion' => $row->investigacion
+                        ];
+                        $totalOmitidas++;
+                        return null;
+                    }
+
+                    $investigacionsValidos = [
+                        'Creado','Recibido','Admitido','No Admitido','Acreditado','En evaluación','No acreditado','Evaluado','Retirado'
+                    ];
+
+                    $investigacionRow = trim((string)$row->investigacion);
+
+                    $investigacionFinal = in_array($investigacionRow, $investigacionsValidos)
+                        ? trim($row->investigacion)
+                        : null;
+
+                    if (is_null($investigacionFinal)) {
+                        $skippedRows[] = [
+                            'id' => $row->id,
+                            'motivo' => 'Investigacion inválido',
+                            'investigacion' => $row->investigacion,
+                            'tipo' => $row->tipo,
+                            'investigacion' => $row->investigacion
+                        ];
+                        $totalOmitidas++;
+                        return null;
+                    }
 
                     return [
                         'id' => $row->id,
-                        'tipo' => trim($row->tipo),
+                        'tipo' => $tipoFinal,
                         'estado' => $estadoFinal,
                         'codigo' => trim($row->codigo),
                         'sigeva' => trim($row->sigeva),
@@ -125,7 +169,7 @@ class SyncProyectos extends Command
                         'campo_id' => $row->campo_id ?: null,
                         'disciplina_id' => $row->disciplina_id ?: null,
                         'especialidad_id' => $row->especialidad_id ?: null,
-                        'investigacion' => $row->investigacion ?: null,
+                        'investigacion' => $investigacionFinal,
                         'linea' => trim($row->linea),
                         'resumen' => trim($row->resumen),
                         'clave1' => trim($row->clave1),
@@ -178,7 +222,7 @@ class SyncProyectos extends Command
 
             foreach ($skippedRows as $skip) {
                 $this->line(
-                    "ID {$skip['id']} - Motivo: {$skip['motivo']} - Estado: {$skip['estado']}"
+                    "ID {$skip['id']} - Motivo: {$skip['motivo']} - Estado: {$skip['estado']} - Tipo: {$skip['tipo']} - Investigacion: {$skip['investigacion']}"
                 );
             }
         }
