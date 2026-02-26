@@ -587,7 +587,6 @@ END as estado, integrante.ds_curriculum as curriculum, integrante.ds_actividades
                             'estado' => $row->estado,
                             'tipo' => $row->tipo,
                             'deddoc' => $row->deddoc,
-                            'investigacion' => $row->investigacion,
                             'institucion' => $row->institucion,
                             'beca' => $row->beca,
                         ];
@@ -601,7 +600,6 @@ END as estado, integrante.ds_curriculum as curriculum, integrante.ds_actividades
                             'estado' => $row->estado,
                             'tipo' => $row->tipo,
                             'deddoc' => $row->deddoc,
-                            'investigacion' => $row->investigacion,
                             'institucion' => $row->institucion,
                             'beca' => $row->beca,
                         ];
