@@ -65,7 +65,7 @@ class SyncProyectos extends Command
             ->orderBy('cd_proyecto')
             ->chunk(1000, function ($rows) use (&$totalFilas, &$totalInsertadas, &$totalOmitidas, &$skippedRows){
                 $totalFilas += count($rows);
-                $data = collect($rows)->map(function ($row) {
+                $data = collect($rows)->map(function ($row) use (&$skippedRows, &$totalOmitidas) {
 
                     $estadosValidos = [
                         'Creado','Recibido','Admitido','No Admitido','Acreditado','En evaluación','No acreditado','Evaluado','Retirado'
