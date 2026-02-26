@@ -132,27 +132,23 @@ class SyncProyectos extends Command
                         return null;
                     }
 
-                    $investigacionsValidos = [
-                        'Aplicada','Básica','Desarrollo','Creación'
-                    ];
-
+                    $valoresValidos = ['Aplicada','Básica','Desarrollo','Creación'];
                     $investigacionRow = trim((string)$row->investigacion);
 
-                    $investigacionFinal = in_array($investigacionRow, $investigacionsValidos)
-                        ? trim($row->investigacion)
-                        : null;
-
-                    if (is_null($investigacionFinal)) {
+                    if (!empty($investigacionRow) && !in_array($investigacionRow, $valoresValidos)) {
+                        // Solo omitimos si tiene valor y no está en la lista
                         $skippedRows[] = [
                             'id' => $row->id,
-                            'motivo' => 'Investigacion inválido',
+                            'motivo' => 'Investigacion inválida',
                             'estado' => $row->estado,
                             'tipo' => $row->tipo,
                             'investigacion' => $row->investigacion
                         ];
                         $totalOmitidas++;
-                        return null;
+                        return null; // omite la fila
                     }
+
+                    $investigacionFinal = empty($investigacionRow) ? null : $investigacionRow;
 
                     return [
                         'id' => $row->id,
