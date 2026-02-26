@@ -685,25 +685,43 @@ END as estado, integrante.ds_curriculum as curriculum, integrante.ds_actividades
                         'updated_at' => now(),
                     ];
                 })->filter()->toArray();
+                try {
+                    if (!empty($data)) {
+                        DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=0');
 
-                if (!empty($data)) {
-                    DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=0');
-
-                DB::connection('mysql')
-                    ->table('integrantes')
-                    ->upsert(
-                        $data,
-                        ['id'],
-                        [
-                            'investigador_id','proyecto_id','tipo','alta','baja','cambio','horas','horas_anteriores','estado',
-                            'curriculum','actividades','consecuencias','motivos','cyt','reduccion','email',
-                            'categoria_id','sicadi_id','deddoc','cargo_id','alta_cargo','facultad_id','unidad_id','carrerainv_id','organismo_id',
-                            'ingreso_carrerainv','universidad_id','institucion','beca','alta_beca','baja_beca','resolucion','titulo_id','titulopost_id',
-                            'materias','total','carrera'
-                        ]
-                    );
-                    DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=1');
-                    $totalInsertadas += count($data);
+                    DB::connection('mysql')
+                        ->table('integrantes')
+                        ->upsert(
+                            $data,
+                            ['id'],
+                            [
+                                'investigador_id','proyecto_id','tipo','alta','baja','cambio','horas','horas_anteriores','estado',
+                                'curriculum','actividades','consecuencias','motivos','cyt','reduccion','email',
+                                'categoria_id','sicadi_id','deddoc','cargo_id','alta_cargo','facultad_id','unidad_id','carrerainv_id','organismo_id',
+                                'ingreso_carrerainv','universidad_id','institucion','beca','alta_beca','baja_beca','resolucion','titulo_id','titulopost_id',
+                                'materias','total','carrera'
+                            ]
+                        );
+                        DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=1');
+                        $totalInsertadas += count($data);
+                    }
+                } catch (\Illuminate\Database\QueryException $e) {
+                    // Revisar si es error de duplicado
+                    if ($e->errorInfo[0] == '23000' && $e->errorInfo[1] == 1062) {
+                        $skippedRows[] = [
+                            'id' => null, // No siempre hay un id único si falla todo el batch
+                            'motivo' => 'Error duplicado: ' . $e->getMessage(),
+                            'estado' => null,
+                            'tipo' => null,
+                            'deddoc' => null,
+                            'institucion' => null,
+                            'beca' => null,
+                        ];
+                        $totalOmitidas += count($data); // Omitimos todo el batch que falló
+                    } else {
+                        // si es otro error, relanzarlo
+                        throw $e;
+                    }
                 }
             });
 
