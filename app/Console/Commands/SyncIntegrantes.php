@@ -152,11 +152,13 @@ END as estado, integrante.ds_curriculum as curriculum, integrante.ds_actividades
                    WHEN 'FONCYT' THEN 'OTRA'
                    WHEN 'COMISIÓN DE INVESTIGACIONES CIENTÍFICAS DE LA PROVINCIA DE BUENOS AIRES' THEN 'CIC'
                    WHEN 'COMISION DE INVESTIGACIONES CIENTIFICAS DE LA PROVINCIA DE BUENOS AIRES (CIC)' THEN 'CIC'
+                   WHEN 'CONSEJO DE INVESTIGACIONES CIENTÍFICAS DE LA PROV DE BS. AS.' THEN 'CIC'
                    WHEN 'ANCYPT' THEN 'ANPCyT'
                    WHEN 'FAU-UNLP' THEN 'UNLP'
                    WHEN 'CENTRO DE INVESTIGACIONES URBANAS Y TERRITORIALES (CIUT)' THEN 'OTRA'
                    WHEN 'FACULTAD DE ARQUITECTURA Y URBANISMO-UNLP' THEN 'UNLP'
                    WHEN ' UNLP FBA' THEN 'UNLP'
+                   WHEN 'FAU UNLP' THEN 'UNLP'
                    WHEN 'UNLP-CIN' THEN 'CIN'
                    WHEN 'CONSEJO INTERUNIVERSITARIO NACIONAL' THEN 'CIN'
                    WHEN 'COPNICET' THEN 'CONICET'
@@ -228,6 +230,7 @@ END as estado, integrante.ds_curriculum as curriculum, integrante.ds_actividades
                    WHEN 'TIPO II, CONICET' THEN 'TIPO II'
                    WHEN 'INTERNA DE POSGRADO TIPO 1' THEN 'TIPO I'
                    WHEN 'BECA DE POSTGRADO TIPO 1' THEN 'TIPO I'
+                   WHEN 'BECA INTERNA DE POSTGRADO TIPO I (3 AÑOS) CON PAÍSES LATINOAMERICANOS' THEN 'TIPO I'
                    WHEN '2' THEN 'TIPO II'
                    WHEN 'DOCTORAL TIPO I' THEN 'TIPO I'
                    WHEN ' I' THEN 'TIPO I'
@@ -329,6 +332,7 @@ END as estado, integrante.ds_curriculum as curriculum, integrante.ds_actividades
                    WHEN 'finalización doctorado' THEN 'Beca finalización del doctorado'
                    WHEN 'FINALIZACIÓN DOCTORADO' THEN 'Beca finalización del doctorado'
                    WHEN 'Finalización doctorado' THEN 'Beca finalización del doctorado'
+                   WHEN ' Finalización de Doctorado' THEN 'Beca finalización del doctorado'
                    WHEN 'Beca finalizacion del doctorado' THEN 'Beca finalización del doctorado'
                    WHEN 'Finalizacion de doctorado (tipo II)' THEN 'Beca finalización del doctorado'
                    WHEN 'POSGRADO-DOCTORAL' THEN 'Beca doctoral'
@@ -490,11 +494,11 @@ END as estado, integrante.ds_curriculum as curriculum, integrante.ds_actividades
                         $skippedRows[] = [
                             'id' => $row->id,
                             'motivo' => 'Sin proyecto_id',
-                            'estado' => $row->estado,
-                            'tipo' => $row->tipo,
-                            'deddoc' => $row->deddoc,
-                            'institucion' => $row->institucion,
-                            'beca' => $row->beca,
+                            'estado' => null,
+                            'tipo' => null,
+                            'deddoc' => null,
+                            'institucion' => null,
+                            'beca' => null,
                         ];
                         $totalOmitidas++;
                         return null; // omite la fila
@@ -513,10 +517,10 @@ END as estado, integrante.ds_curriculum as curriculum, integrante.ds_actividades
                             'id' => $row->id,
                             'motivo' => 'Estado inválida',
                             'estado' => $row->estado,
-                            'tipo' => $row->tipo,
-                            'deddoc' => $row->deddoc,
-                            'institucion' => $row->institucion,
-                            'beca' => $row->beca,
+                            'tipo' => null,
+                            'deddoc' => null,
+                            'institucion' => null,
+                            'beca' => null,
                         ];
                         $totalOmitidas++;
                         return null; // omite la fila
@@ -566,11 +570,11 @@ END as estado, integrante.ds_curriculum as curriculum, integrante.ds_actividades
                         $skippedRows[] = [
                             'id' => $row->id,
                             'motivo' => 'Tipo inválida',
-                            'estado' => $row->estado,
+                            'estado' => null,
                             'tipo' => $row->tipo,
-                            'deddoc' => $row->deddoc,
-                            'institucion' => $row->institucion,
-                            'beca' => $row->beca,
+                            'deddoc' => null,
+                            'institucion' => null,
+                            'beca' => null,
                         ];
                         $totalOmitidas++;
                         return null; // omite la fila
@@ -588,11 +592,11 @@ END as estado, integrante.ds_curriculum as curriculum, integrante.ds_actividades
                         $skippedRows[] = [
                             'id' => $row->id,
                             'motivo' => 'Deddoc inválida',
-                            'estado' => $row->estado,
-                            'tipo' => $row->tipo,
+                            'estado' => null,
+                            'tipo' => null,
                             'deddoc' => $row->deddoc,
-                            'institucion' => $row->institucion,
-                            'beca' => $row->beca,
+                            'institucion' => null,
+                            'beca' => null,
                         ];
                         $totalOmitidas++;
                         return null; // omite la fila
@@ -656,10 +660,10 @@ END as estado, integrante.ds_curriculum as curriculum, integrante.ds_actividades
                         $skippedRows[] = [
                             'id' => $row->id,
                             'motivo' => 'Beca inválida',
-                            'estado' => $row->estado,
-                            'tipo' => $row->tipo,
-                            'deddoc' => $row->deddoc,
-                            'institucion' => $row->institucion,
+                            'estado' => null,
+                            'tipo' => null,
+                            'deddoc' => null,
+                            'institucion' => null,
                             'beca' => $row->beca,
                         ];
                         $totalOmitidas++;
@@ -669,11 +673,11 @@ END as estado, integrante.ds_curriculum as curriculum, integrante.ds_actividades
                         $skippedRows[] = [
                             'id' => $row->id,
                             'motivo' => 'Institucion inválida',
-                            'estado' => $row->estado,
-                            'tipo' => $row->tipo,
-                            'deddoc' => $row->deddoc,
+                            'estado' => null,
+                            'tipo' => null,
+                            'deddoc' => null,
                             'institucion' => $row->institucion,
-                            'beca' => $row->beca,
+                            'beca' => null,
                         ];
                         $totalOmitidas++;
                     }
