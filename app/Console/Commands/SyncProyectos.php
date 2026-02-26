@@ -134,7 +134,7 @@ class SyncProyectos extends Command
                         [
                             'tipo','estado','codigo','sigeva','titulo','inicio','fin',
                             'facultad_id','duracion','unidad_id','campo_id','disciplina_id',
-                            'especialidad_id','investigacion','telefono','email','linea','resumen',
+                            'especialidad_id','investigacion','linea','resumen',
                             'clave1','clave2','clave3','clave4','clave5','clave6',
                             'key1','key2','key3','key4','key5','key6'
                         ]
