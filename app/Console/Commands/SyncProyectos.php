@@ -67,6 +67,26 @@ class SyncProyectos extends Command
                 $totalFilas += count($rows);
                 $data = collect($rows)->map(function ($row) {
 
+                    $estadosValidos = [
+                        'Creado','Recibido','Admitido','No Admitido','Acreditado','En evaluación','No acreditado','Evaluado','Retirado'
+                    ];
+
+                    $estadoRow = mb_strtoupper(trim((string)$row->estado));
+
+                    $estadoFinal = in_array($estadoRow, $estadosValidos)
+                        ? trim($row->estado)
+                        : null;
+
+                    if (is_null($estadoFinal)) {
+                        $skippedRows[] = [
+                            'id' => $row->id,
+                            'motivo' => 'Estado inválido',
+                            'estado' => $row->estado
+                        ];
+                        $totalOmitidas++;
+                        return null;
+                    }
+
                     // 🧹 LIMPIEZA DE FECHA
                     $inicio = $row->inicio;
 
@@ -93,7 +113,7 @@ class SyncProyectos extends Command
                     return [
                         'id' => $row->id,
                         'tipo' => trim($row->tipo),
-                        'estado' => trim($row->estado),
+                        'estado' => $estadoFinal,
                         'codigo' => trim($row->codigo),
                         'sigeva' => trim($row->sigeva),
                         'titulo' => trim($row->titulo),
@@ -146,6 +166,16 @@ class SyncProyectos extends Command
 
         $this->info("Total filas leídas: $totalFilas");
         $this->info("Filas insertadas/actualizadas: $totalInsertadas");
-        $this->info("Filas omitidas por cuil inválido: $totalOmitidas");
+        $this->info("Filas omitidas (proyectos): $totalOmitidas");
+
+        if (!empty($skippedRows)) {
+            $this->info("Detalle de proyectos omitidos:");
+
+            foreach ($skippedRows as $skip) {
+                $this->line(
+                    "ID {$skip['id']} - Motivo: {$skip['motivo']} - Estado: {$skip['estado']}"
+                );
+            }
+        }
     }
 }
