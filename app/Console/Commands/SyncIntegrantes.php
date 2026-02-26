@@ -646,7 +646,7 @@ END as estado, integrante.ds_curriculum as curriculum, integrante.ds_actividades
                         'email' => $email,
                         'categoria_id' => $row->categoria_id ?: null,
                         'sicadi_id' => $row->sicadi_id ?: null,
-                        'dedoc' => $deddocFinal,
+                        'deddoc' => $deddocFinal,
                         'cargo_id' => $row->cargo_id ?: null,
                         'alta_cargo' => $alta_cargo,
                         'facultad_id' => $row->facultad_id ?: null,
