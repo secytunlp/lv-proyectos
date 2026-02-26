@@ -133,7 +133,7 @@ class SyncProyectos extends Command
                     }
 
                     $investigacionsValidos = [
-                        'Creado','Recibido','Admitido','No Admitido','Acreditado','En evaluación','No acreditado','Evaluado','Retirado'
+                        'Aplicada','Básica','Desarrollo','Creación'
                     ];
 
                     $investigacionRow = trim((string)$row->investigacion);
