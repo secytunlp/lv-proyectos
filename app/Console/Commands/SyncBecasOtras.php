@@ -389,7 +389,7 @@ class SyncBecasOtras extends Command
                         : null;
 
                     // Omitir si beca o institucion inválida
-                    if (is_null($becaFinal) && !empty($row->beca)) {
+                    if (is_null($becaFinal)) {
                         $skippedRows[] = [
 
                             'investigador_id' => $row->investigador_id,
@@ -402,7 +402,7 @@ class SyncBecasOtras extends Command
                         return null;
                     }
 
-                    if (is_null($institucionFinal) && !empty($row->institucion)) {
+                    if (is_null($institucionFinal)) {
                         $skippedRows[] = [
                             'investigador_id' => $row->investigador_id,
 
