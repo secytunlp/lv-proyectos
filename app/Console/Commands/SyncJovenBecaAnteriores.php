@@ -190,7 +190,7 @@ class SyncJovenBecaAnteriores extends Command
                             'joven_id' => $row->joven_id,
 
                             'motivo' => 'Beca inválida',
-                            'institucion' => $row->institucion,
+                            'institucion' => $row->beca,
                             'beca' => $row->beca,
                         ];
                         $totalOmitidas++;
