@@ -187,7 +187,7 @@ class SyncJovenBecaAnteriores extends Command
                     if (is_null($becaFinal)) {
                         $skippedRows[] = [
 
-                            'investigador_id' => $row->investigador_id,
+                            'joven_id' => $row->joven_id,
 
                             'motivo' => 'Beca inválida',
                             'institucion' => $row->institucion,
@@ -199,7 +199,7 @@ class SyncJovenBecaAnteriores extends Command
 
                     if (is_null($institucionFinal)) {
                         $skippedRows[] = [
-                            'investigador_id' => $row->investigador_id,
+                            'joven_id' => $row->joven_id,
 
                             'motivo' => 'Institución inválida',
                             'institucion' => $row->institucion,
