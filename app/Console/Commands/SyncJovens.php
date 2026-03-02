@@ -252,7 +252,7 @@ class SyncJovens extends Command
                         DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=0');
 
                     DB::connection('mysql')
-                        ->table('integrantes')
+                        ->table('jovens')
                         ->upsert(
                             $data,
                             ['id'],
