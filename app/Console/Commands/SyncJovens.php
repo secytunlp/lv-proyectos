@@ -185,15 +185,7 @@ class SyncJovens extends Command
                         $ingreso_carrerainv = null;
                     }
 
-                    $ingreso_cargo = $row->ingreso_cargo;
 
-                    if (
-                        empty($ingreso_cargo) ||
-                        $ingreso_cargo === '0000-00-00' ||
-                        $ingreso_cargo === '0000-00-00 00:00:00'
-                    ) {
-                        $ingreso_cargo = null;
-                    }
 
 
 
@@ -235,7 +227,6 @@ class SyncJovens extends Command
                         'director' => $row->director ?: 0,
                         'unidadcarrera_id' => $row->unidadcarrera_id ?: null,
                         'unidadbeca_id' => $row->unidadbeca_id ?: null,
-                        'ingreso_cargo' => $ingreso_cargo,
                         'puntaje' => is_numeric($row->puntaje) ? (int)$row->puntaje : null,
                         'diferencia' => is_numeric($row->diferencia) ? (int)$row->diferencia : null,
                         'observaciones' => trim($row->observaciones),
@@ -260,7 +251,7 @@ class SyncJovens extends Command
                                 'investigador_id','periodo_id','estado','email','fecha','nacimiento','egresogrado','notificacion','cp',
                                 'curriculum','telefono','calle','nro','piso','depto',
                                 'doctorado','facultadplanilla_id','deddoc','cargo_id','egresoposgrado','facultad_id','unidad_id','carrerainv_id','organismo_id',
-                                'ingreso_carrerainv','director','unidadcarrera_id','unidadbeca_id','ingreso_cargo','baja_beca','observaciones','titulo_id','titulopost_id',
+                                'ingreso_carrerainv','director','unidadcarrera_id','unidadbeca_id','baja_beca','observaciones','titulo_id','titulopost_id',
                                 'puntaje','diferencia','justificacion','objetivo','disciplina'
                             ]
                         );
