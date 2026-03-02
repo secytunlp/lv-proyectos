@@ -26,7 +26,7 @@ class SyncJovenBecaAnteriores extends Command
 
         DB::connection('mysql_origen')
                     ->table('solicitudjovenesbeca')
-
+                    ->leftJoin('solicitudjovenes', 'solicitudjovenesbeca.cd_solicitud', '=', 'solicitudjovenes.cd_solicitud')
                     ->selectRaw("
                 solicitudjovenes.`cd_solicitud` as joven_id,CASE solicitudjovenesbeca.bl_unlp WHEN '1' THEN 'UNLP' ELSE
                                                     CASE
