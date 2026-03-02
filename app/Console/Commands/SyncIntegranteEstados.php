@@ -458,7 +458,7 @@ class SyncIntegranteEstados extends Command
                        END
                    END AS beca,
     cyt_integrante_estado.fechaDesde as desde, cyt_integrante_estado.fechaHasta as hasta, cyt_integrante_estado.motivo as comentarios")
-            ->orderBy('oid')
+            ->orderBy('cyt_integrante_estado.oid')
             ->chunk(1000, function ($rows) use (&$totalFilas, &$totalInsertadas, &$totalOmitidas, &$skippedRows){
                 $totalFilas += count($rows);
                 $data = collect($rows)->map(function ($row) use (&$skippedRows, &$totalOmitidas) {
