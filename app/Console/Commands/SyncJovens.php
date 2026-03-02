@@ -52,7 +52,7 @@ class SyncJovens extends Command
             ->selectRaw("
                 solicitudjovenes.cd_solicitud as id,solicitudjovenes.cd_docente as investigador_id,solicitudjovenes.cd_periodo as periodo_id,
                 estado.ds_estado as estado,solicitudjovenes.ds_mail as email,solicitudjovenes.bl_notificacion as notificacion,solicitudjovenes.nu_telefono as telefono,
-                solicitudjovenes.dt_fecha as fecha,solicitudjovenes.dt_nacimiento as necimiento,solicitudjovenes.ds_calle as calle,
+                solicitudjovenes.dt_fecha as fecha,solicitudjovenes.dt_nacimiento as nacimiento,solicitudjovenes.ds_calle as calle,
                 solicitudjovenes.nu_nro as nro,solicitudjovenes.nu_piso as piso,solicitudjovenes.ds_depto as depto,solicitudjovenes.nu_cp as cp,
                 solicitudjovenes.cd_titulogrado as titulo_id,
        CASE solicitudjovenes.dt_egresogrado WHEN '0000-00-00' THEN null ELSE solicitudjovenes.dt_egresogrado END as egresogrado,
