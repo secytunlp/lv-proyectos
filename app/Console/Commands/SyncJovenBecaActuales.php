@@ -208,6 +208,7 @@ class SyncJovenBecaActuales extends Command
        CASE solicitudjovenes.ds_tipobeca
            WHEN 'POSTGRADO/DOCTORADO' THEN 'Beca doctoral'
            WHEN 'BECA INTERNA DOCTORAL TEMAS ESTRATÉGICOS' THEN 'Beca doctoral'
+           WHEN 'Becario Doctoral' THEN 'Beca doctoral'
            WHEN 'POSGRADO/DOCTORAL' THEN 'Beca doctoral'
            WHEN 'Becas Internas Doctorales para Temas Estratégicos 2021.' THEN 'Beca doctoral'
            WHEN 'Becario Doctoral' THEN 'Beca doctoral'
@@ -656,7 +657,7 @@ class SyncJovenBecaActuales extends Command
                         : null;
 
                     // Omitir si beca o institucion inválida
-                    if (is_null($becaFinal)) {
+                    /*if (is_null($becaFinal)) {
                         $skippedRows[] = [
 
                             'joven_id' => $row->joven_id,
@@ -679,7 +680,7 @@ class SyncJovenBecaActuales extends Command
                         ];
                         $totalOmitidas++;
                         return null;
-                    }
+                    }*/
 
                     // 🧹 LIMPIEZA DE FECHA
                     $desde = $row->desde;
