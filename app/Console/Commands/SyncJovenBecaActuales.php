@@ -577,6 +577,7 @@ class SyncJovenBecaActuales extends Command
            WHEN 'PG TIPO II' THEN 'TIPO II'
            WHEN 'PGTII' THEN 'TIPO II'
            WHEN 'Posgrado - Tipo II' THEN 'TIPO II'
+           WHEN 'POSTGRADO DOCTORAL (TIPO II)' THEN 'TIPO II'
            WHEN 'POSGRADO DE TIPO II' THEN 'TIPO II'
            WHEN 'A' THEN 'TIPO A'
            WHEN 'Cofinanciadas CIC-UNLP' THEN 'Beca Cofinanciada (UNLP-CIC)'
@@ -719,7 +720,7 @@ class SyncJovenBecaActuales extends Command
             $this->info("Detalle de filas omitidas:");
             foreach ($skippedRows as $skip) {
                 $this->line(
-                    "joven: {$skip['joven_id']} - Motivo: {$skip['motivo']} - Beca: {$skip['beca']}"
+                    "joven: {$skip['joven_id']} - Motivo: {$skip['motivo']} - Beca: {$skip['beca']} - Institucion: {$skip['institucion']}"
                 );
             }
         }
