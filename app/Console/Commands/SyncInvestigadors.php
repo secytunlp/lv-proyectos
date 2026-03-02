@@ -454,7 +454,7 @@ class SyncInvestigadors extends Command
                                 'ident','persona_id','categoria_id','sicadi_id','carrerainv_id',
                                 'organismo_id','facultad_id','cargo_id','deddoc','universidad_id',
                                 'titulo_id','titulopost_id','unidad_id','institucion','beca',
-                                'materias','total','carrera'
+                                'materias','total','carrera','updated_at'
                             ]
                         );
                     DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=1');

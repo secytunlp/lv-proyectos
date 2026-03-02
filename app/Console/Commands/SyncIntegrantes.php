@@ -759,7 +759,7 @@ END as estado, integrante.ds_curriculum as curriculum, integrante.ds_actividades
                                 'curriculum','actividades','consecuencias','motivos','cyt','reduccion','email',
                                 'categoria_id','sicadi_id','deddoc','cargo_id','alta_cargo','facultad_id','unidad_id','carrerainv_id','organismo_id',
                                 'ingreso_carrerainv','universidad_id','institucion','beca','alta_beca','baja_beca','resolucion','titulo_id','titulopost_id',
-                                'materias','total','carrera'
+                                'materias','total','carrera','updated_at'
                             ]
                         );
                         DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=1');

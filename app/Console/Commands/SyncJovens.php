@@ -252,7 +252,7 @@ class SyncJovens extends Command
                                 'curriculum','telefono','calle','nro','piso','depto',
                                 'doctorado','facultadplanilla_id','deddoc','cargo_id','egresoposgrado','facultad_id','unidad_id','carrerainv_id','organismo_id',
                                 'ingreso_carrerainv','director','unidadcarrera_id','unidadbeca_id','observaciones','titulo_id','titulopost_id',
-                                'puntaje','diferencia','justificacion','objetivo','disciplina'
+                                'puntaje','diferencia','justificacion','objetivo','disciplina','updated_at'
                             ]
                         );
                         DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=1');

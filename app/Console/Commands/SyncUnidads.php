@@ -89,7 +89,7 @@ class SyncUnidads extends Command
                         ['id'],
                         [
                             'nombre','padre_id','hijos','tipo','codigo',
-                            'sigla','direccion','email','facultad_id','activa'
+                            'sigla','direccion','email','facultad_id','activa','updated_at'
                         ]
                     );
                 DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=1');

@@ -164,7 +164,7 @@ class SyncDocentes extends Command
                         [
                             'nombre','apellido','documento','cuil','genero',
                             'calle','nro','piso','depto','localidad',
-                            'provincia_id','cp','telefono','email','nacimiento'
+                            'provincia_id','cp','telefono','email','nacimiento','updated_at'
                         ]
                     );
                 $totalInsertadas += count($data);
