@@ -51,7 +51,7 @@ class SyncIntegranteEstados extends Command
             ->leftJoin('deddoc', 'docente.cd_deddoc', '=', 'deddoc.cd_deddoc')
 
             ->selectRaw("
-                cyt_integrante_estado.integrante_oid as integrante_id,
+                cyt_integrante_estado.oid as id,cyt_integrante_estado.integrante_oid as integrante_id,
        CASE cyt_integrante_estado.user_oid
            WHEN 1 THEN '2'
            ELSE NULL END as user_id, cyt_user.ds_name as user_name,
