@@ -526,7 +526,7 @@ class SyncJovenBecaActuales extends Command
            WHEN 'en proceso' THEN 'Beca doctoral'
            WHEN 'POSTGRADO TIPO II (2 AÑOS)' THEN 'TIPO II'
            WHEN 'Postgrado Tipo II Conicet' THEN 'TIPO II'
-           WHEN 'POSTGRADO DOCTORAL (TIPO II)' THEN 'TIPO II'
+           WHEN 'POSTGRADO DOCTORAL (TIPO II)' THEN 'TIPO II'
            WHEN 'POSGRADO TIPO II' THEN 'TIPO II'
            WHEN 'BECARIO POSTDOCTORAL' THEN 'Beca posdoctoral'
            WHEN 'Interna Postdoctoral' THEN 'Beca posdoctoral'
