@@ -142,7 +142,7 @@ class SyncJovenBecaAnteriores extends Command
             END
            END AS beca, dt_desde as desde, dt_hasta as hasta, solicitudjovenesbeca.bl_unlp as unlp, bl_agregado as agregada, solicitudjovenesbeca.ds_tipobeca as original
             ")
-            ->orderBy('cd_solicitud')
+            ->orderBy('solicitudjovenesbeca.cd_solicitud')
             ->chunk(1000, function ($rows) use (&$totalFilas, &$totalInsertadas, &$totalOmitidas, &$skippedRows) {
 
                 $totalFilas += count($rows);
