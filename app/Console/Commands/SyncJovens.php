@@ -51,7 +51,7 @@ class SyncJovens extends Command
 
             ->selectRaw("
                 solicitudjovenes.cd_solicitud as id,solicitudjovenes.cd_docente as investigador_id,solicitudjovenes.cd_periodo as periodo_id,
-                solicitudjovenes.cd_estado as estado_id,solicitudjovenes.ds_mail as email,solicitudjovenes.bl_notificacion as notificacion,solicitudjovenes.nu_telefono as telefono,
+                estado.ds_estado as estado,solicitudjovenes.ds_mail as email,solicitudjovenes.bl_notificacion as notificacion,solicitudjovenes.nu_telefono as telefono,
                 solicitudjovenes.dt_fecha as fecha,solicitudjovenes.dt_nacimiento as necimiento,solicitudjovenes.ds_calle as calle,
                 solicitudjovenes.nu_nro as nro,solicitudjovenes.nu_piso as piso,solicitudjovenes.ds_depto as depto,solicitudjovenes.nu_cp as cp,
                 solicitudjovenes.cd_titulogrado as titulo_id,
