@@ -541,7 +541,7 @@ class SyncIntegranteEstados extends Command
                         return null; // omite la fila
                     }
 
-                    $tipoFinal = empty($tipoRow) ? null : $tipoRow;
+                    $tipoFinal = empty($tipoRow) ? '' : $tipoRow;
 
 
 
