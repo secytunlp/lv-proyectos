@@ -590,7 +590,7 @@ class SyncJovenBecaActuales extends Command
             ->where('solicitudjovenes.ds_tipobeca', '!=', '')
             ->whereNotNull('solicitudjovenes.ds_tipobeca')
             ->whereNotNull('solicitudjovenes.ds_orgbeca')
-            ->orderBy('solicitudjovenes.`cd_solicitud`')
+            ->orderBy('solicitudjovenes.cd_solicitud')
 
             ->chunk(1000, function ($rows) use (&$totalFilas, &$totalInsertadas, &$totalOmitidas, &$skippedRows) {
 
