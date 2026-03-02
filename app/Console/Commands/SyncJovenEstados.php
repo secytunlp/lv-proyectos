@@ -49,7 +49,7 @@ class SyncJovenEstados extends Command
 
 
             ->selectRaw("
-                cyt_solicitudjovenes_estado.solicitud_oid as joven_id,
+                cyt_solicitudjovenes_estado.oid as id,cyt_solicitudjovenes_estado.solicitud_oid as joven_id,
        CASE cyt_solicitudjovenes_estado.user_oid
            WHEN 1 THEN '2'
            ELSE NULL END as user_id, cyt_user.ds_name as user_name,
