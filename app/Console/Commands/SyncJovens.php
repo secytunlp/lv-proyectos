@@ -74,7 +74,7 @@ class SyncJovens extends Command
            ELSE solicitudjovenes.cd_carrerainv END as carrerainv_id,
        CASE solicitudjovenes.`cd_organismo`
            WHEN '7' THEN null
-           else solicitudjovenes.cd_organismo END as organismo_id, CASE solicitudjovenes.dt_ingreso WHEN '0000-00-00' THEN null ELSE solicitudjovenes.dt_ingreso END as ingreso_carrera,
+           else solicitudjovenes.cd_organismo END as organismo_id, CASE solicitudjovenes.dt_ingreso WHEN '0000-00-00' THEN null ELSE solicitudjovenes.dt_ingreso END as ingreso_carrerainv,
        solicitudjovenes.cd_unidadcarrera as unidadcarrera_id, solicitudjovenes.cd_unidadbeca as unidadbeca_id, solicitudjovenes.nu_puntaje as puntaje, solicitudjovenes.nu_diferencia as diferencia,
        solicitudjovenes.ds_curriculum as curriculum,
        solicitudjovenes.ds_disciplina as disciplina, solicitudjovenes.ds_observaciones as observaciones, solicitudjovenes.ds_justificacion as justificacion, solicitudjovenes.ds_objetivo as objetivo")
