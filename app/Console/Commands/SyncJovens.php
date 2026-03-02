@@ -54,7 +54,7 @@ class SyncJovens extends Command
                 solicitudjovenes.cd_estado as estado_id,solicitudjovenes.ds_mail as email,solicitudjovenes.bl_notificacion as notificacion,solicitudjovenes.nu_telefono as telefono,
                 solicitudjovenes.dt_fecha as fecha,solicitudjovenes.dt_nacimiento as necimiento,solicitudjovenes.ds_calle as calle,
                 solicitudjovenes.nu_nro as nro,solicitudjovenes.nu_piso as piso,solicitudjovenes.ds_depto as depto,solicitudjovenes.nu_cp as cp,
-                , solicitudjovenes.cd_titulogrado as titulo_id,
+                solicitudjovenes.cd_titulogrado as titulo_id,
        CASE solicitudjovenes.dt_egresogrado WHEN '0000-00-00' THEN null ELSE solicitudjovenes.dt_egresogrado END as egresogrado,
        solicitudjovenes.cd_tituloposgrado as tituloposgrado_id, CASE solicitudjovenes.dt_egresoposgrado WHEN '0000-00-00' THEN null ELSE solicitudjovenes.dt_egresoposgrado END as egresoposgrado,
        solicitudjovenes.bl_doctorado as doctorado, solicitudjovenes.cd_unidad as unidad_id,
@@ -77,9 +77,9 @@ class SyncJovens extends Command
            else solicitudjovenes.cd_organismo END as organismo_id, CASE solicitudjovenes.dt_ingreso WHEN '0000-00-00' THEN null ELSE solicitudjovenes.dt_ingreso END as ingreso_carrera,
        solicitudjovenes.cd_unidadcarrera as unidadcarrera_id, solicitudjovenes.cd_unidadbeca as unidadbeca_id, solicitudjovenes.nu_puntaje as puntaje, solicitudjovenes.nu_diferencia as diferencia,
        solicitudjovenes.ds_curriculum as curriculum,
-       solicitudjovenes.ds_disciplina as disciplina")
+       solicitudjovenes.ds_disciplina as disciplina, solicitudjovenes.ds_observaciones as observaciones, solicitudjovenes.ds_justificacion as justificacion, solicitudjovenes.ds_objetivo as objetivo")
             ->whereNull('cyt_solicitudjovenes_estado.fechaHasta')
-            ->orderBy('solicitudjovenes.cd_solicitud, solicitudjovenes.ds_observaciones as observaciones, solicitudjovenes.ds_justificacion as justificacion, solicitudjovenes.ds_objetivo as objetivo')
+            ->orderBy('solicitudjovenes.cd_solicitud')
             ->chunk(1000, function ($rows) use (&$totalFilas, &$totalInsertadas, &$totalOmitidas, &$skippedRows){
                 $totalFilas += count($rows);
                 $data = collect($rows)->map(function ($row) use (&$skippedRows, &$totalOmitidas) {
