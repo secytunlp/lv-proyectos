@@ -208,6 +208,7 @@ class SyncJovenBecaActuales extends Command
        CASE solicitudjovenes.ds_tipobeca
            WHEN 'POSTGRADO/DOCTORADO' THEN 'Beca doctoral'
            WHEN 'BECA INTERNA DOCTORAL TEMAS ESTRATÉGICOS' THEN 'Beca doctoral'
+           WHEN 'POSGRADO/DOCTORAL' THEN 'Beca doctoral'
            WHEN 'Becas Internas Doctorales para Temas Estratégicos 2021.' THEN 'Beca doctoral'
            WHEN 'Becario Doctoral' THEN 'Beca doctoral'
            WHEN '10%' THEN 'Beca doctoral'
@@ -559,6 +560,7 @@ class SyncJovenBecaActuales extends Command
            WHEN 'POSTDOCTORAL INTERNA (2 AÑOS)' THEN 'Beca posdoctoral'
            WHEN 'Postdoctoral UE' THEN 'Beca posdoctoral'
            WHEN 'BECA BIANUAL.ESTUDIOS DE MAESTRIA.' THEN 'Beca maestría'
+           WHEN 'Postgrado/Maestría' THEN 'Beca maestría'
            WHEN 'Maestría' THEN 'Beca maestría'
            WHEN 'BECA INTERNA POSDOCTORAL' THEN 'Beca posdoctoral'
            WHEN 'Interna Posdoctoral' THEN 'Beca posdoctoral'
