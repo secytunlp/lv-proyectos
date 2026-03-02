@@ -167,6 +167,15 @@ class IntegranteEstadoController extends Controller
         return view('integrante_estados.create',compact('titulos','tituloposts','facultades','cargos','universidades','unidads','carrerainvs','sicadis','years','organismos','categorias','sicadis','integrante'));
     }
 
+    private function safeRequest($request, $key, $default = null)
+    {
+        if (!isset($request->$key[0])) {
+            return $default;
+        }
+
+        return $this->sanitizeInput($request->$key[0]);
+    }
+
     /**
      * Store a newly created resource in storage.
      *

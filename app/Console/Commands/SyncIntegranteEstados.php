@@ -667,7 +667,6 @@ class SyncIntegranteEstados extends Command
                         'cargo_id' => $row->cargo_id ?: null,
 
                         'facultad_id' => $row->facultad_id ?: null,
-                        'unidad_id' => $row->unidad_id ?: null,
                         'carrerainv_id' => $row->carrerainv_id ?: null,
                         'organismo_id' => $row->organismo_id ?: null,
 
@@ -693,7 +692,7 @@ class SyncIntegranteEstados extends Command
                             [
                                 'integrante_id','user_id','user_name','tipo','alta','baja','cambio','horas','estado',
                                 'consecuencias','motivos','reduccion',
-                                'categoria_id','sicadi_id','deddoc','cargo_id','alta_cargo','facultad_id','unidad_id','carrerainv_id','organismo_id',
+                                'categoria_id','sicadi_id','deddoc','cargo_id','alta_cargo','facultad_id','carrerainv_id','organismo_id',
                                 'institucion','beca','desde','hasta','comentarios'
                             ]
                         );
