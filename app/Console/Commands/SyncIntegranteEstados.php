@@ -665,12 +665,12 @@ class SyncIntegranteEstados extends Command
                         'sicadi_id' => $row->sicadi_id ?: null,
                         'deddoc' => $deddocFinal,
                         'cargo_id' => $row->cargo_id ?: null,
-                        'alta_cargo' => $alta_cargo,
+
                         'facultad_id' => $row->facultad_id ?: null,
                         'unidad_id' => $row->unidad_id ?: null,
                         'carrerainv_id' => $row->carrerainv_id ?: null,
                         'organismo_id' => $row->organismo_id ?: null,
-                        'ingreso_carrerainv' => $ingreso_carrerainv,
+
                         'institucion' => $institucionFinal,
                         'beca' => $becaFinal,
                         'desde' => $desde,
