@@ -28,7 +28,7 @@ class SyncJovenBecaAnteriores extends Command
                     ->table('solicitudjovenesbeca')
                     ->leftJoin('solicitudjovenes', 'solicitudjovenesbeca.cd_solicitud', '=', 'solicitudjovenes.cd_solicitud')
                     ->selectRaw("
-                solicitudjovenes.`cd_solicitud` as joven_id,CASE solicitudjovenesbeca.bl_unlp WHEN '1' THEN 'UNLP' ELSE
+                solicitudjovenesbeca.`cd_solicitudjovenesbeca` as id,solicitudjovenes.`cd_solicitud` as joven_id,CASE solicitudjovenesbeca.bl_unlp WHEN '1' THEN 'UNLP' ELSE
                                                     CASE
                                                         WHEN solicitudjovenesbeca.ds_tipobeca LIKE '%CIN%' THEN 'CIN'
                                                     ELSE
@@ -142,7 +142,7 @@ class SyncJovenBecaAnteriores extends Command
             END
            END AS beca, dt_desde as desde, dt_hasta as hasta, solicitudjovenesbeca.bl_unlp as unlp, bl_agregado as agregada, solicitudjovenesbeca.ds_tipobeca as original
             ")
-            ->orderBy('solicitudjovenesbeca.cd_solicitud')
+            ->orderBy('cd_solicitudjovenesbeca')
             ->chunk(1000, function ($rows) use (&$totalFilas, &$totalInsertadas, &$totalOmitidas, &$skippedRows) {
 
                 $totalFilas += count($rows);
@@ -184,7 +184,7 @@ class SyncJovenBecaAnteriores extends Command
                         : null;
 
                     // Omitir si beca o institucion inválida
-                    if (is_null($becaFinal)) {
+                    /*if (is_null($becaFinal)) {
                         $skippedRows[] = [
 
                             'joven_id' => $row->joven_id,
@@ -207,7 +207,7 @@ class SyncJovenBecaAnteriores extends Command
                         ];
                         $totalOmitidas++;
                         return null;
-                    }
+                    }*/
 
                     // 🧹 LIMPIEZA DE FECHA
                     $desde = $row->desde;
@@ -231,6 +231,7 @@ class SyncJovenBecaAnteriores extends Command
                     }
 
                     return [
+                        'id' => $row->id,
                         'joven_id' => $row->joven_id,
                         'institucion' => $institucionFinal,
                         'beca' => $becaFinal,
@@ -251,9 +252,9 @@ class SyncJovenBecaAnteriores extends Command
                         ->table('joven_becas')
                         ->upsert(
                             $data,
-                            ['joven_id','institucion','beca','desde','hasta'], // clave única
+                            ['id'], // clave única
                             [
-                                'unlp','original','agregada','actual','updated_at'
+                                'joven_id','institucion','beca','desde','hasta','unlp','original','agregada','actual','updated_at'
                             ]
                         );
                     DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=1');
