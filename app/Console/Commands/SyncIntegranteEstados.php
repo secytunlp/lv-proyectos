@@ -565,25 +565,7 @@ class SyncIntegranteEstados extends Command
 
                     $deddocFinal = empty($deddocRow) ? null : $deddocRow;
 
-                    $alta_cargo = $row->alta_cargo;
 
-                    if (
-                        empty($alta_cargo) ||
-                        $alta_cargo === '0000-00-00' ||
-                        $alta_cargo === '0000-00-00 00:00:00'
-                    ) {
-                        $alta_cargo = null;
-                    }
-
-                    $ingreso_carrerainv = $row->ingreso_carrerainv;
-
-                    if (
-                        empty($ingreso_carrerainv) ||
-                        $ingreso_carrerainv === '0000-00-00' ||
-                        $ingreso_carrerainv === '0000-00-00 00:00:00'
-                    ) {
-                        $ingreso_carrerainv = null;
-                    }
 
                     // Validación de beca
                     $becaValidas = [
