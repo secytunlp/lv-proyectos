@@ -56,7 +56,7 @@ class SyncJovens extends Command
                 solicitudjovenes.nu_nro as nro,solicitudjovenes.nu_piso as piso,solicitudjovenes.ds_depto as depto,solicitudjovenes.nu_cp as cp,
                 solicitudjovenes.cd_titulogrado as titulo_id,
        CASE solicitudjovenes.dt_egresogrado WHEN '0000-00-00' THEN null ELSE solicitudjovenes.dt_egresogrado END as egresogrado,
-       solicitudjovenes.cd_tituloposgrado as tituloposgrado_id, CASE solicitudjovenes.dt_egresoposgrado WHEN '0000-00-00' THEN null ELSE solicitudjovenes.dt_egresoposgrado END as egresoposgrado,
+       solicitudjovenes.cd_tituloposgrado as titulopost_id, CASE solicitudjovenes.dt_egresoposgrado WHEN '0000-00-00' THEN null ELSE solicitudjovenes.dt_egresoposgrado END as egresoposgrado,
        solicitudjovenes.bl_doctorado as doctorado, solicitudjovenes.cd_unidad as unidad_id,
        CASE solicitudjovenes.`cd_cargo`
            WHEN '6' THEN null
