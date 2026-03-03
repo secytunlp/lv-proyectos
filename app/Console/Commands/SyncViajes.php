@@ -692,7 +692,7 @@ class SyncViajes extends Command
                         'becas' => trim($row->becas),
                         'objetivosC' => trim($row->objetivosC),
                         'planC' => trim($row->planC),
-                        'relacionproyectoC' => trim($row->relacionproyectoC),
+                        'relacionproyectoC' => trim($row->relacionProyectoC),
                         'aportesC' => trim($row->aportesC),
                         'actividadesC' => trim($row->actividadesC),
                         'convenioC' => trim($row->convenioC),
