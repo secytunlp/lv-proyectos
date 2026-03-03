@@ -80,7 +80,7 @@ class SyncViajes extends Command
            else solicitud.cd_organismo END as organismo_id, CASE solicitud.dt_ingreso WHEN '0000-00-00' THEN null ELSE solicitud.dt_ingreso END as ingreso_carrerainv,
        solicitud.cd_unidadcarrera as unidadcarrera_id,
        solicitud.bl_unlp as unlp,
-       CASE solicitud.`ds_orgbeca`
+       CASE TRIM(solicitud.`ds_orgbeca`)
                    WHEN 'U.N.L.P' THEN 'UNLP'
                    WHEN 'U.N.L.P.' THEN 'UNLP'
                    WHEN 'Otro' THEN 'OTRA'
@@ -164,7 +164,7 @@ class SyncViajes extends Command
                            ds_orgbeca
 
                    END AS institucion,
-               CASE solicitud.`ds_tipobeca`
+               CASE TRIM(solicitud.`ds_tipobeca`)
                    WHEN 'POSTGRADO/DOCTORADO' THEN 'Beca doctoral'
                    WHEN 'Doctoral BDOC23 ' THEN 'Beca doctoral'
                    WHEN 'Beca Doctoral Temas Generales' THEN 'Beca doctoral'
