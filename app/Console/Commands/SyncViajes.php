@@ -443,7 +443,7 @@ class SyncViajes extends Command
 
                     // 🧹 LIMPIEZA DE FECHA
                     $fecha = $row->fecha;
-                    dump($row->fecha);
+                  //  dump($row->fecha);
                     if (
                         empty($fecha) ||
                         $fecha === '0000-00-00' ||
@@ -776,10 +776,11 @@ class SyncViajes extends Command
                         foreach ($data as $item) {
                             $skippedRows[] = [
                                 'id' => $item['id'] ?? null,
-                                'motivo' => 'Fecha inválida: ' . $e->getMessage(),
+                                'causa' => 'Fecha inválida: ' . $e->getMessage(),
                                 'estado' => null,
                                 'tipo' => null,
                                 'deddoc' => null,
+                                'motivo' => null,
                                 'institucion' => null,
                                 'beca' => null,
                             ];
@@ -792,10 +793,11 @@ class SyncViajes extends Command
 
                         $skippedRows[] = [
                             'id' => null,
-                            'motivo' => 'Error duplicado: ' . $e->getMessage(),
+                            'causa' => 'Error duplicado: ' . $e->getMessage(),
                             'estado' => null,
                             'tipo' => null,
                             'deddoc' => null,
+                            'motivo' => null,
                             'institucion' => null,
                             'beca' => null,
                         ];
