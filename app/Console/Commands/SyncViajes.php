@@ -90,8 +90,12 @@ class SyncViajes extends Command
                    WHEN 'UNIVERSIDAD NACIONAL DE LA PLATA' THEN 'UNLP'
                    WHEN 'CONSEJO DE INV. CIENTÍFICAS DE LA PROVINCIA DE BUENOS AIRES' THEN 'CIC'
                    WHEN 'CONSEJO NACIONAL DE INVESTIGACIONES CIENTÍFICAS Y TÉCNICAS (CONICET)' THEN 'CONICET'
+                   WHEN 'CONICET - UNLP' THEN 'CONICET'
                    WHEN 'ANPCYT-UNLP' THEN 'ANPCyT'
+                   WHEN 'Agencia Nacional de Promoción de la Investigación, el Desarrollo Tecnológico y la Innovación' THEN 'ANPCyT'
                    WHEN 'SEC. CIENCIA Y TÉCNICA (UNLP)' THEN 'UNLP'
+                   WHEN 'Facultad de Artes-Universidad Nacional de La Plata' THEN 'UNLP'
+                   WHEN 'Facultad de Ciencias Naturales' THEN 'UNLP'
                    WHEN 'UNIV.NAC.DE LA PLATA / FAC.DE PERIODISMO Y COMUNICACION SOCIAL' THEN 'UNLP'
                    WHEN 'FACULTAD DE HUMANIDADES Y CIENCIAS DE LA EDUCACIÓN' THEN 'UNLP'
                    WHEN 'AGENCIA' THEN 'ANPCyT'
@@ -124,6 +128,7 @@ class SyncViajes extends Command
                    WHEN 'COMISIÓN DE INVESTIGACIONES CIENTÍFICAS DE LA PROVINCIA DE BUENOS AIRES' THEN 'CIC'
                    WHEN 'ANCYPT' THEN 'ANPCyT'
                    WHEN 'FAU-UNLP' THEN 'UNLP'
+                   WHEN 'FCE-UNLP' THEN 'UNLP'
                    WHEN 'CENTRO DE INVESTIGACIONES URBANAS Y TERRITORIALES (CIUT)' THEN 'OTRA'
                    WHEN 'FACULTAD DE ARQUITECTURA Y URBANISMO-UNLP' THEN 'UNLP'
                    WHEN 'UNLP-CIN' THEN 'CIN'
@@ -144,17 +149,23 @@ class SyncViajes extends Command
                    END AS institucion,
                CASE solicitud.`ds_tipobeca`
                    WHEN 'POSTGRADO/DOCTORADO' THEN 'Beca doctoral'
+                   WHEN 'Doctoral BDOC23 ' THEN 'Beca doctoral'
+                   WHEN 'Beca Doctoral Temas Generales' THEN 'Beca doctoral'
+                   WHEN 'Interna Doctoral Temas Estratégicos' THEN 'Beca doctoral'
+                   WHEN 'Interna Doctoral para Temas Estratégicos' THEN 'Beca doctoral'
                    WHEN 'POSTGRADO/DOCTORADO' THEN 'Beca posdoctoral'
                    WHEN 'Postdoctorado' THEN 'Beca posdoctoral'
                    WHEN 'BECA INTERNA DE POSTGRADO TIPO II' THEN 'TIPO II'
                    WHEN 'BECA INTERNA DE POSTGRADO TIPO II' THEN 'TIPO II'
                    WHEN 'Agencia 2' THEN 'Beca superior'
                    WHEN 'POSDOCTORAL' THEN 'Beca posdoctoral'
+                   WHEN 'INTERNA POSDOCTORAL' THEN 'Beca posdoctoral'
                    WHEN 'B' THEN 'TIPO B'
                    WHEN 'B DE UNLP' THEN 'TIPO B'
                    WHEN 'POST-DOCTORADO' THEN 'Beca posdoctoral'
                    WHEN 'II' THEN 'TIPO II'
                    WHEN 'I' THEN 'TIPO I'
+                   WHEN 'Doctoral (Tipo I)' THEN 'TIPO I'
                    WHEN 'POSTDOCTORAL' THEN 'Beca posdoctoral'
                    WHEN 'BECA DOCTORAL TIPO II' THEN 'TIPO II'
                    WHEN 'PERFECCIONAMIENTO' THEN 'BECA DE PERFECCIONAMIENTO'
@@ -338,6 +349,7 @@ class SyncViajes extends Command
                    WHEN 'POSGRADO INICIAL' THEN 'Beca inicial'
                    WHEN 'BECA POSGRADO TIPO I' THEN 'TIPO I'
                    WHEN 'POSGRADO-DOCTORADO' THEN 'Beca doctoral'
+                   WHEN 'Dotoral Temas estratégicos' THEN 'Beca doctoral'
                    WHEN 'Beca Boctoral' THEN 'Beca doctoral'
                    WHEN 'PUE' THEN 'Beca doctoral'
                    WHEN 'TIPO I INTERNA' THEN 'TIPO I'
@@ -776,7 +788,7 @@ class SyncViajes extends Command
                         foreach ($data as $item) {
                             $skippedRows[] = [
                                 'id' => $item['id'] ?? null,
-                                'causa' => 'Fecha inválida: ' . $e->getMessage(),
+                                'causa' => 'Fecha inválida: ',
                                 'estado' => null,
                                 'tipo' => null,
                                 'deddoc' => null,
@@ -793,7 +805,7 @@ class SyncViajes extends Command
 
                         $skippedRows[] = [
                             'id' => null,
-                            'causa' => 'Error duplicado: ' . $e->getMessage(),
+                            'causa' => 'Error duplicado: ',
                             'estado' => null,
                             'tipo' => null,
                             'deddoc' => null,
