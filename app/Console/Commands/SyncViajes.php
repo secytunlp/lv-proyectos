@@ -839,10 +839,21 @@ class SyncViajes extends Command
                     // 🎯 Error de fecha inválida
                     if ($e->errorInfo[0] == '22007' && $e->errorInfo[1] == 1292) {
 
+                        $mensaje = $e->getMessage();
+
+                        // 🎯 extraer columna
+                        preg_match("/column `.*?`.`.*?`.`(.*?)`/", $mensaje, $colMatch);
+
+                        // 🎯 extraer valor inválido
+                        preg_match("/Incorrect datetime value: '(.*?)'/", $mensaje, $valMatch);
+
+                        $columna = $colMatch[1] ?? 'desconocida';
+                        $valor = $valMatch[1] ?? 'desconocido';
+
                         foreach ($data as $item) {
                             $skippedRows[] = [
                                 'id' => $item['id'] ?? null,
-                                'causa' => 'Fecha inválida: ',
+                                'causa' => "Fecha inválida en {$columna}: {$valor}",
                                 'estado' => null,
                                 'tipo' => null,
                                 'deddoc' => null,
@@ -853,8 +864,6 @@ class SyncViajes extends Command
                         }
 
                         $totalOmitidas += count($data);
-
-                        // 🔁 Duplicados
                     } elseif ($e->errorInfo[0] == '23000' && $e->errorInfo[1] == 1062) {
 
                         $skippedRows[] = [
