@@ -555,11 +555,17 @@ class SyncViajes extends Command
                         $ingreso_carrerainv = null;
                     }
 
-                    $tipoValidos = ['Investigador Formado','Investigador En Formación'];
-                    $tipoRow = trim((string)$row->tipo);
+                    $mapTipos = [
+                        'INVESTIGADOR FORMADO' => 'Investigador Formado',
+                        'INVESTIGADOR EN FORMACION' => 'Investigador En Formación',
+                    ];
 
-                    if (!empty($tipoRow) && !in_array($tipoRow, $tipoValidos)) {
-                        // Solo omitimos si tiene valor y no está en la lista
+                    $tipoRow = strtoupper(trim((string)$row->tipo));
+
+// Normalizar tildes (opcional pero recomendado)
+                    $tipoRow = str_replace(['Á','É','Í','Ó','Ú'], ['A','E','I','O','U'], $tipoRow);
+
+                    if (!empty($tipoRow) && !array_key_exists($tipoRow, $mapTipos)) {
                         $skippedRows[] = [
                             'id' => $row->id,
                             'causa' => 'tipo inválida',
@@ -571,16 +577,29 @@ class SyncViajes extends Command
                             'beca' => null,
                         ];
                         $totalOmitidas++;
-                        return null; // omite la fila
+                        return null;
                     }
 
-                    $tipoFinal = empty($tipoRow) ? null : $tipoRow;
+                    $tipoFinal = empty($tipoRow) ? null : $mapTipos[$tipoRow];
 
-                    $motivoValidos = ['Investigador Formado','Investigador En Formación'];
-                    $motivoRow = trim((string)$row->motivo);
+                    $mapMotivos = [
+                        'A) REUNIONES CIENTIFICAS' => 'A) Reuniones Científicas',
+                        'B) ESTADIA DE TRABAJO PARA INVESTIGAR EN AMBITOS ACADEMICOS EXTERNOS A LA UNLP'
+                        => 'B) Estadía de trabajo para investigar en ámbitos académicos externos a la UNLP',
+                        'C) ESTADIA DE TRABAJO EN LA UNLP PARA UN INVESTIGADOR INVITADO'
+                        => 'C) Estadía de Trabajo en la UNLP para un Investigador Invitado',
+                    ];
 
-                    if (!empty($motivoRow) && !in_array($motivoRow, $motivoValidos)) {
-                        // Solo omitimos si tiene valor y no está en la lista
+                    $motivoRow = strtoupper(trim((string)$row->motivo));
+
+// 🔧 Normalizar tildes
+                    $motivoRow = str_replace(
+                        ['Á','É','Í','Ó','Ú'],
+                        ['A','E','I','O','U'],
+                        $motivoRow
+                    );
+
+                    if (!empty($motivoRow) && !array_key_exists($motivoRow, $mapMotivos)) {
                         $skippedRows[] = [
                             'id' => $row->id,
                             'causa' => 'motivo inválida',
@@ -592,10 +611,10 @@ class SyncViajes extends Command
                             'beca' => null,
                         ];
                         $totalOmitidas++;
-                        return null; // omite la fila
+                        return null;
                     }
 
-                    $motivoFinal = empty($motivoRow) ? null : $motivoRow;
+                    $motivoFinal = empty($motivoRow) ? null : $mapMotivos[$motivoRow];
 
 
                     $trabajo_desde = $row->trabajodesde;
