@@ -770,10 +770,28 @@ class SyncViajes extends Command
                         $totalInsertadas += count($data);
                     }
                 } catch (\Illuminate\Database\QueryException $e) {
-                    // Revisar si es error de duplicado
-                    if ($e->errorInfo[0] == '23000' && $e->errorInfo[1] == 1062) {
+                    // 🎯 Error de fecha inválida
+                    if ($e->errorInfo[0] == '22007' && $e->errorInfo[1] == 1292) {
+
+                        foreach ($data as $item) {
+                            $skippedRows[] = [
+                                'id' => $item['id'] ?? null,
+                                'motivo' => 'Fecha inválida: ' . $e->getMessage(),
+                                'estado' => null,
+                                'tipo' => null,
+                                'deddoc' => null,
+                                'institucion' => null,
+                                'beca' => null,
+                            ];
+                        }
+
+                        $totalOmitidas += count($data);
+
+                        // 🔁 Duplicados
+                    } elseif ($e->errorInfo[0] == '23000' && $e->errorInfo[1] == 1062) {
+
                         $skippedRows[] = [
-                            'id' => null, // No siempre hay un id único si falla todo el batch
+                            'id' => null,
                             'motivo' => 'Error duplicado: ' . $e->getMessage(),
                             'estado' => null,
                             'tipo' => null,
@@ -781,9 +799,10 @@ class SyncViajes extends Command
                             'institucion' => null,
                             'beca' => null,
                         ];
-                        $totalOmitidas += count($data); // Omitimos todo el batch que falló
+
+                        $totalOmitidas += count($data);
+
                     } else {
-                        // si es otro error, relanzarlo
                         throw $e;
                     }
                 }
