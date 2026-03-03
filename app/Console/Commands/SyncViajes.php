@@ -372,7 +372,7 @@ class SyncViajes extends Command
        solicitud.cd_unidadbeca as unidadbeca_id,
        solicitud.cd_categoria as categoria_id,
        solicitud.cd_categoriasicadi as sicadi_id,
-       motivo.ds_letra as motivo,
+       motivo.ds_letra as motivo_letra,
        tipoinvestigador.ds_tipoinvestigador as tipo,
        solicitud.nu_monto as monto,
        solicitud.nu_puntaje as puntaje, solicitud.nu_diferencia as diferencia,
@@ -588,20 +588,16 @@ class SyncViajes extends Command
                         'C' => 'C) Estadía de Trabajo en la UNLP para un Investigador Invitado',
                     ];
 
-                    $motivoRow = trim((string)$row->motivo);
+                    $letra = strtoupper(trim((string)$row->motivo_letra));
 
-// Extraer la letra (antes del paréntesis)
-                    preg_match('/^([A-Z])\)/i', $motivoRow, $match);
-                    $letra = strtoupper($match[1] ?? '');
-
-                    if (!empty($motivoRow) && !array_key_exists($letra, $mapMotivos)) {
+                    if (!empty($letra) && !array_key_exists($letra, $mapMotivos)) {
                         $skippedRows[] = [
                             'id' => $row->id,
                             'causa' => 'motivo inválida',
                             'estado' => null,
                             'tipo' => null,
                             'deddoc' => null,
-                            'motivo' => $row->motivo,
+                            'motivo' => $row->motivo_letra,
                             'institucion' => null,
                             'beca' => null,
                         ];
@@ -609,7 +605,7 @@ class SyncViajes extends Command
                         return null;
                     }
 
-                    $motivoFinal = empty($motivoRow) ? null : $mapMotivos[$letra];
+                    $motivoFinal = empty($letra) ? null : $mapMotivos[$letra];
 
 
                     $trabajo_desde = $row->trabajodesde;
