@@ -367,7 +367,7 @@ class SyncViajes extends Command
 
                        ds_tipobeca
 
-                   END AS beca
+                   END AS beca,
        solicitud.ds_periodobeca as periodobeca,
        solicitud.cd_unidadbeca as unidadbeca_id,
        solicitud.cd_categoria as categoria_id,
