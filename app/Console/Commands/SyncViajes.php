@@ -507,7 +507,7 @@ class SyncViajes extends Command
                                 'tipo' => null,
                                 'deddoc' => null,
                                 'motivo' => null,
-                                'institucion' => null,
+                                'institucion' => $row->institucion,
                                 'beca' => $row->beca,
                             ];
                             $totalOmitidas++;
@@ -517,37 +517,38 @@ class SyncViajes extends Command
                         $becaFinal = $becaRow; // valor original limpio
                     }
 
-                    // Validación de institución
                     $institucionValidas = ['ANPCyT','CIC','CONICET','UNLP','OTRA','CIN'];
 
-// normalizar una sola vez
                     $institucionValidasNorm = array_flip(array_map(function($i) {
                         return mb_strtoupper(trim($i));
                     }, $institucionValidas));
 
-// normalizar valor entrante
-                    $institucionRow = mb_strtoupper(trim((string)$row->institucion));
+                    $institucionRowOriginal = trim((string)$row->institucion);
 
-// comparar
-                    $institucionFinal = isset($institucionValidasNorm[$institucionRow])
-                        ? trim($row->institucion)
-                        : null;
+// 👉 vacío → pasa como null
+                    if ($institucionRowOriginal === '') {
+                        $institucionFinal = null;
 
+                    } else {
+                        $institucionRow = mb_strtoupper($institucionRowOriginal);
 
+                        // 👉 inválido → omitir
+                        if (!isset($institucionValidasNorm[$institucionRow])) {
+                            $skippedRows[] = [
+                                'id' => $row->id,
+                                'causa' => 'Institución inválida',
+                                'estado' => null,
+                                'tipo' => null,
+                                'deddoc' => null,
+                                'motivo' => null,
+                                'institucion' => $row->institucion,
+                                'beca' => $row->beca,
+                            ];
+                            $totalOmitidas++;
+                            return null;
+                        }
 
-                    if (is_null($institucionFinal)) {
-                        $skippedRows[] = [
-                            'id' => $row->id,
-                            'causa' => 'Institución inválida',
-                            'estado' => null,
-                            'tipo' => null,
-                            'deddoc' => null,
-                            'motivo' => null,
-                            'institucion' => $row->institucion,
-                            'beca' => $row->beca,
-                        ];
-                        $totalOmitidas++;
-                        return null;
+                        $institucionFinal = $institucionRowOriginal;
                     }
 
 
