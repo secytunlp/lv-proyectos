@@ -87,7 +87,7 @@ class SyncJovenProyectoActuales extends Command
                 if (!empty($data)) {
                     DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=0');
                     DB::connection('mysql')
-                        ->table('joven_becas')
+                        ->table('joven_proyectos')
                         ->upsert(
                             $data,
                             ['id'], // clave única
