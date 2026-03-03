@@ -454,15 +454,7 @@ class SyncViajes extends Command
 
 
 
-                    $egresogrado = $row->egresogrado;
 
-                    if (
-                        empty($egresogrado) ||
-                        $egresogrado === '0000-00-00' ||
-                        $egresogrado === '0000-00-00 00:00:00'
-                    ) {
-                        $egresogrado = null;
-                    }
 
 
 
@@ -656,7 +648,6 @@ class SyncViajes extends Command
                         'depto' => trim($row->depto),
                         'cp' => $row->cp ?: null,
                         'titulo_id' => $row->titulo_id ?: null,
-                        'egresogrado' => $egresogrado,
                         'unidad_id' => $row->unidad_id ?: null,
                         'cargo_id' => $row->cargo_id ?: null,
                         'deddoc' => $deddocFinal,
@@ -748,7 +739,7 @@ class SyncViajes extends Command
                             $data,
                             ['id'],
                             [
-                                'investigador_id','periodo_id','proyecto1_id','proyecto2_id','estado','email','fecha','egresogrado','notificacion','cp',
+                                'investigador_id','periodo_id','proyecto1_id','proyecto2_id','estado','email','fecha','notificacion','cp',
                                 'curriculum','telefono','calle','nro','piso','depto',
                                 'institucion','facultadplanilla_id','deddoc','cargo_id','ingreso_cargo','facultad_id','unidad_id','carrerainv_id','organismo_id',
                                 'ingreso_carrerainv','periodobeca','unidadcarrera_id','unidadbeca_id','unlp','categoria_id','sicadi_id','tipo',
