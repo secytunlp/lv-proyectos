@@ -134,7 +134,7 @@ END as estado,
                         DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=0');
 
                     DB::connection('mysql')
-                        ->table('joven_estados')
+                        ->table('joven_evaluacions')
                         ->upsert(
                             $data,
                             ['id'],
