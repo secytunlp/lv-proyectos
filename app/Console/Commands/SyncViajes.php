@@ -77,7 +77,7 @@ class SyncViajes extends Command
            ELSE solicitud.cd_carrerainv END as carrerainv_id,
        CASE solicitud.`cd_organismo`
            WHEN '7' THEN null
-           else solicitud.cd_organismo END as organismo_id, CASE solicitud.dt_ingreso WHEN '0000-00-00' THEN null ELSE solicitud.dt_ingreso END as ingreso_carrera,
+           else solicitud.cd_organismo END as organismo_id, CASE solicitud.dt_ingreso WHEN '0000-00-00' THEN null ELSE solicitud.dt_ingreso END as ingreso_carrerainv,
        solicitud.cd_unidadcarrera as unidadcarrera_id,
        solicitud.bl_unlp as unlp,
        CASE solicitud.`ds_orgbeca`
