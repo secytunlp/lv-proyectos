@@ -598,7 +598,7 @@ class SyncViajes extends Command
                     $motivoFinal = empty($motivoRow) ? null : $motivoRow;
 
 
-                    $trabajo_desde = $row->trabajo_desde;
+                    $trabajo_desde = $row->trabajodesde;
 
                     if (
                         empty($trabajo_desde) ||
@@ -608,7 +608,7 @@ class SyncViajes extends Command
                         $trabajo_desde = null;
                     }
 
-                    $trabajo_hasta = $row->trabajo_hasta;
+                    $trabajo_hasta = $row->trabajohasta;
 
                     if (
                         empty($trabajo_hasta) ||
