@@ -552,7 +552,7 @@ class SyncViajes extends Command
                     }
 
 
-                    $ingreso_carrerainv = $row->ingreso_carrerainv;
+                    $ingreso_carrerainv = trim((string)$row->ingreso_carrerainv);
 
                     if (
                         empty($ingreso_carrerainv) ||
@@ -560,6 +560,14 @@ class SyncViajes extends Command
                         $ingreso_carrerainv === '0000-00-00 00:00:00'
                     ) {
                         $ingreso_carrerainv = null;
+                    } else {
+                        // validar fecha real
+                        $fecha = substr($ingreso_carrerainv, 0, 10); // por si viene con hora
+                        [$year, $month, $day] = explode('-', $fecha);
+
+                        if (!checkdate((int)$month, (int)$day, (int)$year)) {
+                            $ingreso_carrerainv = null;
+                        }
                     }
 
                     $mapTipos = [
