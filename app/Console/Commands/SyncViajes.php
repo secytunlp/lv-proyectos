@@ -443,7 +443,7 @@ class SyncViajes extends Command
 
                     // 🧹 LIMPIEZA DE FECHA
                     $fecha = $row->fecha;
-
+                    dump($row->fecha);
                     if (
                         empty($fecha) ||
                         $fecha === '0000-00-00' ||
