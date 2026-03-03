@@ -402,7 +402,7 @@ class SyncViajes extends Command
        solicitud.ds_googleScholar  as scholar,
        solicitud.ds_linkreunion as link,solicitud.ds_resumentrabajo as resumen,solicitud.ds_relevanciatrabajo as relevancia,solicitud.ds_modalidadtrabajo as modalidad,solicitud.ds_libros as libros,solicitud.ds_compilados as compilados,
        solicitud.ds_capitulos as capitulos,solicitud.ds_articulos as articulos,solicitud.ds_congresos as congresos,solicitud.ds_patentes as patentes,solicitud.ds_intelectuales as intelectuales,solicitud.ds_informes as informes,
-       solicitud.ds_tesis as tesis,solicitud.ds_tesinas as tesinas,solicitud.ds_becas as becas,solicitud.ds_observaciones as observaciones, solicitud.ds_objetivoC as objetivosC,solicitud.ds_planC as planC,
+       solicitud.ds_tesis as tesis,solicitud.ds_tesinas as tesinas,solicitud.ds_becas as becas,solicitud.ds_observaciones as observaciones, solicitud.ds_objetivoC as objetivosC,solicitud.ds_planC as planC,solicitud.ds_objetivo as objetivo,
        solicitud.ds_relacionProyectoC as relacionProyectoC,solicitud.ds_aportesC as aportesC,solicitud.ds_actividadesC as actividadesC,solicitud.ds_generalB as generalB,
        solicitud.ds_especificoB as especificoB,solicitud.ds_actividadesB as actividadesB,solicitud.ds_cronogramaB as cronogramaB,solicitud.ds_aportesB as aportesB,solicitud.ds_relevanciaB as relevanciaB,
        solicitud.ds_relevanciaA as relevanciaA,solicitud.ds_justificacionB as justificacionB")
