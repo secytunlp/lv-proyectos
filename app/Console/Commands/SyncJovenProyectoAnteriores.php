@@ -29,7 +29,7 @@ class SyncJovenProyectoAnteriores extends Command
                     ->leftJoin('solicitudjovenes', 'solicitudjovenesproyecto.cd_solicitud', '=', 'solicitudjovenes.cd_solicitud')
                     ->leftJoin('periodo', 'solicitudjovenes.cd_periodo', '=', 'periodo.cd_periodo')
 
-                    ->selectRaw("solicitudjovenesproyecto.cd_solicitud as joven_id, solicitudjovenesproyecto.cd_proyecto as proyecto_id, solicitudjovenesproyecto.dt_hasta as hasta,
+                    ->selectRaw("solicitudjovenesproyecto.cd_solicitudjovenesproyecto as id,solicitudjovenesproyecto.cd_solicitud as joven_id, solicitudjovenesproyecto.cd_proyecto as proyecto_id, solicitudjovenesproyecto.dt_hasta as hasta,
     solicitudjovenesproyecto.dt_desde as desde, solicitudjovenesproyecto.ds_codigo as codigo, solicitudjovenesproyecto.ds_director as director,
     solicitudjovenesproyecto.ds_titulo as titulo, solicitudjovenesproyecto.bl_agregado as agregado")
             ->whereRaw("periodo.ds_periodo < YEAR(solicitudjovenesproyecto.dt_desde) OR
