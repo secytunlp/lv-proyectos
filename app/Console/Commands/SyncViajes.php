@@ -425,7 +425,7 @@ class SyncViajes extends Command
                         // Solo omitimos si tiene valor y no está en la lista
                         $skippedRows[] = [
                             'id' => $row->id,
-                            'motivo' => 'Estado inválida',
+                            'causa' => 'Estado inválida',
                             'estado' => $row->estado,
                             'tipo' => null,
                             'deddoc' => null,
@@ -465,7 +465,7 @@ class SyncViajes extends Command
                         // Solo omitimos si tiene valor y no está en la lista
                         $skippedRows[] = [
                             'id' => $row->id,
-                            'motivo' => 'Deddoc inválida',
+                            'causa' => 'Deddoc inválida',
                             'estado' => null,
                             'tipo' => null,
                             'deddoc' => $row->deddoc,
@@ -517,7 +517,7 @@ class SyncViajes extends Command
 
                             'id' => $row->id,
 
-                            'motivo' => 'Beca inválida',
+                            'causa' => 'Beca inválida',
                             'estado' => null,
                             'tipo' => null,
                             'deddoc' => null,
@@ -532,7 +532,7 @@ class SyncViajes extends Command
                     if (is_null($institucionFinal)) {
                         $skippedRows[] = [
                             'id' => $row->id,
-                            'motivo' => 'Institución inválida',
+                            'causa' => 'Institución inválida',
                             'estado' => null,
                             'tipo' => null,
                             'deddoc' => null,
@@ -562,7 +562,7 @@ class SyncViajes extends Command
                         // Solo omitimos si tiene valor y no está en la lista
                         $skippedRows[] = [
                             'id' => $row->id,
-                            'motivo' => 'tipo inválida',
+                            'causa' => 'tipo inválida',
                             'estado' => null,
                             'tipo' => $row->tipo,
                             'deddoc' => null,
@@ -583,7 +583,7 @@ class SyncViajes extends Command
                         // Solo omitimos si tiene valor y no está en la lista
                         $skippedRows[] = [
                             'id' => $row->id,
-                            'motivo' => 'motivo inválida',
+                            'causa' => 'motivo inválida',
                             'estado' => null,
                             'tipo' => null,
                             'deddoc' => null,
@@ -775,7 +775,7 @@ class SyncViajes extends Command
 
             foreach ($skippedRows as $skip) {
                 $this->line(
-                    "ID {$skip['id']} - Motivo: {$skip['motivo']} - Estado: {$skip['estado']} - Tipo: {$skip['tipo']} - Deddoc: {$skip['deddoc']} - Beca: {$skip['beca']} - Institucion: {$skip['institucion']}"
+                    "ID {$skip['id']} - Causa: {$skip['causa']} - Estado: {$skip['estado']} - Tipo: {$skip['tipo']} - Deddoc: {$skip['deddoc']} - Motivo: {$skip['motivo']} - Beca: {$skip['beca']} - Institucion: {$skip['institucion']}"
                 );
             }
         }
