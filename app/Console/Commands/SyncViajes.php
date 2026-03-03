@@ -628,8 +628,8 @@ class SyncViajes extends Command
                         $ingreso_carrerainv = null;
                     } else {
                         // validar fecha real
-                        $fecha = substr($ingreso_carrerainv, 0, 10); // por si viene con hora
-                        [$year, $month, $day] = explode('-', $fecha);
+                        $fechaIng = substr($ingreso_carrerainv, 0, 10); // por si viene con hora
+                        [$year, $month, $day] = explode('-', $fechaIng);
 
                         if (!checkdate((int)$month, (int)$day, (int)$year)) {
                             $ingreso_carrerainv = null;
