@@ -372,7 +372,7 @@ class SyncViajes extends Command
        solicitud.cd_unidadbeca as unidadbeca_id,
        solicitud.cd_categoria as categoria_id,
        solicitud.cd_categoriasicadi as sicadi_id,
-       motivo.ds_motivo as motivo,
+       motivo.ds_letra as motivo,
        tipoinvestigador.ds_tipoinvestigador as tipo,
        solicitud.nu_monto as monto,
        solicitud.nu_puntaje as puntaje, solicitud.nu_diferencia as diferencia,
@@ -583,23 +583,18 @@ class SyncViajes extends Command
                     $tipoFinal = empty($tipoRow) ? null : $mapTipos[$tipoRow];
 
                     $mapMotivos = [
-                        'A) REUNIONES CIENTIFICAS' => 'A) Reuniones Científicas',
-                        'B) ESTADIA DE TRABAJO PARA INVESTIGAR EN AMBITOS ACADEMICOS EXTERNOS A LA UNLP'
-                        => 'B) Estadía de trabajo para investigar en ámbitos académicos externos a la UNLP',
-                        'C) ESTADIA DE TRABAJO EN LA UNLP PARA UN INVESTIGADOR INVITADO'
-                        => 'C) Estadía de Trabajo en la UNLP para un Investigador Invitado',
+                        'A' => 'A) Reuniones Científicas',
+                        'B' => 'B) Estadía de trabajo para investigar en ámbitos académicos externos a la UNLP',
+                        'C' => 'C) Estadía de Trabajo en la UNLP para un Investigador Invitado',
                     ];
 
-                    $motivoRow = strtoupper(trim((string)$row->motivo));
+                    $motivoRow = trim((string)$row->motivo);
 
-// 🔧 Normalizar tildes
-                    $motivoRow = str_replace(
-                        ['Á','É','Í','Ó','Ú'],
-                        ['A','E','I','O','U'],
-                        $motivoRow
-                    );
+// Extraer la letra (antes del paréntesis)
+                    preg_match('/^([A-Z])\)/i', $motivoRow, $match);
+                    $letra = strtoupper($match[1] ?? '');
 
-                    if (!empty($motivoRow) && !array_key_exists($motivoRow, $mapMotivos)) {
+                    if (!empty($motivoRow) && !array_key_exists($letra, $mapMotivos)) {
                         $skippedRows[] = [
                             'id' => $row->id,
                             'causa' => 'motivo inválida',
@@ -614,7 +609,7 @@ class SyncViajes extends Command
                         return null;
                     }
 
-                    $motivoFinal = empty($motivoRow) ? null : $mapMotivos[$motivoRow];
+                    $motivoFinal = empty($motivoRow) ? null : $mapMotivos[$letra];
 
 
                     $trabajo_desde = $row->trabajodesde;
