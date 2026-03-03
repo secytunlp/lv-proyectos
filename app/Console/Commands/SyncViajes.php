@@ -408,7 +408,7 @@ class SyncViajes extends Command
        solicitud.ds_relevanciaA as relevanciaA,solicitud.ds_justificacionB as justificacionB")
             ->whereNull('cyt_solicitud_estado.fechaHasta')
             ->orderBy('solicitud.cd_solicitud')
-            ->chunk(1000, function ($rows) use (&$totalFilas, &$totalInsertadas, &$totalOmitidas, &$skippedRows){
+            ->chunk(200, function ($rows) use (&$totalFilas, &$totalInsertadas, &$totalOmitidas, &$skippedRows){
                 $totalFilas += count($rows);
                 $data = collect($rows)->map(function ($row) use (&$skippedRows, &$totalOmitidas) {
 
