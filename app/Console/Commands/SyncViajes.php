@@ -364,7 +364,7 @@ class SyncViajes extends Command
                    WHEN 'A' THEN 'TIPO A'
                    WHEN 'Cofinanciadas CIC-UNLP' THEN 'Beca Cofinanciada (UNLP-CIC)'
                    ELSE
-                   CASE
+
                        ds_tipobeca
 
                    END AS beca
