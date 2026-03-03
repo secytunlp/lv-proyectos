@@ -479,15 +479,6 @@ class SyncViajes extends Command
 
                     $deddocFinal = empty($deddocRow) ? null : $deddocRow;
 
-                    $ingreso_cargo = $row->ingreso_cargo;
-
-                    if (
-                        empty($ingreso_cargo) ||
-                        $ingreso_cargo === '0000-00-00' ||
-                        $ingreso_cargo === '0000-00-00 00:00:00'
-                    ) {
-                        $ingreso_cargo = null;
-                    }
 
                     // Validación de beca
                     $becaValidas = [
@@ -651,7 +642,6 @@ class SyncViajes extends Command
                         'unidad_id' => $row->unidad_id ?: null,
                         'cargo_id' => $row->cargo_id ?: null,
                         'deddoc' => $deddocFinal,
-                        'ingreso_cargo' => $ingreso_cargo,
                         'facultad_id' => $row->facultad_id ?: null,
                         'facultadplanilla_id' => $row->facultadplanilla_id ?: null,
                         'carrerainv_id' => $row->carrerainv_id ?: null,
@@ -741,7 +731,7 @@ class SyncViajes extends Command
                             [
                                 'investigador_id','periodo_id','proyecto1_id','proyecto2_id','estado','email','fecha','notificacion','cp',
                                 'curriculum','telefono','calle','nro','piso','depto',
-                                'institucion','facultadplanilla_id','deddoc','cargo_id','ingreso_cargo','facultad_id','unidad_id','carrerainv_id','organismo_id',
+                                'institucion','facultadplanilla_id','deddoc','cargo_id','facultad_id','unidad_id','carrerainv_id','organismo_id',
                                 'ingreso_carrerainv','periodobeca','unidadcarrera_id','unidadbeca_id','unlp','categoria_id','sicadi_id','tipo',
                                 'motivo','trabajo','aceptacion','titulotrabajo','autores','congresonombre','lugartrabajo','trabajodesde','trabajohasta',
                                 'resumen','relevancia','invitacion','modalidad','aval','actividades','convenioB','cvprofesor','profesor','lugarprofesor',
