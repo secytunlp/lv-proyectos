@@ -48,9 +48,9 @@ class SyncJovenEvaluacionPuntajeCargos extends Command
 
 
 
-            ->selectRaw("`cd_puntajecargojovenes` as id,`cd_evaluacion` as joven_evaluacion_id,`cd_modeloplanilla` as joven_evaluacion_planilla_id,`cd_cargomaximo` as joven_evaluacion_planilla_cargo_max_id
+            ->selectRaw("`cd_puntajecargo` as id,`cd_evaluacion` as joven_evaluacion_id,`cd_modeloplanilla` as joven_evaluacion_planilla_id,`cd_cargomaximo` as joven_evaluacion_planilla_cargo_max_id
 ")
-            ->orderBy('puntajecargojovenes.cd_puntajecargojovenes')
+            ->orderBy('puntajecargojovenes.cd_puntajecargo')
             ->chunk(1000, function ($rows) use (&$totalFilas, &$totalInsertadas, &$totalOmitidas, &$skippedRows){
                 $totalFilas += count($rows);
                 $data = collect($rows)->map(function ($row) use (&$skippedRows, &$totalOmitidas) {
