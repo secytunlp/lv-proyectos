@@ -46,9 +46,9 @@ class SyncViajeEvaluacionPuntajePlans extends Command
         DB::connection('mysql_origen')
             ->table('puntajeplan')
 
+            ->leftJoin('planmaximo', 'puntajeplan.cd_modeloplanilla', '=', 'planmaximo.cd_modeloplanilla')
 
-
-            ->selectRaw("`cd_puntajeplan` as id,`cd_evaluacion` as viaje_evaluacion_id,`cd_modeloplanilla` as viaje_evaluacion_planilla_id,`cd_planmaximo` as viaje_evaluacion_planilla_plan_max_id,`ds_justificacion` as justificacion,`nu_puntaje` as puntaje
+            ->selectRaw("puntajeplan.`cd_puntajeplan` as id,puntajeplan.`cd_evaluacion` as viaje_evaluacion_id,puntajeplan.`cd_modeloplanilla` as viaje_evaluacion_planilla_id,planmaximo.`cd_planmaximo` as viaje_evaluacion_planilla_plan_max_id,puntajeplan.`ds_justificacion` as justificacion,puntajeplan.`nu_puntaje` as puntaje
 ")
             ->orderBy('puntajeplan.cd_puntajeplan')
             ->chunk(1000, function ($rows) use (&$totalFilas, &$totalInsertadas, &$totalOmitidas, &$skippedRows){
