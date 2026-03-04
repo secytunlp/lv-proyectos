@@ -66,7 +66,10 @@ class SyncViajeEvaluacionPuntajeCategorias extends Command
                         'id' => $row->id,
                         'viaje_evaluacion_id' => $row->viaje_evaluacion_id ?: null,
                         'viaje_evaluacion_planilla_id' => $row->viaje_evaluacion_planilla_id  ?: null,
-                        'viaje_evaluacion_planilla_categoria_max_id' => $row->viaje_evaluacion_planilla_categoria_max_id  ?: null,
+                        'viaje_evaluacion_planilla_categoria_max_id' =>
+                            ($row->viaje_evaluacion_planilla_categoria_max_id == -1)
+                                ? null
+                                : $row->viaje_evaluacion_planilla_categoria_max_id,
 
 
 
