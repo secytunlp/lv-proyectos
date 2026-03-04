@@ -81,7 +81,7 @@ class SyncJovenEvaluacionPuntajeJustificacions extends Command
                         DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=0');
 
                     DB::connection('mysql')
-                        ->table('joven_evaluacion_puntaje_anteriors')
+                        ->table('joven_evaluacion_puntaje_justificacions')
                         ->upsert(
                             $data,
                             ['id'],
