@@ -44,17 +44,17 @@ class SyncViajeEstados extends Command
         $totalInsertadas = 0;
         $totalOmitidas = 0;
         DB::connection('mysql_origen')
-            ->table('cyt_solicitudviajes_estado')
-            ->leftJoin('cyt_user', 'cyt_solicitudviajes_estado.user_oid', '=', 'cyt_user.oid')
+            ->table('cyt_solicitud_estado')
+            ->leftJoin('cyt_user', 'cyt_solicitud_estado.user_oid', '=', 'cyt_user.oid')
 
 
             ->selectRaw("
-                cyt_solicitudviajes_estado.oid as id,cyt_solicitudviajes_estado.solicitud_oid as joven_id,
-       CASE cyt_solicitudviajes_estado.user_oid
+                cyt_solicitud_estado.oid as id,cyt_solicitud_estado.solicitud_oid as joven_id,
+       CASE cyt_solicitud_estado.user_oid
            WHEN 1 THEN '2'
            ELSE NULL END as user_id, cyt_user.ds_name as user_name,
 
-       CASE cyt_solicitudviajes_estado.estado_oid
+       CASE cyt_solicitud_estado.estado_oid
            WHEN 1 THEN 'Creada'
            WHEN 2 THEN 'Recibida'
            WHEN 3 THEN 'Admitida'
@@ -70,8 +70,8 @@ class SyncViajeEstados extends Command
 
            END as estado,
 
-       cyt_solicitudviajes_estado.fechaDesde as desde, cyt_solicitudviajes_estado.fechaHasta as hasta, cyt_solicitudviajes_estado.motivo as comentarios")
-            ->orderBy('cyt_solicitudviajes_estado.oid')
+       cyt_solicitud_estado.fechaDesde as desde, cyt_solicitud_estado.fechaHasta as hasta, cyt_solicitud_estado.motivo as comentarios")
+            ->orderBy('cyt_solicitud_estado.oid')
             ->chunk(1000, function ($rows) use (&$totalFilas, &$totalInsertadas, &$totalOmitidas, &$skippedRows){
                 $totalFilas += count($rows);
                 $data = collect($rows)->map(function ($row) use (&$skippedRows, &$totalOmitidas) {
