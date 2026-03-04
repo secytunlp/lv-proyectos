@@ -30,7 +30,7 @@ class SyncViajeProyectos extends Command
                     ->selectRaw("cyt_solicitud_proyecto.oid as id, cyt_solicitud_proyecto.solicitud_oid as viaje_id, cyt_solicitud_proyecto.proyecto_oid as proyecto_id, cyt_solicitud_proyecto.dt_alta as desde,
     cyt_solicitud_proyecto.dt_baja as hasta, cyt_solicitud_proyecto.bl_seleccionado as seleccionado")
 
-            ->orderBy('solicitudjovenesproyecto.cd_solicitudjovenesproyecto')
+            ->orderBy('cyt_solicitud_proyecto.oid')
 
             ->chunk(1000, function ($rows) use (&$totalFilas, &$totalInsertadas, &$totalOmitidas, &$skippedRows) {
 
