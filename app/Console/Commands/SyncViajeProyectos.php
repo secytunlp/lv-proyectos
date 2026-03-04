@@ -1,0 +1,111 @@
+<?php
+
+namespace App\Console\Commands;
+
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+
+class SyncViajeProyectos extends Command
+{
+    protected $signature = 'sync:viajeproyectos';
+    protected $description = 'Sincroniza becas UNLP desde DB origen a investigadors';
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    public function handle()
+    {
+        $this->info('Iniciando sincronización de investigadors...');
+
+        $skippedRows = [];
+        $totalFilas = 0;
+        $totalInsertadas = 0;
+        $totalOmitidas = 0;
+
+        DB::connection('mysql_origen')
+                    ->table('cyt_solicitud_proyecto')
+
+                    ->selectRaw("cyt_solicitud_proyecto.oid as id, cyt_solicitud_proyecto.solicitud_oid as viaje_id, cyt_solicitud_proyecto.proyecto_oid as proyecto_id, cyt_solicitud_proyecto.dt_alta as desde,
+    cyt_solicitud_proyecto.dt_baja as hasta, cyt_solicitud_proyecto.bl_seleccionado as seleccionado")
+
+            ->orderBy('solicitudjovenesproyecto.cd_solicitudjovenesproyecto')
+
+            ->chunk(1000, function ($rows) use (&$totalFilas, &$totalInsertadas, &$totalOmitidas, &$skippedRows) {
+
+                $totalFilas += count($rows);
+
+                $data = collect($rows)->map(function ($row) use (&$skippedRows, &$totalOmitidas) {
+
+                    // Validaciones básicas: persona_id o ident vacíos
+
+
+
+
+                    // 🧹 LIMPIEZA DE FECHA
+                    $desde = $row->desde;
+
+                    if (
+                        empty($desde) ||
+                        $desde === '0000-00-00' ||
+                        $desde === '0000-00-00 00:00:00'
+                    ) {
+                        $desde = null;
+                    }
+
+                    $hasta = $row->hasta;
+
+                    if (
+                        empty($hasta) ||
+                        $hasta === '0000-00-00' ||
+                        $hasta === '0000-00-00 00:00:00'
+                    ) {
+                        $hasta = null;
+                    }
+
+                    return [
+                        'id' => $row->id,
+                        'viaje_id' => $row->viaje_id,
+                        'proyecto_id' => $row->proyecto_id,
+                        'desde' => $desde,
+                        'hasta' => $hasta,
+
+                        'seleccionado' => $row->seleccionado ?: 0,
+
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                })->filter()->toArray();
+
+                if (!empty($data)) {
+                    DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=0');
+                    DB::connection('mysql')
+                        ->table('viaje_proyectos')
+                        ->upsert(
+                            $data,
+                            ['id'], // clave única
+                            [
+                                'viaje_id','proyecto_id','desde','hasta','seleccionado','updated_at'
+                            ]
+                        );
+                    DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=1');
+                    $totalInsertadas += count($data);
+                }
+            });
+
+        $this->info('Sincronización finalizada ✔');
+        $this->info("Total filas leídas: $totalFilas");
+        $this->info("Filas insertadas/actualizadas: $totalInsertadas");
+        $this->info("Filas omitidas: $totalOmitidas");
+
+        if (!empty($skippedRows)) {
+            $this->info("Detalle de filas omitidas:");
+            foreach ($skippedRows as $skip) {
+                $this->line(
+                    "viaje: {$skip['viaje_id']} - Motivo: {$skip['motivo']} - Beca: {$skip['beca']} - Institucion: {$skip['institucion']}"
+                );
+            }
+        }
+    }
+}
