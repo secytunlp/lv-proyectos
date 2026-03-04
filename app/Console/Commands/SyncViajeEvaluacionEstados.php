@@ -48,7 +48,7 @@ class SyncViajeEvaluacionEstados extends Command
             ->leftJoin('cyt_user', 'cyt_evaluacion_estado.user_oid', '=', 'cyt_user.oid')
 
 
-            ->selectRaw("cyt_evaluacion_estado.evaluacion_oid as viaje_evaluacion_id,
+            ->selectRaw("cyt_evaluacion_estado.oid as id,cyt_evaluacion_estado.evaluacion_oid as viaje_evaluacion_id,
        CASE cyt_evaluacion_estado.user_oid
            WHEN 1 THEN '2'
            ELSE NULL END as user_id, cyt_user.ds_name as user_name,
