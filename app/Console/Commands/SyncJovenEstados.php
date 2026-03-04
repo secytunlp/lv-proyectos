@@ -129,7 +129,7 @@ class SyncJovenEstados extends Command
                     return [
                         'id' => $row->id,
                         'joven_id' => $row->joven_id ?: null,
-                        'user_id' => $row->user_id ?: null,
+                        'user_id' => $row->user_id ?: 0,
                         'user_name' => trim($row->user_name),
 
                         'estado' => $estadoFinal,
