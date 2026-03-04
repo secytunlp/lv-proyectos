@@ -65,8 +65,8 @@ class SyncJovenEvaluacionPuntajeAnteriors extends Command
                     return [
                         'id' => $row->id,
                         'joven_evaluacion_id' => $row->joven_evaluacion_id ?: null,
-                        'joven_evaluacion_planilla_id ' => $row->joven_evaluacion_planilla_id  ?: null,
-                        'joven_evaluacion_planilla_anterior_max_id ' => $row->joven_evaluacion_planilla_anterior_max_id  ?: null,
+                        'joven_evaluacion_planilla_id' => $row->joven_evaluacion_planilla_id  ?: null,
+                        'joven_evaluacion_planilla_anterior_max_id' => $row->joven_evaluacion_planilla_anterior_max_id  ?: null,
 
                         'puntaje' => is_numeric($row->puntaje) ? (float)$row->puntaje : null,
 
@@ -86,7 +86,7 @@ class SyncJovenEvaluacionPuntajeAnteriors extends Command
                             $data,
                             ['id'],
                             [
-                                'joven_evaluacion_id','joven_evaluacion_planilla_id ','joven_evaluacion_planilla_anterior_max_id ','puntaje',
+                                'joven_evaluacion_id','joven_evaluacion_planilla_id','joven_evaluacion_planilla_anterior_max_id','puntaje',
                                 'updated_at'
                             ]
                         );
