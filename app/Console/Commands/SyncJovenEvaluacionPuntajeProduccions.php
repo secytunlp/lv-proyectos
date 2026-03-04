@@ -48,7 +48,7 @@ class SyncJovenEvaluacionPuntajeProduccions extends Command
 
 
 
-            ->selectRaw("`cd_puntajeantproduccion` as id,`cd_evaluacion` as joven_evaluacion_id,`cd_modeloplanilla` as joven_evaluacion_planilla_id,`cd_antproduccionmaximo` as joven_evaluacion_planilla_produccion_max_id,`nu_cant` as cant,`nu_puntaje` as puntaje
+            ->selectRaw("`cd_puntajeantproduccion` as id,`cd_evaluacion` as joven_evaluacion_id,`cd_modeloplanilla` as joven_evaluacion_planilla_id,`cd_antproduccionmaximo` as joven_evaluacion_planilla_produccion_max_id,`nu_cant` as cantidad,`nu_puntaje` as puntaje
 ")
             ->orderBy('puntajeantproduccion.cd_puntajeantproduccion')
             ->chunk(1000, function ($rows) use (&$totalFilas, &$totalInsertadas, &$totalOmitidas, &$skippedRows){
@@ -69,7 +69,7 @@ class SyncJovenEvaluacionPuntajeProduccions extends Command
                         'joven_evaluacion_planilla_produccion_max_id' => $row->joven_evaluacion_planilla_produccion_max_id  ?: null,
 
                         'puntaje' => is_numeric($row->puntaje) ? (float)$row->puntaje : null,
-                        'cant' => is_numeric($row->cant) ? (int)$row->cant : null,
+                        'cantidad' => is_numeric($row->cantidad) ? (int)$row->cantidad : null,
 
 
                         'created_at' => now(),
@@ -86,7 +86,7 @@ class SyncJovenEvaluacionPuntajeProduccions extends Command
                             $data,
                             ['id'],
                             [
-                                'joven_evaluacion_id','joven_evaluacion_planilla_id','joven_evaluacion_planilla_produccion_max_id','cant','puntaje',
+                                'joven_evaluacion_id','joven_evaluacion_planilla_id','joven_evaluacion_planilla_produccion_max_id','cantidad','puntaje',
                                 'updated_at'
                             ]
                         );
