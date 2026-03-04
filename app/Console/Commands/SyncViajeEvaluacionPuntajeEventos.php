@@ -48,7 +48,7 @@ class SyncViajeEvaluacionPuntajeEventos extends Command
 
 
 
-            ->selectRaw("`cd_puntajeevento` as id,`cd_evaluacion` as viaje_evaluacion_id,`cd_modeloplanilla` as viaje_evaluacion_planilla_id,`cd_eventomaximo` as viaje_evaluacion_planilla_evento_max_id,`nu_puntaje` as puntaje
+            ->selectRaw("`cd_puntajeevento` as id,`cd_evaluacion` as viaje_evaluacion_id,`cd_modeloplanilla` as viaje_evaluacion_planilla_id,`cd_eventomaximo` as viaje_evaluacion_planilla_evento_max_id,`nu_puntaje` as puntaje,  ds_justificacion as justificacion
 ")
             ->orderBy('puntajeevento.cd_puntajeevento')
             ->chunk(1000, function ($rows) use (&$totalFilas, &$totalInsertadas, &$totalOmitidas, &$skippedRows){
@@ -69,7 +69,7 @@ class SyncViajeEvaluacionPuntajeEventos extends Command
                         'viaje_evaluacion_planilla_evento_max_id' => $row->viaje_evaluacion_planilla_evento_max_id  ?: null,
 
                         'puntaje' => is_numeric($row->puntaje) ? (float)$row->puntaje : null,
-
+                        'justificacion' => trim($row->justificacion),
 
 
                         'created_at' => now(),
@@ -87,7 +87,7 @@ class SyncViajeEvaluacionPuntajeEventos extends Command
                             ['id'],
                             [
                                 'viaje_evaluacion_id','viaje_evaluacion_planilla_id','viaje_evaluacion_planilla_evento_max_id','puntaje',
-                                'updated_at'
+                                'justificacion','updated_at'
                             ]
                         );
                         DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=1');
