@@ -94,23 +94,19 @@ class SyncViajeEvaluacionPuntajeCategorias extends Command
                         $totalInsertadas += count($data);
                     }
                 } catch (\Illuminate\Database\QueryException $e) {
-                    // Revisar si es error de duplicado
-                    if ($e->errorInfo[0] == '23000' && $e->errorInfo[1] == 1062) {
-                        $skippedRows[] = [
-                            'id' => null, // No siempre hay un id único si falla todo el batch
-                            'motivo' => 'Error duplicado: ' . $e->getMessage(),
-                            'estado' => null,
-                            'tipo' => null,
-                            'deddoc' => null,
-                            'institucion' => null,
-                            'beca' => null,
-                        ];
-                        $totalOmitidas += count($data); // Omitimos todo el batch que falló
-                    } else {
-                        // si es otro error, relanzarlo
-                        throw $e;
-                    }
+
+                    $this->error('ERROR SQL DETECTADO:');
+                    $this->error('Mensaje: ' . $e->getMessage());
+                    $this->error('SQLSTATE: ' . $e->errorInfo[0] ?? 'N/A');
+                    $this->error('Código MySQL: ' . $e->errorInfo[1] ?? 'N/A');
+
+                    // Opcional: ver los bindings
+                    $this->error('Query: ' . $e->getSql());
+
+                    // NO relances para debug
+                    return;
                 }
+
             });
 
         $this->info('Sincronización finalizada ✔');
