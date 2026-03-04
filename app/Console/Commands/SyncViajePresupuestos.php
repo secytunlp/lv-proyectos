@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class SyncViajePresupuestos extends Command
 {
-    protected $signature = 'sync:jovenpresupuestos';
+    protected $signature = 'sync:viajepresupuestos';
     protected $description = 'Sincroniza becas UNLP desde DB origen a investigadors';
 
     public function __construct()
