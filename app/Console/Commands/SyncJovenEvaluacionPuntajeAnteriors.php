@@ -12,7 +12,7 @@ class SyncJovenEvaluacionPuntajeAnteriors extends Command
      *
      * @var string
      */
-    protected $signature = 'sync:jovenevaluacionpuntajeanteiors';
+    protected $signature = 'sync:jovenevaluacionpuntajeanteriors';
 
     /**
      * The console command description.
