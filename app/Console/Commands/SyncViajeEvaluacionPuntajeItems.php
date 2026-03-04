@@ -48,7 +48,7 @@ class SyncViajeEvaluacionPuntajeItems extends Command
 
 
 
-            ->selectRaw("`cd_puntajeitem` as id,`cd_evaluacion` as viaje_evaluacion_id,`cd_modeloplanilla` as viaje_evaluacion_planilla_id,`cd_itemmaximo` as viaje_evaluacion_planilla_item_max_id,`nu_cant` as cantidad,`nu_puntaje` as puntaje
+            ->selectRaw("`cd_puntajeitem` as id,`cd_evaluacion` as viaje_evaluacion_id,`cd_modeloplanilla` as viaje_evaluacion_planilla_id,`cd_itemmaximo` as viaje_evaluacion_planilla_item_max_id,`nu_cantidad` as cantidad,`nu_puntaje` as puntaje
 ")
             ->orderBy('puntajeitem.cd_puntajeitem')
             ->chunk(1000, function ($rows) use (&$totalFilas, &$totalInsertadas, &$totalOmitidas, &$skippedRows){
