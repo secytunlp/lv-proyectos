@@ -332,7 +332,7 @@ class SolicitudSicadiController extends Controller
         }
         else{
             //$convocatorias = SicadiConvocatoria::where('year',Constants::YEAR_SICADI)->pluck('tipo', 'id')->prepend('Seleccionar...', '');
-            $convocatorias = SicadiConvocatoria::where('year', 2024)
+            $convocatorias = SicadiConvocatoria::where('year', Constants::YEAR_SICADI)
                 ->get()
                 ->mapWithKeys(function ($item) {
                     return [$item->id => $item->tipo . ' ' . $item->year];
