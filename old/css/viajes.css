@@ -1,0 +1,46 @@
+
+/* tabs */
+ul.tabs li.escritorio a {
+	background-image: url(images/tab-desk.png);
+}
+
+
+/* grilla */
+.rich_option_item_facturar {
+	background: url("images/invoice_18.png") no-repeat scroll 0 5px
+		transparent;
+	width: 18px;
+}
+
+.rich_option_item_facturar span {
+	padding-left: 18px;
+}
+
+.rich_option_item_movimientoCtaCte {
+	background: url("images/invoice_18.png") no-repeat scroll 0 5px
+		transparent;
+	width: 18px;
+}
+
+.rich_option_item_movimientoCtaCte span {
+	padding-left: 18px;
+}
+
+/* MENU */ 
+
+/* {matriculados} */
+
+
+/* {tiposTitulo} */
+ul.panel li.tiposTitulo a {
+	background: url("images/tiposTitulo.png");
+}
+
+/* {tiposDocumento} */
+ul.panel li.tiposDocumento a {
+	background: url("images/tiposDocumento.png");
+}
+
+
+
+

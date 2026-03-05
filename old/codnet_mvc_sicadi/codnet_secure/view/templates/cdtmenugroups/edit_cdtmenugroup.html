@@ -1,0 +1,82 @@
+<!-- BEGIN:main -->
+
+
+<script language="javascript" src="{WEB_PATH}js/autocomplete/simpleAutoComplete.js"></script>
+<link rel="stylesheet" href="{WEB_PATH}css/autocomplete/simpleAutoComplete.css" type="text/css" />
+
+
+
+<div id="editar">
+	<div align="justify"><p class="titulo">{title}</p></div>
+
+	<!-- BEGIN:msg -->
+	<div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+		<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+			{msg}
+		</p>
+	</div>
+	<br />
+	<!-- END:msg -->
+
+	<form name='editCdtMenuGroup' id='editCdtMenuGroup' action='doAction?action={submit}' method='post' onsubmit="return validate('editCdtMenuGroup');">
+		
+		<table>
+			<tr>
+				<td align="right">{cd_menugroup_label}:</td>
+				<td align="left">
+					{cd_menugroup}
+					<input type="hidden" readonly name="cd_menugroup" id="cd_menugroup" value="{cd_menugroup}"/>
+				</td>
+			</tr>
+			
+			<tr>
+				<td align="right">{nu_order_label}  {nu_order_required}</td>
+				<td align="left">
+					<input type='text' name='nu_order' id='nu_order' size='40' value="{nu_order}" jVal="{valid:function (val) { return required(val,' {nu_order_required_msg}'); }}"/>
+				</td>
+			</tr>
+			
+			<tr>
+				<td align="right">{nu_width_label}  {nu_width_required}</td>
+				<td align="left">
+					<input type='text' name='nu_width' id='nu_width' size='40' value="{nu_width}" jVal="{valid:function (val) { return required(val,' {nu_width_required_msg}'); }}"/>
+				</td>
+			</tr>
+			
+			<tr>
+				<td align="right">{ds_name_label}  {ds_name_required}</td>
+				<td align="left">
+					<input type='text' name='ds_name' id='ds_name' size='40' value="{ds_name}" jVal="{valid:function (val) { return required(val,' {ds_name_required_msg}'); }}"/>
+				</td>
+			</tr>
+			
+						
+			<tr>
+				<td align="right">{ds_action_label}</td>
+				<td align="left">
+					<input type='text' name='ds_action' id='ds_action' size='40' value="{ds_action}"/>
+				</td>
+			</tr>
+						
+			<tr>
+				<td align="right">{ds_cssclass_label}</td>
+				<td align="left">
+					<input type='text' name='ds_cssclass' id='ds_cssclass' size='40' value="{ds_cssclass}"/>
+				</td>
+			</tr>
+			
+			
+			
+			
+		</table>
+		
+		<p style="text-align:center">
+			<input type='submit' name='{lbl_save}' value='{lbl_save}'/>
+			<input type='reset' name='{lbl_cancel}' value='{lbl_cancel}' onclick="javascript:window.location.href= 'doAction?action=list_cdtmenugroups';"/>
+		</p>
+		
+		
+	</form>		
+	<div class="camposRequeridos">(*) {msg_required_fields}</div>
+</div>
+<!-- END:main -->

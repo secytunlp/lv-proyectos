@@ -1,0 +1,531 @@
+
+/* botones grilla */
+.btn-link{
+	display: inline-block;
+    font-size: 13px;
+    margin: 0;
+    cursor: pointer;
+    padding: 4px;
+    text-align: center;
+    /*border-radius: 1em 1em 1em 1em;*/
+    font-family: 'Roboto',sans-serif;
+    text-decoration: none !important;
+    border: 1px solid #005F61;
+    background: #0FBABA;
+
+}
+.btn-link:hover{
+	background: #005F61; /*#396BCC;*/
+	/*background-image: -moz-linear-gradient(center top, #FFFFFF, #FFFFFF);*/
+}
+
+
+.btn-inner{
+	display: block;
+	padding: 0;
+	position: relative;
+	border-bottom-width: 1px;
+	border-left-width: 1px;
+    border-right-width: 1px;
+    margin: 0;
+    overflow: visible;
+    text-align: left;
+    list-style: none outside none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.btn-text{
+	position: relative;
+    z-index: 1;
+    text-align: left;
+    list-style: none outside none;
+    white-space: nowrap;
+    cursor: pointer;
+    color: #FFFFFF;
+    /*font-weight: bold;*/
+    text-decoration: none;
+}
+.btn-link-right{
+	padding-right: 33px;
+}
+.btn-link-left{
+	padding-left: 33px;
+}
+.btn-icon-left{
+
+	left: 10px;
+}
+
+.btn-icon-right{
+
+	right: 10px;
+}
+.btn-icon{
+	margin-top: -9px;
+    position: absolute;
+    top: 50%;
+    height: 18px;
+    width: 18px;
+}
+
+/**************************************************/
+
+
+
+.ui-datepicker {
+	z-index: 50;
+}
+
+.rich_options_content {
+	width: 100%;
+	min-height: 30px;
+}
+
+.rich_options {
+	white-space: nowrap;
+	float: left;
+	display: none;
+	margin-right: 15px;
+	margin-top: 11px;
+}
+
+.rich_option_item {
+	-moz-user-select: none;
+	display: inline-block;
+	position: relative;
+	background-color: #F5F5F5;
+	background-image: -moz-linear-gradient(center top, #F5F5F5, #F1F1F1);
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	color: #444444;
+	-moz-border-radius-bottomright: 0;
+	-moz-border-radius-topright: 0;
+	z-index: 1;
+	-moz-border-radius: 2px 2px 2px 2px;
+	cursor: default;
+	font-size: 11px;
+	font-weight: bold;
+	line-height: 27px;
+	/*min-width: 54px;*/
+	outline: 0 none;
+	text-align: center;
+	opacity: 0.7;
+	padding-right: 20px;
+	padding-left: 20px;
+}
+
+.rich_option_item span { /*color:#FFFFFF;*/
+	
+}
+
+.rich_option_item:hover {
+	color: #000000;
+	cursor: pointer;
+	background-color: #FFFFFF;
+	background-image: -moz-linear-gradient(center top, #FFFFFF, #FFFFFF);
+	opacity: 1;
+	cursor: pointer;
+}
+
+.rich_option_item_delete { 
+	background: url("sprite_black2.png") no-repeat scroll -65px -43px
+		transparent;
+	width: 18px;
+}
+
+.form_filter_button {
+	float: right;
+	margin-right: 745px;
+	margin-top: 8px;
+}
+
+.rich_option_item_delete span {
+	padding-left: 18px;
+}
+
+.rich_option_item_view {
+	background: url("sprite_black2.png") no-repeat scroll -65px -65px
+		transparent;
+	
+}
+
+.rich_option_item_confirm { /*margin-top: -3px;*/
+	/* background: url("sprite_black2.png") no-repeat scroll -63px -63px transparent;*/
+	/*
+    vertical-align: middle;
+    display: inline-block;
+    position: relative;
+    background: url("../images/enable_16.png") no-repeat transparent;
+    height: 28px;
+    width: 74px;
+    color: #444444;
+    padding-top: 2px;
+    font-size: 11px;
+    font-weight: bold;
+    margin-right: -5px;
+    line-height: 27px;
+    text-align: center;
+    margin-left: 5px;
+    */
+	
+}
+
+.rich_option_item_confirm span {
+	
+}
+
+.rich_option_item_edit {
+	/*background: url("sprite_black2.png") no-repeat scroll -21px -39px transparent;*/
+	background: url("edit2.png") -3px -1px no-repeat transparent;
+}
+
+
+.rich_option_item_add {
+	background: url("icons.png") no-repeat scroll -39px -118px transparent;
+	/*
+	margin-top: -3px;
+	vertical-align: middle;
+	display: inline-block;
+	position: relative;
+	background: url("1369698873_edit_add.png") no-repeat transparent;
+	height: 32px;
+	width: 32px;
+	color: #444444;
+	font-size: 11px;
+	font-weight: bold;
+	line-height: 27px;
+	text-align: center;
+	*/
+}
+
+.rich_option_item_process {
+	margin-top: -3px;
+	vertical-align: middle;
+	display: inline-block;
+	position: relative;
+	background: url("1372800248_process.png") no-repeat transparent;
+	height: 32px;
+	width: 32px;
+	color: #444444;
+	font-size: 11px;
+	font-weight: bold;
+	line-height: 27px;
+	text-align: center;
+}
+
+.rich_option_item_pay {
+	background: url("dollar.png") no-repeat scroll -2px 0px
+		transparent;
+}
+
+.rich_option_item_attach {
+	background: url("sprite_black2.png") no-repeat scroll -2px 0px
+		transparent;
+}
+
+.rich_option_item_excel {
+	background: url("sprite_black2.png") no-repeat scroll -87px -23px transparent;
+	/*
+	margin-top: -3px;
+	vertical-align: middle;
+	display: inline-block;
+	position: relative;
+	background: url("excel.png") no-repeat transparent;
+	height: 32px;
+	width: 32px;
+	color: #444444;
+	font-size: 11px;
+	font-weight: bold;
+	line-height: 27px;
+	text-align: center;*/
+	/*background: url("export_xls.png") no-repeat transparent;*/
+}
+
+.rich_option_item_pdf {
+	background: url("sprite_black2.png") no-repeat scroll -87px -23px transparent;
+	/*
+	margin-top: -3px;
+	vertical-align: middle;
+	display: inline-block;
+	position: relative;
+	background: url("pdf.png") no-repeat transparent;
+	height: 32px;
+	width: 32px;
+	color: #444444;
+	font-size: 11px;
+	font-weight: bold;
+	line-height: 27px;
+	text-align: center;
+	*/
+	/*background: url("export_pdf.png") no-repeat transparent;*/
+	
+	
+	
+}
+
+.grid_title {
+	/*background:transparent url('../images/menu_title_back.png') no-repeat scroll left top;*/
+	width: 95%;
+	height: 33px;
+	font-size: 14px;
+	font-weight: bold;
+	color: #6E6E6E;
+	padding-left: 45px;
+	padding-top: 15px;
+	clear: both;
+}
+
+#content-in .grid {
+	margin-left: 22px;
+	/*margin-top: 360px;*/ /*position: inherit;*/
+	z-index: 0;
+}
+
+.grid table tr:hover {
+	background-color: #0FBABA;
+}
+
+/*#content-in .grid .rich_actions_content{
+    display:none;
+}*/
+.rich_actions_content {
+	float: right;
+	min-height: 30px;
+	min-height: 30px;
+	position: absolute;
+	right: 0;
+	/*top: 0;*/
+	top: 60px;
+}
+
+.rich_actions {
+	white-space: nowrap;
+	float: left;
+	margin-right: 15px;
+}
+
+.rich_action_item_pdf {
+	margin-top: -3px;
+	vertical-align: middle;
+	display: inline-block;
+	position: relative;
+	background: url("sprite_black2.png") no-repeat scroll -3px -63px
+		transparent;
+	height: 21px;
+	width: 21px;
+	color: #444444;
+	font-size: 11px;
+	font-weight: bold;
+	line-height: 27px;
+	text-align: center;
+}
+
+.rich_action_item_add {
+	margin-top: -3px;
+	vertical-align: middle;
+	display: inline-block;
+	position: relative;
+	background: url("sprite_black2.png") no-repeat scroll -63px -42px
+		transparent;
+	height: 21px;
+	width: 21px;
+	color: #444444;
+	font-size: 11px;
+	font-weight: bold;
+	line-height: 27px;
+	text-align: center;
+}
+
+.rich_action_item_excel {
+	margin-top: -3px;
+	vertical-align: middle;
+	display: inline-block;
+	position: relative;
+	background: url("sprite_black2.png") no-repeat scroll -3px -63px
+		transparent;
+	height: 21px;
+	width: 21px;
+	color: #444444;
+	font-size: 11px;
+	font-weight: bold;
+	line-height: 27px;
+	text-align: center;
+}
+
+.selected {
+	background: none repeat scroll 0 0 #0FBABA;
+	color: #222222;
+}
+
+.rich_pagination {
+	display: inline-block;
+	position: relative;
+	min-height: 30px;
+}
+
+.rich_pagination_Di {
+	padding: 0.3em 8px 0 0;
+	white-space: nowrap;
+}
+
+.rich_pagination_pages {
+	border: 1px solid transparent;
+	margin-bottom: -2px;
+	margin-top: -1px;
+	padding: 0 3px 1px;
+	margin-left: 4px;
+	margin-right: 4px;
+	display: inline-block;
+	position: relative;
+}
+
+.rich_pagination_pages_text {
+	color: #222222;
+	text-shadow: none;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.rich_img_container {
+	background-color: transparent;
+	background-image: -moz-linear-gradient(center top, #F5F5F5, #F1F1F1);
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	color: #444444;
+	margin-right: 0;
+	margin: 0;
+	display: inline-block;
+	position: relative;
+	-moz-border-radius-bottomright: 0;
+	-moz-border-radius-topright: 0;
+	z-index: 1;
+	-moz-border-radius: 2px 2px 2px 2px;
+	cursor: pointer;
+	font-size: 11px;
+	font-weight: bold;
+	height: 27px;
+	line-height: 27px;
+	outline: 0 none;
+	padding: 0 8px;
+	text-align: center;
+	opacity: 0.55;
+}
+
+.rich_img_container_disabled {
+	background-color: transparent;
+	background-image: -moz-linear-gradient(center top, #F5F5F5, #F1F1F1);
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	color: #444444;
+	margin-right: 0;
+	margin: 0;
+	display: inline-block;
+	position: relative;
+	-moz-border-radius-bottomright: 0;
+	-moz-border-radius-topright: 0;
+	z-index: 1;
+	-moz-border-radius: 2px 2px 2px 2px;
+	cursor: default;
+	font-size: 11px;
+	font-weight: bold;
+	height: 27px;
+	line-height: 27px;
+	outline: 0 none;
+	padding: 0 8px;
+	text-align: center;
+	opacity: 0.4;
+}
+
+.rich_img_container:hover {
+	opacity: 1;
+}
+
+.rich_img {
+	height: 21px;
+	width: 21px;
+	color: #444444;
+	margin-top: -3px;
+	vertical-align: middle;
+}
+
+.img_page_previous {
+	background: url("sprite_black2.png") no-repeat scroll -21px -21px
+		transparent;
+}
+
+.img_page_next {
+	background: url("sprite_black2.png") no-repeat scroll -42px -21px
+		transparent;
+}
+
+.rich_pagination_menu {
+	-moz-user-select: none;
+	display: none;
+	left: 4px;
+	top: 20px;
+	-moz-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+	background: none repeat scroll 0 0 #FFFFFF;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	cursor: default;
+	font-size: 13px;
+	margin: 0;
+	outline: medium none;
+	padding: 0 0 6px;
+	position: absolute;
+	max-height: 360px;
+	overflow: auto;
+	z-index: 7;
+}
+
+.rich_pagination_menu_item {
+	color: #333333;
+	cursor: pointer;
+	list-style: none outside none;
+	white-space: nowrap;
+	font-size: 13px;
+	-moz-user-select: none;
+	padding-right: 44px;
+	list-style: none outside none;
+	margin: 0;
+	padding: 2px 7em 2px 30px;
+	position: relative;
+	white-space: nowrap;
+}
+
+.rich_pagination_menu_item:hover {
+	color: #222222;
+	background-color: #F1F1F1;
+}
+
+.rich_pagination_menu_container {
+	-moz-box-shadow: none;
+	border: medium none;
+	padding: 0;
+	width: 155px;
+}
+
+span.chk_off {
+	background-image: url(chk_off.png);
+	background-repeat: no-repeat;
+	min-width: 11px;
+	min-height: 12px;
+}
+
+span.chk_on {
+	background-image: url(chk_on.png);
+	background-repeat: no-repeat;
+	min-width: 13px;
+	min-height: 11px;
+}
+
+.rich_option_item_select { 
+   
+	background: url("sprite_black2.png") no-repeat scroll -24px -64px
+		transparent;
+	width: 18px;
+}
+
+.rich_option_item_select span {
+	padding-left: 18px;
+}
+
+.rich_option_item_edit_functions{
+	background: url("editusergroupfunctions.png") 0px 1px no-repeat transparent;
+}

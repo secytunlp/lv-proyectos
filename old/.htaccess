@@ -1,0 +1,17 @@
+# Options:
+# +FollowSymlinks: Let out rewrite rules work
+
+Options -Indexes
+
+AddDefaultCharset utf-8
+
+Options +FollowSymlinks
+
+RewriteEngine On
+
+
+RewriteRule ^.*doAction?(.*)$ controller.php [L,QSA]
+
+
+RewriteRule ^.*(.html)$ /index.php [L,QSA]
+

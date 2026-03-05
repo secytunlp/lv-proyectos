@@ -1,0 +1,99 @@
+<!-- BEGIN: main -->
+
+<div class="titulo_listar">{titulo}</div>
+
+<ul class="lista_opciones">
+	<!-- BEGIN: export_excel -->
+	<li class="excel"><a  title="Exportar xls" href="#" onclick="javascript:submit_self('{accion_excel}');"><span>Exportar xls</span></a></li>
+	<!-- END: export_excel -->
+	<!-- BEGIN: export_pdf -->
+	<li class="pdf"><a  title="Exportar pdf" href="#" onclick="javascript:submit_blank('{accion_pdf}');"><span>Exportar pdf</span></a></li>
+	<!-- END: export_pdf -->
+	<!-- BEGIN: opcion -->
+		<li class="{li_class}"><a  title="{label}" href="doAction?action={accion}"><span>{label}</span></a></li>
+	<!-- END: opcion -->
+</ul>
+
+<div class="botonesTabla">
+	<form name="buscar" id="buscar" action="doAction" method="GET" onsubmit ="return verificarFiltro();">
+		<input type="hidden" name="accion" id="accion" value="{accion_listar}" />
+		<input type="hidden" name="campoOrden" id="campoOrden" value="{campoOrden}" />
+		<input type="hidden" name="orden" id="orden" value="{orden}" />
+		<input type="hidden" name="validar" id="validar" value="false" />
+		<!-- BEGIN: botones_tabla -->
+		<!-- BEGIN: combo_filtros -->
+		<select name="campoFiltro" id="campoFiltro">
+			<!-- BEGIN: opcion_filtro -->
+			<option value={value_filtro}>{ds_filtro}</option>
+			<!-- END: opcion_filtro -->
+		</select>			
+		<input type="text" name="filtro" id="filtro" value="{txt_filtro}" />
+		<!-- END: combo_filtros -->
+		<!-- BEGIN: filtrosEspeciales --> {filtrosEspeciales} <!-- END: filtrosEspeciales -->
+		<input type="button" name="buscar"  id="buscar" value="Buscar" onclick="javascript:submit_self('{accion_listar}');">
+		<input type="button" name="listar"  id="listar" onclick="javascript:listar_todos('{accion_listar}');" value="Listar Todos">
+		<!-- END: botones_tabla -->		
+	</form>
+</div>
+
+
+<!-- BEGIN: msj -->
+<div class="{classMsj}"> {msj} 
+</div>
+<!-- END: msj -->
+
+<div class="paginas" id="paginador">
+	<div style="float:left">
+	<!-- BEGIN: PAG --> {PAG} <!-- END: PAG -->	
+	</div>
+	<!-- BEGIN: resultado --> {resultado} <!-- END: resultado -->
+</div>
+
+<div style="float: left; width: 100%"> 
+
+<!-- BEGIN: header -->
+<div class='tablaSummaryHeader'>{header}</div>
+<!-- END: header -->
+<div class="block">
+
+<table border="1">
+	<thead>
+	<tr>
+		<!-- BEGIN: TH -->		
+		<th>
+		
+			<a title="Ordenar por {ordenar_por} - {orden}" alt="Ordenar por {ordenar_por} - {orden}" 
+				href="doAction{query_string}campoOrden={campo_orden}&orden={orden}&action={accion_listar}">
+				{encabezado}
+			</a>
+			
+			
+			</th>
+		<!-- END: TH -->
+		<th></th>
+	</tr>
+	</thead>
+	<!-- BEGIN: row -->
+	<tbody class="{row_class}">
+	<tr>
+		<!-- BEGIN: column -->
+		<td>{value}</td>
+		<!-- END: column -->
+		<td class="acciones">
+			
+			<!-- BEGIN: accion -->				
+			<a onclick="{onclick}" href="{href}"><img class="hrefImg" src="{WEB_PATH}/css/desktop/images/{img}" title="{title}" /></a>&nbsp;
+			<!-- END: accion -->
+			
+		</td>
+	</tr>
+	</tbody>
+	<!-- END: row -->
+</table>
+
+<!-- BEGIN: footer -->
+<div class='tablaSummaryFooter'>{footer}</div>
+<!-- END: footer -->
+</div>
+</div>
+<!-- END: main -->

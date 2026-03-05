@@ -1,0 +1,8 @@
+Order deny,allow
+Deny from all
+
+# Permitir el acceso a través de las acciones en PHP
+<FilesMatch "controller\.php">
+    Order allow,deny
+    Allow from all
+</FilesMatch>

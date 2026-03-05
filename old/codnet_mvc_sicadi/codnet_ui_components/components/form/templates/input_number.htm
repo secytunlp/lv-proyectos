@@ -1,0 +1,11 @@
+<!-- BEGIN:main -->
+<input type='text'  {custom} <!-- BEGIN: property --> {name}="{value}" <!-- END: property -->
+ 
+ <!-- BEGIN:required -->
+ <!-- jVal="{valid:function (val) { return required(val,'{msg_required}')+number(val,'{msg_invalid_format}'); }}" -->
+ <!-- END:required -->
+<!-- BEGIN:no_required -->
+ <!-- jVal="{valid:function (val) { return number(val,'{msg_invalid_format}'); }}" -->
+ <!-- END:no_required -->
+ />
+<!-- END:main -->

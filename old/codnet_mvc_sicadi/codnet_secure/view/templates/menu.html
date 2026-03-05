@@ -1,0 +1,45 @@
+<!-- BEGIN: main -->
+<script language="javascript" src="{js}"></script>
+<link rel="stylesheet" href="{cssmenu}" type="text/css" />
+
+<script language="javascript">
+
+	<!-- BEGIN: menu -->
+	//new ypSlideOutMenu("number menu", "slide position", left, top, width, height)
+	menu = new ypSlideOutMenu("{nombre_menu}", "down", {x}, 127, 190, {h});
+	menu.onactivate = new Function("document.getElementById('{id_menu}').className='active';");
+	menu.ondeactivate = new Function("document.getElementById('{id_menu}').className='';");
+	<!-- END: menu-->
+	ypSlideOutMenu.writeCSS();
+</script>
+
+<!-- 
+<div id="header">
+	<img src="{logo}" alt="{titulo}" border="0" />		
+</div>
+ -->
+<div id="menubar">
+
+	<!-- BEGIN: menubar -->
+	<a id="{id_menubar}" href="#" onmouseover="ypSlideOutMenu.showMenu('{nombre_menubar}')" onmouseout="ypSlideOutMenu.hideMenu('{nombre_menubar}')" >{ds_menubar}</a>&nbsp;
+	<!-- END: menubar -->
+</div>
+
+
+<!-- BEGIN: menucontainer -->
+<div id="{id_menucontainer}">
+	<!-- BEGIN: menucontent -->
+	<div id="{id_menucontent}" class="menu">
+		<div class="options">
+			<!-- BEGIN: menuoption -->
+			<a href="{href_menuoption}">{ds_menuoption}</a>
+			<!-- END: menuoption -->
+		</div>
+	</div>
+	<!-- END: menucontent -->
+</div>
+<!-- END: menucontainer -->
+
+<div id="navegacion">{navegacion}</div>
+
+<!-- END: main -->

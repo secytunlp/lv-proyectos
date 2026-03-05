@@ -1,0 +1,197 @@
+<!-- BEGIN:main -->
+
+
+<script language="javascript" src="{WEB_PATH}js/autocomplete/simpleAutoComplete.js"></script>
+<link rel="stylesheet" href="{WEB_PATH}css/autocomplete/simpleAutoComplete.css" type="text/css" />
+
+
+<script type="text/javascript">
+function cdtusergroup_change(attr){
+	
+}
+
+function showIPs( ips ){
+	var html = "<table>";
+	for(var i=0; i< ips.length ; i++){
+		
+		var ip = ips[i] ;
+	
+		var ipHtml = "<tr><td>" + ip + "</td>";
+		ipHtml += "<td><a href='' onclick='return confirmDeleteIP(\"" + ip + "\")''><img title='{msg_delete_ip}' src='css/smile/images/chk_off.png'/></a></td></tr>";
+		html += ipHtml;
+	}
+	html += "</table>";
+	
+	$("#div_ips").html(html);
+}
+
+function confirmDeleteIP( ip ){
+    cartel= "{msg_confirm_delete_ip}";
+    jConfirm(cartel, '{msg_delete_ip}', function(r) {
+        if (r) {
+                        
+            jQuery.ajax({
+                url:"{WEB_PATH}doAction?action=edit_cdtuser_delete_ip&cd_cdtuser={cd_cdtuser}&ip=" + ip,
+                success: function(data){
+                	var data = $.parseJSON(data);
+                	if( data != null && data["error"]!=null){
+                		showMessageError( data["error"], true );
+                	}
+                	
+                	if( data != null && data["ips"]!=null){
+                    	showIPs( data["ips"] );
+                	}
+                }
+            });
+            
+            return false
+        } else {
+            return false;
+        }
+    });
+    return false;
+}
+
+function addIP(){
+
+  var ds_ip = $("#ip").val();
+  var resp = required(ip,'{ip_required_msg}') + ip(ds_ip,'{ip_invalid_msg}'); 
+  if( !resp ){
+	  
+	  jQuery.ajax({
+	      url:"{WEB_PATH}doAction?action=edit_cdtuser_add_ip&cd_cdtuser={cd_cdtuser}&ip=" + ds_ip,
+	      success: function(data){
+	    	var data = $.parseJSON(data);
+	      	
+	      	if( data != null && data["error"]!=null){
+	      		showMessageError( data["error"], true );
+	      	}
+	      	
+	      	
+	      	if( data != null && data["ips"]!=null){
+	      		$("#ip").val("");      		
+	        	showIPs( data["ips"] );
+	      	}
+	      }
+	  });
+  }else{
+	  showMessageError(resp,1);
+  }
+  return false;
+}
+</script>
+
+
+<div id="editar">
+
+	<!-- BEGIN:msg -->
+	<div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+		<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+			{msg}
+		</p>
+	</div>
+	<br />
+	<!-- END:msg -->
+
+	<form name='editCdtUser' id='editCdtUser' action='doAction?action={submit}' method='post' onsubmit="return validate('editCdtUser');">
+		<div class="group">
+		<h2>{title}</h2>
+		<table>
+			<tr>
+				<td align="right">{cd_user_label}:</td>
+				<td align="left">
+					{cd_user}
+					<input type="hidden" readonly name="cd_user" id="cd_user" value="{cd_user}"/>
+				</td>
+			</tr>
+			
+			<tr>
+				<td align="right">{ds_username_label}  {ds_username_required}</td>
+				<td align="left">
+					<input type='text' name='ds_username' id='ds_username' size='40' value="{ds_username}" jVal="{valid:function (val) { return required(val,' {ds_username_required_msg}'); }}"/>
+				</td>
+			</tr>
+			
+						
+			<tr>
+				<td align="right">{ds_name_label}</td>
+				<td align="left">
+					<input type='text' name='ds_name' id='ds_name' size='40' value="{ds_name}"/>
+				</td>
+			</tr>
+						
+			<tr>
+				<td align="right">{ds_email_label} {ds_email_required}</td>
+				<td align="left">
+					<input type='text' name='ds_email' id='ds_email' size='40' value="{ds_email}" jVal="{valid:function (val) { return required(val,' {ds_email_required_msg}') + isMail(val,' {ds_email_invalid_msg}'); }}"/>
+				</td>
+			</tr>
+						
+			<tr>
+				<td align="right">{ds_phone_label}</td>
+				<td align="left">
+					<input type='text' name='ds_phone' id='ds_phone' size='40' value="{ds_phone}"/>
+				</td>
+			</tr>
+						
+			<tr>
+				<td align="right">{ds_address_label}</td>
+				<td align="left">
+					<input type='text' name='ds_address' id='ds_address' size='40' value="{ds_address}"/>
+				</td>
+			</tr>
+						
+			<tr>
+				<td align="right">{cd_usergroup_label} {cd_usergroup_required}</td>
+				<td align="left">
+					{CdtUserGroup_find}
+				</td>
+			</tr>
+		</table>
+		</div>
+		<div class="group">
+			<h2>{ips_title}</h2>
+			
+			<table>
+				<tr>
+	                <td align="left">
+	                	<div id="div_ips">
+	                	<table>
+	                		<tr>
+	                			<td>{ds_ip_label}</td>
+	                		</tr>
+	                		<!-- BEGIN:ip -->
+	                		<tr>
+	                			<td>{ip}
+	                			</td>
+	                			<td><a href="" onclick="return confirmDeleteIP('{ip}')"><img title="{msg_delete_ip}" src="css/smile/images/chk_off.png"/></a></td>
+	                		</tr>
+	                		<!-- END:ip -->
+	                		<!-- BEGIN:no_ips -->
+	                		{msg_no_ips}
+	                		<!-- END:no_ips -->
+	                	</table>
+	                	</div>
+	                	<table>
+	                		<tr>
+	                			<td>{msg_add_ip}</td>
+	                			<td>
+	                				<input type='text' name='ip' id='ip' size='40' value=""/>
+	                				<a href="#" onclick="return addIP()"><img title="{msg_add_ip}" src="css/smile/images/chk_on.png"/></a>
+	                			</td>
+	                		</tr>
+	                	</table>
+	                </td>
+	            </tr>
+			</table>
+		</div>
+		<p style="text-align:center">
+			<input type='submit' name='{lbl_save}' value='{lbl_save}'/>
+			<input type='reset' name='{lbl_cancel}' value='{lbl_cancel}' onclick="javascript:window.location.href= 'doAction?action=list_cdtusers';"/>
+		</p>
+		
+		
+	</form>		
+	<div class="camposRequeridos">(*) {msg_required_fields}</div>
+</div>
+<!-- END:main -->

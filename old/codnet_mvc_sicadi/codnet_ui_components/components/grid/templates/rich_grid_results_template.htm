@@ -1,0 +1,308 @@
+<!-- BEGIN: main -->
+<script nonce="tu_nonce_generado">
+
+$(document).ready(function () {
+    $("td[data-grid-id][data-item-id][data-value]").on("click", function () {
+        const gridId = $(this).data("grid-id");
+        const itemId = $(this).data("item-id");
+        const value = $(this).data("value");
+        selectRow_{gridId}('row_{gridId}_{itemId}', 'item_{gridId}_{itemId}', value);
+    });
+
+	$(".rich_options a[data-callback]").on("click", function (event) {
+        event.preventDefault(); // Evitar la navegación predeterminada
+        const callback = $(this).data("callback");
+        if (callback && window[callback] && typeof window[callback] === "function") {
+            window[callback](); // Llama a la función de callback
+        }
+    });
+
+    // Manejar el clic en los enlaces de barra_opcion
+    $(".rich_options a[data-function-callback]").on("click", function (event) {
+        event.preventDefault(); // Evitar la navegación predeterminada
+        const functionCallback = $(this).data("function-callback");
+        if (functionCallback && window[functionCallback] && typeof window[functionCallback] === "function") {
+            window[functionCallback](); // Llama a la función de functionCallback
+        }
+    });
+
+	
+});
+
+function setOptions_{gridId}( value ){
+
+	if( value )
+		$("#rich_option_item_{gridId}").show();
+	else
+		$("#rich_option_item_{gridId}").hide();
+}
+
+function selectRow_{gridId}( rowId, checkInputId ){
+
+	if($("#"+checkInputId).length) {
+
+		if($("#"+checkInputId).is(':checked'))
+			//document.getElementById(checkInputId).checked  ="";
+		 	$("#"+checkInputId).attr('checked', false);
+		else
+			//document.getElementById(checkInputId).checked  ="checked";
+			$("#"+checkInputId).attr('checked', true);
+
+		resetOptions_{gridId}( rowId, $("#"+checkInputId).is(':checked') );	
+		
+	}
+	
+}
+
+function resetOptions_{gridId}( rowId, checked ){
+
+	var mostrar = false;
+	
+	$("#search_results_{gridId} :checkbox").each(function (i) {
+
+	 	//si alguna estï¿½ chequeado, habilitamos las opciones.
+		mostrar = mostrar ||  $(this).is(':checked') ;
+
+	 });
+	 
+	setOptions_{gridId}( mostrar );
+
+	paintSelected_{gridId}( rowId, checked );
+	
+	//lo incluimos en la lista global de items seleccionados.
+	if( checked )
+		addItemsSelected_{gridId}(rowId);
+	else
+		removeItemsSelected_{gridId}(rowId);
+}
+
+
+
+function paintSelected_{gridId}( rowId, checked ){
+
+	if( checked )
+		$("#" + rowId).css({'background-color': '#FFFFCC'});
+	else
+		$("#" + rowId).css({'background-color': ''});
+}
+
+function paintAllSelected(){
+
+	$("#search_results_{gridId} :checkbox").each(function (i) {
+
+		var itemId = $(this).val();
+		
+		if( $(this).is(':checked') ){
+				$("#row_{gridId}_" + itemId).css({'background-color': '#FFFFCC'});
+		}else
+			$("#row_{gridId}_" + itemId).css({'background-color': ''});
+		
+		 
+ 	});
+
+	
+}
+
+function getSelected_{gridId}( ){
+
+	var selected = "";
+	var first = true;
+	$("#search_results_{gridId} :checkbox").each(function (i) {
+
+		 	if (  $(this).is(':checked')  && $(this).attr('name') != 'checkAll_{gridId}'){
+
+		 		if( first ) 
+		 			selected +=  $(this).val()  ;
+		 		else
+		 			selected +=  "," + $(this).val();
+
+	 			first = false;
+			}
+			
+			 	 
+	 });
+	return selected;
+}
+
+
+function checkTodos_{gridId} (id,pID) {
+	 
+	   $( "#" + pID + " :checkbox").attr('checked', $('#' + id).is(':checked'));
+
+	   mostrar = $('#' + id).is(':checked');
+	   
+	  
+	   
+	   setOptions_{gridId}( mostrar  ); 
+
+	   paintAllSelected();
+	
+	   //vemos si hay que deseleccionar o seleccionar en el arreglo de
+	   //items de todas las pÃ¡ginas.
+	   $("#search_results_{gridId} :checkbox").each(function (i) {
+			
+			var rowId = "row_{gridId}_" + $(this).val();
+		   
+			
+			if( $(this).is(':checked') ) 
+				addItemsSelected_{gridId}(rowId);
+			else
+				removeItemsSelected_{gridId}(rowId);
+			 
+	 	})
+	   	
+}
+
+function checkOnlyOneSelected_{gridId}( onSuccess ){
+
+	var count = 0;
+	$("#search_results_{gridId} :checkbox").each(function (i) {
+		
+		if( $(this).is(':checked') ){
+			count ++;
+		}
+		 
+ 	})
+ 	if( count == 1 ){
+		onSuccess();
+ 	}else{
+		jAlert("{msgSelectOnlyOneItem}");
+ 	 }
+}
+
+function delete_items( action ){
+
+	//jAlert("doAction?action=" + action + "&id=" + getSelected_{gridId}());
+	 jQuery("#searchdiv_{gridId}").load( "doAction?action=" + action + "&id=" + getSelected_{gridId}() );
+
+}
+
+function doAction( action ){
+
+	//jAlert("doAction?action=" + action + "&id=" + getSelected_{gridId}());
+	jQuery("#searchdiv_{gridId}").load( "doAction?action=" + action + "&id=" + getSelected_{gridId}() );
+
+}
+
+</script>
+<!-- BEGIN: header -->
+<div class='tablaSummaryHeader'>{header}</div>
+<!-- END: header -->
+<div id="search_results_{gridId}">
+
+<div class="rich_options_content">
+    <div class="rich_options" style="display: block; margin-right: 4px;">
+        <!-- BEGIN: action -->
+        <a class="btn-link" title="{label}" href="doAction?action={action}" data-callback="{callback}">
+            <span class="btn-inner btn-link-left">
+                <span class="btn-text">{label}</span>
+                <span class="btn-icon-left btn-icon rich_option_item_{liClass}"></span>
+            </span>
+        </a>
+        <!-- END: action -->
+    </div>
+
+    <div id="rich_option_item_{gridId}" class="rich_options">
+        <!-- BEGIN: barra_opcion -->
+        <a class="btn-link" title="{title}" href="#" data-function-callback="{functionCallback}">
+            <span class="btn-inner btn-link-left">
+                <span class="btn-text">{label}</span>
+                <span class="btn-icon-left btn-icon rich_option_item_{divClass}"></span>
+            </span>
+        </a>
+        <!-- END: barra_opcion -->
+    </div>
+</div>
+
+
+
+
+<!-- BEGIN:error_message -->
+<script type="text/javascript">
+showMessageError( '{error_message}', false );
+</script>
+<!-- END:error_message -->
+	
+
+
+
+<div class="grid_pages" id="paginator_{gridId}">
+	<div style="float:right;">
+	<!-- BEGIN: pagination --> {pagination} <!-- END: pagination -->
+	</div>
+</div>
+
+<div style="float: left; width: 100%"> 
+
+<div class="block">
+
+<table border="1">
+	<thead>
+	<tr>
+		<!-- BEGIN: TH_CHECKBOX -->
+		<th rowspan={group_levels}> <input id="checkAll_{gridId}" onclick="checkTodos_{gridId}(this.id,'search_results_{gridId}');" name="checkAll_{gridId}" type="checkbox" /></th>
+		<!-- END: TH_CHECKBOX -->
+		<!-- BEGIN: TH -->		
+		
+			<!-- BEGIN: SIMPLE -->
+			<th rowspan={group_levels}>
+			
+				<a title="{lbl_order_by} {orderLabel} - {orderType}" 
+					href="none"	onclick="javascript: sort_ajax_{gridId}( '{orderField}', '{orderType}'); return false;">
+					{label}
+				</a>
+				
+			</th>
+			<!-- END: SIMPLE -->
+			
+			<!-- BEGIN: GROUP -->		
+			<th colspan={group_size}>
+				<a title="{lbl_order_by} {orderLabel} - {orderType}" 
+					href="none"	onclick="javascript: sort_ajax_{gridId}( '{orderField}', '{orderType}'); return false;">
+					{group_label}				
+				</a>
+			</th>
+			<!-- END: GROUP -->
+			
+		<!-- END: TH -->
+	</tr>
+	<!-- BEGIN: SUB_HEADER -->
+	<tr>
+		<!-- BEGIN: TH -->		
+		<th>
+		
+			<a title="{lbl_order_by} {orderLabel} - {orderType}"  
+				href="none"	onclick="javascript: sort_ajax_{gridId}( '{orderField}', '{orderType}'); return false;">
+				{label}
+			</a>
+			
+		</th>
+		<!-- END: TH -->
+	</tr>	
+	<!-- END: SUB_HEADER -->
+	
+	</thead>
+	
+	<!-- BEGIN: row -->
+	<tbody class="{rowClass}" id="row_{gridId}_{itemId}">
+	<tr style="cursor: pointer;" class="{row_class}" >
+	
+		<!-- BEGIN:checkbox -->
+		<td><input onclick="resetOptions_{gridId}( 'row_{gridId}_{itemId}', this.checked );" type="checkbox" name="item_{gridId}_{itemId}"  id="item_{gridId}_{itemId}"   value="{itemId}" ></input></td>
+		<!-- END:checkbox -->
+		<!-- BEGIN: column -->
+		<td style="{column_style}" class="{column_class}" data-grid-id="{gridId}" data-item-id="{itemId}" data-value="{value}">{value}</td>
+
+		<!-- END: column -->
+	</tr>
+	</tbody>
+	<!-- END: row -->
+</table>
+
+<!-- BEGIN: footer -->
+<div class='tablaSummaryFooter'>{footer}</div>
+<!-- END: footer -->
+</div>
+</div>
+</div>
+<!-- END: main -->

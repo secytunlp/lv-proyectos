@@ -1,0 +1,137 @@
+#login-box .new_user{
+
+	padding: 20px;
+	color: #000;
+	font-weight: bold;
+}
+
+#login-box {
+	width:333px;
+	height: 352px;
+	padding: 58px 76px 0 76px;
+	color: #ebebeb;
+	font: 12px Arial, Helvetica, sans-serif;
+	background: url(images/login-box-backg.png) no-repeat left top;
+}
+#login-container{
+    left: 50%;
+    margin-left: -235px;
+    position: absolute;
+    top: 10%;
+    width: 470px;
+}
+    
+#login-box img {
+	border:none;
+}
+
+#login-box h2 {
+	padding:0;
+	margin:0;
+	color: #ebebeb;
+	font: bold 44px "Calibri", Arial;
+	margin-bottom: 25px;
+}
+
+#login-box h1 {
+	margin-bottom: 25px;
+}
+
+#login-box-name {
+	float: left;
+	display:inline;
+	width:80px;
+	text-align: right;
+	padding: 10px 10px 0 0;
+	margin:0 0 7px 0;
+}
+
+#login-box-field {
+	float: left;
+	display:inline;
+	width:230px;
+	margin:0;
+	margin:0 0 7px 0;
+}
+
+
+.form-login  {
+	width: 205px;
+	padding: 10px 4px 6px 3px;
+	border: 1px solid #0d2c52;
+	background-color:#1e4f8a;
+	font-size: 16px;
+	color: #ebebeb;
+}
+
+.form-select  {
+	width: 205px;
+	
+	background-color:#1e4f8a;
+	font-size: 16px;
+	color: #ebebeb;
+}
+
+.form-cuil  {
+	
+	padding: 10px 4px 6px 3px;
+	border: 1px solid #0d2c52;
+	background-color:#1e4f8a;
+	font-size: 16px;
+	color: #ebebeb;
+}
+
+
+.login-box-options  {
+	/*
+	clear:both;
+	padding-left:87px;
+	font-size: 11px;
+	*/
+	float: right;
+    font-size: 11px;
+    padding-right: 30px;	
+}
+
+.login-box-options a {
+	color: #ebebeb;
+	font-size: 11px;
+}
+
+.camposRequeridos {
+    color: #FFFFFF;
+    font-family: Arial,helvetica,sans-serif;
+    font-size: 9px;
+    margin-top: 5px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    text-align: center;
+}
+
+#login-box table{
+    background-color: transparent;
+    border: none;
+    color:#FFF;
+}
+
+#login-box table tr td {
+    border: none;
+    padding: 4px;
+    text-align: right;
+    vertical-align: top;
+}
+
+#login-box a:visited {
+	text-decoration:none;
+	color:#FFF;
+}
+
+#login-box a {
+	text-decoration:none;
+	color:#FFF;
+}
+
+#login-box .new_user a {
+	text-decoration:none;
+	color:blue;
+}

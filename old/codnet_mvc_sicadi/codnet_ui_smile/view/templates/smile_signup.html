@@ -1,0 +1,116 @@
+<!-- BEGIN: main -->
+<script type="text/javascript">
+    function validar(){       
+        form = document.getElementById('signup');
+        result = validate('signup') && (form.accept.checked);
+        if(!result){
+            if(form.accept.checked == false){
+                jAlert("{debe_leer_terminos}", "{titulo}");
+            }
+        }
+        return result;
+    }
+    
+    function viewTerms(){
+
+    	url = '{WEB_PATH}terms_conditions.html';
+    	var dialogOpts = {
+                title : "{txt_terms_title}",
+                modal : true,
+                autoOpen : false,
+                bgiframe : true,
+                buttons : {
+                    "{txt_terms_accept}" : function() {
+                    	$("input[name=accept]").attr('checked', true);
+                    	jQuery('#ui-dialog-terms').dialog("destroy");
+                    }
+                },
+                height : 600,
+                width : 600,
+                open : function() {
+                    jQuery("#ui-dialog-terms").load(url);
+                }
+            };
+            jQuery("#ui-dialog-terms").children().remove();
+            jQuery("#ui-dialog-terms").dialog("destroy");
+            jQuery("#ui-dialog-terms").dialog(dialogOpts);
+            jQuery("#ui-dialog-terms").dialog("open");
+            
+    	
+    }
+</script>
+
+<div id="editar">
+
+    <div align="justify"><p class="titulo">{title}</p></div>
+
+
+    <!-- BEGIN: msg -->
+    <div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: 0 .7em;">
+        <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+			{msg}
+        </p>
+    </div>
+    <br />
+    <!-- END: msg -->
+    <form name='signup' id='signup' action='doAction?action=signup' onsubmit="return validar();" method='post'>
+        <table>
+            <tr>
+                <td align="right">{lbl_username} *</td>
+                <td align="left">
+                    <input type='text' name='ds_username' id='ds_username' value='{ds_username}' size='40'
+                           jVal="{valid:function (val) { return required(val,'{fill_username}'); }}"/>
+                </td>
+            </tr>
+            <tr>
+                <td align="right">{lbl_email} *</td>
+                <td align="left">
+                    <input type='text' name='ds_email' id='ds_email'  value='{ds_email}' size='40'
+                           jVal="{valid:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/, message:'{invalid_email}'}"
+                           jValKey="{valid:/[a-zA-Z0-9._%+-@]/, cFunc:'alert', cArgs:['Email Address: '+$(this).val()]}"/>
+                </td>
+            </tr>
+            <tr>
+                <td align="right">{lbl_password} *</td>
+                <td align="left">
+                    <input type='password' name='ds_password' id='ds_password'  size='20'
+                           jVal="{valid:function (val) { return required(val,'{fill_password}'); }}"/>
+                </td>
+            </tr>
+            <tr>
+                <td align="right">{lbl_repeat_password} *</td>
+                <td align="left">
+                    <input type='password' name='pass2' id='pass2'  size='20'
+                           jVal="{valid:function (val) { if ( val != eval('$(\'#ds_password\').val()') ) return false; else return true; }, message:'{invalid_passwords}'}"
+                           />
+                </td>
+            </tr>
+
+            <tr>
+                <td align="right">{lbl_securitycode} *</td>
+                <td >
+                    <img id="siimage" align="left" style="padding-right: 5px; border: 0" src="{WEB_PATH}/libs/captcha/securimage_show.php?sid={sid_captcha}" />
+                    <a tabindex="-1" style="border-style: none" href="#" title="{change_image}" onClick="document.getElementById('siimage').src = '{WEB_PATH}/libs/captcha/securimage_show.php?sid=' + Math.random(); return false"><img src="{WEB_PATH}captcha/images/refresh.gif" title="{change_image}" alt="{change_image}" border="0" onClick="this.blur()" align="bottom" /></a>
+                </td>
+            </tr>
+
+            <tr>
+                <td align="right"></td>
+                <td align="left">
+                    <input type='input' name='captcha' id='captcha'  size='20'
+                           jVal="{valid:function (val) { return required(val,'{fill_security_code}'); }}"/>				
+               	</td>
+            </tr>
+
+        </table>
+        <p style="padding-left:10px; font-family: Arial, helvetica, sans-serif; font-size: 12px; color: #666666;">
+            <input type="checkbox" id="accept" name="accept"/><a style="font-weight: bold; color:#666666; text-decoration: none" href="#" onclick="javascript: viewTerms();return false;" target="_blank"> {txt_terms_accept} </a></p>
+        <br />
+        <p style="text-align:center; ">
+            <button style="" class="submit" value="{btn_register_label}" type="submit" id="submit">{btn_register_label}</button>
+        </p>
+        <div class="camposRequeridos">* {required_fields}</div>
+        <div style="display: none;" id="ui-dialog-terms"></div>
+    </form>
+</div>
+<!-- END: main -->

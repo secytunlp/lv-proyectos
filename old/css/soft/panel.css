@@ -1,0 +1,57 @@
+/* {cdtactionfunctions} */
+ul.panel li.cdtactionfunctions a {
+	/*background: url("images/Iconos_MJ.png") repeat scroll -633px -33px transparent;*/
+	background: url("images/cdtactionfunctions.png");
+}
+
+/* {cdtactionfunctions} */
+ul.panel li.cdtactionfunctions a {
+	/*background: url("images/Iconos_MJ.png") repeat scroll -633px -33px transparent;*/
+	background: url("images/cdtactionfunctions.png");
+}
+
+/* {cdtfunctions} */
+ul.panel li.cdtfunctions a {
+	/*background: url("images/Iconos_MJ.png") repeat scroll -752px -33px transparent;*/
+	background: url("images/cdtfunctions.png");
+}
+
+/* {cdtmenugroups} */
+ul.panel li.cdtmenugroups a {
+	background: url("images/cdtmenugroups.png");
+	/*background: url("images/Iconos_MJ.png") repeat scroll -871px -33px transparent;*/
+}
+
+/* {cdtmenuoptions} */
+ul.panel li.cdtmenuoptions a {
+	/*background: url("images/Iconos_MJ.png") repeat scroll -990px -33px transparent;*/
+	background: url("images/cdtmenuoptions.png");
+}
+
+/* {cdtregistrations} */
+ul.panel li.cdtregistrations a {
+	/*background: url("images/Iconos_MJ.png") repeat scroll -32px -152px transparent;*/
+	background: url("images/cdtregistrations.png");
+}
+
+/* {cdtusers} */
+ul.panel li.cdtusers a {
+	/*background: url("images/Iconos_MJ.png") repeat scroll -151px -152px transparent;*/
+	background: url("images/cdtusers.png");
+}
+
+/* {cdtusergroups} */
+ul.panel li.cdtusergroups a {
+	/*background: url("images/Iconos_MJ.png") repeat scroll -270px -152px transparent;*/
+	background: url("images/cdtusergroups.png");
+}
+
+/* {cdtusergroupfunctions} */
+ul.panel li.cdtusergroupfunctions a {
+	background: url("images/cdtusergroupfunctions.png");
+	/*background: url("images/Iconos_MJ.png") repeat scroll -389px -152px transparent;*/
+}
+
+ul.panel li.exit a {
+	background-image: url("images/salir.png");
+}

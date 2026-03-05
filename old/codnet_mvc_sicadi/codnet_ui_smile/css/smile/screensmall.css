@@ -1,0 +1,40 @@
+/* fancyform styles */
+.demo label {
+	padding: 0.1em;
+	padding-left: 20px;
+	background-repeat: no-repeat;
+	clear: both;
+	cursor: pointer
+}
+
+.checked {
+	/*background-color: #FFFFFF;*/
+	background-image: url(images/chk_on.png)
+}
+
+.unchecked {
+	/*background-color: #FFFFFF;*/
+	background-image: url(images/chk_off.png)
+}
+
+.selected {
+	/*background-color: #FFFFFF;*/
+	background-image: url(images/rdo_on.png)
+}
+
+.unselected {
+	/*background-color: #FFFFFF;*/
+	/*background-image: url(images/rdo_off.png)*/
+}
+
+.leftcol {
+	float: left;
+	clear: left;
+	width: 50%
+}
+
+.rightcol {
+	float: left;
+	clear: right;
+	width: 50%
+}

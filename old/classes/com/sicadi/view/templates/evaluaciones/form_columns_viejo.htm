@@ -1,0 +1,1540 @@
+<!-- BEGIN: main -->
+<style>
+.fValidator-a {
+    color: #708090;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: bold;
+}
+</style>
+<script type="text/javascript">
+
+
+
+
+function sumar_total(){
+	var posgrado = $("input[name='cd_posgradomaximo']:checked").val();
+	
+	
+	if (posgrado != null){
+		var posgradoArray = posgrado.split('-');
+	}
+	else{
+		var posgradoArray = [];
+		posgradoArray[1]=0;
+	}
+	
+	$('#spanPosgrado').text(posgradoArray[1]);
+	
+	var topeA2 = $('#topeA2').text().replace(/\D/g,'');
+	var cantA2 = $('#cantA2').text().replace('{hasta}','');
+	cantA2 = cantA2.replace('{c_u}','');
+	cantA2 = cantA2.replace('{pt}','');
+	cantA2 = cantA2.replace('{c_10}','');
+	
+	var totalA2 = formatDec(parseFloat($('#nu_puntajeantacadA2').val())*parseFloat(cantA2),{decimales});
+	
+	if (isNaN(totalA2)){
+		totalA2 = 0;
+	}
+	
+	if(totalA2<=topeA2){
+		$('#spanpuntajeantacadA2').text(totalA2);
+		$('#spanpuntajeantacadA2Error').text('');
+	}
+	else{
+		$('#spanpuntajeantacadA2').text(topeA2);
+		$('#spanpuntajeantacadA2Error').text('{max_excedido}');
+	}
+	
+	var topeA3 = $('#topeA3').text().replace(/\D/g,'');
+	var cantA3 = $('#cantA3').text().replace('{hasta}','');
+	cantA3 = cantA3.replace('{c_u}','');
+	cantA3 = cantA3.replace('{pt}','');
+	cantA3 = cantA3.replace('{c_10}','');
+	
+	var totalA3 = formatDec(parseFloat($('#nu_puntajeantacadA3').val())*parseFloat(cantA3),{decimales});
+	
+	if (isNaN(totalA3)){
+		totalA3 = 0;
+	}
+	if(totalA3<=topeA3){
+		$('#spanpuntajeantacadA3').text(totalA3);
+		$('#spanpuntajeantacadA3Error').text('');
+	}
+	else{
+		$('#spanpuntajeantacadA3').text(topeA3);
+		$('#spanpuntajeantacadA3Error').text('{max_excedido}');
+	}
+	
+	if($("#bl_posgrado").is(':checked')) {  
+		$('#factor').text('F: 1');
+	}
+	else $('#factor').text($('#nu_puntajeantacadA4').val());
+	
+	var factor = $('#factor').text().replace("F: ","");
+	//$('#nu_puntajeantacadA4').val(factor);
+	
+	totalA =parseFloat(factor*(parseFloat($('#spanPosgrado').text())+ parseFloat($('#spanpuntajeantacadA2').text())+ parseFloat($('#spanpuntajeantacadA3').text())));
+	
+	$('#spanpuntajeantacadA4').text(formatDec(totalA,{decimales}));
+	
+	var cantA5 = $('#cantA5').text().replace(/\D/g,'');
+	
+	if($("#nu_puntajeantacadA5").is(':checked')) {  
+		$('#spanpuntajeantacadA5').text(cantA5);
+	}
+	else $('#spanpuntajeantacadA5').text(0);
+	
+	var topeA6 = $('#topeA6').text().replace(/\D/g,'');
+	
+	
+	var totalA6 = parseFloat($('#nu_puntajeantacadA6').val());
+	if (isNaN(totalA6)){
+		totalA6 = 0;
+	}
+	if(totalA6<=topeA6){
+		$('#spanpuntajeantacadA6').text(formatDec(totalA6,{decimales}));
+		$('#spanpuntajeantacadA6Error').text('');
+	}
+	else{
+		$('#spanpuntajeantacadA6').text(topeA6);
+		$('#spanpuntajeantacadA6Error').text('{max_excedido}');
+	}
+		
+	totalA = totalA + parseFloat($('#spanpuntajeantacadA5').text())+ parseFloat($('#spanpuntajeantacadA6').text());
+	
+	topeA = $('#topeA').text().replace(/\D/g,'');
+	if(totalA<=topeA){
+		$('#totalA').text(formatDec(totalA,{decimales}));
+		$('#totalAError').text('');
+	}
+	else{
+		$('#totalA').text(topeA);
+		$('#totalAError').text('{max_excedido}');
+	}
+	
+	var cargo = $("input[name='cd_cargomaximo']:checked").val();
+	
+	
+	if (cargo != null){
+		var cargoArray = cargo.split('-');
+	}
+	else{
+		var cargoArray = [];
+		cargoArray[1]=0;
+	}
+	
+	$('#spanCargo').text(cargoArray[1]);
+	
+	var topeC1 = $('#topeC1').text().replace(/\D/g,'');
+	var cantC1 = $('#cantC1').text();
+	var multiplicar = (cantC1.indexOf('{hasta}')==-1)?1:0;
+	
+	cantC1 = cantC1.replace('{hasta}','');
+	cantC1 = cantC1.replace('{c_u}','');
+	cantC1 = cantC1.replace('{pt}','');
+	cantC1 = cantC1.replace('{c_10}','');
+	
+	cantC1 = (multiplicar)?parseFloat(cantC1):1;
+	
+	
+	var totalC1 = formatDec(parseFloat($('#nu_puntajeantotrosC1').val())*parseFloat(cantC1),{decimales});
+	
+	
+	if (isNaN(totalC1)){
+		totalC1 = 0;
+	}
+	
+	if(totalC1<=topeC1){
+		$('#spanpuntajeantotrosC1').text(formatDec(totalC1,{decimales}));
+		$('#spanpuntajeantotrosC1Error').text('');
+	}
+	else{
+		$('#spanpuntajeantotrosC1').text(topeC1);
+		$('#spanpuntajeantotrosC1Error').text('{max_excedido}');
+	}
+	
+	var cantC2_1 = $('#cantC2_1').text();
+	var multiplicar = (cantC2_1.indexOf('{hasta}')==-1)?1:0;
+	
+	cantC2_1 = cantC2_1.replace('{hasta}','');
+	cantC2_1 = cantC2_1.replace('{c_u}','');
+	cantC2_1 = cantC2_1.replace('{pt}','');
+	cantC2_1 = cantC2_1.replace('{c_10}','');
+	
+	cantC2_1 = (multiplicar)?parseFloat(cantC2_1):1;
+	
+	
+	var totalC2_1 = formatDec(parseFloat($('#nu_puntajeantotrosC2_1').val())*parseFloat(cantC2_1),{decimales});
+	
+	if (isNaN(totalC2_1)){
+		totalC2_1 = 0;
+	}
+	
+	
+	$('#spanpuntajeantotrosC2_1').text(formatDec(totalC2_1,{decimales}));
+	
+	var cantC2_2 = $('#cantC2_2').text();
+	var multiplicar = (cantC2_2.indexOf('{hasta}')==-1)?1:0;
+	
+	cantC2_2 = cantC2_2.replace('{hasta}','');
+	cantC2_2 = cantC2_2.replace('{c_u}','');
+	cantC2_2 = cantC2_2.replace('{pt}','');
+	cantC2_2 = cantC2_2.replace('{c_10}','');
+	
+	cantC2_2 = (multiplicar)?parseFloat(cantC2_2):1;
+	
+	
+	var totalC2_2 = formatDec(parseFloat($('#nu_puntajeantotrosC2_2').val())*parseFloat(cantC2_2),{decimales});
+	
+	if (isNaN(totalC2_2)){
+		totalC2_2 = 0;
+	}
+	
+	
+	$('#spanpuntajeantotrosC2_2').text(formatDec(totalC2_2,{decimales}));
+	
+	var cantC2_3 = $('#cantC2_3').text();
+	var multiplicar = (cantC2_3.indexOf('{hasta}')==-1)?1:0;
+	
+	cantC2_3 = cantC2_3.replace('{hasta}','');
+	cantC2_3 = cantC2_3.replace('{c_u}','');
+	cantC2_3 = cantC2_3.replace('{pt}','');
+	cantC2_3 = cantC2_3.replace('{c_10}','');
+	
+	cantC2_3 = (multiplicar)?parseFloat(cantC2_3):1;
+	
+	
+	var totalC2_3 = formatDec(parseFloat($('#nu_puntajeantotrosC2_3').val())*parseFloat(cantC2_3),{decimales});
+	
+	if (isNaN(totalC2_3)){
+		totalC2_3 = 0;
+	}
+	
+	
+	$('#spanpuntajeantotrosC2_3').text(formatDec(totalC2_3,{decimales}));
+		
+	
+	/*var topeC3 = $('#topeC3').text().replace(/\D/g,'');
+	var cantC3 = $('#cantC3').text();
+	var multiplicar = (cantC3.indexOf('{hasta}')==-1)?1:0;
+	
+	cantC3 = cantC3.replace('{hasta}','');
+	cantC3 = cantC3.replace('{c_u}','');
+	cantC3 = cantC3.replace('{pt}','');
+	cantC3 = cantC3.replace('{c_10}','');
+	
+	cantC3 = (multiplicar)?parseFloat(cantC3):1;
+	
+	
+	var totalC3 = formatDec(parseFloat($('#nu_puntajeantotrosC3').val())*parseFloat(cantC3),{decimales});
+	
+	if (isNaN(totalC3)){
+		totalC3 = 0;
+	}
+	
+	if(totalC3<=topeC3){
+		$('#spanpuntajeantotrosC3').text(totalC3);
+		$('#spanpuntajeantotrosC3Error').text('');
+	}
+	else{
+		$('#spanpuntajeantotrosC3').text(topeC3);
+		$('#spanpuntajeantotrosC3Error').text('{max_excedido}');
+	}*/
+	
+	var cantC4 = $('#cantC4').text().replace(/\D/g,'');
+	
+	if($("#nu_puntajeantotrosC4").is(':checked')) {  
+		$('#spanpuntajeantotrosC4').text(cantC4);
+		
+	}
+	else $('#spanpuntajeantotrosC4').text(0);
+	
+	$('#nu_puntajeantotrosC4').val($('#spanpuntajeantotrosC4').text());
+	
+	//totalC = parseFloat($('#spanpuntajeantotrosC1').text())+parseFloat($('#spanpuntajeantotrosC2_1').text())+parseFloat($('#spanpuntajeantotrosC2_2').text())+parseFloat($('#spanpuntajeantotrosC2_3').text())+parseFloat($('#spanpuntajeantotrosC3').text())+parseFloat($('#spanpuntajeantotrosC4').text());
+	//saco el C3
+	totalC = parseFloat($('#spanpuntajeantotrosC1').text())+parseFloat($('#spanpuntajeantotrosC2_1').text())+parseFloat($('#spanpuntajeantotrosC2_2').text())+parseFloat($('#spanpuntajeantotrosC2_3').text())+parseFloat($('#spanpuntajeantotrosC4').text());
+	
+	topeC = $('#topeC').text().replace(/\D/g,'');
+	if(totalC<=topeC){
+		$('#totalC').text(formatDec(totalC,{decimales}));
+		$('#totalCError').text('');
+	}
+	else{
+		$('#totalC').text(topeC);
+		$('#totalCError').text('{max_excedido}');
+	}
+	
+	/*var topeD1_1 = $('#topeD1_1').text().replace(/\D/g,'');
+	var cantD1_1 = $('#cantD1_1').text();
+	var multiplicar = (cantD1_1.indexOf('{hasta}')==-1)?1:0;
+	
+	cantD1_1 = cantD1_1.replace('{hasta}','');
+	cantD1_1 = cantD1_1.replace('{c_u}','');
+	cantD1_1 = cantD1_1.replace('{pt}','');
+	cantD1_1 = cantD1_1.replace('{c_10}','');
+	
+	cantD1_1 = (multiplicar)?parseFloat(cantD1_1):1;
+	
+	
+	var totalD1_1 = formatDec(parseFloat($('#nu_puntajeantproduccionD1_1').val())*parseFloat(cantD1_1),{decimales});
+	
+	if (isNaN(totalD1_1)){
+		totalD1_1 = 0;
+	}
+	
+	if(totalD1_1<=topeD1_1){
+		$('#spanpuntajeantproduccionD1_1').text(totalD1_1);
+		$('#spanpuntajeantproduccionD1_1Error').text('');
+	}
+	else{
+		$('#spanpuntajeantproduccionD1_1').text(topeD1_1);
+		$('#spanpuntajeantproduccionD1_1Error').text('{max_excedido}');
+	}
+	
+	var topeD1_2 = $('#topeD1_2').text().replace(/\D/g,'');
+	var cantD1_2 = $('#cantD1_2').text();
+	var multiplicar = (cantD1_2.indexOf('{hasta}')==-1)?1:0;
+	
+	cantD1_2 = cantD1_2.replace('{hasta}','');
+	cantD1_2 = cantD1_2.replace('{c_u}','');
+	cantD1_2 = cantD1_2.replace('{pt}','');
+	cantD1_2 = cantD1_2.replace('{c_10}','');
+	
+	cantD1_2 = (multiplicar)?parseFloat(cantD1_2):1;
+	
+	
+	var totalD1_2 = formatDec(parseFloat($('#nu_puntajeantproduccionD1_2').val())*parseFloat(cantD1_2),{decimales});
+	
+	if (isNaN(totalD1_2)){
+		totalD1_2 = 0;
+	}
+	
+	if(totalD1_2<=topeD1_2){
+		$('#spanpuntajeantproduccionD1_2').text(totalD1_2);
+		$('#spanpuntajeantproduccionD1_2Error').text('');
+	}
+	else{
+		$('#spanpuntajeantproduccionD1_2').text(topeD1_2);
+		$('#spanpuntajeantproduccionD1_2Error').text('{max_excedido}');
+	}
+	
+	var topeD2_1 = $('#topeD2_1').text().replace(/\D/g,'');
+	var cantD2_1 = $('#cantD2_1').text();
+	var multiplicar = (cantD2_1.indexOf('{hasta}')==-1)?1:0;
+	
+	cantD2_1 = cantD2_1.replace('{hasta}','');
+	cantD2_1 = cantD2_1.replace('{c_u}','');
+	cantD2_1 = cantD2_1.replace('{pt}','');
+	cantD2_1 = cantD2_1.replace('{c_10}','');
+	
+	cantD2_1 = (multiplicar)?parseFloat(cantD2_1):1;
+	
+	var totalD2_1 = formatDec(parseFloat($('#nu_puntajeantproduccionD2_1').val())*parseFloat(cantD2_1),{decimales});
+	
+	if (isNaN(totalD2_1)){
+		totalD2_1 = 0;
+	}
+	
+	if(totalD2_1<=topeD2_1){
+		$('#spanpuntajeantproduccionD2_1').text(totalD2_1);
+		$('#spanpuntajeantproduccionD2_1Error').text('');
+	}
+	else{
+		$('#spanpuntajeantproduccionD2_1').text(topeD2_1);
+		$('#spanpuntajeantproduccionD2_1Error').text('{max_excedido}');
+	}*/
+	
+	var topeD2_2 = $('#topeD2_2').text().replace(/\D/g,'');
+	var cantD2_2 = $('#cantD2_2').text();
+	var multiplicar = (cantD2_2.indexOf('{hasta}')==-1)?1:0;
+	
+	cantD2_2 = cantD2_2.replace('{hasta}','');
+	cantD2_2 = cantD2_2.replace('{c_u}','');
+	cantD2_2 = cantD2_2.replace('{pt}','');
+	cantD2_2 = cantD2_2.replace('{c_10}','');
+	
+	cantD2_2 = (multiplicar)?parseFloat(cantD2_2):1;
+	
+	var totalD2_2 = formatDec(parseFloat($('#nu_puntajeantproduccionD2_2').val())*parseFloat(cantD2_2),{decimales});
+	
+	if (isNaN(totalD2_2)){
+		totalD2_2 = 0;
+	}
+	
+	if(totalD2_2<=topeD2_2){
+		$('#spanpuntajeantproduccionD2_2').text(formatDec(totalD2_2,{decimales}));
+		$('#spanpuntajeantproduccionD2_2Error').text('');
+	}
+	else{
+		$('#spanpuntajeantproduccionD2_2').text(topeD2_2);
+		$('#spanpuntajeantproduccionD2_2Error').text('{max_excedido}');
+	}
+	
+	var topeD2_3 = $('#topeD2_3').text().replace(/\D/g,'');
+	var cantD2_3 = $('#cantD2_3').text();
+	var multiplicar = (cantD2_3.indexOf('{hasta}')==-1)?1:0;
+	
+	cantD2_3 = cantD2_3.replace('{hasta}','');
+	cantD2_3 = cantD2_3.replace('{c_u}','');
+	cantD2_3 = cantD2_3.replace('{pt}','');
+	cantD2_3 = cantD2_3.replace('{c_10}','');
+	
+	cantD2_3 = (multiplicar)?parseFloat(cantD2_3):1;
+	
+	var totalD2_3 = formatDec(parseFloat($('#nu_puntajeantproduccionD2_3').val())*parseFloat(cantD2_3),{decimales});
+	
+	if (isNaN(totalD2_3)){
+		totalD2_3 = 0;
+	}
+	
+	if(totalD2_3<=topeD2_3){
+		$('#spanpuntajeantproduccionD2_3').text(formatDec(totalD2_3,{decimales}));
+		$('#spanpuntajeantproduccionD2_3Error').text('');
+	}
+	else{
+		$('#spanpuntajeantproduccionD2_3').text(topeD2_3);
+		$('#spanpuntajeantproduccionD2_3Error').text('{max_excedido}');
+	}
+	
+	var topeD2_4 = $('#topeD2_4').text().replace(/\D/g,'');
+	var cantD2_4 = $('#cantD2_4').text();
+	var multiplicar = (cantD2_4.indexOf('{hasta}')==-1)?1:0;
+	
+	cantD2_4 = cantD2_4.replace('{hasta}','');
+	cantD2_4 = cantD2_4.replace('{c_u}','');
+	cantD2_4 = cantD2_4.replace('{pt}','');
+	cantD2_4 = cantD2_4.replace('{c_10}','');
+	
+	cantD2_4 = (multiplicar)?parseFloat(cantD2_4):1;
+	
+	var totalD2_4 = formatDec(parseFloat($('#nu_puntajeantproduccionD2_4').val())*parseFloat(cantD2_4),{decimales});
+	
+	if (isNaN(totalD2_4)){
+		totalD2_4 = 0;
+	}
+	
+	if(totalD2_4<=topeD2_4){
+		$('#spanpuntajeantproduccionD2_4').text(formatDec(totalD2_4,{decimales}));
+		$('#spanpuntajeantproduccionD2_4Error').text('');
+	}
+	else{
+		$('#spanpuntajeantproduccionD2_4').text(topeD2_4);
+		$('#spanpuntajeantproduccionD2_4Error').text('{max_excedido}');
+	}
+	
+	var topeD2_5 = $('#topeD2_5').text().replace(/\D/g,'');
+	var cantD2_5 = $('#cantD2_5').text();
+	var multiplicar = (cantD2_5.indexOf('{hasta}')==-1)?1:0;
+	
+	cantD2_5 = cantD2_5.replace('{hasta}','');
+	cantD2_5 = cantD2_5.replace('{c_u}','');
+	cantD2_5 = cantD2_5.replace('{pt}','');
+	cantD2_5 = cantD2_5.replace('{c_10}','');
+	
+	cantD2_5 = (multiplicar)?parseFloat(cantD2_5):1;
+	
+	var totalD2_5 = formatDec(parseFloat($('#nu_puntajeantproduccionD2_5').val())*parseFloat(cantD2_5),{decimales});
+	
+	if (isNaN(totalD2_5)){
+		totalD2_5 = 0;
+	}
+	
+	if(totalD2_5<=topeD2_5){
+		$('#spanpuntajeantproduccionD2_5').text(formatDec(totalD2_5,{decimales}));
+		$('#spanpuntajeantproduccionD2_5Error').text('');
+	}
+	else{
+		$('#spanpuntajeantproduccionD2_5').text(topeD2_5);
+		$('#spanpuntajeantproduccionD2_5Error').text('{max_excedido}');
+	}
+	
+	
+	var cantD3_1 = $('#cantD3_1').text();
+	var multiplicar = (cantD3_1.indexOf('{hasta}')==-1)?1:0;
+	
+	cantD3_1 = cantD3_1.replace('{hasta}','');
+	cantD3_1 = cantD3_1.replace('{c_u}','');
+	cantD3_1 = cantD3_1.replace('{pt}','');
+	cantD3_1 = cantD3_1.replace('{c_10}','');
+	
+	cantD3_1 = (multiplicar)?parseFloat(cantD3_1):1;
+	
+	var totalD3_1 = formatDec(parseFloat($('#nu_puntajeantproduccionD3_1').val())*parseFloat(cantD3_1),{decimales});
+	
+	
+	if (isNaN(totalD3_1)){
+		totalD3_1 = 0;
+	}
+	
+	
+	$('#spanpuntajeantproduccionD3_1').text(formatDec(totalD3_1,{decimales}));
+	
+	var cantD3_2 = $('#cantD3_2').text();
+	var multiplicar = (cantD3_2.indexOf('{hasta}')==-1)?1:0;
+	
+	cantD3_2 = cantD3_2.replace('{hasta}','');
+	cantD3_2 = cantD3_2.replace('{c_u}','');
+	cantD3_2 = cantD3_2.replace('{pt}','');
+	cantD3_2 = cantD3_2.replace('{c_10}','');
+	
+	cantD3_2 = (multiplicar)?parseFloat(cantD3_2):1;
+	
+	var totalD3_2 = formatDec(parseFloat($('#nu_puntajeantproduccionD3_2').val())*parseFloat(cantD3_2),{decimales});
+	
+	
+	if (isNaN(totalD3_2)){
+		totalD3_2 = 0;
+	}
+	
+	
+	$('#spanpuntajeantproduccionD3_2').text(formatDec(totalD3_2,{decimales}));
+	
+	var cantD3_3 = $('#cantD3_3').text();
+	var multiplicar = (cantD3_3.indexOf('{hasta}')==-1)?1:0;
+	
+	cantD3_3 = cantD3_3.replace('{hasta}','');
+	cantD3_3 = cantD3_3.replace('{c_u}','');
+	cantD3_3 = cantD3_3.replace('{pt}','');
+	cantD3_3 = cantD3_3.replace('{c_10}','');
+	
+	cantD3_3 = (multiplicar)?parseFloat(cantD3_3):1;
+	
+	var totalD3_3 = formatDec(parseFloat($('#nu_puntajeantproduccionD3_3').val())*parseFloat(cantD3_3),{decimales});
+	
+	
+	if (isNaN(totalD3_3)){
+		totalD3_3 = 0;
+	}
+	
+	
+	$('#spanpuntajeantproduccionD3_3').text(formatDec(totalD3_3,{decimales}));
+	
+	var cantD3_4 = $('#cantD3_4').text();
+	var multiplicar = (cantD3_4.indexOf('{hasta}')==-1)?1:0;
+	
+	cantD3_4 = cantD3_4.replace('{hasta}','');
+	cantD3_4 = cantD3_4.replace('{c_u}','');
+	cantD3_4 = cantD3_4.replace('{pt}','');
+	cantD3_4 = cantD3_4.replace('{c_10}','');
+	
+	cantD3_4 = (multiplicar)?parseFloat(cantD3_4):1;
+	
+	var totalD3_4 = formatDec(parseFloat($('#nu_puntajeantproduccionD3_4').val())*parseFloat(cantD3_4),{decimales});
+	
+	
+	if (isNaN(totalD3_4)){
+		totalD3_4 = 0;
+	}
+	
+	
+	$('#spanpuntajeantproduccionD3_4').text(formatDec(totalD3_4,{decimales}));
+	
+	/*var cantD3_5 = $('#cantD3_5').text();
+	var multiplicar = (cantD3_5.indexOf('{hasta}')==-1)?1:0;
+	
+	cantD3_5 = cantD3_5.replace('{hasta}','');
+	cantD3_5 = cantD3_5.replace('{c_u}','');
+	cantD3_5 = cantD3_5.replace('{pt}','');
+	cantD3_5 = cantD3_5.replace('{c_10}','');
+	
+	cantD3_5 = (multiplicar)?parseFloat(cantD3_5):1;
+	
+	var totalD3_5 = formatDec(parseFloat($('#nu_puntajeantproduccionD3_5').val())*parseFloat(cantD3_5),{decimales});
+	
+	
+	if (isNaN(totalD3_5)){
+		totalD3_5 = 0;
+	}
+	
+	
+	$('#spanpuntajeantproduccionD3_5').text(formatDec(totalD3_5,{decimales}));*/
+	
+	var cantD4_1 = $('#cantD4_1').text();
+	var multiplicar = (cantD4_1.indexOf('{hasta}')==-1)?1:0;
+	
+	cantD4_1 = cantD4_1.replace('{hasta}','');
+	cantD4_1 = cantD4_1.replace('{c_u}','');
+	cantD4_1 = cantD4_1.replace('{pt}','');
+	cantD4_1 = cantD4_1.replace('{c_10}','');
+	
+	cantD4_1 = (multiplicar)?parseFloat(cantD4_1):1;
+	
+	var totalD4_1 = formatDec(parseFloat($('#nu_puntajeantproduccionD4_1').val())*parseFloat(cantD4_1),{decimales});
+	
+	
+	if (isNaN(totalD4_1)){
+		totalD4_1 = 0;
+	}
+	
+	
+	$('#spanpuntajeantproduccionD4_1').text(formatDec(totalD4_1,{decimales}));
+	
+	var cantD5_1 = $('#cantD5_1').text();
+	
+	
+	cantD5_1 = cantD5_1.replace('{hasta}','');
+	cantD5_1 = cantD5_1.replace('{c_u}','');
+	cantD5_1 = cantD5_1.replace('{pt}','');
+	cantD5_1 = cantD5_1.replace('{c_10}','');
+	
+	var nu_cantantproduccionD5_1 = parseFloat($('#nu_cantantproduccionD5_1').val());
+	var nu_puntajeantproduccionD5_1 = parseFloat($('#nu_puntajeantproduccionD5_1').val());
+	okD5_1=1;
+	if(!isNaN(nu_cantantproduccionD5_1)){
+		if(nu_cantantproduccionD5_1==0){
+			if ((isNaN(nu_puntajeantproduccionD5_1))||(nu_puntajeantproduccionD5_1==0)){
+				$('#spanpuntajeantproduccionD5_1Error').text('');
+				okD5_1=1;
+			}
+		}
+		else{
+			if ((isNaN(nu_puntajeantproduccionD5_1))||(nu_puntajeantproduccionD5_1==0)){
+				$('#spanpuntajeantproduccionD5_1Error').text('{falta_puntaje}');
+				okD5_1=0;
+			}
+			else{
+				$('#spanpuntajeantproduccionD5_1Error').text('');
+				okD5_1=1;
+			}
+		}
+	}
+	else{
+		nu_cantantproduccionD5_1 = 0;
+		if ((isNaN(nu_puntajeantproduccionD5_1))||(nu_puntajeantproduccionD5_1==0)){
+			$('#spanpuntajeantproduccionD5_1Error').text('');
+			okD5_1=1;
+		}
+	}
+	
+	if((!isNaN(nu_puntajeantproduccionD5_1))&&(nu_puntajeantproduccionD5_1!=0)){
+		
+		if(nu_puntajeantproduccionD5_1<=nu_cantantproduccionD5_1*parseFloat(cantD5_1)){
+			$('#spanpuntajeantproduccionD5_1Error').text('');
+			okD5_1=1;
+		}
+		else{
+			$('#spanpuntajeantproduccionD5_1Error').text('{puntaje_excedido}');
+			okD5_1=0;
+		}
+		
+		
+	}
+	else{
+		nu_puntajeantproduccionD5_1 = 0;
+	}
+	
+	
+	var cantD5_2 = $('#cantD5_2').text();
+	
+	
+	cantD5_2 = cantD5_2.replace('{hasta}','');
+	cantD5_2 = cantD5_2.replace('{c_u}','');
+	cantD5_2 = cantD5_2.replace('{pt}','');
+	cantD5_2 = cantD5_2.replace('{c_10}','');
+	
+	var nu_cantantproduccionD5_2 = parseFloat($('#nu_cantantproduccionD5_2').val());
+	var nu_puntajeantproduccionD5_2 = parseFloat($('#nu_puntajeantproduccionD5_2').val());
+	okD5_2=1;
+	if(!isNaN(nu_cantantproduccionD5_2)){
+		if(nu_cantantproduccionD5_2==0){
+			if ((isNaN(nu_puntajeantproduccionD5_2))||(nu_puntajeantproduccionD5_2==0)){
+				$('#spanpuntajeantproduccionD5_2Error').text('');
+				okD5_2=1;
+			}
+		}
+		else{
+			if ((isNaN(nu_puntajeantproduccionD5_2))||(nu_puntajeantproduccionD5_2==0)){
+				$('#spanpuntajeantproduccionD5_2Error').text('{falta_puntaje}');
+				okD5_2=0;
+			}
+			else{
+				$('#spanpuntajeantproduccionD5_2Error').text('');
+				okD5_2=1;
+			}
+		}
+	}
+	else{
+		nu_cantantproduccionD5_2 = 0;
+		if ((isNaN(nu_puntajeantproduccionD5_2))||(nu_puntajeantproduccionD5_2==0)){
+			$('#spanpuntajeantproduccionD5_2Error').text('');
+			okD5_2=1;
+		}
+	}
+	
+	if((!isNaN(nu_puntajeantproduccionD5_2))&&(nu_puntajeantproduccionD5_2!=0)){
+		
+		if(nu_puntajeantproduccionD5_2<=nu_cantantproduccionD5_2*parseFloat(cantD5_2)){
+			$('#spanpuntajeantproduccionD5_2Error').text('');
+			okD5_2=1;
+		}
+		else{
+			$('#spanpuntajeantproduccionD5_2Error').text('{puntaje_excedido}');
+			okD5_2=0;
+		}
+		
+		
+	}
+	else{
+		nu_puntajeantproduccionD5_2 = 0;
+	}
+	
+	var cantD5_3 = $('#cantD5_3').text();
+	
+	
+	cantD5_3 = cantD5_3.replace('{hasta}','');
+	cantD5_3 = cantD5_3.replace('{c_u}','');
+	cantD5_3 = cantD5_3.replace('{pt}','');
+	cantD5_3 = cantD5_3.replace('{c_10}','');
+	
+	var nu_cantantproduccionD5_3 = parseFloat($('#nu_cantantproduccionD5_3').val());
+	var nu_puntajeantproduccionD5_3 = parseFloat($('#nu_puntajeantproduccionD5_3').val());
+	okD5_3=1;
+	if(!isNaN(nu_cantantproduccionD5_3)){
+		if(nu_cantantproduccionD5_3==0){
+			if ((isNaN(nu_puntajeantproduccionD5_3))||(nu_puntajeantproduccionD5_3==0)){
+				$('#spanpuntajeantproduccionD5_3Error').text('');
+				okD5_3=1;
+			}
+		}
+		else{
+			if ((isNaN(nu_puntajeantproduccionD5_3))||(nu_puntajeantproduccionD5_3==0)){
+				$('#spanpuntajeantproduccionD5_3Error').text('{falta_puntaje}');
+				okD5_3=0;
+			}
+			else{
+				$('#spanpuntajeantproduccionD5_3Error').text('');
+				okD5_3=1;
+			}
+		}
+	}
+	else{
+		nu_cantantproduccionD5_3 = 0;
+		if ((isNaN(nu_puntajeantproduccionD5_3))||(nu_puntajeantproduccionD5_3==0)){
+			$('#spanpuntajeantproduccionD5_3Error').text('');
+			okD5_3=1;
+		}
+	}
+	
+	if((!isNaN(nu_puntajeantproduccionD5_3))&&(nu_puntajeantproduccionD5_3!=0)){
+		
+		if(nu_puntajeantproduccionD5_3<=nu_cantantproduccionD5_3*parseFloat(cantD5_3)){
+			$('#spanpuntajeantproduccionD5_3Error').text('');
+			okD5_3=1;
+		}
+		else{
+			$('#spanpuntajeantproduccionD5_3Error').text('{puntaje_excedido}');
+			okD5_3=0;
+		}
+		
+		
+	}
+	else{
+		nu_puntajeantproduccionD5_3 = 0;
+	}
+	
+	if((okD5_1)&&(okD5_2)&&(okD5_3)){
+		$("#{form_id}_input_submit_ajax").show();
+	}
+	else $("#{form_id}_input_submit_ajax").hide();
+	
+	var cantD6_1 = $('#cantD6_1').text();
+	var multiplicar = (cantD6_1.indexOf('{hasta}')==-1)?1:0;
+	
+	cantD6_1 = cantD6_1.replace('{hasta}','');
+	cantD6_1 = cantD6_1.replace('{c_u}','');
+	cantD6_1 = cantD6_1.replace('{pt}','');
+	cantD6_1 = cantD6_1.replace('{c_10}','');
+	
+	cantD6_1 = (multiplicar)?parseFloat(cantD6_1):1;
+	
+	var totalD6_1 = formatDec(parseFloat($('#nu_puntajeantproduccionD6_1').val())*parseFloat(cantD6_1),{decimales});
+	
+	
+	if (isNaN(totalD6_1)){
+		totalD6_1 = 0;
+	}
+	
+	
+	$('#spanpuntajeantproduccionD6_1').text(formatDec(totalD6_1,{decimales}));
+	
+	var cantD6_2 = $('#cantD6_2').text();
+	var multiplicar = (cantD6_2.indexOf('{hasta}')==-1)?1:0;
+	
+	cantD6_2 = cantD6_2.replace('{hasta}','');
+	cantD6_2 = cantD6_2.replace('{c_u}','');
+	cantD6_2 = cantD6_2.replace('{pt}','');
+	cantD6_2 = cantD6_2.replace('{c_10}','');
+	
+	cantD6_2 = (multiplicar)?parseFloat(cantD6_2):1;
+	
+	var totalD6_2 = formatDec(parseFloat($('#nu_puntajeantproduccionD6_2').val())*parseFloat(cantD6_2),{decimales});
+	
+	
+	if (isNaN(totalD6_2)){
+		totalD6_2 = 0;
+	}
+	
+	
+	$('#spanpuntajeantproduccionD6_2').text(formatDec(totalD6_2,{decimales}));
+	
+	var cantD6_3 = $('#cantD6_3').text();
+	var multiplicar = (cantD6_3.indexOf('{hasta}')==-1)?1:0;
+	
+	cantD6_3 = cantD6_3.replace('{hasta}','');
+	cantD6_3 = cantD6_3.replace('{c_u}','');
+	cantD6_3 = cantD6_3.replace('{pt}','');
+	cantD6_3 = cantD6_3.replace('{c_10}','');
+	
+	cantD6_3 = (multiplicar)?parseFloat(cantD6_3):1;
+	
+	var totalD6_3 = formatDec(parseFloat($('#nu_puntajeantproduccionD6_3').val())*parseFloat(cantD6_3),{decimales});
+	
+	
+	if (isNaN(totalD6_3)){
+		totalD6_3 = 0;
+	}
+	
+	
+	$('#spanpuntajeantproduccionD6_3').text(formatDec(totalD6_3,{decimales}));
+	
+	var cantD6_4 = $('#cantD6_4').text();
+	var multiplicar = (cantD6_4.indexOf('{hasta}')==-1)?1:0;
+	
+	cantD6_4 = cantD6_4.replace('{hasta}','');
+	cantD6_4 = cantD6_4.replace('{c_u}','');
+	cantD6_4 = cantD6_4.replace('{pt}','');
+	cantD6_4 = cantD6_4.replace('{c_10}','');
+	
+	cantD6_4 = (multiplicar)?parseFloat(cantD6_4):1;
+	
+	var totalD6_4 = formatDec(parseFloat($('#nu_puntajeantproduccionD6_4').val())*parseFloat(cantD6_4),{decimales});
+	
+	
+	if (isNaN(totalD6_4)){
+		totalD6_4 = 0;
+	}
+	
+	
+	$('#spanpuntajeantproduccionD6_4').text(formatDec(totalD6_4,{decimales}));
+	
+	var topeD7 = $('#topeD7').text().replace(/\D/g,'');
+	var cantD7 = $('#cantD7').text();
+	var multiplicar = (cantD7.indexOf('{hasta}')==-1)?1:0;
+	
+	cantD7 = cantD7.replace('{hasta}','');
+	cantD7 = cantD7.replace('{c_u}','');
+	cantD7 = cantD7.replace('{pt}','');
+	cantD7 = cantD7.replace('{c_10}','');
+	
+	cantD7 = (multiplicar)?parseFloat(cantD7):1;
+	
+	var totalD7 = formatDec(parseFloat($('#nu_puntajeantproduccionD7').val())*parseFloat(cantD7),{decimales});
+	
+	if (isNaN(totalD7)){
+		totalD7 = 0;
+	}
+	
+	if(totalD7<=topeD7){
+		$('#spanpuntajeantproduccionD7').text(formatDec(totalD7,{decimales}));
+		$('#spanpuntajeantproduccionD7Error').text('');
+	}
+	else{
+		$('#spanpuntajeantproduccionD7').text(topeD7);
+		$('#spanpuntajeantproduccionD7Error').text('{max_excedido}');
+	}
+	
+	var cantD8 = $('#cantD8').text().replace(/\D/g,'');
+	
+	if($("#nu_puntajeantproduccionD8").is(':checked')) {  
+		$('#spanpuntajeantproduccionD8').text(cantD8);
+		
+	}
+	else $('#spanpuntajeantproduccionD8').text(0);
+	
+	$('#nu_puntajeantproduccionD8').val($('#spanpuntajeantproduccionD8').text());
+	
+	//totalD = parseFloat($('#spanpuntajeantproduccionD1_1').text())+parseFloat($('#spanpuntajeantproduccionD1_2').text())+parseFloat($('#spanpuntajeantproduccionD2_1').text())+parseFloat($('#spanpuntajeantproduccionD2_2').text())+parseFloat($('#spanpuntajeantproduccionD2_3').text())+parseFloat($('#spanpuntajeantproduccionD2_4').text())+parseFloat($('#spanpuntajeantproduccionD2_5').text())+parseFloat($('#spanpuntajeantproduccionD3_1').text())+parseFloat($('#spanpuntajeantproduccionD3_2').text())+parseFloat($('#spanpuntajeantproduccionD3_3').text())+parseFloat($('#spanpuntajeantproduccionD3_4').text())+parseFloat($('#spanpuntajeantproduccionD3_5').text())+parseFloat($('#spanpuntajeantproduccionD4_1').text())+parseFloat($('#nu_puntajeantproduccionD5_1').val())+parseFloat($('#nu_puntajeantproduccionD5_2').val())+parseFloat($('#nu_puntajeantproduccionD5_3').val())+parseFloat($('#spanpuntajeantproduccionD6_1').text())+parseFloat($('#spanpuntajeantproduccionD6_2').text())+parseFloat($('#spanpuntajeantproduccionD6_3').text())+parseFloat($('#spanpuntajeantproduccionD6_4').text())+parseFloat($('#spanpuntajeantproduccionD7').text())+parseFloat($('#spanpuntajeantproduccionD8').text());;
+	//elimin? los D1 y D2_1
+	
+	totalD = parseFloat($('#spanpuntajeantproduccionD2_2').text())+parseFloat($('#spanpuntajeantproduccionD2_3').text())+parseFloat($('#spanpuntajeantproduccionD2_4').text())+parseFloat($('#spanpuntajeantproduccionD2_5').text())+parseFloat($('#spanpuntajeantproduccionD3_1').text())+parseFloat($('#spanpuntajeantproduccionD3_2').text())+parseFloat($('#spanpuntajeantproduccionD3_3').text())+parseFloat($('#spanpuntajeantproduccionD3_4').text())+parseFloat($('#spanpuntajeantproduccionD4_1').text())+nu_puntajeantproduccionD5_1+nu_puntajeantproduccionD5_2+nu_puntajeantproduccionD5_3+parseFloat($('#spanpuntajeantproduccionD6_1').text())+parseFloat($('#spanpuntajeantproduccionD6_2').text())+parseFloat($('#spanpuntajeantproduccionD6_3').text())+parseFloat($('#spanpuntajeantproduccionD6_4').text())+parseFloat($('#spanpuntajeantproduccionD7').text())+parseFloat($('#spanpuntajeantproduccionD8').text());;
+	topeD = $('#topeD').text().replace(/\D/g,'');
+	if(totalD<=topeD){
+		$('#totalD').text(formatDec(totalD,{decimales}));
+		$('#totalDError').text('');
+	}
+	else{
+		$('#totalD').text(topeD);
+		$('#totalDError').text('{max_excedido}');
+	}
+	
+	var topeE1 = $('#topeE1').text().replace(/\D/g,'');
+	var cantE1 = $('#cantE1').text();
+	var multiplicar = (cantE1.indexOf('{hasta}')==-1)?1:0;
+	
+	cantE1 = cantE1.replace('{hasta}','');
+	cantE1 = cantE1.replace('{c_u}','');
+	cantE1 = cantE1.replace('{pt}','');
+	cantE1 = cantE1.replace('{c_10}','');
+	
+	cantE1 = (multiplicar)?parseFloat(cantE1):1;
+	
+	
+	var totalE1 = formatDec(parseFloat($('#nu_puntajeantjustificacionE1').val())*parseFloat(cantE1),{decimales});
+	
+	
+	if (isNaN(totalE1)){
+		totalE1 = 0;
+	}
+	
+	if(totalE1<=topeE1){
+		$('#spanpuntajeantjustificacionE1').text(formatDec(totalE1,{decimales}));
+		$('#spanpuntajeantjustificacionE1Error').text('');
+	}
+	else{
+		$('#spanpuntajeantjustificacionE1').text(topeE1);
+		$('#spanpuntajeantjustificacionE1Error').text('{max_excedido}');
+	}
+	
+	totalE = parseFloat($('#spanpuntajeantjustificacionE1').text());
+	
+	topeE = $('#topeE').text().replace(/\D/g,'');
+	if(totalE<=topeE){
+		$('#totalE').text(formatDec(totalE,{decimales}));
+		$('#totalEError').text('');
+	}
+	else{
+		$('#totalE').text(topeE);
+		$('#totalEError').text('{max_excedido}');
+	}
+	
+	var total =parseFloat($('#totalA').text())+parseFloat($('#spanCargo').text())+parseFloat($('#totalC').text())+parseFloat($('#totalD').text())+parseFloat($('#totalE').text());
+	$('#nu_puntaje').val(total);
+	$('#spanTotal').text(total);
+	
+}
+
+
+$(document).ready( sumar_total );
+
+
+
+
+
+
+$(function() {
+
+        $("#{form_id}").submit(function(e) {
+        	
+        	if( $("#{form_id}_input_submit").length > 0){
+        		$submit = $("#{form_id}_input_submit");
+            	$restoreOpacity = $submit.css("opacity");	
+        	}
+        	
+        	
+        	 e.preventDefault();
+        	 
+        	 if( {useAjaxSubmit} ) {
+
+                	submitAjaxForm('{form_id}', '{action}', {onSuccessCallback},{beforeSubmit});
+                	
+                	return false;
+             }else{
+            	 
+            	
+         		$submit.css({"opacity":$restoreOpacity});
+         		$submit.removeAttr( "disabled" );
+             }
+        	 
+        	 
+        	 
+        });
+	
+            								
+});
+
+
+
+
+function successDefault_{form_id}(data ){
+
+	try {
+		
+		 jsondata = $.parseJSON(data);
+
+		 if( jsondata != null && jsondata["error"]!=null){
+				showMessageError( jsondata["error"], false );
+			}
+
+		 if( jsondata != null && jsondata["info"]!=null){
+				//showMessageInfo( jsondata["info"], false );
+				//$('#{form_id}').reset();
+				{onCancel};
+				
+			}			
+	} catch (e) {
+	   return;
+	}
+	
+	
+}
+
+
+
+</script>
+
+<form <!-- BEGIN: property --> {name}="{value}" <!-- END: property --> >
+<a name="ancla" id="ancla"></a>
+	<!-- BEGIN: fieldset -->
+		<fieldset>
+	    <!-- BEGIN: legend -->
+		<legend>{value}</legend>
+		<!-- END: legend -->
+		<table style="width:100%; border-style: solid; border-width: 1px; border-color: #666">
+           <tr style="border-style: solid; border-width: 1px;">
+               <td><!-- BEGIN: ds_investigador --><!-- BEGIN: label -->{value}<!-- END: label -->:<!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_investigador --></td>
+               <td><!-- BEGIN: ds_facultad --><!-- BEGIN: label -->{value}<!-- END: label -->:<!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_facultad --></td>
+           </tr>
+       </table>
+		<table style="width:100%">
+            <tr></tr>
+            <tr style="background-color: #333;color:#fff">
+                <td style="width:80px">{p_max_item}</td>
+                <td>{detalle_puntaje}</td>
+                <td style="width:90px">{puntaje_otorgado}</td>
+            </tr>
+        </table>
+		<table style="width:100%; border-style: solid; border-width: 1px;  border-color: #666 ;margin-bottom:5px">
+			 <tr style="border-style: solid; border-width: 1px; border-color: #666">
+	                    <Td style="background-color: #eee;color:#333; width:80px">A</td> 
+	                    <td style="background-color: #eee;color:#333;" colspan="5">
+	                    	<div align="center"><strong>{antecedentes_academicos}</strong></div>
+	                    </td>              
+			 </tr>
+			 <tr style="border-style: solid; border-width: 1px; border-color: #666">
+	                    <Td style="background-color: #eee;color:#333; width:80px">&nbsp;</td> 
+	                    <td style="background-color: #eee;color:#333;" colspan="5">
+	                    	<div align="left">{titulo_grado}: <strong>{hasta} <!-- BEGIN: nu_posgradomaximo --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_posgradomaximo --> {puntos}</strong> {posgrado_comment} </div>
+	                    </td>              
+			 </tr>
+          	<tr style="border-style: solid; border-width: 1px; border-color: #666">
+             <td style="background-color: #eee;color:#333; width:80px">A1<br><strong>Max. <!-- BEGIN: nu_posgradomaximo2 -->{input_posgradomaximo} <!-- END: nu_posgradomaximo2 -->pt.</strong></td>
+             <td style="background-color: #fff;color:#333; text-align:center;" colspan="4"><!-- BEGIN: cd_posgradomaximo --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: cd_posgradomaximo --></td>
+             <td style="background-color: #eee;color:#333; width:80px"><div align="right"><span id="spanPosgrado">0</span></div></td>                
+           	</tr>
+        </table>
+        
+         <table style="width:100%; border-style: solid; border-width: 1px;  border-color: #666;margin-bottom:5px">
+             <tr style="border-style: solid; border-width: 1px; border-color: #666">
+             	<td style="background-color: #eee;color:#333; width:80px">A2<br><span id="topeA2"><!-- BEGIN: nu_topeA2 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_topeA2 --></span></td>    
+             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionA2 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionA2 --> </td>  
+             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantA2"><!-- BEGIN: nu_puntajeA2 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeA2 --></span></td>
+             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_puntajeantacadA2 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantacadA2 --></td>
+             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+             		<span id="spanpuntajeantacadA2" ></span>
+             		<div id="spanpuntajeantacadA2Error" class="fValidator-a" ></div>
+             	</td>
+                                 
+            </tr>
+            <tr style="border-style: solid; border-width: 1px; border-color: #666">
+             	<td style="background-color: #eee;color:#333; width:80px">A3<br><span id="topeA3"><!-- BEGIN: nu_topeA3 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_topeA3 --></span></td>    
+             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionA3 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionA3 --> </td>  
+             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantA3"><!-- BEGIN: nu_puntajeA3 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeA3 --></span></td>
+             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_puntajeantacadA3 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantacadA3 --></td>
+             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+             		<span id="spanpuntajeantacadA3" ></span>
+             		<div id="spanpuntajeantacadA3Error" class="fValidator-a" ></div>
+             	</td>
+                                 
+            </tr>
+            <tr style="border-style: solid; border-width: 1px; border-color: #666">
+             	<td style="background-color: #eee;color:#333; width:80px;  vertical-align:bottom">A4<br></td>    
+             	<td style="width:450px; background-color: #eee;color:#333;"  colspan="5">{factor_descripcion}</td>  
+             	
+                                 
+            </tr>
+            <tr style="border-style: solid; border-width: 1px; border-color: #666">
+             	<td style="background-color: #eee;color:#333; width:80px"></td>    
+             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionA4 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionA4 --> </td>  
+             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><!-- BEGIN: bl_posgrado --><!-- BEGIN: label -->{value}<!-- END: label -->:<!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: bl_posgrado --></td>
+             	<td style="background-color: #fff;color:#333;"><span id="factor"><!-- BEGIN: nu_puntajeantacadA4 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantacadA4 --></span></td>
+             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+             		<span id="spanpuntajeantacadA4" ></span>
+             		<div id="spanpuntajeantacadA4Error" class="fValidator-a" ></div>
+             	</td>
+                                 
+            </tr>
+            <tr style="border-style: solid; border-width: 1px; border-color: #666">
+             	<td style="background-color: #eee;color:#333; width:80px">A5<br></td>    
+             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionA5 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionA5 --> </td>  
+             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantA5"><!-- BEGIN: nu_puntajeA5 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeA5 --></span></td>
+             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_puntajeantacadA5 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantacadA5 --></td>
+             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+             		<span id="spanpuntajeantacadA5" ></span>
+             		<div id="spanpuntajeantacadA5Error" class="fValidator-a" ></div>
+             	</td>
+                                 
+            </tr>
+            <tr style="border-style: solid; border-width: 1px; border-color: #666">
+             	<td style="background-color: #eee;color:#333; width:80px">A6<br><span id="topeA6"><!-- BEGIN: nu_topeA6 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_topeA6 --></span></td>    
+             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionA6 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionA6 --> </td>  
+             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantA6"><!-- BEGIN: nu_puntajeA6 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeA6 --></span></td>
+             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_puntajeantacadA6 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantacadA6 --></td>
+             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+             		<span id="spanpuntajeantacadA6" ></span>
+             		<div id="spanpuntajeantacadA6Error" class="fValidator-a" ></div>
+             	</td>
+                                 
+            </tr>
+            <tr style="background-color: #eee;color:#333;"">
+                	
+                	<td colspan="5">
+                		<div align="right"><strong>{subtotal} (max. <span id="topeA"><!-- BEGIN: nu_antacadmaximo --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_antacadmaximo --></span> )</strong></div>
+                		</td>
+         
+                	<td style="background-color: #eee;color:#333; width:80px"><div align="right"><strong><span id="totalA"></span></strong><div id="totalAError" class="fValidator-a"></div></div></td>
+                </tr> 
+         </table>
+        
+        <table style="width:100%; border-style: solid; border-width: 1px;  border-color: #666 ;margin-bottom:5px">
+				 <tr style="border-style: solid; border-width: 1px; border-color: #666">
+                      <Td style="background-color: #eee;color:#333; width:80px">B</td> 
+                      <td style="background-color: #eee;color:#333;" colspan="5"><div align="center"><strong>{antecedentes_docentes}</strong></div></td>              
+				 </tr>
+				<!-- <tr style="border-style: solid; border-width: 1px; border-color: #666">
+                      <Td style="background-color: #eee;color:#333; width:80px">&nbsp;</td> 
+                      <td style="background-color: #eee;color:#333;" colspan="5"><div align="left">{antecedentes_docentes_descripcion}</div></td>              
+				 </tr> -->
+			  </table>
+                <table style="width:100%; border-style: solid; border-width: 1px;  border-color: #666;margin-bottom:5px">
+                    <tr style="border-style: solid; border-width: 1px; border-color: #666">
+                        <td style="background-color: #eee;color:#333; width:80px; vertical-align:middle">B1<br><strong>Max. <!-- BEGIN: nu_cargomaximo -->{input} <!-- END: nu_cargomaximo -->pt.</strong></td>
+			             <td style="background-color: #fff;color:#333; text-align:center;" colspan="4"><!-- BEGIN: cd_cargomaximo --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: cd_cargomaximo --></td>
+			             <td style="background-color: #eee;color:#333; width:80px; vertical-align:middle"><div align="right"><span id="spanCargo"></span></div></td>                 
+                   </tr>
+                </table>
+         <table style="width:100%; border-style: solid; border-width: 1px;  border-color: #666 ;margin-bottom:5px">
+				 <tr style="border-style: solid; border-width: 1px; border-color: #666">
+                      <Td style="background-color: #eee;color:#333; width:80px">C</td> 
+                      <td style="background-color: #eee;color:#333;" colspan="5"><div align="center"><strong>{otros_antecedentes}</strong></div></td>              
+				 </tr>
+				 
+			  </table>
+                <table style="width:100%; border-style: solid; border-width: 1px;  border-color: #666;margin-bottom:5px">
+                    <tr style="border-style: solid; border-width: 1px; border-color: #666">
+		             	<td style="background-color: #eee;color:#333; width:80px">C1<br><span id="topeC1"><!-- BEGIN: nu_topeC1 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_topeC1 --></span></td>    
+		             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionC1 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionC1 --> </td>  
+		             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantC1"><!-- BEGIN: nu_puntajeC1 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeC1 --></span></td>
+		             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_puntajeantotrosC1 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantotrosC1 --></td>
+		             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+		             		<span id="spanpuntajeantotrosC1" ></span>
+		             		<div id="spanpuntajeantotrosC1Error" class="fValidator-a" ></div>
+		             	</td>
+		                                 
+		            </tr>
+		            <tr style="border-style: solid; border-width: 1px; border-color: #666">
+                      <Td style="background-color: #eee;color:#333; width:80px">C2</td> 
+                      <td style="background-color: #eee;color:#333;" colspan="5"><div align="left"><strong><!-- BEGIN: ds_grupoC2 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_grupoC2 --></strong></div></td>              
+				 	</tr>
+				 	
+				 	<tr style="border-style: solid; border-width: 1px; border-color: #666">
+		             	<td style="background-color: #eee;color:#333; width:80px"></td>    
+		             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionC2_1 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionC2_1 --> </td>  
+		             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantC2_1"><!-- BEGIN: nu_puntajeC2_1 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeC2_1 --></span></td>
+		             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_puntajeantotrosC2_1 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantotrosC2_1 --></td>
+		             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+		             		<span id="spanpuntajeantotrosC2_1" ></span>
+		             		<div id="spanpuntajeantotrosC2_1Error" class="fValidator-a" ></div>
+		             	</td>
+		                                 
+		            </tr>
+		            
+		           
+		            
+		            <tr style="border-style: solid; border-width: 1px; border-color: #666">
+		             	<td style="background-color: #eee;color:#333; width:80px"></td>    
+		             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionC2_2 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionC2_2 --> </td>  
+		             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantC2_2"><!-- BEGIN: nu_puntajeC2_2 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeC2_2 --></span></td>
+		             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_puntajeantotrosC2_2 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantotrosC2_2 --></td>
+		             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+		             		<span id="spanpuntajeantotrosC2_2" ></span>
+		             		<div id="spanpuntajeantotrosC2_2Error" class="fValidator-a" ></div>
+		             	</td>
+		                                 
+		            </tr>
+				 	
+				 	<tr style="border-style: solid; border-width: 1px; border-color: #666">
+		             	<td style="background-color: #eee;color:#333; width:80px"></td>    
+		             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionC2_3 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionC2_3 --> </td>  
+		             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantC2_3"><!-- BEGIN: nu_puntajeC2_3 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeC2_3 --></span></td>
+		             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_puntajeantotrosC2_3 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantotrosC2_3 --></td>
+		             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+		             		<span id="spanpuntajeantotrosC2_3" ></span>
+		             		<div id="spanpuntajeantotrosC2_3Error" class="fValidator-a" ></div>
+		             	</td>
+		                                 
+		            </tr>
+				 	
+				 	
+		            
+		            <tr style="border-style: solid; border-width: 1px; border-color: #666">
+		             	<td style="background-color: #eee;color:#333; width:80px">C3</td>    
+		             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionC4 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionC4 --> </td>  
+		             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantC4"><!-- BEGIN: nu_puntajeC4 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeC4 --></span></td>
+		             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_puntajeantotrosC4 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantotrosC4 --></td>
+		             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+		             		<span id="spanpuntajeantotrosC4" ></span>
+		             		<div id="spanpuntajeantotrosC4Error" class="fValidator-a" ></div>
+		             	</td>
+		                                 
+		            </tr>
+				 	
+		            <tr style="background-color: #eee;color:#333;"">
+                	
+                	<td colspan="5">
+                		<div align="right"><strong>{subtotal} (max. <span id="topeC"><!-- BEGIN: nu_antotrosmaximo --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_antotrosmaximo --></span> )</strong></div>
+                		</td>
+         
+                	<td style="background-color: #eee;color:#333; width:80px"><div align="right"><strong><span id="totalC"></span></strong><div id="totalCError" class="fValidator-a"></div></div></td>
+                </tr> 
+                </table>
+                 <table style="width:100%; border-style: solid; border-width: 1px;  border-color: #666 ;margin-bottom:5px">
+				 <tr style="border-style: solid; border-width: 1px; border-color: #666">
+                      <Td style="background-color: #eee;color:#333; width:80px">D</td> 
+                      <td style="background-color: #eee;color:#333;" colspan="5"><div align="center"><strong>{produccion_cientifica}</strong></div></td>              
+				 </tr>
+				 
+			  </table>
+			  <table style="width:100%; border-style: solid; border-width: 1px;  border-color: #666;margin-bottom:5px">
+                    
+		            <tr style="border-style: solid; border-width: 1px; border-color: #666">
+                      <Td style="background-color: #eee;color:#333; width:80px">D1</td> 
+                      <td style="background-color: #eee;color:#333;" colspan="5"><div align="left"><strong><!-- BEGIN: ds_grupoD6 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_grupoD6 --></strong></div></td>              
+				 	</tr>
+				 	<tr style="border-style: solid; border-width: 1px; border-color: #666">
+		             	<td style="background-color: #eee;color:#333; width:80px"></td>    
+		             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionD6_1 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionD6_1 --> </td>  
+		             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantD6_1"><!-- BEGIN: nu_puntajeD6_1 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeD6_1 --></span></td>
+		             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_puntajeantproduccionD6_1 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantproduccionD6_1 --></td>
+		             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+		             		<span id="spanpuntajeantproduccionD6_1" ></span>
+		             		<div id="spanpuntajeantproduccionD6_1Error" class="fValidator-a" ></div>
+		             	</td>
+		                                 
+		            </tr>
+		            <tr style="border-style: solid; border-width: 1px; border-color: #666">
+		             	<td style="background-color: #eee;color:#333; width:80px"></td>    
+		             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionD6_2 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionD6_2 --> </td>  
+		             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantD6_2"><!-- BEGIN: nu_puntajeD6_2 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeD6_2 --></span></td>
+		             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_puntajeantproduccionD6_2 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantproduccionD6_2 --></td>
+		             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+		             		<span id="spanpuntajeantproduccionD6_2" ></span>
+		             		<div id="spanpuntajeantproduccionD6_2Error" class="fValidator-a" ></div>
+		             	</td>
+		                                 
+		            </tr>
+		            <tr style="border-style: solid; border-width: 1px; border-color: #666">
+		             	<td style="background-color: #eee;color:#333; width:80px"></td>    
+		             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionD6_3 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionD6_3 --> </td>  
+		             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantD6_3"><!-- BEGIN: nu_puntajeD6_3 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeD6_3 --></span></td>
+		             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_puntajeantproduccionD6_3 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantproduccionD6_3 --></td>
+		             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+		             		<span id="spanpuntajeantproduccionD6_3" ></span>
+		             		<div id="spanpuntajeantproduccionD6_3Error" class="fValidator-a" ></div>
+		             	</td>
+		                                 
+		            </tr>
+		            <tr style="border-style: solid; border-width: 1px; border-color: #666">
+		             	<td style="background-color: #eee;color:#333; width:80px"></td>    
+		             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionD6_4 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionD6_4 --> </td>  
+		             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantD6_4"><!-- BEGIN: nu_puntajeD6_4 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeD6_4 --></span></td>
+		             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_puntajeantproduccionD6_4 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantproduccionD6_4 --></td>
+		             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+		             		<span id="spanpuntajeantproduccionD6_4" ></span>
+		             		<div id="spanpuntajeantproduccionD6_4Error" class="fValidator-a" ></div>
+		             	</td>
+		                                 
+		            </tr>
+				 	
+		            <tr style="border-style: solid; border-width: 1px; border-color: #666">
+                      <Td style="background-color: #eee;color:#333; width:80px">D2</td> 
+                      <td style="background-color: #eee;color:#333;" colspan="5"><div align="left"><strong><!-- BEGIN: ds_grupoD2 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_grupoD2 --></strong></div></td>              
+				 	</tr>
+				 	
+				 	
+		            <tr style="border-style: solid; border-width: 1px; border-color: #666">
+		             	<td style="background-color: #eee;color:#333; width:80px"><span id="topeD2_2"><!-- BEGIN: nu_topeD2_2 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_topeD2_2 --></span></td>    
+		             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionD2_2 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionD2_2 --> </td>  
+		             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantD2_2"><!-- BEGIN: nu_puntajeD2_2 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeD2_2 --></span></td>
+		             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_puntajeantproduccionD2_2 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantproduccionD2_2 --></td>
+		             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+		             		<span id="spanpuntajeantproduccionD2_2" ></span>
+		             		<div id="spanpuntajeantproduccionD2_2Error" class="fValidator-a" ></div>
+		             	</td>
+		                                 
+		            </tr>
+		            <tr style="border-style: solid; border-width: 1px; border-color: #666">
+		             	<td style="background-color: #eee;color:#333; width:80px"><span id="topeD2_3"><!-- BEGIN: nu_topeD2_3 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_topeD2_3 --></span></td>    
+		             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionD2_3 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionD2_3 --> </td>  
+		             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantD2_3"><!-- BEGIN: nu_puntajeD2_3 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeD2_3 --></span></td>
+		             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_puntajeantproduccionD2_3 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantproduccionD2_3 --></td>
+		             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+		             		<span id="spanpuntajeantproduccionD2_3" ></span>
+		             		<div id="spanpuntajeantproduccionD2_3Error" class="fValidator-a" ></div>
+		             	</td>
+		                                 
+		            </tr>
+		            <tr style="border-style: solid; border-width: 1px; border-color: #666">
+		             	<td style="background-color: #eee;color:#333; width:80px"><span id="topeD2_4"><!-- BEGIN: nu_topeD2_4 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_topeD2_4 --></span></td>    
+		             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionD2_4 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionD2_4 --> </td>  
+		             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantD2_4"><!-- BEGIN: nu_puntajeD2_4 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeD2_4 --></span></td>
+		             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_puntajeantproduccionD2_4 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantproduccionD2_4 --></td>
+		             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+		             		<span id="spanpuntajeantproduccionD2_4" ></span>
+		             		<div id="spanpuntajeantproduccionD2_4Error" class="fValidator-a" ></div>
+		             	</td>
+		                                 
+		            </tr>
+		            <tr style="border-style: solid; border-width: 1px; border-color: #666">
+		             	<td style="background-color: #eee;color:#333; width:80px"><span id="topeD2_5"><!-- BEGIN: nu_topeD2_5 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_topeD2_5 --></span></td>    
+		             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionD2_5 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionD2_5 --> </td>  
+		             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantD2_5"><!-- BEGIN: nu_puntajeD2_5 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeD2_5 --></span></td>
+		             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_puntajeantproduccionD2_5 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantproduccionD2_5 --></td>
+		             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+		             		<span id="spanpuntajeantproduccionD2_5" ></span>
+		             		<div id="spanpuntajeantproduccionD2_5Error" class="fValidator-a" ></div>
+		             	</td>
+		                                 
+		            </tr>
+		            <tr style="border-style: solid; border-width: 1px; border-color: #666">
+                      <Td style="background-color: #eee;color:#333; width:80px">D3</td> 
+                      <td style="background-color: #eee;color:#333;" colspan="5"><div align="left"><strong><!-- BEGIN: ds_grupoD3 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_grupoD3 --></strong></div></td>              
+				 	</tr>
+				 	
+				 	<tr style="border-style: solid; border-width: 1px; border-color: #666">
+		             	<td style="background-color: #eee;color:#333; width:80px"></td>    
+		             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionD3_1 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionD3_1 --> </td>  
+		             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantD3_1"><!-- BEGIN: nu_puntajeD3_1 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeD3_1 --></span></td>
+		             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_puntajeantproduccionD3_1 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantproduccionD3_1 --></td>
+		             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+		             		<span id="spanpuntajeantproduccionD3_1" ></span>
+		             		<div id="spanpuntajeantproduccionD3_1Error" class="fValidator-a" ></div>
+		             	</td>
+		                                 
+		            </tr>
+		            <tr style="border-style: solid; border-width: 1px; border-color: #666">
+		             	<td style="background-color: #eee;color:#333; width:80px"></td>    
+		             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionD3_2 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionD3_2 --> </td>  
+		             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantD3_2"><!-- BEGIN: nu_puntajeD3_2 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeD3_2 --></span></td>
+		             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_puntajeantproduccionD3_2 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantproduccionD3_2 --></td>
+		             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+		             		<span id="spanpuntajeantproduccionD3_2" ></span>
+		             		<div id="spanpuntajeantproduccionD3_2Error" class="fValidator-a" ></div>
+		             	</td>
+		                                 
+		            </tr>
+		            <tr style="border-style: solid; border-width: 1px; border-color: #666">
+		             	<td style="background-color: #eee;color:#333; width:80px"></td>    
+		             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionD3_3 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionD3_3 --> </td>  
+		             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantD3_3"><!-- BEGIN: nu_puntajeD3_3 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeD3_3 --></span></td>
+		             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_puntajeantproduccionD3_3 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantproduccionD3_3 --></td>
+		             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+		             		<span id="spanpuntajeantproduccionD3_3" ></span>
+		             		<div id="spanpuntajeantproduccionD3_3Error" class="fValidator-a" ></div>
+		             	</td>
+		                                 
+		            </tr>
+		            <tr style="border-style: solid; border-width: 1px; border-color: #666">
+		             	<td style="background-color: #eee;color:#333; width:80px"></td>    
+		             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionD3_4 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionD3_4 --> </td>  
+		             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantD3_4"><!-- BEGIN: nu_puntajeD3_4 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeD3_4 --></span></td>
+		             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_puntajeantproduccionD3_4 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantproduccionD3_4 --></td>
+		             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+		             		<span id="spanpuntajeantproduccionD3_4" ></span>
+		             		<div id="spanpuntajeantproduccionD3_4Error" class="fValidator-a" ></div>
+		             	</td>
+		                                 
+		            </tr>
+		            
+		            
+		            <tr style="border-style: solid; border-width: 1px; border-color: #666">
+                      <Td style="background-color: #eee;color:#333; width:80px">D4</td> 
+                      <td style="background-color: #eee;color:#333;" colspan="5"><div align="left"><strong><!-- BEGIN: ds_grupoD4 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_grupoD4 --></strong></div></td>              
+				 	</tr>
+				 	
+				 	<tr style="border-style: solid; border-width: 1px; border-color: #666">
+		             	<td style="background-color: #eee;color:#333; width:80px"></td>    
+		             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionD4_1 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionD4_1 --> </td>  
+		             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantD4_1"><!-- BEGIN: nu_puntajeD4_1 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeD4_1 --></span></td>
+		             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_puntajeantproduccionD4_1 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantproduccionD4_1 --></td>
+		             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+		             		<span id="spanpuntajeantproduccionD4_1" ></span>
+		             		<div id="spanpuntajeantproduccionD4_1Error" class="fValidator-a" ></div>
+		             	</td>
+		                                 
+		            </tr>
+		            
+		             <tr style="border-style: solid; border-width: 1px; border-color: #666">
+                      <Td style="background-color: #eee;color:#333; width:80px">D5</td> 
+                      <td style="background-color: #eee;color:#333;" colspan="5"><div align="left"><strong><!-- BEGIN: ds_grupoD5 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_grupoD5 --></strong></div></td>              
+				 	</tr>
+				 	
+				 	<tr style="border-style: solid; border-width: 1px; border-color: #666">
+		             	<td style="background-color: #eee;color:#333; width:80px"></td>    
+		             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionD5_1 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionD5_1 --> </td>  
+		             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantD5_1"><!-- BEGIN: nu_puntajeD5_1 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeD5_1 --></span></td>
+		             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_cantantproduccionD5_1 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_cantantproduccionD5_1 --></td>
+		             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+		             		<span id="spanpuntajeantproduccionD5_1" ><!-- BEGIN: nu_puntajeantproduccionD5_1 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantproduccionD5_1 --></span>
+		             		<div id="spanpuntajeantproduccionD5_1Error" class="fValidator-a" ></div>
+		             	</td>
+		                                 
+		            </tr>
+		            
+		            <tr style="border-style: solid; border-width: 1px; border-color: #666">
+		             	<td style="background-color: #eee;color:#333; width:80px"></td>    
+		             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionD5_2 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionD5_2 --> </td>  
+		             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantD5_2"><!-- BEGIN: nu_puntajeD5_2 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeD5_2 --></span></td>
+		             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_cantantproduccionD5_2 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_cantantproduccionD5_2 --></td>
+		             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+		             		<span id="spanpuntajeantproduccionD5_2" ><!-- BEGIN: nu_puntajeantproduccionD5_2 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantproduccionD5_2 --></span>
+		             		<div id="spanpuntajeantproduccionD5_2Error" class="fValidator-a" ></div>
+		             	</td>
+		                                 
+		            </tr>
+		            
+		            <tr style="border-style: solid; border-width: 1px; border-color: #666">
+		             	<td style="background-color: #eee;color:#333; width:80px"></td>    
+		             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionD5_3 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionD5_3 --> </td>  
+		             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantD5_3"><!-- BEGIN: nu_puntajeD5_3 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeD5_3 --></span></td>
+		             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_cantantproduccionD5_3 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_cantantproduccionD5_3 --></td>
+		             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+		             		<span id="spanpuntajeantproduccionD5_3" ><!-- BEGIN: nu_puntajeantproduccionD5_3 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantproduccionD5_3 --></span>
+		             		<div id="spanpuntajeantproduccionD5_3Error" class="fValidator-a" ></div>
+		             	</td>
+		                                 
+		            </tr>
+		        
+				 	
+				 	
+		            <tr style="border-style: solid; border-width: 1px; border-color: #666">
+		            	<tr style="border-style: solid; border-width: 1px; border-color: #666">
+                      <Td style="background-color: #eee;color:#333; width:80px">D6</td> 
+                      <td style="background-color: #eee;color:#333;" colspan="5"><div align="left"><strong><!-- BEGIN: ds_grupoD7 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_grupoD7 --></strong></div></td>              
+				 	</tr>
+		             	<td style="background-color: #eee;color:#333; width:80px"><br><span id="topeD7"><!-- BEGIN: nu_topeD7 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_topeD7 --></span></td>    
+		             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionD7 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionD7 --> </td>  
+		             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantD7"><!-- BEGIN: nu_puntajeD7 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeD7 --></span></td>
+		             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_puntajeantproduccionD7 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantproduccionD7 --></td>
+		             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+		             		<span id="spanpuntajeantproduccionD7" ></span>
+		             		<div id="spanpuntajeantproduccionD7Error" class="fValidator-a" ></div>
+		             	</td>
+		                                 
+		            </tr>
+		            
+		            <tr style="border-style: solid; border-width: 1px; border-color: #666">
+		            	<tr style="border-style: solid; border-width: 1px; border-color: #666">
+                      <Td style="background-color: #eee;color:#333; width:80px">D7</td> 
+                      <td style="background-color: #eee;color:#333;" colspan="5"><div align="left"><strong><!-- BEGIN: ds_grupoD8 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_grupoD8 --></strong></div></td>              
+				 	</tr>
+		             	<td style="background-color: #eee;color:#333; width:80px"></td>    
+		             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionD8 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionD8 --> </td>  
+		             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantD8"><!-- BEGIN: nu_puntajeD8 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeD8 --></span></td>
+		             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_puntajeantproduccionD8 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantproduccionD8 --></td>
+		             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+		             		<span id="spanpuntajeantproduccionD8" ></span>
+		             		<div id="spanpuntajeantproduccionD8Error" class="fValidator-a" ></div>
+		             	</td>
+		                                 
+		            </tr>
+		            <tr style="background-color: #eee;color:#333;"">
+                	
+                	<td colspan="5">
+                		<div align="right"><strong>{subtotal} (max. <span id="topeD"><!-- BEGIN: nu_antproduccionmaximo --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_antproduccionmaximo --></span> )</strong></div>
+                		</td>
+         
+                	<td style="background-color: #eee;color:#333; width:80px"><div align="right"><strong><span id="totalD"></span></strong><div id="totalDError" class="fValidator-a"></div></div></td>
+                </tr> 
+                </table>
+		            <table style="width:100%; border-style: solid; border-width: 1px;  border-color: #666 ;margin-bottom:5px">
+				 <tr style="border-style: solid; border-width: 1px; border-color: #666">
+                      <Td style="background-color: #eee;color:#333; width:80px">E</td> 
+                      <td style="background-color: #eee;color:#333;" colspan="5"><div align="center"><strong>{justificacion}</strong></div></td>              
+				 </tr>
+				 
+			  </table>
+			  <table style="width:100%; border-style: solid; border-width: 1px;  border-color: #666;margin-bottom:5px">
+                    <tr style="border-style: solid; border-width: 1px; border-color: #666">
+		             	<td style="background-color: #eee;color:#333; width:80px">E1<br><span id="topeE1"><!-- BEGIN: nu_topeE1 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_topeE1 --></span></td>    
+		             	<td style="width:450px; background-color: #fff;color:#333;"  colspan="2"> <!-- BEGIN: ds_descripcionE1 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_descripcionE1 --> </td>  
+		             	<td style="width:120px; background-color: #fff;color:#333; text-align:center;"><span id="cantE1"><!-- BEGIN: nu_puntajeE1 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeE1 --></span></td>
+		             	<td style="background-color: #fff;color:#333;"><!-- BEGIN: nu_puntajeantjustificacionE1 --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_puntajeantjustificacionE1 --></td>
+		             	<td style="background-color: #eee;color:#333; width:80px; text-align: right;">
+		             		<span id="spanpuntajeantjustificacionE1" ></span>
+		             		<div id="spanpuntajeantjustificacionE1Error" class="fValidator-a" ></div>
+		             	</td>
+		                                 
+		            </tr>
+		           
+                	<td colspan="5">
+                		<div align="right"><strong>{subtotal} (max. <span id="topeE"><!-- BEGIN: nu_antjustificacionmaximo --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_antjustificacionmaximo --></span> )</strong></div>
+                		</td>
+         
+                	<td style="background-color: #eee;color:#333; width:80px"><div align="right"><strong><span id="totalE"></span></strong><div id="totalEError" class="fValidator-a"></div></div></td>
+                </tr> 
+                </table>
+        <table style="width:100%; border-style: solid; border-width: 1px;  border-color: #666;margin-bottom:5px">
+                    <tr style="border-style: solid; border-width: 1px; border-color: #666">
+                        <td>
+                            <table style="width:100%">
+                                <tr>
+                                    <td><div align="right">
+                                      
+                                     
+                                     <strong> {total} (max. <!-- BEGIN: nu_max --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_max -->)</strong></div></td>
+                                </tr>
+                        </table>                        </td>
+                        <td style="background-color: #eee;color:#333; width:80px"><div align="right"><strong><span id="spanTotal"></span></strong></div></td>
+                    </tr>
+                </table>
+       <p><!-- BEGIN: ds_observacion --><!-- BEGIN: label -->{value}<!-- END: label --><br><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_observacion --></p>
+	</fieldset>
+	<!-- END: fieldset -->
+	<!-- BEGIN: field_hidden -->
+	{input_hidden}
+	<!-- END: field_hidden -->
+	
+
+
+	{intoFormCustomHTML}
+</form>
+
+{customHTML}
+
+<!-- BEGIN: buttons -->
+<form id="buttons{inputId}">
+	<fieldset class="tblFooters">
+	
+		<!-- BEGIN: submit -->
+		<input type="button" value="{lbl_submit}" id="{form_id}_input_submit" onclick="javascript:submitForm('{form_id}');">
+		<!-- END: submit -->
+		
+		<!-- BEGIN: submit_ajax -->
+		<input type="button" value="{lbl_button}" id="{form_id}_input_submit_ajax" onclick="javascript: submitForm('{form_id}');">
+		<!-- END: submit_ajax -->
+		
+		<!-- BEGIN: button -->
+		<input type="button" value="{lbl_button}" id="{form_id}_input_button_{i}" onclick="javascript: {function}; ">
+		<!-- END: button -->
+	
+		<!-- BEGIN: cancel -->
+		<input type="button" value="{lbl_cancel}" id="{form_id}_input_cancel" onclick="javascript: {function};">
+		<!-- END: cancel -->
+			
+	</fieldset>
+</form>	
+<!-- END: buttons -->
+<!-- END: main -->

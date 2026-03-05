@@ -1,0 +1,216 @@
+<!-- BEGIN: main -->
+<script nonce="tu_nonce_generado" type="text/javascript">
+$(document).ready(function() {
+    // Espera a que el documento esté completamente cargado antes de ejecutar el código
+
+    
+    var submitButton = $('#input_submit');
+    var submitAjaxButton = $('#input_submit_ajax');
+   
+
+    
+
+    submitButton.on('click', function() {
+        // Código para manejar el clic en el botón Submit
+        submitForm('{form_id}');
+    });
+
+    submitAjaxButton.on('click', function() {
+        // Código para manejar el clic en el botón Submit Ajax
+        submitForm('{form_id}');
+    });
+
+    $('.custom-button').on('click', function () {
+		
+		const functionsStr = $(this).data('functions');
+		// Elimina comillas y punto y coma
+		const sanitizedFunctionsStr = functionsStr.replace(/['";]+/g, '');
+
+		// Verifica si la cadena comienza con "window.location.href = "
+		if (sanitizedFunctionsStr.startsWith("window.location.href = ")) {
+			// Extrae la URL después de la asignación
+			const url = sanitizedFunctionsStr.replace("window.location.href =", '').trim();
+			
+			// Redirige a la URL
+			window.location.href = url;
+		}
+		const functionCalls = functionsStr.split(';');
+
+		for (const functionCall of functionCalls) {
+			
+			// Elimina cualquier paréntesis adicional en la cadena
+			const cleanedFunctionCall = functionCall.replace(/\)$/, '');
+
+			// Verifica si la función se llama con "javascript:" y contiene un paréntesis
+			if (cleanedFunctionCall.startsWith("javascript:") && cleanedFunctionCall.includes("(")) {
+				// Extrae la parte después de "javascript:" y antes del primer paréntesis
+				const functionNameStart = cleanedFunctionCall.indexOf("javascript:") + "javascript:".length;
+				const functionNameEnd = cleanedFunctionCall.indexOf("(");
+				const functionName = cleanedFunctionCall.slice(functionNameStart, functionNameEnd).trim();
+
+				// Extrae los argumentos dentro del paréntesis
+				const argsString = cleanedFunctionCall.slice(functionNameEnd + 1).trim();
+				const functionArgs = argsString.split(',').map(arg => arg.trim());
+
+				
+
+				// Verifica si la función existe en el objeto window
+				if (typeof window[functionName] === 'function') {
+					window[functionName](...functionArgs);
+				}
+			} else {
+				// Si no es una llamada de función con "javascript:", procesa como antes
+				const parts = cleanedFunctionCall.split('(');
+				const functionName = parts[0].trim();
+				
+				// Verifica si hay argumentos en la llamada a función
+				let functionArgs = [];
+				if (parts[1]) {
+					const argsString = parts.slice(1).join('(').trim();
+					if (argsString.length > 0) {
+						functionArgs = argsString.split(',').map(arg => arg.trim());
+					}
+				}
+
+				
+				//console.log(functionName+' '+functionArgs);
+				// Verifica si la función existe en el objeto window
+				if (typeof window[functionName] === 'function') {
+					window[functionName](...functionArgs);
+				}
+			}
+		}
+	});
+
+
+
+
+
+
+
+});
+
+$(function() {
+
+        $("#{form_id}").submit(function(e) {
+        	
+        	if( $("#{form_id}_input_submit").length > 0){
+        		$submit = $("#{form_id}_input_submit");
+            	$restoreOpacity = $submit.css("opacity");	
+        	}
+        	
+        	
+        	 e.preventDefault();
+
+        	 if( {useAjaxSubmit} ) {
+
+                	submitAjaxForm('{form_id}', '{action}', {onSuccessCallback},{beforeSubmit});
+                	return false;
+             }else{
+            	 
+            	
+         		$submit.css({"opacity":$restoreOpacity});
+         		$submit.removeAttr( "disabled" );
+             }
+        	 
+        });
+	
+            								
+});
+
+function successDefault_{form_id}(data ){
+	try {
+		
+		 jsondata = $.parseJSON(data);
+
+		 if( jsondata != null && jsondata["error"]!=null){
+				showMessageError( jsondata["error"], false );
+				
+			}
+
+		 if( jsondata != null && jsondata["info"]!=null){
+				//showMessageInfo( jsondata["info"], false );
+				//$('#{form_id}').reset();
+				{onCancel};
+				
+			}
+		 			
+	} catch (e) {
+	   return;
+	}
+	  
+}
+
+
+
+</script>
+
+<form <!-- BEGIN: property --> {name}="{value}" <!-- END: property --> >
+	<input type="hidden" name="csrf_token" value="{csrf_token}">
+	<!-- BEGIN: fieldset -->
+		<fieldset>
+	    <!-- BEGIN: legend -->
+		<legend>{value}</legend>
+		<!-- END: legend -->
+			<div class="form-flex">
+
+				<!-- BEGIN:column -->
+				<div class="form">
+
+					<!-- BEGIN: field -->
+					<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+					    
+					    <!-- BEGIN: label -->
+					    <label for="{input_name}">{value}</label>
+					    <!-- END: label -->
+					    <!-- BEGIN: input -->
+					    {input}
+					    <!-- END: input -->
+						<div class="obligatorio">
+							<h3>{required}</h3>
+						</div>
+					</div>
+					<!-- END: field -->
+				</div>
+				<!-- END:column -->
+
+			</div>
+	</fieldset>
+	<!-- END: fieldset -->
+	<!-- BEGIN: field_hidden -->
+	{input_hidden}
+	<!-- END: field_hidden -->
+	
+	{intoFormCustomHTML}
+</form>
+
+{customHTML}
+
+<!-- BEGIN: buttons -->
+<form id="buttons{inputId}">
+    <fieldset class="tblFooters">
+
+       <!-- BEGIN: submit -->
+		<input type="button" value="{lbl_submit}" id="input_submit">
+		<!-- END: submit -->
+		
+		<!-- BEGIN: submit_ajax -->
+		<input type="button" value="{lbl_button}" id="input_submit_ajax">
+		<!-- END: submit_ajax -->
+
+        <!-- BEGIN: button -->
+        <input type="button" value="{lbl_button}" class="custom-button" data-functions="{function}">
+        <!-- END: button -->
+
+        <!-- BEGIN: cancel -->
+        <input type="button" value="{lbl_cancel}" class="custom-button" data-functions="{function}">
+        <!-- END: cancel -->
+
+        <div class="campos-requeridos">
+            <h4> (*) {msg_required_fields} </h4>
+        </div>
+    </fieldset>
+</form>
+<!-- END: buttons -->
+
+<!-- END: main -->

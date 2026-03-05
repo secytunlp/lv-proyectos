@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/codnet_mvc/!svn/ver/159/trunk/codnet_geo/manager
+END
+ProvinciaManager.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/codnet_mvc/!svn/ver/113/trunk/codnet_geo/manager/ProvinciaManager.Class.php
+END
+LocalidadManager.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/codnet_mvc/!svn/ver/113/trunk/codnet_geo/manager/LocalidadManager.Class.php
+END
+PaisManager.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/codnet_mvc/!svn/ver/159/trunk/codnet_geo/manager/PaisManager.Class.php
+END
+LocalizacionManager.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/codnet_mvc/!svn/ver/113/trunk/codnet_geo/manager/LocalizacionManager.Class.php
+END

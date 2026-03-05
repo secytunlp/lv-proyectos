@@ -1,0 +1,356 @@
+<?xml version='1.0' standalone='yes'?>
+<navegation>
+
+	<!-- ********************************* -->
+	<!-- cdt_core -->
+	<!-- ********************************* -->
+
+	<!-- pagina no encontrada -->
+	<action name='page_not_found' class='CdtPageNotFoundAction' />
+
+	<!-- acceso denegado -->
+	<action name='access_denied' class='CdtAccessDeniedAction' />
+
+	<!-- pagina de error -->
+	<action name='error' class='CdtErrorAction' />
+
+	<!-- forwards -->
+	<forward name='page_not_found' url='doAction?action=page_not_fount' />
+	<forward name='access_denied' url='doAction?action=access_denied' />
+	<forward name='error' url='doAction?action=error' />
+
+	<!-- filter name="auditory" class="CdtAuditFilter" urlPattern="/"/ -->
+
+	<!-- ********************************* -->
+	<!-- cdt_secure -->
+	<!-- ********************************* -->
+
+	<filter name="security" class="CdtSecureFilter" urlPattern="/"/>
+
+	<!-- inicio y login -->
+	<action name='login_init' class='CYTLoginInitAction' />
+	<action name='login' class='CYTLoginAction' />
+	<action name='login_dame_perfil' class='CYTLoginDamePerfilAction' />
+	<action name='list_perfiles' class='CYTListPerfilesAction' />
+	<action name='select_perfil' class='CYTSelectPerfilAction' />
+
+	<forward name='login_success' url='doAction?action=list_perfiles' />
+	<forward name='select_perfil_success' url='doAction?action=list_solicitudes' />
+	<forward name='login_error' url='doAction?action=login_init' />
+
+	<action name='home' class='SmilePanelAction' currentMenuGroup='' />
+	<action name='exit' class='CdtExitAction' />
+	<forward name='exit_success' url='doAction?action=login_init' />
+
+	<!-- registracion -->
+	<action name='add_registro_chequear' class='AddRegistroChequearAction' />
+	<action name='signup_init' class='CYTSignupInitAction' />
+	<action name='signup' class='CYTSignupAction' />
+	<action name='signup_success' class='CdtSignupSuccessAction' />
+	<action name='activate_registration' class='ActivateCYTRegistrationAction' />
+	<action name='activate_registration_success' class='ActivateCdtRegistrationSuccessAction' />
+	<action name='terms_conditions' class='CdtTermsAndConditionsAction' />
+
+	<forward name='signup_error' url='doAction?action=signup_init' />
+	<forward name='signup_success' url='doAction?action=signup_success' />
+	<forward name='activate_registration_error' url='doAction?action=error' />
+	<forward name='activate_registration_success' url='doAction?action=activate_registration_success' />
+
+	<!-- solicitud de nueva contraseña -->
+	<action name='forgot_password_init' class='CdtForgotPasswordInitAction' />
+	<action name='forgot_password' class='CYTForgotPasswordAction' />
+	<action name='forgot_password_success' class='CdtForgotPasswordSuccessAction' />
+
+	<forward name='forgot_password_error' url='doAction?action=forgot_password_init' />
+	<forward name='forgot_password_success' url='doAction?action=forgot_password_success' />
+
+	<!-- CdtActionFunctions -->
+	<action name='list_cdtactionfunctions' class='ListCdtActionFunctionsAction'
+		currentMenuGroup='1' />
+	<action name='add_cdtactionfunction' class='AddCdtActionFunctionAction' />
+	<action name='add_cdtactionfunction_init' class='AddCdtActionFunctionInitAction'
+		currentMenuGroup='1' />
+	<action name='update_cdtactionfunction' class='UpdateCdtActionFunctionAction' />
+	<action name='update_cdtactionfunction_init' class='UpdateCdtActionFunctionInitAction' />
+	<action name='view_cdtactionfunction' class='ViewCdtActionFunctionAction' />
+	<action name='delete_cdtactionfunction' class='DeleteCdtActionFunctionAction' />
+
+	<forward name='add_cdtactionfunction_success' url='doAction?action=list_cdtactionfunctions' />
+	<forward name='add_cdtactionfunction_error' url='doAction?action=add_cdtactionfunction_init' />
+	<forward name='update_cdtactionfunction_success' url='doAction?action=list_cdtactionfunctions' />
+	<forward name='update_cdtactionfunction_error' url='doAction?action=add_cdtactionfunction_init' />
+	<forward name='delete_cdtactionfunction_success' url='doAction?action=list_cdtactionfunctions' />
+	<forward name='delete_cdtactionfunction_error' url="doAction?action=list_cdtactionfunctions" />
+	<forward name='list_cdtactionfunction_error' url='doAction?action=list_cdtactionfunctions' />
+
+
+	<!-- CdtFunctions -->
+	<action name='list_cdtfunctions' class='ListCdtFunctionsAction'
+		currentMenuGroup='1' />
+	<action name='add_cdtfunction' class='AddCdtFunctionAction' />
+	<action name='add_cdtfunction_init' class='AddCdtFunctionInitAction' />
+	<action name='update_cdtfunction' class='UpdateCdtFunctionAction' />
+	<action name='update_cdtfunction_init' class='UpdateCdtFunctionInitAction' />
+	<action name='view_cdtfunction' class='ViewCdtFunctionAction' />
+	<action name='delete_cdtfunction' class='DeleteCdtFunctionAction' />
+
+	<forward name='add_cdtfunction_success' url='doAction?action=list_cdtfunctions' />
+	<forward name='add_cdtfunction_error' url='doAction?action=add_cdtfunction_init' />
+	<forward name='update_cdtfunction_success' url='doAction?action=list_cdtfunctions' />
+	<forward name='update_cdtfunction_error' url='doAction?action=add_cdtfunction_init' />
+	<forward name='delete_cdtfunction_success' url='doAction?action=list_cdtfunctions' />
+	<forward name='delete_cdtfunction_error' url='doAction?action=list_cdtfunctions' />
+	<forward name='list_cdtfunction_error' url='doAction?action=list_cdtfunctions' />
+
+
+	<!-- CdtMenuGroups -->
+	<action name='list_cdtmenugroups' class='ListCdtMenuGroupsAction'
+		currentMenuGroup='1' />
+	<action name='add_cdtmenugroup' class='AddCdtMenuGroupAction' />
+	<action name='add_cdtmenugroup_init' class='AddCdtMenuGroupInitAction' />
+	<action name='update_cdtmenugroup' class='UpdateCdtMenuGroupAction' />
+	<action name='update_cdtmenugroup_init' class='UpdateCdtMenuGroupInitAction' />
+	<action name='view_cdtmenugroup' class='ViewCdtMenuGroupAction' />
+	<action name='delete_cdtmenugroup' class='DeleteCdtMenuGroupAction' />
+
+	<forward name='add_cdtmenugroup_success' url='doAction?action=list_cdtmenugroups' />
+	<forward name='add_cdtmenugroup_error' url='doAction?action=add_cdtmenugroup_init' />
+	<forward name='update_cdtmenugroup_success' url='doAction?action=list_cdtmenugroups' />
+	<forward name='update_cdtmenugroup_error' url='doAction?action=add_cdtmenugroup_init' />
+	<forward name='delete_cdtmenugroup_success' url='doAction?action=list_cdtmenugroups' />
+	<forward name='delete_cdtmenugroup_error' url='doAction?action=list_cdtmenugroups' />
+	<forward name='list_cdtmenugroup_error' url='doAction?action=list_cdtmenugroups' />
+
+
+	<!-- CdtMenuOptions -->
+	<action name='list_cdtmenuoptions' class='ListCdtMenuOptionsAction'
+		currentMenuGroup='1' />
+	<action name='add_cdtmenuoption' class='AddCdtMenuOptionAction' />
+	<action name='add_cdtmenuoption_init' class='AddCdtMenuOptionInitAction' />
+	<action name='update_cdtmenuoption' class='UpdateCdtMenuOptionAction' />
+	<action name='update_cdtmenuoption_init' class='UpdateCdtMenuOptionInitAction' />
+	<action name='view_cdtmenuoption' class='ViewCdtMenuOptionAction' />
+	<action name='delete_cdtmenuoption' class='DeleteCdtMenuOptionAction' />
+
+	<forward name='add_cdtmenuoption_success' url='doAction?action=list_cdtmenuoptions' />
+	<forward name='add_cdtmenuoption_error' url='doAction?action=add_cdtmenuoption_init' />
+	<forward name='update_cdtmenuoption_success' url='doAction?action=list_cdtmenuoptions' />
+	<forward name='update_cdtmenuoption_error' url='doAction?action=add_cdtmenuoption_init' />
+	<forward name='delete_cdtmenuoption_success' url='doAction?action=list_cdtmenuoptions' />
+	<forward name='delete_cdtmenuoption_error' url='doAction?action=list_cdtmenuoptions' />
+	<forward name='list_cdtmenuoption_error' url='doAction?action=list_cdtmenuoptions' />
+
+
+	<!-- CdtRegistrations -->
+	<action name='list_cdtregistrations' class='ListCdtRegistrationsAction'
+		currentMenuGroup='1' />
+	<action name='add_cdtregistration' class='AddCdtRegistrationAction' />
+	<action name='add_cdtregistration_init' class='AddCdtRegistrationInitAction' />
+	<action name='update_cdtregistration' class='UpdateCdtRegistrationAction' />
+	<action name='update_cdtregistration_init' class='UpdateCdtRegistrationInitAction' />
+	<action name='view_cdtregistration' class='ViewCdtRegistrationAction' />
+	<action name='delete_cdtregistration' class='DeleteCdtRegistrationAction' />
+
+	<forward name='add_cdtregistration_success' url='doAction?action=list_cdtregistrations' />
+	<forward name='add_cdtregistration_error' url='doAction?action=add_cdtregistration_init' />
+	<forward name='update_cdtregistration_success' url='doAction?action=list_cdtregistrations' />
+	<forward name='update_cdtregistration_error' url='doAction?action=add_cdtregistration_init' />
+	<forward name='delete_cdtregistration_success' url='doAction?action=list_cdtregistrations' />
+	<forward name='delete_cdtregistration_error' url='doAction?action=list_cdtregistrations' />
+	<forward name='list_cdtregistration_error' url='doAction?action=list_cdtregistrations' />
+
+
+	<!-- CYTUsers -->
+	<action name='list_cdtusers' class='ListCYTUsersAction'
+		currentMenuGroup='1' />
+	<action name='add_cdtuser' class='AddCYTUserAction' />
+	<action name='add_cdtuser_init' class='AddCYTUserInitAction' />
+	<action name='update_cdtuser' class='UpdateCYTUserAction' />
+	<action name='update_cdtuser_init' class='UpdateCYTUserInitAction' />
+	<action name='view_cdtuser' class='ViewCYTUserAction' />
+	<action name='delete_cdtuser' class='DeleteCYTUserAction' />
+	<action name='edit_cdtuserprofile' class='EditCYTUserProfileAction' />
+	<action name='edit_cdtuserprofile_init' class='EditCYTUserProfileInitAction' />
+	<action name='view_new_cdtuser' class='ViewNewCdtUserAction' />
+	<action name='unblock_cdtuser' class='UnblockCYTUserAction' />
+	
+	<action name='add_user_userGroup_session' class='AddUserUserGroupSessionAction' />
+	<action name='delete_user_usergroup_session' class='DeleteUserUserGroupSessionAction' />
+
+	<forward name='add_cdtuser_success' url='doAction?action=view_new_cdtuser' />
+	<forward name='add_cdtuser_error' url='doAction?action=add_cdtuser_init' />
+	<forward name='update_cdtuser_success' url='doAction?action=list_cdtusers' />
+	<forward name='update_cdtuser_error' url='doAction?action=update_cdtuser_init' />
+	<forward name='delete_cdtuser_success' url='doAction?action=list_cdtusers' />
+	<forward name='delete_cdtuser_error' url='doAction?action=list_cdtusers' />
+	<forward name='list_cdtuser_error' url='doAction?action=home' />
+	<forward name='edit_cdtuserprofile_success' url='doAction?action=home' />
+	<forward name='edit_cdtuserprofile_error' url='doAction?action=edit_cdtuserprofile_init' />
+	<forward name='unblock_cdtuser_success' url='doAction?action=list_cdtusers' />
+	<forward name='unblock_cdtuser_error' url='doAction?action=list_cdtusers' />
+
+	<!-- CdtUserGroups -->
+	<action name='list_cdtusergroups' class='ListCdtUserGroupsAction'
+		currentMenuGroup='1' />
+	<action name='add_cdtusergroup' class='AddCdtUserGroupAction' />
+	<action name='add_cdtusergroup_init' class='AddCdtUserGroupInitAction' />
+	<action name='update_cdtusergroup' class='UpdateCdtUserGroupAction' />
+	<action name='update_cdtusergroup_init' class='UpdateCdtUserGroupInitAction' />
+	<action name='view_cdtusergroup' class='ViewCdtUserGroupAction' />
+	<action name='delete_cdtusergroup' class='DeleteCdtUserGroupAction' />
+
+	<forward name='add_cdtusergroup_success' url='doAction?action=list_cdtusergroups' />
+	<forward name='add_cdtusergroup_error' url='doAction?action=add_cdtusergroup_init' />
+	<forward name='update_cdtusergroup_success' url='doAction?action=list_cdtusergroups' />
+	<forward name='update_cdtusergroup_error' url='doAction?action=add_cdtusergroup_init' />
+	<forward name='delete_cdtusergroup_success' url='doAction?action=list_cdtusergroups' />
+	<forward name='delete_cdtusergroup_error' url='doAction?action=list_cdtusergroups' />
+	<forward name='list_cdtusergroup_error' url='doAction?action=list_cdtusergroups' />
+
+
+	<!-- CdtUserGroupFunctions -->
+	<action name='list_cdtusergroupfunctions' class='ListCdtUserGroupFunctionsAction'
+		currentMenuGroup='1' />
+	<action name='add_cdtusergroupfunction' class='AddCdtUserGroupFunctionAction' />
+	<action name='add_cdtusergroupfunction_init' class='AddCdtUserGroupFunctionInitAction' />
+	<action name='update_cdtusergroupfunction' class='UpdateCdtUserGroupFunctionAction' />
+	<action name='update_cdtusergroupfunction_init' class='UpdateCdtUserGroupFunctionInitAction' />
+	<action name='view_cdtusergroupfunction' class='ViewCdtUserGroupFunctionAction' />
+	<action name='delete_cdtusergroupfunction' class='DeleteCdtUserGroupFunctionAction' />
+
+	<action name='assign_usergroup_functions' class='AssignUserGroupFunctionsAction' />
+	<action name='assign_usergroup_functions_init' class='AssignUserGroupFunctionsInitAction' />
+
+	<forward name='add_cdtusergroupfunction_success' url='doAction?action=list_cdtusergroupfunctions' />
+	<forward name='add_cdtusergroupfunction_error' url='doAction?action=add_cdtusergroupfunction_init' />
+	<forward name='update_cdtusergroupfunction_success' url='doAction?action=list_cdtusergroupfunctions' />
+	<forward name='update_cdtusergroupfunction_error' url='doAction?action=add_cdtusergroupfunction_init' />
+	<forward name='delete_cdtusergroupfunction_success' url='doAction?action=list_cdtusergroupfunctions' />
+	<forward name='delete_cdtusergroupfunction_error' url='doAction?action=list_cdtusergroupfunctions' />
+	<forward name='list_cdtusergroupfunction_error' url='doAction?action=list_cdtusergroupfunctions' />
+	<forward name='assign_usergroup_functions_error' url='doAction?action=assign_usergroup_functions_init' />
+	<forward name='assign_usergroup_functions_success' url='doAction?action=list_cdtusergroups' />
+
+	<!-- ********************************* -->
+	<!-- cdt_ui_smile -->
+	<!-- ********************************* -->
+
+	<!-- panel de control -->
+	<action name='panel_control' class='SmilePanelAction' />
+
+	<!-- ********************************* -->
+	<!-- components -->
+	<!-- ********************************* -->
+	<action name='cmp_autocomplete' class='CMPAutocompleteAction' />
+	<action name='cmp_findobject' class='CMPFindObjectAction' />
+	<action name='cmp_findpopup' class='CMPFindPopupAction' />
+	<action name='cmp_grid' class='CMPGridAction' />
+	<action name='cmp_grid_pdf' class='CMPGridExportPdfAction' />
+	<action name='cmp_grid_xls' class='CMPGridExportXlsAction' />
+	<action name='cmp_entityautocomplete' class='CMPEntityAutocompleteAction' />
+	<action name='cmp_generic' class='CMPComponentAction' />
+	<action name='cmp_entitygrid' class='CMPEntityGridAction' />
+
+	<action name='cmp_findentity_by_code' class='CMPFindEntityByCodeAction' />
+	<action name='cmp_findentity_popup' class='CMPFindEntityPopupAction' />
+
+	<!-- ********************************* -->
+	<!-- Viajes -->
+	<!-- ********************************* -->
+
+
+	<!-- solicitudes -->
+
+	<action name='list_solicitudes' class='ListSolicitudesAction'
+		currentMenuGroup='10' />
+
+	<action name='add_solicitud' class='AddSolicitudAction' />
+	<action name='add_solicitud_init' class='AddSolicitudInitAction'
+		currentMenuGroup='10' />
+		
+	<action name='add_file_session' class='AddFileSessionAction' />
+		
+	<action name='add_solicitud_chequear_motivo' class='AddSolicitudChequearMotivoAction' />	
+	<action name='add_solicitud_chequear_tipo_evento' class='AddSolicitudChequearTipoEventoAction' />
+
+	<action name='add_solicitud_tipo_beca' class='AddSolicitudTipoBecaAction' />
+
+	
+	<action name='add_solicitud_direccion_lugarTrabajo' class='AddSolicitudDireccionLugarTrabajoAction' />
+		
+	<action name='add_beca_session' class='AddBecaSessionAction' />
+	<action name='delete_beca_session' class='DeleteBecaSessionAction' />
+
+	<action name='add_otrosProyecto_session' class='AddOtrosProyectoSessionAction' />
+	<action name='delete_otrosProyecto_session' class='DeleteOtrosProyectoSessionAction' />
+
+	<action name='add_solicitud_categoria_equivalencia' class='AddSolicitudCategoriaEquivalenciaAction' />
+	<action name='add_solicitud_carrera' class='AddSolicitudCarreraAction' />
+	<action name='add_solicitud_area_subarea' class='AddSolicitudAreaSubareaAction' />
+		
+	<action name='update_solicitud' class='UpdateSolicitudAction' />
+	<action name='update_solicitud_init' class='UpdateSolicitudInitAction'
+		currentMenuGroup='10' />
+	<action name='view_solicitud' class='ViewSolicitudAction' currentMenuGroup='10' />
+	<action name='view_solicitud_pdf' class='ViewSolicitudPDFAction' currentMenuGroup='10' />
+	<action name='delete_solicitud' class='DeleteSolicitudAction' />
+	<action name='send_solicitud' class='SendSolicitudAction' />
+	<action name='admit_solicitud' class='AdmitSolicitudAction' />
+	<action name='deny_solicitud_init' class='DenySolicitudInitAction' />
+	<action name='deny_solicitud' class='DenySolicitudAction' />
+	<action name='view_file' class='ViewFileAction'/>
+
+
+	<action name='envio_definitivo' class='EnvioDefinitivoAction' />
+	<action name='rectify_solicitud_init' class='RectifySolicitudInitAction' />
+	<action name='rectify_solicitud' class='RectifySolicitudAction' />
+	
+	<action name='export_solicitud_xls' class='ExportSolicitudXLSAction' />
+	
+	<action name='list_solicitudesEstado' class='ListSolicitudesEstadoAction'
+		currentMenuGroup='10' />
+	<action name='cambiarEstadoSolicitud_init' class='CambiarEstadoSolicitudInitAction'
+		currentMenuGroup='10' />
+	<action name='cambiarEstadoSolicitud' class='CambiarEstadoSolicitudAction' />
+	
+	
+	<!-- evaluaciones -->
+
+	<action name='list_evaluaciones' class='ListEvaluacionesAction'
+		currentMenuGroup='10' />
+		
+	<action name='assign_evaluadores_init' class='AssignEvaluadoresInitAction' currentMenuGroup='10' />
+	<action name='assign_evaluadores' class='AssignEvaluadoresAction' currentMenuGroup='10' />
+	<action name='assign_evaluadores_dame_cat' class='AssignEvaluadoresDameCatAction' currentMenuGroup='10' />
+	<action name='send_evaluadores' class='SendEvaluadoresAction' currentMenuGroup='10' />
+	<action name='add_evaluador_init' class='AddEvaluadorInitAction' currentMenuGroup='10' />
+	<action name='add_evaluador' class='AddEvaluadorAction' currentMenuGroup='10' />
+	<action name='actualizar_puntaje' class='ActualizarPuntajeAction' currentMenuGroup='10' />
+	
+	<action name='admit_evaluacion' class='AdmitEvaluacionAction' />
+	<action name='deny_evaluacion_init' class='DenyEvaluacionInitAction' />
+	<action name='deny_evaluacion' class='DenyEvaluacionAction' />
+		
+	<action name='view_evaluacion_pdf' class='ViewEvaluacionPDFAction' currentMenuGroup='10' />
+		
+	<action name='evaluar_solicitud_init' class='EvaluarSolicitudInitAction' currentMenuGroup='10' />
+	<action name='evaluar_solicitud' class='EvaluarSolicitudAction' currentMenuGroup='10' />
+		
+	<action name='send_evaluacion' class='SendEvaluacionAction' />
+	
+	<action name='list_evaluacionesEstado' class='ListEvaluacionesEstadoAction'
+		currentMenuGroup='10' />
+	<action name='cambiarEstadoEvaluacion_init' class='CambiarEstadoEvaluacionInitAction'
+		currentMenuGroup='10' />
+	<action name='cambiarEstadoEvaluacion' class='CambiarEstadoEvaluacionAction' />
+	
+	<!-- titulos -->
+	<action name='add_titulo_init' class='AddTituloInitAction' />
+	<action name='add_titulo' class='AddTituloAction' />
+	<action name='add_titulo_popup_init' class='AddTituloPopupInitAction' />
+	
+	<!-- universidades -->
+	<action name='add_universidad_init' class='AddUniversidadInitAction' />
+	<action name='add_universidad' class='AddUniversidadAction' />
+	<action name='add_universidad_popup_init' class='AddUniversidadPopupInitAction' />
+</navegation>

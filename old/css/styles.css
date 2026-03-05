@@ -1,0 +1,464 @@
+/********
+Defino tipografías y propiedades básicas del documento
+********/
+html{
+    font-size: 10px;
+    font-family: 'Roboto', sans-serif; !important;
+  }
+body{
+    margin: 0;
+    padding: 0;
+}
+* {
+    box-sizing: border-box !important; /* Importante: esto hace que el tamaÃ±o de todas las cajas contemple el padding */
+}
+/* Barra superior */
+header {
+    height: 110px;
+    background-color: #005F61;
+    padding: 2rem 7rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+}
+header img{
+    padding: 0%;
+
+}
+.iconos-menu{
+    height: 40px;
+    margin-right: 10px;
+}
+
+.bodyLogin {
+    background-image: url('smile/images/UNLP.jpg') !important;
+    background-size: cover; /*cubre todo el fondo*/
+    background-repeat: no-repeat; /* no repite la img */
+    margin: 0;
+    padding: 0;
+
+    height: 100vh; /* Esto centra verticalmente el contenido */
+    background-color: #f0f0f0; /* Puedes cambiar el color de fondo si lo deseas */
+}
+  * {
+  box-sizing: border-box !important; /* esto hace que el tamaño de todas las cajas contemple el padding */
+}
+h2{
+  font-size: 2.4rem;
+  font-weight: 500;
+}
+h3 {
+  font-size: 2rem; /*20px*/
+  font-weight:500 ; /* Medium*/
+}
+h4{
+  font-size: 1.6rem;
+  font-weight: 400; /*regular*/
+}
+ 
+.sicadi{
+  padding: 2.5rem 32rem;
+  
+
+
+
+}
+.container {
+
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: calc(100vh - 230px); /* Esto centra verticalmente el contenido */
+    color: #005F61;
+}
+.form-right {
+    position: relative; /*esto es para el efecto de superposiciÃ³n*/
+}
+.form-left{
+    position: relative;
+}
+     .containerLogin {
+      background-color: #005F61;
+      width: 50vw;
+      height: 65vh;
+      padding: 5rem 2rem;
+      margin: 0rem auto;
+      color: #f0f0f0;
+      text-align: center;
+     }
+     
+     .form-row { 
+      margin-bottom: 20px;
+      position: relative;
+     }
+
+     .labelLogin {
+         color: #f0f0f0;
+      font-size: 2.4rem;
+      font-weight: 500;
+      display: block;
+      margin-bottom: 5px;
+      position: absolute;
+    top: -1rem; /* Ajusta esta distancia para alinear el label*/
+    left: 16rem; /* Ajusta esta distancia para alinear el label*/
+    pointer-events: none; /* Evita que el label afecte la interacción con el input */
+    background-color: #005F61; /* Cambia el fondo del label para que cubra el borde del input */
+    padding: 0 0.4rem; /* Ajusta el padding para que el label no se superponga directamente al texto del input */
+    z-index: 1; /* label por encima del input */
+  }
+  
+  .inputLogin {
+      width: 60%;
+      padding: 1.6rem;
+      border: 2px solid #f0f0f0;
+     background-color: #005F61;
+      color: #fff;
+      font-size: 20px;
+  }
+.inputLogin::placeholder {
+    color: #f0f0f0;
+  }
+#usergroup_oid {
+    width: 60%;
+    padding: 1.6rem;
+    border: 2px solid #f0f0f0;
+    background-color: #005F61;
+    color: #fff;
+    font-size: 20px;
+}
+#usergroup_oid::placeholder {
+    color: #f0f0f0;
+}
+  .input-icon {
+    position: absolute;
+    top: 50%;
+    right: 15rem;
+    transform: translateY(-50%);
+    width: 30px; /* Ajusta el tamaño del icono */
+    height: 30px; /* Ajusta el tamaño del icono */
+  }
+  .obligatorioLogin{
+    position: absolute;
+    top: -1.5rem;
+    left: 60rem;
+  }
+  .campos-requeridos h3{
+    font-weight: 400;
+    text-align: center;
+    padding-left: 20rem;
+    padding-bottom: 3rem;
+  }
+
+  /*flex boton y crear/recuperar usuario*/ 
+  .flex{
+    display: flex;
+  justify-content: space-between;
+  }
+
+  #ingresar, #buttonCancelar{
+    width: 15rem;
+  padding: 0.5rem;
+  color: #f0f0f0;
+  background-color: #0FBABA;
+  font-size: 2rem;
+  font-weight: 600;
+  border: none;
+  margin-right: 2rem;
+ 
+  }
+  .form-leftLogin{
+    padding: 0%;
+  }
+  .form-leftLogin h4{
+    margin: 0;
+    margin-left: 2rem;
+    text-align: left;
+  }
+  .form-rightLogin{ /*para alinear el botón con la parte de ´olvide usuario´*/
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+     margin-bottom: 0;
+  }
+
+.a_sin_formato{
+    outline: none !important;
+    text-decoration: none !important;
+}
+.a_sin_formato:link {
+    color: #f0f0f0;
+}
+
+.a_sin_formato:visited {
+    color: #f0f0f0;
+}
+
+label {
+    color: #005F61;
+    background-color: white; /*fondo blanco para el efecto de superposiciÃ³n */
+    font-size:2.4rem; /*24px*/
+    font-weight:500; /*medium*/
+    display: block;
+    margin-bottom: -10px;
+    position: absolute;
+    top: -1.5rem;  /*Ajusta esta distancia para alinear el label*/
+    left: 1rem; /* Ajusta esta distancia para alinear el label*/
+    pointer-events: none; /* Evita que el label afecte la interacciÃ³n con el input */
+    padding: 0 0.4rem; /* Ajusta el padding para que el label no se superponga directamente al texto del input */
+    z-index: 1; /* label por encima del input */
+}
+#label_egresoposgrado {
+
+    top: -2.5rem !important;
+
+}
+#labelLugarTrabajo {
+
+    top: -3rem !important;
+
+}
+input{
+    color: #005F61;
+    /*width: 30rem;*/
+    padding: 1.2rem;
+    border: 0.2rem solid #005F61;
+
+}
+input::placeholder{
+    color: #005F61;
+    text-align: right;
+    font-weight: 500;
+}
+
+select{
+    color: #005F61;
+    /*width: 30rem;*/
+    padding: 1.2rem;
+    border: 0.2rem solid #005F61;
+    background-color: #fff;
+
+}
+select::placeholder{
+    color: #005F61;
+    text-align: right;
+    font-weight: 500;
+}
+
+/* Establece el ancho automático en función del contenido del ítem más largo */
+.select2-container .select2-selection--single .select2-selection__rendered {
+    white-space: nowrap; /* Evita el desbordamiento del texto */
+    width: auto !important; /* Ancho automático */
+}
+
+/* Opcionalmente, puedes limitar el ancho máximo */
+.select2-container .select2-selection--single .select2-selection__rendered {
+    max-width: 100%; /* Puedes ajustar el valor según tus necesidades */
+}
+
+/* Estilo para la lista desplegable */
+.select2-selection__rendered {
+    color: #005F61;
+    /*width: 30rem;*/
+    padding: 1.2rem;
+    border: 0.2rem solid #005F61;
+    background-color: #fff;
+}
+
+/* Aplicar un ancho uniforme a las opciones */
+.select2-container .select2-selection--single .select2-selection__rendered,
+.select2-container .select2-dropdown .select2-results__option {
+    white-space: nowrap; /* Evitará que el texto se rompa */
+    overflow: hidden; /* Ocultará el desbordamiento del texto */
+    text-overflow: ellipsis; /* Mostrará puntos suspensivos si el texto es demasiado largo */
+    width: 100%; /* Ancho uniforme */
+}
+
+.inputSignup{
+
+    width: 30rem;
+
+}
+
+
+
+.form-flex{
+    padding-bottom: 3rem;
+    display: flex;
+    gap: 15rem;
+    /*justify-content: space-between;*/
+}
+.campos-requeridos h4{
+    text-align: right;
+    margin-top: -1.5rem;
+    margin-bottom: 4rem;
+}
+.input-icon {
+    position: absolute;
+    top: 50%;
+    right: 3px;
+    transform: translateY(-50%);
+    width: 20px; /* Ajusta el tamaÃ±o del icono */
+    height: 20px; /* Ajusta el tamaÃ±o del icono */
+}
+
+#facultad{
+    padding-right: 2rem;
+
+}
+
+.botones{
+    display: flex;
+    justify-content: flex-end;
+}
+.botones #captcha{
+    background-color: transparent;
+    border: 0.2rem solid #005F61;
+    width: 18rem;
+    color: black;
+}
+.botones img{
+    /*width: 12rem;
+    height: 3.1rem;*/
+}
+.botones input{
+    width: 15rem;
+    padding: 0.5rem;
+    color: #f0f0f0;
+    background-color: #0FBABA;
+    font-size: 1.6rem;
+    font-weight: 400;
+    border: none;
+    margin-right: 10px;
+
+}
+.botones button{
+    width: 15rem;
+    padding: 0.5rem;
+    color: #f0f0f0;
+    background-color: #0FBABA;
+    font-size: 1.6rem;
+    font-weight: 400;
+    border: none;
+    margin-right: 10px;
+
+}
+.botones button:last-child { /*para que este boton no tenga margen*/
+    margin-right: 0;}
+
+.botones #cancelar{
+    margin-top: 1.5rem;
+}
+
+footer{
+    /*height: 120px;*/ /* Ajusta la altura*/
+    padding: 3rem 2rem;
+    background-image: linear-gradient(to right, #EB0089, #D10B84, #AD197E, #802B77, #603871, #3F466C, #165665, #015F61); /*es el gradiente*/
+}
+footer h2{
+    text-align: center;
+    margin: 0;
+    padding-top: 0.5rem;
+    color: #f0f0f0;
+}
+.bold-text {
+    font-weight: bold;
+}
+
+.fin-footer{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.contacto{
+    display: flex;
+    color: #f0f0f0;
+
+}
+.contacto h4{
+    margin-left: 1rem;
+    margin-bottom: 0;
+}
+.contacto img{
+    height: 20px;
+    margin-top: 2rem;
+}
+.contacto .reglamento{
+    margin-left: 1rem;
+    margin-bottom: 0;
+    color: #f0f0f0;
+    font-size: 1.6rem;
+    font-weight: 400; /*regular*/
+    margin-top: 2rem;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline; /* Subrayar el texto del enlace */
+    color: #f0f0f0; /* Cambiar el color del texto del enlace en hover */
+}
+.redes img{
+    height: 20px;
+
+}
+
+.obligatorio{
+    position: absolute;
+    top: -1.5rem;
+    left: 31rem;
+}
+
+
+.obligatorioFind{
+    position: absolute;
+    top: -1.5rem;
+    left: 110rem;
+}
+
+.obligatorioFindLugar{
+    position: absolute;
+    top: 1rem;
+    left: 110rem;
+}
+
+.obligatorioFacultad{
+    position: absolute;
+    top: -1.5rem;
+    left: 61rem;
+}
+
+.obligatorioEquivalencia{
+    position: absolute;
+    top: -1.5rem;
+    left: 39rem;
+}
+
+#categoria_oid, #categoriasicadi_oid{
+    width: 210px;
+}
+
+.obligatorioSolicitada{
+    position: absolute;
+    top: -1.5rem;
+    left: 22rem;
+}
+
+ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
+    font-family: 'Roboto', sans-serif !important;
+    font-size: 1em !important;
+}
+
+.titulo-container h3{
+    color: #005F61;
+    padding: 2.6rem 39.5rem;
+    margin: 0;
+
+}
+
+
+button:hover,input[type="button"]:hover,input[type="submit"]:hover,input[type="reset"]:hover
+{
+    cursor: pointer;
+    background: #005F61 !important;
+}

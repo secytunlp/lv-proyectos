@@ -1,0 +1,40 @@
+.paginadorOtraPagina {
+	font-weight: normal;
+	font-size: 12px;
+	/*color: #288ED5;*/
+	color: #014D89;
+	font-family: Arial, Helvetica, sans-serif
+}
+
+.paginadorOtraPagina:visited {
+	font-weight: normal;
+	font-size: 12px;
+	/*color: #666666;*/
+	color: #014D89;
+	font-family: Arial, Helvetica, sans-serif
+}
+
+.paginadorPaginaActual {
+	font-weight: bold;
+	font-size: 12px;
+	color: #014D89;
+}
+
+.tituloPaginador {
+	FONT-WEIGHT: bold;
+	FONT-SIZE: 13px;
+	color: #014D89;
+}
+
+
+
+.titCantRegCantRegTotal {
+	color: #014D89;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: normal;
+	align-text: left;
+	float: right;
+	/*margin-top: 2.5%;*/
+	/*margin-right: 5.5%;*/
+}

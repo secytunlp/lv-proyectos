@@ -1,0 +1,203 @@
+<!-- BEGIN: main -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+<title>{titulo}</title>
+
+
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://fonts.googleapis.com; style-src 'self' https://fonts.googleapis.com 'unsafe-inline' https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css; script-src 'self' https://ajax.googleapis.com https://code.jquery.com https://sicadi.presi.unlp.edu.ar 'nonce-tu_nonce_generado' https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js; font-src 'self' https://fonts.gstatic.com">
+
+
+<!-- BEGIN: meta_tag -->
+<meta http-equiv='{http_equiv}' content='{meta_content}' />
+<!-- END: meta_tag -->
+
+	<link rel="Shortcut Icon" href="{WEB_PATH}css/images/favicon.ico" type="image/x-icon" />
+
+<!-- BEGIN: estilo -->
+<link rel="stylesheet" href="{css}" type="text/css" />
+<!-- END: estilo -->
+
+
+<!--[if lt IE 7]>
+<style type="text/css">
+.dock img { behavior: url({WEB_PATH}/js/jquery/iepngfix.htc) }
+</style>
+<![endif]-->
+
+
+<!-- BEGIN: script -->
+<script language="javascript" src="{js}"></script>
+<!-- END: script -->
+
+<script nonce="tu_nonce_generado">
+function showMessageInfo( msg, hide ){
+	
+	$( "#layout_info_message" ).html( msg );
+
+	updated_right = ($(window).width() / 2) - ($( "#layout_info" ).width()/2);
+	$( "#layout_info" ).css({'right': updated_right});
+
+	
+	if( hide )
+		$( "#layout_info" ).show().delay(4000).slideUp(300);
+	else
+		$( "#layout_info" ).show();
+	
+	
+}
+
+function hideMessageInfo( ){
+	$( "#layout_info" ).slideUp(300);
+}
+
+function showMessageError( msg, hide ){
+	$( "#layout_error_message" ).html( msg );
+	
+	updated_right = ($(window).width() / 2) - ($( "#layout_error" ).width()/2);
+	$( "#layout_error" ).css({'right': updated_right});
+	
+	if( hide )
+		$( "#layout_error" ).show().delay(4000).slideUp(300);
+	else
+		$( "#layout_error" ).show();
+	$('html,body').animate({scrollTop:'0px'}, 2000);
+}
+
+function hideMessageError( ){
+	$( "#layout_error" ).slideUp(300);
+}
+
+
+	
+	$(document).ready(
+		function()
+		{
+			resizeDock();
+			$(window).resize(function () {
+				
+				 resizeDock();	
+			});
+			
+			/*$('#dock').Fisheye(
+				{
+					maxWidth: 16,
+					items: 'a',
+					itemsText: 'span',
+					container: '.dock-container',
+					itemWidth: 32,
+					proximity: 30,
+					halign : 'center'
+				}
+			)*/
+
+			$('#closeButton').on('click', function(event) {
+        hideMessageInfo();
+    });
+
+	$('#closeButton2').on('click', function(event) {
+        hideMessageError();
+    });
+			
+		}
+		
+		
+	);
+	
+	function resizeDock(){
+		var body_width = $(window).width();
+		var menu_width = $("#menuflotante").width();
+		
+		var menuleft= (body_width/2) - (menu_width/2);
+		
+		$('#menuflotante').css({'left': menuleft});		
+	}
+
+</script>
+
+
+</head>
+
+<body >
+
+	
+	<div id="sitebody">
+
+		{header}
+
+	<div id="contentwrapper">
+		<div class="tabswrapper">
+
+
+
+			<ul class="tabs">
+				<!-- BEGIN: menu_solapas -->
+				<li class="{css_li_class}"><a class="{css_a_class}" href="{href}"><span>{action_description}</span></a></li>
+				<!-- END: menu_solapas -->
+			</ul>
+
+			<div id="layout_info" class="ui-state-highlight ui-corner-all mensaje_layout">
+				<p>
+				<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+				<span id="close" style="position: absolute; top: 0px; right: 0px;z-index: 501;">
+					<img src="{WEB_PATH}css/smile/images/close.png" style="cursor: pointer;" id="closeButton" />
+				</span>
+				<span id="layout_info_message"></span>
+				</p>
+			</div>
+			<div id="layout_error" class="ui-state-error ui-corner-all mensaje_layout">
+				<p style="position: relative">
+				<span id="close" style="position: absolute; top: -20px; right: 0px;z-index: 501;">
+					<img src="{WEB_PATH}css/smile/images/close.png" style="cursor: pointer;" id="closeButton2" />
+				</span>
+				<span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+				<span id="layout_error_message"></span>
+				</p>
+			</div>
+
+		</div>
+		
+		<div id="content-left">
+			<div id="content-left-in">
+	
+			<br /> 
+			{content}
+	
+			<br />
+			</div> <!-- content-left-in -->
+			
+
+			 
+		</div> <!-- content-left --> 
+
+	</div><!-- contentwrapper -->
+	</div> <!-- sitebody -->
+
+
+	<div id="footer-wrapper">
+		<div class="footer">
+			<div class="footer-in">
+				{footer}
+			</div>
+		</div>
+	</div>
+ 	
+<!-- BEGIN:error_message -->
+<script>
+showMessageError( '{error_message}', false );
+</script>
+<!-- END:error_message -->
+
+<!-- BEGIN:info_message -->
+<script>
+showMessageInfo( '{info_message}', false );
+</script>
+<!-- END:info_message -->
+ 	
+</body>
+
+</html>
+<!-- END: main -->

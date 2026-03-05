@@ -1,0 +1,123 @@
+<!-- BEGIN: main -->
+<link rel="stylesheet" href="{grid_style}" type="text/css" />
+<script nonce="tu_nonce_generado">
+
+function sort_ajax_{gridId}(orderField, orderType){
+
+	jQuery("#orderField_{gridId}").val( orderField );
+	jQuery("#orderType_{gridId}").val( orderType );
+
+	search_ajax_{gridId}('{actionList}');
+}
+
+function paginate_ajax_{gridId}( page ){
+
+	data = $('#searchform_{gridId}').serialize();
+
+	jQuery("#searchdiv_{gridId}").load(  "doAction?search=1&page_{gridId}=" +page + "&" + data );
+
+}
+
+function export_{gridId}( action ){
+
+	if( action )
+		jQuery("#action").val( action );
+	
+	data = $('#searchform_{gridId}').serialize();
+	
+	window.location.href =  "doAction?search=1&" + data ;
+}
+
+function search_ajax_{gridId}( action ){
+
+	if( action )
+		jQuery("#action").val( action );
+	
+	data = $('#searchform_{gridId}').serialize();
+	jQuery("#searchdiv_{gridId}").load(  "doAction?search=1&" + data );
+}
+
+function search_all_ajax_{gridId}( action ){
+
+	jQuery("#filterValue_{gridId}").val("");
+	
+	search_ajax_{gridId}( action );
+}
+
+
+function loadPopup_{gridId}(  url, title, height, width ){
+
+	if( !height )
+		height = 500;
+
+	if( !width )
+		width = 750;
+	
+	var dialogOpts = {
+          title : title,
+          modal : true,
+          autoOpen : false,
+          bgiframe : true,
+          height : 550,
+          width : 750,
+          open : function() {
+              jQuery("#list_popup_{gridId}").load(url);
+          }
+    };
+	jQuery("#list_popup_{gridId}").children().remove();
+	jQuery("#list_popup_{gridId}").dialog("destroy");
+	jQuery("#list_popup_{gridId}").dialog(dialogOpts);
+	jQuery("#list_popup_{gridId}").dialog("open");
+
+}
+
+
+</script>
+<div class="grid_title">{title}</div>
+
+
+<br />
+
+<ul class="grid_actions">
+	<!-- BEGIN: action -->
+		<li class="{liClass}"><a  title="{label}" onclick="{callback}" href="doAction?action={action}"><span>{label}</span></a></li>
+	<!-- END: action -->
+</ul>
+
+<div class="grid_filters">
+	<form name="searchform_{gridId}" id="searchform_{gridId}" action="doAction" method="GET" onsubmit ="return validate( 'searchform_{gridId}' );">
+		<!-- BEGIN: hidden -->
+		<input type="hidden" name="action" id="action" value="{actionList}" />
+		<input type="hidden" name="orderType_{gridId}" id="orderType_{gridId}" value="{orderType}" />
+		<input type="hidden" name="orderField_{gridId}" id="orderField_{gridId}" value="{orderField}" />
+		<input type="hidden" name="model_{gridId}" id="model_{gridId}" value="{gridModelClazz}" />
+		<!-- END: hidden -->
+		<!-- BEGIN: extra_hidden -->
+        <input type="hidden" name="{name}" id="{id}" value="{value}" />
+        <!-- END: extra_hidden -->
+		
+		<!-- BEGIN: table_buttons -->
+		<!-- BEGIN:filters -->
+		<!-- BEGIN: filters_combobox -->
+		<select name="filterField_{gridId}" id="filterField_{gridId}">
+			<!-- BEGIN: filter_option -->
+			<option value={filterField}>{filterLabel}</option>
+			<!-- END: filter_option -->
+		</select>			
+		<input type="text" name="filterValue_{gridId}" id="filterValue_{gridId}" value="{filterValue}" />
+		<!-- END: filters_combobox -->
+		<!-- END:filters -->
+		<!-- BEGIN: additional_filters --> {additionalFilters} <!-- END: additional_filters -->
+		<input type="button" name="btnsearch_{gridId}"  id="btnsearch_{gridId}" value="{lbl_search}" onclick="javascript:search_ajax_{gridId}( '{actionList}' );">
+		<input type="button" name="btnall_{gridId}"  id="btnall_{gridId}"  value="{lbl_search_all}" onclick="javascript:search_all_ajax_{gridId}( '{actionList}' );">
+		<!-- END: table_buttons -->
+				
+	</form>
+</div>
+
+
+<div id="searchdiv_{gridId}" class="grid_searchdiv">
+	{search_first_time}
+</div>
+<div style="display: none;" id="list_popup_{gridId}"></div>
+<!-- END: main -->

@@ -1,0 +1,344 @@
+.ui-datepicker{
+	z-index:50;
+}
+.rich_options_content{
+	width: 100%;
+	min-height:  30px;
+}
+
+.rich_options{
+	white-space: nowrap;
+    float: left;
+    display:none;
+    margin-right: 15px;
+}
+
+.rich_option_item {
+    -moz-user-select: none;
+    display: inline-block;
+    position: relative;
+    background-color: #F5F5F5;
+    background-image: -moz-linear-gradient(center top , #F5F5F5, #F1F1F1);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #444444;
+    -moz-border-radius-bottomright: 0;
+    -moz-border-radius-topright: 0;
+    margin-right: 0;
+    z-index: 1;
+    -moz-border-radius: 2px 2px 2px 2px;
+    cursor: default;
+    font-size: 11px;
+    font-weight: bold;
+    height: 27px;
+    line-height: 27px;
+    min-width: 54px;
+    outline: 0 none;
+    padding: 0 8px;
+    text-align: center;
+    opacity: 0.7;
+}
+.rich_option_item:hover {
+	color: #000000;
+    cursor: pointer;
+    background-color: #FFFFFF;
+    background-image: -moz-linear-gradient(center top , #FFFFFF, #FFFFFF);
+	opacity: 1;
+	cursor: pointer;
+}
+
+
+.rich_option_item_delete {
+    margin-top: -3px;
+    vertical-align: middle;
+    display: inline-block;
+    position: relative;
+    background: url("sprite_black2.png") no-repeat scroll -63px -42px transparent;
+    height: 21px;
+    width: 21px;
+    color: #444444;
+    font-size: 11px;
+    font-weight: bold;
+    line-height: 27px;
+    text-align: center;
+}
+
+.rich_option_item_view {
+    margin-top: -3px;
+    vertical-align: middle;
+    display: inline-block;
+    position: relative;
+    background: url("sprite_black2.png") no-repeat scroll -63px -63px transparent;
+    height: 21px;
+    width: 21px;
+    color: #444444;
+    font-size: 11px;
+    font-weight: bold;
+    line-height: 27px;
+    text-align: center;
+}
+
+.rich_option_item_edit {
+    margin-top: -3px;
+    vertical-align: middle;
+    display: inline-block;
+    position: relative;
+    background: url("sprite_black2.png") no-repeat scroll -21px -42px transparent;
+    height: 21px;
+    width: 21px;
+    color: #444444;
+    font-size: 11px;
+    font-weight: bold;
+    line-height: 27px;
+    text-align: center;
+}
+
+.rich_option_item_add {
+    margin-top: -3px;
+    vertical-align: middle;
+    display: inline-block;
+    position: relative;
+    background: url("add.png") no-repeat scroll 0px 4px  transparent;
+    height: 21px;
+    width: 21px;
+    color: #444444;
+    font-size: 11px;
+    font-weight: bold;
+    line-height: 27px;
+    text-align: center;
+}
+.rich_option_item_excel {
+    margin-top: -3px;
+    vertical-align: middle;
+    display: inline-block;
+    position: relative;
+    background: url("export_xls.png") no-repeat scroll 0px 4px  transparent;
+    height: 21px;
+    width: 21px;
+    color: #444444;
+    font-size: 11px;
+    font-weight: bold;
+    line-height: 27px;
+    text-align: center;
+}
+.rich_option_item_pdf {
+    margin-top: -3px;
+    vertical-align: middle;
+    display: inline-block;
+    position: relative;
+    background: url("export_pdf.png") no-repeat scroll 0px 4px  transparent;
+    height: 21px;
+    width: 21px;
+    color: #444444;
+    font-size: 11px;
+    font-weight: bold;
+    line-height: 27px;
+    text-align: center;
+}
+
+.rich_actions_content {
+    float: right;
+    min-height: 30px;
+    min-height: 30px;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+.rich_actions{
+	white-space: nowrap;
+    float: left;
+    margin-right: 15px;
+}
+.rich_action_item_pdf {
+    margin-top: -3px;
+    vertical-align: middle;
+    display: inline-block;
+    position: relative;
+    background: url("sprite_black2.png") no-repeat scroll -3px -63px transparent;    
+    height: 21px;
+    width: 21px;
+    color: #444444;
+    font-size: 11px;
+    font-weight: bold;
+    line-height: 27px;
+    text-align: center;
+}
+
+.rich_action_item_add {
+    margin-top: -3px;
+    vertical-align: middle;
+    display: inline-block;
+    position: relative;
+    background: url("sprite_black2.png") no-repeat scroll -63px -42px transparent;
+    height: 21px;
+    width: 21px;
+    color: #444444;
+    font-size: 11px;
+    font-weight: bold;
+    line-height: 27px;
+    text-align: center;
+}
+
+.rich_action_item_excel {
+    margin-top: -3px;
+    vertical-align: middle;
+    display: inline-block;
+    position: relative;
+    background: url("sprite_black2.png") no-repeat scroll -3px -63px transparent;
+    height: 21px;
+    width: 21px;
+    color: #444444;
+    font-size: 11px;
+    font-weight: bold;
+    line-height: 27px;
+    text-align: center;
+}
+
+.selected {
+    background: none repeat scroll 0 0 #FFFFCC;
+    color: #222222;
+}
+
+
+.rich_pagination {
+	display: inline-block;
+    position: relative;
+}
+
+.rich_pagination_Di{
+  padding: 0.3em 8px 0 0;
+  white-space: nowrap;
+}
+
+
+.rich_pagination_pages{
+    border: 1px solid transparent;
+    margin-bottom: -2px;
+    margin-top: -1px;
+    padding: 0 3px 1px;
+	margin-left: 4px;
+    margin-right: 4px;
+    display: inline-block;
+    position: relative;
+}
+
+.rich_pagination_pages_text {
+    color: #222222;
+    text-shadow: none;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.rich_img_container{
+
+	background-color: transparent;
+  	background-image: -moz-linear-gradient(center top , #F5F5F5, #F1F1F1);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #444444;
+    margin-right: 0;
+    margin: 0;
+    display: inline-block;
+    position: relative;
+    -moz-border-radius-bottomright: 0;
+    -moz-border-radius-topright: 0;
+    z-index: 1;
+    -moz-border-radius: 2px 2px 2px 2px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: bold;
+    height: 27px;
+    line-height: 27px;
+    outline: 0 none;
+    padding: 0 8px;
+    text-align: center;
+    opacity: 0.55;
+}
+
+.rich_img_container_disabled{
+
+	background-color: transparent;
+  	background-image: -moz-linear-gradient(center top , #F5F5F5, #F1F1F1);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #444444;
+    margin-right: 0;
+    margin: 0;
+    display: inline-block;
+    position: relative;
+    -moz-border-radius-bottomright: 0;
+    -moz-border-radius-topright: 0;
+    z-index: 1;
+    -moz-border-radius: 2px 2px 2px 2px;
+    cursor: default;
+    font-size: 11px;
+    font-weight: bold;
+    height: 27px;
+    line-height: 27px;
+    outline: 0 none;
+    padding: 0 8px;
+    text-align: center;
+    opacity: 0.4;
+}
+
+.rich_img_container:hover {
+    opacity: 1;
+}
+
+.rich_img {
+    height: 21px;
+    width: 21px;
+    color: #444444;
+    margin-top: -3px;
+    vertical-align: middle;
+}
+
+.img_page_previous {
+    background: url("sprite_black2.png") no-repeat scroll -21px -21px transparent;
+}
+.img_page_next {
+    background: url("sprite_black2.png") no-repeat scroll -42px -21px transparent;
+}
+
+.rich_pagination_menu{
+    -moz-user-select: none;
+    display: none;
+    left: 4px;
+    top: 20px;
+    -moz-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    background: none repeat scroll 0 0 #FFFFFF;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    cursor: default;
+    font-size: 13px;
+    margin: 0;
+    outline: medium none;
+    padding: 0 0 6px;
+    position: absolute;
+    max-height: 360px;
+    overflow: auto;
+    z-index: 7;
+}
+
+.rich_pagination_menu_item{
+    color: #333333;
+    cursor: pointer;
+    list-style: none outside none;
+    white-space: nowrap;
+    font-size: 13px;
+     -moz-user-select: none;
+    padding-right: 44px;
+    list-style: none outside none;
+    margin: 0;
+    padding: 2px 7em 2px 30px;
+    position: relative;
+    white-space: nowrap;
+}
+
+.rich_pagination_menu_item:hover{
+    color: #222222;
+    background-color: #F1F1F1;
+}
+
+.rich_pagination_menu_container{
+	-moz-box-shadow: none;
+    border: medium none;
+    padding: 0;
+    width: 155px;
+}

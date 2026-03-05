@@ -1,0 +1,29 @@
+---------------------------------------------
+Instalación del módulo cdt_layout_desktop
+---------------------------------------------
+
+1) definir las siguientes constantes
+
+define( CDT_LAYOUT_DESKTOP_PATH, APP_PATH . CLASS_PATH . 'cdt_layout_desktop' );
+
+
+2) agregar el módulo al CLASS_PATH
+
+	$classpath[] =  CDT_LAYOUT_DESKTOP_PATH ;
+	$classpath[] =  ...
+	define ( 'CLASS_PATH', implode(",", $classpath)  );
+
+3) incluir el archivo de configuración del módulo.
+
+include_once (CDT_LAYOUT_DESKTOP_PATH . '/conf/init.php' )
+
+
+4) copiar los archivos de estilos al WEB_PATH/css:  
+
+	cdt_layout_desktop/css/*.*  a  WEB_PATH/css
+
+
+5) copiar los archivos de javascript al WEB_PATH/js:  
+
+	cdt_layout_desktop/js/*.*  a  WEB_PATH/js
+	

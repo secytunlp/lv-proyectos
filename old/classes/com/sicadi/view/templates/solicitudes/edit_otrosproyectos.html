@@ -1,0 +1,173 @@
+<!-- BEGIN: main -->
+<style>
+	#otrosProyectos{
+
+	}
+	#otrosProyectos fieldset {
+		background: none repeat scroll 0 0 #FFFFFF;
+		border-radius: 4px 4px 0 0;
+		box-shadow:none;
+		margin-top: 1em;
+		padding: 1.5em;
+		text-shadow: 0 1px 0 #FFFFFF;
+	}
+	#otrosProyectos .tblFooters {
+		/*margin-top: -16px;*/
+		background: none;
+		border:none;
+		text-align: center;
+		margin-bottom: -34px;
+		margin-top: -16px;
+	}
+	#otrosProyectos .camposRequeridos {
+		display: none;
+	}
+	#otrosProyectos form fieldset .item {
+		padding: 1px;
+	}
+</style>
+
+
+
+<script nonce="tu_nonce_generado" type="text/javascript">
+
+	function before_submit_otrosProyecto(){
+
+		wait("#tbody_otrosProyectos");
+	}
+
+	function remove_otrosProyecto( itemOid ){
+
+		before_submit_otrosProyecto();
+		soft_load(false, "doAction?action=delete_otrosProyecto_session&item_oid="+itemOid, "GET", null, show_otrosProyectos, false);
+	}
+
+	function add_otrosProyecto( data ){
+
+		show_otrosProyectos( data );
+		$("#item_oid").val("");
+		$("#item_oid").blur();
+		//$("#item_oid").focus();
+	}
+
+	function show_otrosProyectos( data ){
+
+		var data = $.parseJSON(data);
+
+		if( data != null && data["error"]!=null){
+			showMessageError( data["error"], true );
+		}
+
+		if( data != null && data["otrosProyectos"]!=null){
+
+			var otrosProyectos = data["otrosProyectos"];
+
+			var otrosProyectoColumns = data["otrosProyectoColumns"];
+			var otrosProyectoColumnsAlign = data["otrosProyectoColumnsAlign"];
+			var otrosProyectoColumnsLabels = data["otrosProyectoColumnsLabels"];
+
+			$('#thead_otrosProyectos').find('tr').remove();
+			$("#thead_otrosProyectos").last().append( $('<tr>') );
+			var trHeadOtrosProyecto = $('#thead_otrosProyectos').find('tr').last();
+
+			for( var colIndex=0; colIndex < otrosProyectoColumnsLabels.length;colIndex++){
+
+				var label = otrosProyectoColumnsLabels[colIndex];
+				var align =  otrosProyectoColumnsAlign[colIndex];
+				trHeadOtrosProyecto.append($('<th>')
+						.text( label )
+						.attr('style', 'text-align:' + align + ';')
+				);
+
+			}
+
+			$('#tbody_otrosProyectos').find('tr').remove();
+
+			for( var index=0; index< otrosProyectos.length;index++){
+
+				var otrosProyecto = otrosProyectos[index];
+
+				$("#tbody_otrosProyectos").last().append( $('<tr>') );
+
+				var trOtrosProyecto = $('#tbody_otrosProyectos').find('tr').last();
+
+				for( var colIndex=0; colIndex < otrosProyectoColumns.length;colIndex++){
+
+
+					var column = otrosProyectoColumns[colIndex];
+					var align =  otrosProyectoColumnsAlign[colIndex];
+					var valor = otrosProyecto[column];
+
+					trOtrosProyecto.append($('<td>')
+							.text( valor )
+							.attr('style', 'text-align:' + align + ';')
+					);
+
+				}
+
+				if(otrosProyecto["bl_agregado"]==1){
+					trOtrosProyecto.append($('<td>')
+							.attr('style', 'text-align:center;')
+							.append($('<href>')
+									.append($('<img>')
+											.attr('src', '{WEB_PATH}css/smile/images/chk_off.png')
+											.text('quitar')
+									)
+									.attr('href', '#')
+									.attr('style', 'cursor:pointer;')
+									.attr('onclick', 'javascript: remove_otrosProyecto( encodeURI( \"' + otrosProyecto["item_oid"] +  '\")); return false;' )
+							)
+					);
+				}
+				else trOtrosProyecto.append($('<td>'));
+
+			}
+
+		}
+
+		wakeUp("#tbody_otrosProyectos");
+
+		$('#edit_otrosProyecto').each (function(){
+			this.reset();
+		});
+
+
+	}
+
+
+
+</script>
+<div id="otrosProyectos">
+	<fieldset>
+		<legend>{otrosProyectos_title}</legend>
+		<table id="otrosProyectos">
+			<thead id="thead_otrosProyectos">
+			<tr>
+				<!-- BEGIN: otrosProyecto_th -->
+				<th style="text-align: {align};">{otrosProyecto_label}</th>
+				<!-- END: otrosProyecto_th -->
+				<th></th>
+			</tr>
+			</thead>
+			<tbody id="tbody_otrosProyectos">
+			<!-- BEGIN: otrosProyecto -->
+			<tr>
+				<!-- BEGIN: otrosProyecto_data -->
+				<td style="text-align: {align};">{data}</td>
+				<!-- END: otrosProyecto_data -->
+
+				<td style="text-align: center;">
+					<!-- BEGIN:editar_otrosProyecto -->
+					<a href="#"><img src='{WEB_PATH}css/smile/images/chk_off.png' style="cursor:pointer;" onclick="javascript: remove_otrosProyecto(encodeURI('{item_oid}')); return false;"></a>
+					<!-- END:editar_otrosProyecto -->
+				</td>
+			</tr>
+			<!-- END: otrosProyecto -->
+			</tbody>
+		</table>
+		<br />
+		{formulario}
+	</fieldset>
+
+</div>
+<!-- END: main -->

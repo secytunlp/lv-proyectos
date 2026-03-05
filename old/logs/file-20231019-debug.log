@@ -1,0 +1,356 @@
+2023-10-19T13:42:11-03:00 DEBUG CdtUtils execute controller
+2023-10-19T13:42:11-03:00 DEBUG CdtActionController acción a ejecutar AddSolicitudInitAction
+2023-10-19T13:42:11-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  int(1)
+}
+
+2023-10-19T13:42:11-03:00 DEBUG GenericDAO SELECT unidad.*, PADRE.cd_unidad as PADRE_cd_unidad , PADRE.ds_unidad as PADRE_ds_unidad , PADRE.ds_sigla as PADRE_ds_sigla  FROM unidad LEFT JOIN unidad PADRE ON(unidad.cd_padre = PADRE.cd_unidad) WHERE  unidad.bl_activa = ? ORDER BY unidad. ds_unidad ASC , unidad. cd_unidad ASC 
+2023-10-19T13:42:11-03:00 DEBUG CdtUtils array(13) {
+  [0]=>
+  int(1)
+  [1]=>
+  int(2)
+  [2]=>
+  int(3)
+  [3]=>
+  int(4)
+  [4]=>
+  int(5)
+  [5]=>
+  int(7)
+  [6]=>
+  int(8)
+  [7]=>
+  int(9)
+  [8]=>
+  int(10)
+  [9]=>
+  int(11)
+  [10]=>
+  int(12)
+  [11]=>
+  int(13)
+  [12]=>
+  int(14)
+}
+
+2023-10-19T13:42:11-03:00 DEBUG GenericDAO SELECT cargo.* FROM cargo WHERE  (cd_cargo IN (?,?,?,?,?,?,?,?,?,?,?,?,?)) ORDER BY cargo. nu_orden ASC 
+2023-10-19T13:42:11-03:00 DEBUG CdtUtils array(17) {
+  [0]=>
+  int(165)
+  [1]=>
+  int(167)
+  [2]=>
+  int(168)
+  [3]=>
+  int(169)
+  [4]=>
+  int(170)
+  [5]=>
+  int(171)
+  [6]=>
+  int(172)
+  [7]=>
+  int(173)
+  [8]=>
+  int(174)
+  [9]=>
+  int(175)
+  [10]=>
+  int(176)
+  [11]=>
+  int(177)
+  [12]=>
+  int(179)
+  [13]=>
+  int(180)
+  [14]=>
+  int(181)
+  [15]=>
+  int(187)
+  [16]=>
+  int(1220)
+}
+
+2023-10-19T13:42:11-03:00 DEBUG GenericDAO SELECT facultad.*, cat.cd_cat as cat_oid , cat.ds_cat as cat_ds_cat  FROM facultad LEFT JOIN cat ON(facultad.cd_cat = cat.cd_cat) WHERE  (cd_facultad IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)) ORDER BY facultad. cd_facultad ASC 
+2023-10-19T13:42:11-03:00 DEBUG CdtUtils array(5) {
+  [0]=>
+  int(6)
+  [1]=>
+  int(7)
+  [2]=>
+  int(8)
+  [3]=>
+  int(9)
+  [4]=>
+  int(10)
+}
+
+2023-10-19T13:42:11-03:00 DEBUG GenericDAO SELECT categoria.* FROM categoria WHERE  (cd_categoria IN (?,?,?,?,?)) ORDER BY categoria. cd_categoria ASC 
+2023-10-19T13:42:11-03:00 DEBUG CdtUtils array(0) {
+}
+
+2023-10-19T13:42:11-03:00 DEBUG GenericDAO SELECT categoriasicadi.* FROM categoriasicadi ORDER BY categoriasicadi. cd_categoriasicadi ASC 
+2023-10-19T13:42:11-03:00 DEBUG CdtUtils array(0) {
+}
+
+2023-10-19T13:42:11-03:00 DEBUG GenericDAO SELECT equivalencia.* FROM equivalencia ORDER BY equivalencia. ds_equivalencia ASC 
+2023-10-19T13:42:11-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  int(1)
+}
+
+2023-10-19T13:42:11-03:00 DEBUG GenericDAO SELECT unidad.*, PADRE.cd_unidad as PADRE_cd_unidad , PADRE.ds_unidad as PADRE_ds_unidad , PADRE.ds_sigla as PADRE_ds_sigla  FROM unidad LEFT JOIN unidad PADRE ON(unidad.cd_padre = PADRE.cd_unidad) WHERE  unidad.bl_activa = ? ORDER BY unidad. ds_unidad ASC , unidad. cd_unidad ASC 
+2023-10-19T13:42:11-03:00 DEBUG CdtUtils array(2) {
+  [0]=>
+  int(1)
+  [1]=>
+  int(2)
+}
+
+2023-10-19T13:42:11-03:00 DEBUG GenericDAO SELECT organismo.* FROM organismo WHERE  (cd_organismo IN (?,?)) ORDER BY organismo. cd_organismo ASC 
+2023-10-19T13:42:11-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  int(1)
+}
+
+2023-10-19T13:42:11-03:00 DEBUG GenericDAO SELECT unidad.*, PADRE.cd_unidad as PADRE_cd_unidad , PADRE.ds_unidad as PADRE_ds_unidad , PADRE.ds_sigla as PADRE_ds_sigla  FROM unidad LEFT JOIN unidad PADRE ON(unidad.cd_padre = PADRE.cd_unidad) WHERE  unidad.bl_activa = ? ORDER BY unidad. ds_unidad ASC , unidad. cd_unidad ASC 
+2023-10-19T13:42:11-03:00 DEBUG CdtUtils array(0) {
+}
+
+2023-10-19T13:42:11-03:00 DEBUG GenericDAO SELECT area.* FROM area ORDER BY area. ds_area ASC 
+2023-10-19T13:42:11-03:00 DEBUG CdtUtils array(0) {
+}
+
+2023-10-19T13:42:11-03:00 DEBUG GenericDAO SELECT subarea.* FROM subarea ORDER BY subarea. cd_subarea ASC 
+2023-10-19T13:42:11-03:00 DEBUG CdtUtils array(17) {
+  [0]=>
+  int(165)
+  [1]=>
+  int(167)
+  [2]=>
+  int(168)
+  [3]=>
+  int(169)
+  [4]=>
+  int(170)
+  [5]=>
+  int(171)
+  [6]=>
+  int(172)
+  [7]=>
+  int(173)
+  [8]=>
+  int(174)
+  [9]=>
+  int(175)
+  [10]=>
+  int(176)
+  [11]=>
+  int(177)
+  [12]=>
+  int(179)
+  [13]=>
+  int(180)
+  [14]=>
+  int(181)
+  [15]=>
+  int(187)
+  [16]=>
+  int(1220)
+}
+
+2023-10-19T13:42:11-03:00 DEBUG GenericDAO SELECT facultad.*, cat.cd_cat as cat_oid , cat.ds_cat as cat_ds_cat  FROM facultad LEFT JOIN cat ON(facultad.cd_cat = cat.cd_cat) WHERE  (cd_facultad IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)) ORDER BY facultad. cd_facultad ASC 
+2023-10-19T13:42:11-03:00 DEBUG CdtActionController Cerrando conexión bbdd
+2023-10-19T13:42:11-03:00 DEBUG CdtActionController Redireccionando x FailureException:login_init msg: Login requerido
+2023-10-19T13:42:11-03:00 DEBUG CdtActionController acción a ejecutar CYTLoginInitAction
+2023-10-19T13:42:11-03:00 DEBUG CdtActionController Filtros aplicados
+2023-10-19T13:42:11-03:00 DEBUG CdtUtils POST parametro nombre: nu_precuil
+2023-10-19T13:42:11-03:00 DEBUG CdtUtils POST parametro devolucion: 
+2023-10-19T13:42:11-03:00 DEBUG CdtUtils POST parametro nombre: nu_documento
+2023-10-19T13:42:11-03:00 DEBUG CdtUtils POST parametro devolucion: 
+2023-10-19T13:42:11-03:00 DEBUG CdtUtils POST parametro nombre: nu_postcuil
+2023-10-19T13:42:11-03:00 DEBUG CdtUtils POST parametro devolucion: 
+2023-10-19T13:42:11-03:00 DEBUG CdtUtils POST parametro nombre: backTo
+2023-10-19T13:42:11-03:00 DEBUG CdtUtils POST parametro devolucion: 
+2023-10-19T13:42:11-03:00 DEBUG CdtActionController acción ejecutada
+2023-10-19T13:42:11-03:00 DEBUG CdtActionController Terminando controller
+2023-10-19T15:54:17-03:00 DEBUG CdtUtils execute controller
+2023-10-19T15:54:17-03:00 DEBUG CdtActionController acción a ejecutar AddSolicitudInitAction
+2023-10-19T15:54:17-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  int(1)
+}
+
+2023-10-19T15:54:17-03:00 DEBUG GenericDAO SELECT unidad.*, PADRE.cd_unidad as PADRE_cd_unidad , PADRE.ds_unidad as PADRE_ds_unidad , PADRE.ds_sigla as PADRE_ds_sigla  FROM unidad LEFT JOIN unidad PADRE ON(unidad.cd_padre = PADRE.cd_unidad) WHERE  unidad.bl_activa = ? ORDER BY unidad. ds_unidad ASC , unidad. cd_unidad ASC 
+2023-10-19T15:54:17-03:00 DEBUG CdtUtils array(13) {
+  [0]=>
+  int(1)
+  [1]=>
+  int(2)
+  [2]=>
+  int(3)
+  [3]=>
+  int(4)
+  [4]=>
+  int(5)
+  [5]=>
+  int(7)
+  [6]=>
+  int(8)
+  [7]=>
+  int(9)
+  [8]=>
+  int(10)
+  [9]=>
+  int(11)
+  [10]=>
+  int(12)
+  [11]=>
+  int(13)
+  [12]=>
+  int(14)
+}
+
+2023-10-19T15:54:17-03:00 DEBUG GenericDAO SELECT cargo.* FROM cargo WHERE  (cd_cargo IN (?,?,?,?,?,?,?,?,?,?,?,?,?)) ORDER BY cargo. nu_orden ASC 
+2023-10-19T15:54:17-03:00 DEBUG CdtUtils array(17) {
+  [0]=>
+  int(165)
+  [1]=>
+  int(167)
+  [2]=>
+  int(168)
+  [3]=>
+  int(169)
+  [4]=>
+  int(170)
+  [5]=>
+  int(171)
+  [6]=>
+  int(172)
+  [7]=>
+  int(173)
+  [8]=>
+  int(174)
+  [9]=>
+  int(175)
+  [10]=>
+  int(176)
+  [11]=>
+  int(177)
+  [12]=>
+  int(179)
+  [13]=>
+  int(180)
+  [14]=>
+  int(181)
+  [15]=>
+  int(187)
+  [16]=>
+  int(1220)
+}
+
+2023-10-19T15:54:17-03:00 DEBUG GenericDAO SELECT facultad.*, cat.cd_cat as cat_oid , cat.ds_cat as cat_ds_cat  FROM facultad LEFT JOIN cat ON(facultad.cd_cat = cat.cd_cat) WHERE  (cd_facultad IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)) ORDER BY facultad. cd_facultad ASC 
+2023-10-19T15:54:17-03:00 DEBUG CdtUtils array(5) {
+  [0]=>
+  int(6)
+  [1]=>
+  int(7)
+  [2]=>
+  int(8)
+  [3]=>
+  int(9)
+  [4]=>
+  int(10)
+}
+
+2023-10-19T15:54:17-03:00 DEBUG GenericDAO SELECT categoria.* FROM categoria WHERE  (cd_categoria IN (?,?,?,?,?)) ORDER BY categoria. cd_categoria ASC 
+2023-10-19T15:54:17-03:00 DEBUG CdtUtils array(0) {
+}
+
+2023-10-19T15:54:17-03:00 DEBUG GenericDAO SELECT categoriasicadi.* FROM categoriasicadi ORDER BY categoriasicadi. cd_categoriasicadi ASC 
+2023-10-19T15:54:17-03:00 DEBUG CdtUtils array(0) {
+}
+
+2023-10-19T15:54:17-03:00 DEBUG GenericDAO SELECT equivalencia.* FROM equivalencia ORDER BY equivalencia. ds_equivalencia ASC 
+2023-10-19T15:54:17-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  int(1)
+}
+
+2023-10-19T15:54:17-03:00 DEBUG GenericDAO SELECT unidad.*, PADRE.cd_unidad as PADRE_cd_unidad , PADRE.ds_unidad as PADRE_ds_unidad , PADRE.ds_sigla as PADRE_ds_sigla  FROM unidad LEFT JOIN unidad PADRE ON(unidad.cd_padre = PADRE.cd_unidad) WHERE  unidad.bl_activa = ? ORDER BY unidad. ds_unidad ASC , unidad. cd_unidad ASC 
+2023-10-19T15:54:17-03:00 DEBUG CdtUtils array(2) {
+  [0]=>
+  int(1)
+  [1]=>
+  int(2)
+}
+
+2023-10-19T15:54:17-03:00 DEBUG GenericDAO SELECT organismo.* FROM organismo WHERE  (cd_organismo IN (?,?)) ORDER BY organismo. cd_organismo ASC 
+2023-10-19T15:54:17-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  int(1)
+}
+
+2023-10-19T15:54:17-03:00 DEBUG GenericDAO SELECT unidad.*, PADRE.cd_unidad as PADRE_cd_unidad , PADRE.ds_unidad as PADRE_ds_unidad , PADRE.ds_sigla as PADRE_ds_sigla  FROM unidad LEFT JOIN unidad PADRE ON(unidad.cd_padre = PADRE.cd_unidad) WHERE  unidad.bl_activa = ? ORDER BY unidad. ds_unidad ASC , unidad. cd_unidad ASC 
+2023-10-19T15:54:17-03:00 DEBUG CdtUtils array(0) {
+}
+
+2023-10-19T15:54:17-03:00 DEBUG GenericDAO SELECT area.* FROM area ORDER BY area. ds_area ASC 
+2023-10-19T15:54:17-03:00 DEBUG CdtUtils array(0) {
+}
+
+2023-10-19T15:54:17-03:00 DEBUG GenericDAO SELECT subarea.* FROM subarea ORDER BY subarea. cd_subarea ASC 
+2023-10-19T15:54:17-03:00 DEBUG CdtUtils array(17) {
+  [0]=>
+  int(165)
+  [1]=>
+  int(167)
+  [2]=>
+  int(168)
+  [3]=>
+  int(169)
+  [4]=>
+  int(170)
+  [5]=>
+  int(171)
+  [6]=>
+  int(172)
+  [7]=>
+  int(173)
+  [8]=>
+  int(174)
+  [9]=>
+  int(175)
+  [10]=>
+  int(176)
+  [11]=>
+  int(177)
+  [12]=>
+  int(179)
+  [13]=>
+  int(180)
+  [14]=>
+  int(181)
+  [15]=>
+  int(187)
+  [16]=>
+  int(1220)
+}
+
+2023-10-19T15:54:17-03:00 DEBUG GenericDAO SELECT facultad.*, cat.cd_cat as cat_oid , cat.ds_cat as cat_ds_cat  FROM facultad LEFT JOIN cat ON(facultad.cd_cat = cat.cd_cat) WHERE  (cd_facultad IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)) ORDER BY facultad. cd_facultad ASC 
+2023-10-19T15:54:17-03:00 DEBUG CdtActionController Cerrando conexión bbdd
+2023-10-19T15:54:17-03:00 DEBUG CdtActionController Redireccionando x FailureException:login_init msg: Login requerido
+2023-10-19T15:54:17-03:00 DEBUG CdtActionController acción a ejecutar CYTLoginInitAction
+2023-10-19T15:54:17-03:00 DEBUG CdtActionController Filtros aplicados
+2023-10-19T15:54:17-03:00 DEBUG CdtUtils POST parametro nombre: nu_precuil
+2023-10-19T15:54:17-03:00 DEBUG CdtUtils POST parametro devolucion: 
+2023-10-19T15:54:17-03:00 DEBUG CdtUtils POST parametro nombre: nu_documento
+2023-10-19T15:54:17-03:00 DEBUG CdtUtils POST parametro devolucion: 
+2023-10-19T15:54:17-03:00 DEBUG CdtUtils POST parametro nombre: nu_postcuil
+2023-10-19T15:54:17-03:00 DEBUG CdtUtils POST parametro devolucion: 
+2023-10-19T15:54:17-03:00 DEBUG CdtUtils POST parametro nombre: backTo
+2023-10-19T15:54:17-03:00 DEBUG CdtUtils POST parametro devolucion: 
+2023-10-19T15:54:17-03:00 DEBUG CdtActionController acción ejecutada
+2023-10-19T15:54:17-03:00 DEBUG CdtActionController Terminando controller

@@ -1,0 +1,87 @@
+<!-- BEGIN:main -->
+
+
+<script language="javascript" src="{WEB_PATH}js/autocomplete/simpleAutoComplete.js"></script>
+<link rel="stylesheet" href="{WEB_PATH}css/autocomplete/simpleAutoComplete.css" type="text/css" />
+
+
+<script type="text/javascript">
+function cdtusergroup_change(attr){
+	
+}
+</script>
+
+<script type="text/javascript">
+function cdtfunction_change(attr){
+	
+}
+
+function paintSelected( id, checked ){
+	
+if( checked )
+	$("#" + id).css({'background-color': '#FFFFCC'});
+else
+	$("#" + id).css({'background-color': ''});
+}
+
+$(document).ready(function() {
+
+	$(":checkbox").each(function (i) {
+
+		paintSelected( this.value, this.checked );
+      });
+});
+</script>
+
+
+
+<div id="editar">
+	<div class="form-flex">
+	<p class="titulo">{title}</p></div>
+
+	<!-- BEGIN:msg -->
+	<div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+		<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+			{msg}
+		</p>
+	</div>
+	<br />
+	<!-- END:msg -->
+<div>
+	<form name='editCdtUserGroupFunction' id='editCdtUserGroupFunction' action="doAction?action=assign_usergroup_functions" method='post' onsubmit="return validate('editCdtUserGroupFunction');">
+		<table>
+			<tr>
+				<td align="right">{ds_usergroup_label}:  {ds_usergroup}
+					<input type="hidden" name="cd_usergroup" id="cd_usergroup" value="{cd_usergroup}"/>
+				</td>
+			</tr>
+		</table>
+						
+		<table style="font-size: 12px;">
+		
+			<!-- BEGIN: row -->
+			<tr>
+				<!-- BEGIN: functions_option -->			
+				<td id="{cd_function}">
+					<input type="checkbox" onclick="paintSelected(this.value, this.checked);" value="{cd_function}" {checked} name="functions[]" ></input> {ds_function}
+					
+					
+				</td>
+				<!-- END: functions_option -->			
+			</tr>
+			<!-- END: row -->
+		</table>
+		<div class="form-flex">
+			<div class="campos-requeridos">
+				<h4> (*) {msg_required_fields} </h4>
+			</div>
+		<div class="botones">
+			<input type='submit' name='{lbl_save}' value='{lbl_save}'/>
+			<input type='reset' name='{lbl_cancel}' value='{lbl_cancel}' onclick="javascript:window.location.href= 'doAction?action=list_cdtusergroups';"/>
+		</div>
+		</div>
+		
+	</form>		
+	</div>
+</div>
+<!-- END:main -->

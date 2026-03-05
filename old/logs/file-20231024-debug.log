@@ -1,0 +1,454 @@
+2023-10-24T10:01:39-03:00 DEBUG CdtUtils execute controller
+2023-10-24T10:01:39-03:00 DEBUG CdtActionController acción a ejecutar CYTLoginInitAction
+2023-10-24T10:01:39-03:00 DEBUG CdtActionController Filtros aplicados
+2023-10-24T10:01:39-03:00 DEBUG CdtUtils POST parametro nombre: nu_precuil
+2023-10-24T10:01:39-03:00 DEBUG CdtUtils POST parametro devolucion: 
+2023-10-24T10:01:39-03:00 DEBUG CdtUtils POST parametro nombre: nu_documento
+2023-10-24T10:01:39-03:00 DEBUG CdtUtils POST parametro devolucion: 
+2023-10-24T10:01:39-03:00 DEBUG CdtUtils POST parametro nombre: nu_postcuil
+2023-10-24T10:01:39-03:00 DEBUG CdtUtils POST parametro devolucion: 
+2023-10-24T10:01:39-03:00 DEBUG CdtUtils POST parametro nombre: backTo
+2023-10-24T10:01:39-03:00 DEBUG CdtUtils POST parametro devolucion: 
+2023-10-24T10:01:39-03:00 DEBUG CdtActionController acción ejecutada
+2023-10-24T10:01:39-03:00 DEBUG CdtActionController Terminando controller
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils execute controller
+2023-10-24T10:01:45-03:00 DEBUG CdtActionController acción a ejecutar CYTLoginAction
+2023-10-24T10:01:45-03:00 DEBUG CdtActionController Filtros aplicados
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils POST parametro nombre: username
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils POST parametro valor: 20-25174805-6
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils POST parametro devolucion: 20-25174805-6
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils POST parametro nombre: password
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils POST parametro valor: 123
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils POST parametro devolucion: 123
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils POST parametro nombre: csrf_token
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils POST parametro valor: 2238e073fe40cec2ce882873fee1a7733991ae42a6d500539d72259463baab5f
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils POST parametro devolucion: 2238e073fe40cec2ce882873fee1a7733991ae42a6d500539d72259463baab5f
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT cyt_user.*, facultad.cd_facultad as facultad_oid , facultad.ds_facultad as facultad_ds_facultad  FROM cyt_user LEFT JOIN facultad ON(cyt_user.facultad_oid = facultad.cd_facultad) WHERE  cyt_user.ds_username = ?
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  string(13) "20-25174805-6"
+}
+
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils POST parametro nombre: backTo
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils POST parametro devolucion: 
+2023-10-24T10:01:45-03:00 DEBUG CdtActionController acción ejecutada
+2023-10-24T10:01:45-03:00 DEBUG CdtActionController ds_forward doAction?action=list_perfiles
+2023-10-24T10:01:45-03:00 DEBUG CdtActionController Redireccionando a doAction?action=list_perfiles
+2023-10-24T10:01:45-03:00 DEBUG CdtActionController Terminando controller
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils execute controller
+2023-10-24T10:01:45-03:00 DEBUG CdtActionController acción a ejecutar CYTListPerfilesAction
+2023-10-24T10:01:45-03:00 DEBUG CdtActionController Filtros aplicados
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(4) {
+  [0]=>
+  int(1)
+  [1]=>
+  int(3)
+  [2]=>
+  int(18)
+  [3]=>
+  int(19)
+}
+
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT cyt_user_usergroup.*, cyt_user.oid as cyt_user_oid , CASE cyt_user.ds_name WHEN '' THEN cyt_user.ds_username ELSE cyt_user.ds_name END AS cyt_user_ds_username, cdt_usergroup.cd_usergroup as cdt_usergroup_cd_usergroup , cdt_usergroup.ds_usergroup as cdt_usergroup_ds_usergroup  FROM cyt_user_usergroup LEFT JOIN cyt_user ON(cyt_user_usergroup.user_oid = cyt_user.oid) LEFT JOIN cdt_usergroup ON(cyt_user_usergroup.userGroup_oid = cdt_usergroup.cd_usergroup) WHERE  cyt_user_usergroup.user_oid = ? AND (cdt_usergroup.cd_usergroup IN (?,?,?))
+2023-10-24T10:01:45-03:00 DEBUG CdtActionController acción ejecutada
+2023-10-24T10:01:45-03:00 DEBUG CdtActionController Terminando controller
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils execute controller
+2023-10-24T10:01:45-03:00 DEBUG CdtActionController acción a ejecutar CYTSelectPerfilAction
+2023-10-24T10:01:45-03:00 DEBUG CdtActionController Filtros aplicados
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT cyt_user.*, facultad.cd_facultad as facultad_oid , facultad.ds_facultad as facultad_ds_facultad  FROM cyt_user LEFT JOIN facultad ON(cyt_user.facultad_oid = facultad.cd_facultad) WHERE  cyt_user.oid = ?
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  int(1)
+}
+
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  string(2) "18"
+}
+
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT cdt_usergroup_function.*, cdt_function.cd_function as cdt_function_cd_function , cdt_function.ds_function as cdt_function_ds_function , cdt_usergroup.cd_usergroup as cdt_usergroup_cd_usergroup , cdt_usergroup.ds_usergroup as cdt_usergroup_ds_usergroup  FROM cdt_usergroup_function LEFT JOIN cdt_function ON(cdt_usergroup_function.cd_function = cdt_function.cd_function) LEFT JOIN cdt_usergroup ON(cdt_usergroup_function.cd_usergroup = cdt_usergroup.cd_usergroup) WHERE  cdt_usergroup_function.cd_usergroup = ?
+2023-10-24T10:01:45-03:00 DEBUG CdtActionController acción ejecutada
+2023-10-24T10:01:45-03:00 DEBUG CdtActionController ds_forward doAction?action=list_solicitudes
+2023-10-24T10:01:45-03:00 DEBUG CdtActionController Redireccionando a doAction?action=list_solicitudes
+2023-10-24T10:01:45-03:00 DEBUG CdtActionController Terminando controller
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils execute controller
+2023-10-24T10:01:45-03:00 DEBUG CdtActionController acción a ejecutar ListSolicitudesAction
+2023-10-24T10:01:45-03:00 DEBUG CdtActionController Filtros aplicados
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils POST parametro nombre: search
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils POST parametro devolucion: 
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT periodo.* FROM periodo WHERE  periodo.ds_periodo = ?
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  string(4) "2023"
+}
+
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(17) {
+  [0]=>
+  int(165)
+  [1]=>
+  int(167)
+  [2]=>
+  int(168)
+  [3]=>
+  int(169)
+  [4]=>
+  int(170)
+  [5]=>
+  int(171)
+  [6]=>
+  int(172)
+  [7]=>
+  int(173)
+  [8]=>
+  int(174)
+  [9]=>
+  int(175)
+  [10]=>
+  int(176)
+  [11]=>
+  int(177)
+  [12]=>
+  int(179)
+  [13]=>
+  int(180)
+  [14]=>
+  int(181)
+  [15]=>
+  int(187)
+  [16]=>
+  int(1220)
+}
+
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT facultad.*, cat.cd_cat as cat_oid , cat.ds_cat as cat_ds_cat  FROM facultad LEFT JOIN cat ON(facultad.cd_cat = cat.cd_cat) WHERE  (cd_facultad IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)) ORDER BY facultad. cd_facultad ASC 
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(0) {
+}
+
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT estadocategorizacion.* FROM estadocategorizacion ORDER BY estadocategorizacion. cd_estado ASC 
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(0) {
+}
+
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT periodo.* FROM periodo ORDER BY periodo. cd_periodo ASC 
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils POST parametro nombre: search
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils POST parametro devolucion: 
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(3) {
+  [0]=>
+  int(14)
+  [1]=>
+  int(0)
+  [2]=>
+  int(10)
+}
+
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT solicitudcategorizacion.*, docente.cd_docente as docente_oid , docente.ds_nombre as docente_ds_nombre , docente.ds_apellido as docente_ds_apellido , docente.nu_documento as docente_nu_documento , docente.nu_precuil as docente_nu_precuil , docente.nu_postcuil as docente_nu_postcuil , facultad.cd_facultad as facultad_oid , facultad.ds_facultad as facultad_ds_facultad , FacultadPlanilla.cd_facultad as FacultadPlanilla_oid , FacultadPlanilla.ds_facultad as FacultadPlanilla_ds_facultad , periodo.cd_periodo as periodo_oid , periodo.ds_periodo as periodo_ds_periodo , cat.cd_cat as cat_oid , cat.ds_cat as cat_ds_cat , estadocategorizacion.cd_estado as estadocategorizacion_oid , estadocategorizacion.ds_estado as estadocategorizacion_ds_estado , cyt_solicitudcategorizacion_estado.oid as cyt_solicitudcategorizacion_estado_oid , cyt_solicitudcategorizacion_estado.fechaDesde as cyt_solicitudcategorizacion_estado_fechaDesde , cyt_solicitudcategorizacion_estado.fechaHasta as cyt_solicitudcategorizacion_estado_fechaHasta , unidad.cd_unidad as unidad_oid , unidad.ds_unidad as unidad_ds_unidad , unidad.ds_sigla as unidad_ds_sigla , cargo.cd_cargo as cargo_oid , cargo.ds_cargo as cargo_ds_cargo , deddoc.cd_deddoc as deddoc_oid , deddoc.ds_deddoc as deddoc_ds_deddoc , facultad.cd_facultad as facultad_oid , facultad.ds_facultad as facultad_ds_facultad , LugarTrabajoBeca.cd_unidad as LugarTrabajoBeca_oid , LugarTrabajoBeca.ds_unidad as LugarTrabajoBeca_ds_unidad , LugarTrabajoBeca.ds_sigla as LugarTrabajoBeca_ds_sigla , LugarTrabajoCarrera.cd_unidad as LugarTrabajoCarrera_oid , LugarTrabajoCarrera.ds_unidad as LugarTrabajoCarrera_ds_unidad , LugarTrabajoCarrera.ds_sigla as LugarTrabajoCarrera_ds_sigla , carrerainv.cd_carrerainv as carrerainv_oid , carrerainv.ds_carrerainv as carrerainv_ds_carrerainv , organismo.cd_organismo as organismo_oid , organismo.ds_organismo as organismo_ds_organismo , categoria.cd_categoria as categoria_oid , categoria.ds_categoria as categoria_ds_categoria , equivalencia.cd_equivalencia as equivalencia_oid , equivalencia.ds_equivalencia as equivalencia_ds_equivalencia , categoriasicadi.cd_categoriasicadi as categoriasicadi_oid , categoriasicadi.ds_categoriasicadi as categoriasicadi_ds_categoriasicadi , titulo.cd_titulo as titulo_oid , titulo.ds_titulo as titulo_ds_titulo , Tituloposgrado.cd_titulo as Tituloposgrado_oid , Tituloposgrado.ds_titulo as Tituloposgrado_ds_titulo , area.cd_area as area_oid , area.ds_area as area_ds_area , subarea.cd_subarea as subarea_oid , subarea.ds_subarea as subarea_ds_subarea  FROM solicitudcategorizacion LEFT JOIN facultad FacultadPlanilla ON(solicitudcategorizacion.cd_facultadplanilla = FacultadPlanilla.cd_facultad) LEFT JOIN docente ON(solicitudcategorizacion.cd_docente = docente.cd_docente) LEFT JOIN periodo ON(solicitudcategorizacion.cd_periodo = periodo.cd_periodo) LEFT JOIN cat ON(FacultadPlanilla.cd_cat = cat.cd_cat) LEFT JOIN cyt_solicitudcategorizacion_estado ON(cyt_solicitudcategorizacion_estado.solicitud_oid = solicitudcategorizacion.cd_solicitud) LEFT JOIN estadocategorizacion ON(cyt_solicitudcategorizacion_estado.estado_oid = estadocategorizacion.cd_estado) LEFT JOIN unidad ON(solicitudcategorizacion.cd_unidad = unidad.cd_unidad) LEFT JOIN cargo ON(solicitudcategorizacion.cd_cargo = cargo.cd_cargo) LEFT JOIN deddoc ON(solicitudcategorizacion.cd_deddoc = deddoc.cd_deddoc) LEFT JOIN facultad ON(solicitudcategorizacion.cd_facultad = facultad.cd_facultad) LEFT JOIN unidad LugarTrabajoBeca ON(solicitudcategorizacion.cd_unidadbeca = LugarTrabajoBeca.cd_unidad) LEFT JOIN unidad LugarTrabajoCarrera ON(solicitudcategorizacion.cd_unidadcarrera = LugarTrabajoCarrera.cd_unidad) LEFT JOIN organismo ON(solicitudcategorizacion.cd_organismo = organismo.cd_organismo) LEFT JOIN carrerainv ON(solicitudcategorizacion.cd_carrerainv = carrerainv.cd_carrerainv) LEFT JOIN categoria ON(solicitudcategorizacion.cd_categoria = categoria.cd_categoria) LEFT JOIN equivalencia ON(solicitudcategorizacion.cd_equivalencia = equivalencia.cd_equivalencia) LEFT JOIN categoriasicadi ON(solicitudcategorizacion.cd_categoriasicadi = categoriasicadi.cd_categoriasicadi) LEFT JOIN titulo ON(solicitudcategorizacion.cd_titulogrado = titulo.cd_titulo) LEFT JOIN titulo Tituloposgrado ON(solicitudcategorizacion.cd_tituloposgrado = Tituloposgrado.cd_titulo) LEFT JOIN area ON(solicitudcategorizacion.cd_areacarrera = area.cd_area) LEFT JOIN subarea ON(solicitudcategorizacion.cd_subareacarrera = subarea.cd_subarea) WHERE  solicitudcategorizacion.cd_periodo = ? AND (fechaHasta is null) ORDER BY solicitudcategorizacion. cd_solicitud DESC  LIMIT ?, ?
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT cyt_solicitudcategorizacion_estado.*, solicitudcategorizacion.cd_solicitud as solicitudcategorizacion_oid , docente.cd_docente as docente_oid , docente.ds_nombre as docente_ds_nombre , docente.ds_apellido as docente_ds_apellido , estadocategorizacion.cd_estado as estadocategorizacion_oid , estadocategorizacion.ds_estado as estadocategorizacion_ds_estado , cyt_user.oid AS cyt_user_oid, CASE cyt_user.ds_name WHEN '' THEN cyt_user.ds_username ELSE cyt_user.ds_name END AS ds_username FROM cyt_solicitudcategorizacion_estado LEFT JOIN solicitudcategorizacion ON(cyt_solicitudcategorizacion_estado.solicitud_oid = solicitudcategorizacion.cd_solicitud) LEFT JOIN docente ON(solicitudcategorizacion.cd_docente = docente.cd_docente) LEFT JOIN estadocategorizacion ON(cyt_solicitudcategorizacion_estado.estado_oid = estadocategorizacion.cd_estado) LEFT JOIN cyt_user ON(cyt_solicitudcategorizacion_estado.user_oid = cyt_user.oid) WHERE  cyt_solicitudcategorizacion_estado.solicitud_oid = ? AND (fechaHasta is null)
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  string(2) "91"
+}
+
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT solicitudcategorizacion.*, docente.cd_docente as docente_oid , docente.ds_nombre as docente_ds_nombre , docente.ds_apellido as docente_ds_apellido , docente.nu_documento as docente_nu_documento , docente.nu_precuil as docente_nu_precuil , docente.nu_postcuil as docente_nu_postcuil , facultad.cd_facultad as facultad_oid , facultad.ds_facultad as facultad_ds_facultad , FacultadPlanilla.cd_facultad as FacultadPlanilla_oid , FacultadPlanilla.ds_facultad as FacultadPlanilla_ds_facultad , periodo.cd_periodo as periodo_oid , periodo.ds_periodo as periodo_ds_periodo , cat.cd_cat as cat_oid , cat.ds_cat as cat_ds_cat , estadocategorizacion.cd_estado as estadocategorizacion_oid , estadocategorizacion.ds_estado as estadocategorizacion_ds_estado , cyt_solicitudcategorizacion_estado.oid as cyt_solicitudcategorizacion_estado_oid , cyt_solicitudcategorizacion_estado.fechaDesde as cyt_solicitudcategorizacion_estado_fechaDesde , cyt_solicitudcategorizacion_estado.fechaHasta as cyt_solicitudcategorizacion_estado_fechaHasta , unidad.cd_unidad as unidad_oid , unidad.ds_unidad as unidad_ds_unidad , unidad.ds_sigla as unidad_ds_sigla , cargo.cd_cargo as cargo_oid , cargo.ds_cargo as cargo_ds_cargo , deddoc.cd_deddoc as deddoc_oid , deddoc.ds_deddoc as deddoc_ds_deddoc , facultad.cd_facultad as facultad_oid , facultad.ds_facultad as facultad_ds_facultad , LugarTrabajoBeca.cd_unidad as LugarTrabajoBeca_oid , LugarTrabajoBeca.ds_unidad as LugarTrabajoBeca_ds_unidad , LugarTrabajoBeca.ds_sigla as LugarTrabajoBeca_ds_sigla , LugarTrabajoCarrera.cd_unidad as LugarTrabajoCarrera_oid , LugarTrabajoCarrera.ds_unidad as LugarTrabajoCarrera_ds_unidad , LugarTrabajoCarrera.ds_sigla as LugarTrabajoCarrera_ds_sigla , carrerainv.cd_carrerainv as carrerainv_oid , carrerainv.ds_carrerainv as carrerainv_ds_carrerainv , organismo.cd_organismo as organismo_oid , organismo.ds_organismo as organismo_ds_organismo , categoria.cd_categoria as categoria_oid , categoria.ds_categoria as categoria_ds_categoria , equivalencia.cd_equivalencia as equivalencia_oid , equivalencia.ds_equivalencia as equivalencia_ds_equivalencia , categoriasicadi.cd_categoriasicadi as categoriasicadi_oid , categoriasicadi.ds_categoriasicadi as categoriasicadi_ds_categoriasicadi , titulo.cd_titulo as titulo_oid , titulo.ds_titulo as titulo_ds_titulo , Tituloposgrado.cd_titulo as Tituloposgrado_oid , Tituloposgrado.ds_titulo as Tituloposgrado_ds_titulo , area.cd_area as area_oid , area.ds_area as area_ds_area , subarea.cd_subarea as subarea_oid , subarea.ds_subarea as subarea_ds_subarea  FROM solicitudcategorizacion LEFT JOIN facultad FacultadPlanilla ON(solicitudcategorizacion.cd_facultadplanilla = FacultadPlanilla.cd_facultad) LEFT JOIN docente ON(solicitudcategorizacion.cd_docente = docente.cd_docente) LEFT JOIN periodo ON(solicitudcategorizacion.cd_periodo = periodo.cd_periodo) LEFT JOIN cat ON(FacultadPlanilla.cd_cat = cat.cd_cat) LEFT JOIN cyt_solicitudcategorizacion_estado ON(cyt_solicitudcategorizacion_estado.solicitud_oid = solicitudcategorizacion.cd_solicitud) LEFT JOIN estadocategorizacion ON(cyt_solicitudcategorizacion_estado.estado_oid = estadocategorizacion.cd_estado) LEFT JOIN unidad ON(solicitudcategorizacion.cd_unidad = unidad.cd_unidad) LEFT JOIN cargo ON(solicitudcategorizacion.cd_cargo = cargo.cd_cargo) LEFT JOIN deddoc ON(solicitudcategorizacion.cd_deddoc = deddoc.cd_deddoc) LEFT JOIN facultad ON(solicitudcategorizacion.cd_facultad = facultad.cd_facultad) LEFT JOIN unidad LugarTrabajoBeca ON(solicitudcategorizacion.cd_unidadbeca = LugarTrabajoBeca.cd_unidad) LEFT JOIN unidad LugarTrabajoCarrera ON(solicitudcategorizacion.cd_unidadcarrera = LugarTrabajoCarrera.cd_unidad) LEFT JOIN organismo ON(solicitudcategorizacion.cd_organismo = organismo.cd_organismo) LEFT JOIN carrerainv ON(solicitudcategorizacion.cd_carrerainv = carrerainv.cd_carrerainv) LEFT JOIN categoria ON(solicitudcategorizacion.cd_categoria = categoria.cd_categoria) LEFT JOIN equivalencia ON(solicitudcategorizacion.cd_equivalencia = equivalencia.cd_equivalencia) LEFT JOIN categoriasicadi ON(solicitudcategorizacion.cd_categoriasicadi = categoriasicadi.cd_categoriasicadi) LEFT JOIN titulo ON(solicitudcategorizacion.cd_titulogrado = titulo.cd_titulo) LEFT JOIN titulo Tituloposgrado ON(solicitudcategorizacion.cd_tituloposgrado = Tituloposgrado.cd_titulo) LEFT JOIN area ON(solicitudcategorizacion.cd_areacarrera = area.cd_area) LEFT JOIN subarea ON(solicitudcategorizacion.cd_subareacarrera = subarea.cd_subarea) WHERE  solicitudcategorizacion.cd_solicitud = ?
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  string(2) "91"
+}
+
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT cyt_solicitudcategorizacion_estado.*, solicitudcategorizacion.cd_solicitud as solicitudcategorizacion_oid , docente.cd_docente as docente_oid , docente.ds_nombre as docente_ds_nombre , docente.ds_apellido as docente_ds_apellido , estadocategorizacion.cd_estado as estadocategorizacion_oid , estadocategorizacion.ds_estado as estadocategorizacion_ds_estado , cyt_user.oid AS cyt_user_oid, CASE cyt_user.ds_name WHEN '' THEN cyt_user.ds_username ELSE cyt_user.ds_name END AS ds_username FROM cyt_solicitudcategorizacion_estado LEFT JOIN solicitudcategorizacion ON(cyt_solicitudcategorizacion_estado.solicitud_oid = solicitudcategorizacion.cd_solicitud) LEFT JOIN docente ON(solicitudcategorizacion.cd_docente = docente.cd_docente) LEFT JOIN estadocategorizacion ON(cyt_solicitudcategorizacion_estado.estado_oid = estadocategorizacion.cd_estado) LEFT JOIN cyt_user ON(cyt_solicitudcategorizacion_estado.user_oid = cyt_user.oid) WHERE  cyt_solicitudcategorizacion_estado.solicitud_oid = ? AND (fechaHasta is null)
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  string(2) "90"
+}
+
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT solicitudcategorizacion.*, docente.cd_docente as docente_oid , docente.ds_nombre as docente_ds_nombre , docente.ds_apellido as docente_ds_apellido , docente.nu_documento as docente_nu_documento , docente.nu_precuil as docente_nu_precuil , docente.nu_postcuil as docente_nu_postcuil , facultad.cd_facultad as facultad_oid , facultad.ds_facultad as facultad_ds_facultad , FacultadPlanilla.cd_facultad as FacultadPlanilla_oid , FacultadPlanilla.ds_facultad as FacultadPlanilla_ds_facultad , periodo.cd_periodo as periodo_oid , periodo.ds_periodo as periodo_ds_periodo , cat.cd_cat as cat_oid , cat.ds_cat as cat_ds_cat , estadocategorizacion.cd_estado as estadocategorizacion_oid , estadocategorizacion.ds_estado as estadocategorizacion_ds_estado , cyt_solicitudcategorizacion_estado.oid as cyt_solicitudcategorizacion_estado_oid , cyt_solicitudcategorizacion_estado.fechaDesde as cyt_solicitudcategorizacion_estado_fechaDesde , cyt_solicitudcategorizacion_estado.fechaHasta as cyt_solicitudcategorizacion_estado_fechaHasta , unidad.cd_unidad as unidad_oid , unidad.ds_unidad as unidad_ds_unidad , unidad.ds_sigla as unidad_ds_sigla , cargo.cd_cargo as cargo_oid , cargo.ds_cargo as cargo_ds_cargo , deddoc.cd_deddoc as deddoc_oid , deddoc.ds_deddoc as deddoc_ds_deddoc , facultad.cd_facultad as facultad_oid , facultad.ds_facultad as facultad_ds_facultad , LugarTrabajoBeca.cd_unidad as LugarTrabajoBeca_oid , LugarTrabajoBeca.ds_unidad as LugarTrabajoBeca_ds_unidad , LugarTrabajoBeca.ds_sigla as LugarTrabajoBeca_ds_sigla , LugarTrabajoCarrera.cd_unidad as LugarTrabajoCarrera_oid , LugarTrabajoCarrera.ds_unidad as LugarTrabajoCarrera_ds_unidad , LugarTrabajoCarrera.ds_sigla as LugarTrabajoCarrera_ds_sigla , carrerainv.cd_carrerainv as carrerainv_oid , carrerainv.ds_carrerainv as carrerainv_ds_carrerainv , organismo.cd_organismo as organismo_oid , organismo.ds_organismo as organismo_ds_organismo , categoria.cd_categoria as categoria_oid , categoria.ds_categoria as categoria_ds_categoria , equivalencia.cd_equivalencia as equivalencia_oid , equivalencia.ds_equivalencia as equivalencia_ds_equivalencia , categoriasicadi.cd_categoriasicadi as categoriasicadi_oid , categoriasicadi.ds_categoriasicadi as categoriasicadi_ds_categoriasicadi , titulo.cd_titulo as titulo_oid , titulo.ds_titulo as titulo_ds_titulo , Tituloposgrado.cd_titulo as Tituloposgrado_oid , Tituloposgrado.ds_titulo as Tituloposgrado_ds_titulo , area.cd_area as area_oid , area.ds_area as area_ds_area , subarea.cd_subarea as subarea_oid , subarea.ds_subarea as subarea_ds_subarea  FROM solicitudcategorizacion LEFT JOIN facultad FacultadPlanilla ON(solicitudcategorizacion.cd_facultadplanilla = FacultadPlanilla.cd_facultad) LEFT JOIN docente ON(solicitudcategorizacion.cd_docente = docente.cd_docente) LEFT JOIN periodo ON(solicitudcategorizacion.cd_periodo = periodo.cd_periodo) LEFT JOIN cat ON(FacultadPlanilla.cd_cat = cat.cd_cat) LEFT JOIN cyt_solicitudcategorizacion_estado ON(cyt_solicitudcategorizacion_estado.solicitud_oid = solicitudcategorizacion.cd_solicitud) LEFT JOIN estadocategorizacion ON(cyt_solicitudcategorizacion_estado.estado_oid = estadocategorizacion.cd_estado) LEFT JOIN unidad ON(solicitudcategorizacion.cd_unidad = unidad.cd_unidad) LEFT JOIN cargo ON(solicitudcategorizacion.cd_cargo = cargo.cd_cargo) LEFT JOIN deddoc ON(solicitudcategorizacion.cd_deddoc = deddoc.cd_deddoc) LEFT JOIN facultad ON(solicitudcategorizacion.cd_facultad = facultad.cd_facultad) LEFT JOIN unidad LugarTrabajoBeca ON(solicitudcategorizacion.cd_unidadbeca = LugarTrabajoBeca.cd_unidad) LEFT JOIN unidad LugarTrabajoCarrera ON(solicitudcategorizacion.cd_unidadcarrera = LugarTrabajoCarrera.cd_unidad) LEFT JOIN organismo ON(solicitudcategorizacion.cd_organismo = organismo.cd_organismo) LEFT JOIN carrerainv ON(solicitudcategorizacion.cd_carrerainv = carrerainv.cd_carrerainv) LEFT JOIN categoria ON(solicitudcategorizacion.cd_categoria = categoria.cd_categoria) LEFT JOIN equivalencia ON(solicitudcategorizacion.cd_equivalencia = equivalencia.cd_equivalencia) LEFT JOIN categoriasicadi ON(solicitudcategorizacion.cd_categoriasicadi = categoriasicadi.cd_categoriasicadi) LEFT JOIN titulo ON(solicitudcategorizacion.cd_titulogrado = titulo.cd_titulo) LEFT JOIN titulo Tituloposgrado ON(solicitudcategorizacion.cd_tituloposgrado = Tituloposgrado.cd_titulo) LEFT JOIN area ON(solicitudcategorizacion.cd_areacarrera = area.cd_area) LEFT JOIN subarea ON(solicitudcategorizacion.cd_subareacarrera = subarea.cd_subarea) WHERE  solicitudcategorizacion.cd_solicitud = ?
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  string(2) "90"
+}
+
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT cyt_solicitudcategorizacion_estado.*, solicitudcategorizacion.cd_solicitud as solicitudcategorizacion_oid , docente.cd_docente as docente_oid , docente.ds_nombre as docente_ds_nombre , docente.ds_apellido as docente_ds_apellido , estadocategorizacion.cd_estado as estadocategorizacion_oid , estadocategorizacion.ds_estado as estadocategorizacion_ds_estado , cyt_user.oid AS cyt_user_oid, CASE cyt_user.ds_name WHEN '' THEN cyt_user.ds_username ELSE cyt_user.ds_name END AS ds_username FROM cyt_solicitudcategorizacion_estado LEFT JOIN solicitudcategorizacion ON(cyt_solicitudcategorizacion_estado.solicitud_oid = solicitudcategorizacion.cd_solicitud) LEFT JOIN docente ON(solicitudcategorizacion.cd_docente = docente.cd_docente) LEFT JOIN estadocategorizacion ON(cyt_solicitudcategorizacion_estado.estado_oid = estadocategorizacion.cd_estado) LEFT JOIN cyt_user ON(cyt_solicitudcategorizacion_estado.user_oid = cyt_user.oid) WHERE  cyt_solicitudcategorizacion_estado.solicitud_oid = ? AND (fechaHasta is null)
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  string(2) "89"
+}
+
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT solicitudcategorizacion.*, docente.cd_docente as docente_oid , docente.ds_nombre as docente_ds_nombre , docente.ds_apellido as docente_ds_apellido , docente.nu_documento as docente_nu_documento , docente.nu_precuil as docente_nu_precuil , docente.nu_postcuil as docente_nu_postcuil , facultad.cd_facultad as facultad_oid , facultad.ds_facultad as facultad_ds_facultad , FacultadPlanilla.cd_facultad as FacultadPlanilla_oid , FacultadPlanilla.ds_facultad as FacultadPlanilla_ds_facultad , periodo.cd_periodo as periodo_oid , periodo.ds_periodo as periodo_ds_periodo , cat.cd_cat as cat_oid , cat.ds_cat as cat_ds_cat , estadocategorizacion.cd_estado as estadocategorizacion_oid , estadocategorizacion.ds_estado as estadocategorizacion_ds_estado , cyt_solicitudcategorizacion_estado.oid as cyt_solicitudcategorizacion_estado_oid , cyt_solicitudcategorizacion_estado.fechaDesde as cyt_solicitudcategorizacion_estado_fechaDesde , cyt_solicitudcategorizacion_estado.fechaHasta as cyt_solicitudcategorizacion_estado_fechaHasta , unidad.cd_unidad as unidad_oid , unidad.ds_unidad as unidad_ds_unidad , unidad.ds_sigla as unidad_ds_sigla , cargo.cd_cargo as cargo_oid , cargo.ds_cargo as cargo_ds_cargo , deddoc.cd_deddoc as deddoc_oid , deddoc.ds_deddoc as deddoc_ds_deddoc , facultad.cd_facultad as facultad_oid , facultad.ds_facultad as facultad_ds_facultad , LugarTrabajoBeca.cd_unidad as LugarTrabajoBeca_oid , LugarTrabajoBeca.ds_unidad as LugarTrabajoBeca_ds_unidad , LugarTrabajoBeca.ds_sigla as LugarTrabajoBeca_ds_sigla , LugarTrabajoCarrera.cd_unidad as LugarTrabajoCarrera_oid , LugarTrabajoCarrera.ds_unidad as LugarTrabajoCarrera_ds_unidad , LugarTrabajoCarrera.ds_sigla as LugarTrabajoCarrera_ds_sigla , carrerainv.cd_carrerainv as carrerainv_oid , carrerainv.ds_carrerainv as carrerainv_ds_carrerainv , organismo.cd_organismo as organismo_oid , organismo.ds_organismo as organismo_ds_organismo , categoria.cd_categoria as categoria_oid , categoria.ds_categoria as categoria_ds_categoria , equivalencia.cd_equivalencia as equivalencia_oid , equivalencia.ds_equivalencia as equivalencia_ds_equivalencia , categoriasicadi.cd_categoriasicadi as categoriasicadi_oid , categoriasicadi.ds_categoriasicadi as categoriasicadi_ds_categoriasicadi , titulo.cd_titulo as titulo_oid , titulo.ds_titulo as titulo_ds_titulo , Tituloposgrado.cd_titulo as Tituloposgrado_oid , Tituloposgrado.ds_titulo as Tituloposgrado_ds_titulo , area.cd_area as area_oid , area.ds_area as area_ds_area , subarea.cd_subarea as subarea_oid , subarea.ds_subarea as subarea_ds_subarea  FROM solicitudcategorizacion LEFT JOIN facultad FacultadPlanilla ON(solicitudcategorizacion.cd_facultadplanilla = FacultadPlanilla.cd_facultad) LEFT JOIN docente ON(solicitudcategorizacion.cd_docente = docente.cd_docente) LEFT JOIN periodo ON(solicitudcategorizacion.cd_periodo = periodo.cd_periodo) LEFT JOIN cat ON(FacultadPlanilla.cd_cat = cat.cd_cat) LEFT JOIN cyt_solicitudcategorizacion_estado ON(cyt_solicitudcategorizacion_estado.solicitud_oid = solicitudcategorizacion.cd_solicitud) LEFT JOIN estadocategorizacion ON(cyt_solicitudcategorizacion_estado.estado_oid = estadocategorizacion.cd_estado) LEFT JOIN unidad ON(solicitudcategorizacion.cd_unidad = unidad.cd_unidad) LEFT JOIN cargo ON(solicitudcategorizacion.cd_cargo = cargo.cd_cargo) LEFT JOIN deddoc ON(solicitudcategorizacion.cd_deddoc = deddoc.cd_deddoc) LEFT JOIN facultad ON(solicitudcategorizacion.cd_facultad = facultad.cd_facultad) LEFT JOIN unidad LugarTrabajoBeca ON(solicitudcategorizacion.cd_unidadbeca = LugarTrabajoBeca.cd_unidad) LEFT JOIN unidad LugarTrabajoCarrera ON(solicitudcategorizacion.cd_unidadcarrera = LugarTrabajoCarrera.cd_unidad) LEFT JOIN organismo ON(solicitudcategorizacion.cd_organismo = organismo.cd_organismo) LEFT JOIN carrerainv ON(solicitudcategorizacion.cd_carrerainv = carrerainv.cd_carrerainv) LEFT JOIN categoria ON(solicitudcategorizacion.cd_categoria = categoria.cd_categoria) LEFT JOIN equivalencia ON(solicitudcategorizacion.cd_equivalencia = equivalencia.cd_equivalencia) LEFT JOIN categoriasicadi ON(solicitudcategorizacion.cd_categoriasicadi = categoriasicadi.cd_categoriasicadi) LEFT JOIN titulo ON(solicitudcategorizacion.cd_titulogrado = titulo.cd_titulo) LEFT JOIN titulo Tituloposgrado ON(solicitudcategorizacion.cd_tituloposgrado = Tituloposgrado.cd_titulo) LEFT JOIN area ON(solicitudcategorizacion.cd_areacarrera = area.cd_area) LEFT JOIN subarea ON(solicitudcategorizacion.cd_subareacarrera = subarea.cd_subarea) WHERE  solicitudcategorizacion.cd_solicitud = ?
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  string(2) "89"
+}
+
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT cyt_solicitudcategorizacion_estado.*, solicitudcategorizacion.cd_solicitud as solicitudcategorizacion_oid , docente.cd_docente as docente_oid , docente.ds_nombre as docente_ds_nombre , docente.ds_apellido as docente_ds_apellido , estadocategorizacion.cd_estado as estadocategorizacion_oid , estadocategorizacion.ds_estado as estadocategorizacion_ds_estado , cyt_user.oid AS cyt_user_oid, CASE cyt_user.ds_name WHEN '' THEN cyt_user.ds_username ELSE cyt_user.ds_name END AS ds_username FROM cyt_solicitudcategorizacion_estado LEFT JOIN solicitudcategorizacion ON(cyt_solicitudcategorizacion_estado.solicitud_oid = solicitudcategorizacion.cd_solicitud) LEFT JOIN docente ON(solicitudcategorizacion.cd_docente = docente.cd_docente) LEFT JOIN estadocategorizacion ON(cyt_solicitudcategorizacion_estado.estado_oid = estadocategorizacion.cd_estado) LEFT JOIN cyt_user ON(cyt_solicitudcategorizacion_estado.user_oid = cyt_user.oid) WHERE  cyt_solicitudcategorizacion_estado.solicitud_oid = ? AND (fechaHasta is null)
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  string(2) "88"
+}
+
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT solicitudcategorizacion.*, docente.cd_docente as docente_oid , docente.ds_nombre as docente_ds_nombre , docente.ds_apellido as docente_ds_apellido , docente.nu_documento as docente_nu_documento , docente.nu_precuil as docente_nu_precuil , docente.nu_postcuil as docente_nu_postcuil , facultad.cd_facultad as facultad_oid , facultad.ds_facultad as facultad_ds_facultad , FacultadPlanilla.cd_facultad as FacultadPlanilla_oid , FacultadPlanilla.ds_facultad as FacultadPlanilla_ds_facultad , periodo.cd_periodo as periodo_oid , periodo.ds_periodo as periodo_ds_periodo , cat.cd_cat as cat_oid , cat.ds_cat as cat_ds_cat , estadocategorizacion.cd_estado as estadocategorizacion_oid , estadocategorizacion.ds_estado as estadocategorizacion_ds_estado , cyt_solicitudcategorizacion_estado.oid as cyt_solicitudcategorizacion_estado_oid , cyt_solicitudcategorizacion_estado.fechaDesde as cyt_solicitudcategorizacion_estado_fechaDesde , cyt_solicitudcategorizacion_estado.fechaHasta as cyt_solicitudcategorizacion_estado_fechaHasta , unidad.cd_unidad as unidad_oid , unidad.ds_unidad as unidad_ds_unidad , unidad.ds_sigla as unidad_ds_sigla , cargo.cd_cargo as cargo_oid , cargo.ds_cargo as cargo_ds_cargo , deddoc.cd_deddoc as deddoc_oid , deddoc.ds_deddoc as deddoc_ds_deddoc , facultad.cd_facultad as facultad_oid , facultad.ds_facultad as facultad_ds_facultad , LugarTrabajoBeca.cd_unidad as LugarTrabajoBeca_oid , LugarTrabajoBeca.ds_unidad as LugarTrabajoBeca_ds_unidad , LugarTrabajoBeca.ds_sigla as LugarTrabajoBeca_ds_sigla , LugarTrabajoCarrera.cd_unidad as LugarTrabajoCarrera_oid , LugarTrabajoCarrera.ds_unidad as LugarTrabajoCarrera_ds_unidad , LugarTrabajoCarrera.ds_sigla as LugarTrabajoCarrera_ds_sigla , carrerainv.cd_carrerainv as carrerainv_oid , carrerainv.ds_carrerainv as carrerainv_ds_carrerainv , organismo.cd_organismo as organismo_oid , organismo.ds_organismo as organismo_ds_organismo , categoria.cd_categoria as categoria_oid , categoria.ds_categoria as categoria_ds_categoria , equivalencia.cd_equivalencia as equivalencia_oid , equivalencia.ds_equivalencia as equivalencia_ds_equivalencia , categoriasicadi.cd_categoriasicadi as categoriasicadi_oid , categoriasicadi.ds_categoriasicadi as categoriasicadi_ds_categoriasicadi , titulo.cd_titulo as titulo_oid , titulo.ds_titulo as titulo_ds_titulo , Tituloposgrado.cd_titulo as Tituloposgrado_oid , Tituloposgrado.ds_titulo as Tituloposgrado_ds_titulo , area.cd_area as area_oid , area.ds_area as area_ds_area , subarea.cd_subarea as subarea_oid , subarea.ds_subarea as subarea_ds_subarea  FROM solicitudcategorizacion LEFT JOIN facultad FacultadPlanilla ON(solicitudcategorizacion.cd_facultadplanilla = FacultadPlanilla.cd_facultad) LEFT JOIN docente ON(solicitudcategorizacion.cd_docente = docente.cd_docente) LEFT JOIN periodo ON(solicitudcategorizacion.cd_periodo = periodo.cd_periodo) LEFT JOIN cat ON(FacultadPlanilla.cd_cat = cat.cd_cat) LEFT JOIN cyt_solicitudcategorizacion_estado ON(cyt_solicitudcategorizacion_estado.solicitud_oid = solicitudcategorizacion.cd_solicitud) LEFT JOIN estadocategorizacion ON(cyt_solicitudcategorizacion_estado.estado_oid = estadocategorizacion.cd_estado) LEFT JOIN unidad ON(solicitudcategorizacion.cd_unidad = unidad.cd_unidad) LEFT JOIN cargo ON(solicitudcategorizacion.cd_cargo = cargo.cd_cargo) LEFT JOIN deddoc ON(solicitudcategorizacion.cd_deddoc = deddoc.cd_deddoc) LEFT JOIN facultad ON(solicitudcategorizacion.cd_facultad = facultad.cd_facultad) LEFT JOIN unidad LugarTrabajoBeca ON(solicitudcategorizacion.cd_unidadbeca = LugarTrabajoBeca.cd_unidad) LEFT JOIN unidad LugarTrabajoCarrera ON(solicitudcategorizacion.cd_unidadcarrera = LugarTrabajoCarrera.cd_unidad) LEFT JOIN organismo ON(solicitudcategorizacion.cd_organismo = organismo.cd_organismo) LEFT JOIN carrerainv ON(solicitudcategorizacion.cd_carrerainv = carrerainv.cd_carrerainv) LEFT JOIN categoria ON(solicitudcategorizacion.cd_categoria = categoria.cd_categoria) LEFT JOIN equivalencia ON(solicitudcategorizacion.cd_equivalencia = equivalencia.cd_equivalencia) LEFT JOIN categoriasicadi ON(solicitudcategorizacion.cd_categoriasicadi = categoriasicadi.cd_categoriasicadi) LEFT JOIN titulo ON(solicitudcategorizacion.cd_titulogrado = titulo.cd_titulo) LEFT JOIN titulo Tituloposgrado ON(solicitudcategorizacion.cd_tituloposgrado = Tituloposgrado.cd_titulo) LEFT JOIN area ON(solicitudcategorizacion.cd_areacarrera = area.cd_area) LEFT JOIN subarea ON(solicitudcategorizacion.cd_subareacarrera = subarea.cd_subarea) WHERE  solicitudcategorizacion.cd_solicitud = ?
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  string(2) "88"
+}
+
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT cyt_solicitudcategorizacion_estado.*, solicitudcategorizacion.cd_solicitud as solicitudcategorizacion_oid , docente.cd_docente as docente_oid , docente.ds_nombre as docente_ds_nombre , docente.ds_apellido as docente_ds_apellido , estadocategorizacion.cd_estado as estadocategorizacion_oid , estadocategorizacion.ds_estado as estadocategorizacion_ds_estado , cyt_user.oid AS cyt_user_oid, CASE cyt_user.ds_name WHEN '' THEN cyt_user.ds_username ELSE cyt_user.ds_name END AS ds_username FROM cyt_solicitudcategorizacion_estado LEFT JOIN solicitudcategorizacion ON(cyt_solicitudcategorizacion_estado.solicitud_oid = solicitudcategorizacion.cd_solicitud) LEFT JOIN docente ON(solicitudcategorizacion.cd_docente = docente.cd_docente) LEFT JOIN estadocategorizacion ON(cyt_solicitudcategorizacion_estado.estado_oid = estadocategorizacion.cd_estado) LEFT JOIN cyt_user ON(cyt_solicitudcategorizacion_estado.user_oid = cyt_user.oid) WHERE  cyt_solicitudcategorizacion_estado.solicitud_oid = ? AND (fechaHasta is null)
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  string(2) "87"
+}
+
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT solicitudcategorizacion.*, docente.cd_docente as docente_oid , docente.ds_nombre as docente_ds_nombre , docente.ds_apellido as docente_ds_apellido , docente.nu_documento as docente_nu_documento , docente.nu_precuil as docente_nu_precuil , docente.nu_postcuil as docente_nu_postcuil , facultad.cd_facultad as facultad_oid , facultad.ds_facultad as facultad_ds_facultad , FacultadPlanilla.cd_facultad as FacultadPlanilla_oid , FacultadPlanilla.ds_facultad as FacultadPlanilla_ds_facultad , periodo.cd_periodo as periodo_oid , periodo.ds_periodo as periodo_ds_periodo , cat.cd_cat as cat_oid , cat.ds_cat as cat_ds_cat , estadocategorizacion.cd_estado as estadocategorizacion_oid , estadocategorizacion.ds_estado as estadocategorizacion_ds_estado , cyt_solicitudcategorizacion_estado.oid as cyt_solicitudcategorizacion_estado_oid , cyt_solicitudcategorizacion_estado.fechaDesde as cyt_solicitudcategorizacion_estado_fechaDesde , cyt_solicitudcategorizacion_estado.fechaHasta as cyt_solicitudcategorizacion_estado_fechaHasta , unidad.cd_unidad as unidad_oid , unidad.ds_unidad as unidad_ds_unidad , unidad.ds_sigla as unidad_ds_sigla , cargo.cd_cargo as cargo_oid , cargo.ds_cargo as cargo_ds_cargo , deddoc.cd_deddoc as deddoc_oid , deddoc.ds_deddoc as deddoc_ds_deddoc , facultad.cd_facultad as facultad_oid , facultad.ds_facultad as facultad_ds_facultad , LugarTrabajoBeca.cd_unidad as LugarTrabajoBeca_oid , LugarTrabajoBeca.ds_unidad as LugarTrabajoBeca_ds_unidad , LugarTrabajoBeca.ds_sigla as LugarTrabajoBeca_ds_sigla , LugarTrabajoCarrera.cd_unidad as LugarTrabajoCarrera_oid , LugarTrabajoCarrera.ds_unidad as LugarTrabajoCarrera_ds_unidad , LugarTrabajoCarrera.ds_sigla as LugarTrabajoCarrera_ds_sigla , carrerainv.cd_carrerainv as carrerainv_oid , carrerainv.ds_carrerainv as carrerainv_ds_carrerainv , organismo.cd_organismo as organismo_oid , organismo.ds_organismo as organismo_ds_organismo , categoria.cd_categoria as categoria_oid , categoria.ds_categoria as categoria_ds_categoria , equivalencia.cd_equivalencia as equivalencia_oid , equivalencia.ds_equivalencia as equivalencia_ds_equivalencia , categoriasicadi.cd_categoriasicadi as categoriasicadi_oid , categoriasicadi.ds_categoriasicadi as categoriasicadi_ds_categoriasicadi , titulo.cd_titulo as titulo_oid , titulo.ds_titulo as titulo_ds_titulo , Tituloposgrado.cd_titulo as Tituloposgrado_oid , Tituloposgrado.ds_titulo as Tituloposgrado_ds_titulo , area.cd_area as area_oid , area.ds_area as area_ds_area , subarea.cd_subarea as subarea_oid , subarea.ds_subarea as subarea_ds_subarea  FROM solicitudcategorizacion LEFT JOIN facultad FacultadPlanilla ON(solicitudcategorizacion.cd_facultadplanilla = FacultadPlanilla.cd_facultad) LEFT JOIN docente ON(solicitudcategorizacion.cd_docente = docente.cd_docente) LEFT JOIN periodo ON(solicitudcategorizacion.cd_periodo = periodo.cd_periodo) LEFT JOIN cat ON(FacultadPlanilla.cd_cat = cat.cd_cat) LEFT JOIN cyt_solicitudcategorizacion_estado ON(cyt_solicitudcategorizacion_estado.solicitud_oid = solicitudcategorizacion.cd_solicitud) LEFT JOIN estadocategorizacion ON(cyt_solicitudcategorizacion_estado.estado_oid = estadocategorizacion.cd_estado) LEFT JOIN unidad ON(solicitudcategorizacion.cd_unidad = unidad.cd_unidad) LEFT JOIN cargo ON(solicitudcategorizacion.cd_cargo = cargo.cd_cargo) LEFT JOIN deddoc ON(solicitudcategorizacion.cd_deddoc = deddoc.cd_deddoc) LEFT JOIN facultad ON(solicitudcategorizacion.cd_facultad = facultad.cd_facultad) LEFT JOIN unidad LugarTrabajoBeca ON(solicitudcategorizacion.cd_unidadbeca = LugarTrabajoBeca.cd_unidad) LEFT JOIN unidad LugarTrabajoCarrera ON(solicitudcategorizacion.cd_unidadcarrera = LugarTrabajoCarrera.cd_unidad) LEFT JOIN organismo ON(solicitudcategorizacion.cd_organismo = organismo.cd_organismo) LEFT JOIN carrerainv ON(solicitudcategorizacion.cd_carrerainv = carrerainv.cd_carrerainv) LEFT JOIN categoria ON(solicitudcategorizacion.cd_categoria = categoria.cd_categoria) LEFT JOIN equivalencia ON(solicitudcategorizacion.cd_equivalencia = equivalencia.cd_equivalencia) LEFT JOIN categoriasicadi ON(solicitudcategorizacion.cd_categoriasicadi = categoriasicadi.cd_categoriasicadi) LEFT JOIN titulo ON(solicitudcategorizacion.cd_titulogrado = titulo.cd_titulo) LEFT JOIN titulo Tituloposgrado ON(solicitudcategorizacion.cd_tituloposgrado = Tituloposgrado.cd_titulo) LEFT JOIN area ON(solicitudcategorizacion.cd_areacarrera = area.cd_area) LEFT JOIN subarea ON(solicitudcategorizacion.cd_subareacarrera = subarea.cd_subarea) WHERE  solicitudcategorizacion.cd_solicitud = ?
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  string(2) "87"
+}
+
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT cyt_solicitudcategorizacion_estado.*, solicitudcategorizacion.cd_solicitud as solicitudcategorizacion_oid , docente.cd_docente as docente_oid , docente.ds_nombre as docente_ds_nombre , docente.ds_apellido as docente_ds_apellido , estadocategorizacion.cd_estado as estadocategorizacion_oid , estadocategorizacion.ds_estado as estadocategorizacion_ds_estado , cyt_user.oid AS cyt_user_oid, CASE cyt_user.ds_name WHEN '' THEN cyt_user.ds_username ELSE cyt_user.ds_name END AS ds_username FROM cyt_solicitudcategorizacion_estado LEFT JOIN solicitudcategorizacion ON(cyt_solicitudcategorizacion_estado.solicitud_oid = solicitudcategorizacion.cd_solicitud) LEFT JOIN docente ON(solicitudcategorizacion.cd_docente = docente.cd_docente) LEFT JOIN estadocategorizacion ON(cyt_solicitudcategorizacion_estado.estado_oid = estadocategorizacion.cd_estado) LEFT JOIN cyt_user ON(cyt_solicitudcategorizacion_estado.user_oid = cyt_user.oid) WHERE  cyt_solicitudcategorizacion_estado.solicitud_oid = ? AND (fechaHasta is null)
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  string(2) "85"
+}
+
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT solicitudcategorizacion.*, docente.cd_docente as docente_oid , docente.ds_nombre as docente_ds_nombre , docente.ds_apellido as docente_ds_apellido , docente.nu_documento as docente_nu_documento , docente.nu_precuil as docente_nu_precuil , docente.nu_postcuil as docente_nu_postcuil , facultad.cd_facultad as facultad_oid , facultad.ds_facultad as facultad_ds_facultad , FacultadPlanilla.cd_facultad as FacultadPlanilla_oid , FacultadPlanilla.ds_facultad as FacultadPlanilla_ds_facultad , periodo.cd_periodo as periodo_oid , periodo.ds_periodo as periodo_ds_periodo , cat.cd_cat as cat_oid , cat.ds_cat as cat_ds_cat , estadocategorizacion.cd_estado as estadocategorizacion_oid , estadocategorizacion.ds_estado as estadocategorizacion_ds_estado , cyt_solicitudcategorizacion_estado.oid as cyt_solicitudcategorizacion_estado_oid , cyt_solicitudcategorizacion_estado.fechaDesde as cyt_solicitudcategorizacion_estado_fechaDesde , cyt_solicitudcategorizacion_estado.fechaHasta as cyt_solicitudcategorizacion_estado_fechaHasta , unidad.cd_unidad as unidad_oid , unidad.ds_unidad as unidad_ds_unidad , unidad.ds_sigla as unidad_ds_sigla , cargo.cd_cargo as cargo_oid , cargo.ds_cargo as cargo_ds_cargo , deddoc.cd_deddoc as deddoc_oid , deddoc.ds_deddoc as deddoc_ds_deddoc , facultad.cd_facultad as facultad_oid , facultad.ds_facultad as facultad_ds_facultad , LugarTrabajoBeca.cd_unidad as LugarTrabajoBeca_oid , LugarTrabajoBeca.ds_unidad as LugarTrabajoBeca_ds_unidad , LugarTrabajoBeca.ds_sigla as LugarTrabajoBeca_ds_sigla , LugarTrabajoCarrera.cd_unidad as LugarTrabajoCarrera_oid , LugarTrabajoCarrera.ds_unidad as LugarTrabajoCarrera_ds_unidad , LugarTrabajoCarrera.ds_sigla as LugarTrabajoCarrera_ds_sigla , carrerainv.cd_carrerainv as carrerainv_oid , carrerainv.ds_carrerainv as carrerainv_ds_carrerainv , organismo.cd_organismo as organismo_oid , organismo.ds_organismo as organismo_ds_organismo , categoria.cd_categoria as categoria_oid , categoria.ds_categoria as categoria_ds_categoria , equivalencia.cd_equivalencia as equivalencia_oid , equivalencia.ds_equivalencia as equivalencia_ds_equivalencia , categoriasicadi.cd_categoriasicadi as categoriasicadi_oid , categoriasicadi.ds_categoriasicadi as categoriasicadi_ds_categoriasicadi , titulo.cd_titulo as titulo_oid , titulo.ds_titulo as titulo_ds_titulo , Tituloposgrado.cd_titulo as Tituloposgrado_oid , Tituloposgrado.ds_titulo as Tituloposgrado_ds_titulo , area.cd_area as area_oid , area.ds_area as area_ds_area , subarea.cd_subarea as subarea_oid , subarea.ds_subarea as subarea_ds_subarea  FROM solicitudcategorizacion LEFT JOIN facultad FacultadPlanilla ON(solicitudcategorizacion.cd_facultadplanilla = FacultadPlanilla.cd_facultad) LEFT JOIN docente ON(solicitudcategorizacion.cd_docente = docente.cd_docente) LEFT JOIN periodo ON(solicitudcategorizacion.cd_periodo = periodo.cd_periodo) LEFT JOIN cat ON(FacultadPlanilla.cd_cat = cat.cd_cat) LEFT JOIN cyt_solicitudcategorizacion_estado ON(cyt_solicitudcategorizacion_estado.solicitud_oid = solicitudcategorizacion.cd_solicitud) LEFT JOIN estadocategorizacion ON(cyt_solicitudcategorizacion_estado.estado_oid = estadocategorizacion.cd_estado) LEFT JOIN unidad ON(solicitudcategorizacion.cd_unidad = unidad.cd_unidad) LEFT JOIN cargo ON(solicitudcategorizacion.cd_cargo = cargo.cd_cargo) LEFT JOIN deddoc ON(solicitudcategorizacion.cd_deddoc = deddoc.cd_deddoc) LEFT JOIN facultad ON(solicitudcategorizacion.cd_facultad = facultad.cd_facultad) LEFT JOIN unidad LugarTrabajoBeca ON(solicitudcategorizacion.cd_unidadbeca = LugarTrabajoBeca.cd_unidad) LEFT JOIN unidad LugarTrabajoCarrera ON(solicitudcategorizacion.cd_unidadcarrera = LugarTrabajoCarrera.cd_unidad) LEFT JOIN organismo ON(solicitudcategorizacion.cd_organismo = organismo.cd_organismo) LEFT JOIN carrerainv ON(solicitudcategorizacion.cd_carrerainv = carrerainv.cd_carrerainv) LEFT JOIN categoria ON(solicitudcategorizacion.cd_categoria = categoria.cd_categoria) LEFT JOIN equivalencia ON(solicitudcategorizacion.cd_equivalencia = equivalencia.cd_equivalencia) LEFT JOIN categoriasicadi ON(solicitudcategorizacion.cd_categoriasicadi = categoriasicadi.cd_categoriasicadi) LEFT JOIN titulo ON(solicitudcategorizacion.cd_titulogrado = titulo.cd_titulo) LEFT JOIN titulo Tituloposgrado ON(solicitudcategorizacion.cd_tituloposgrado = Tituloposgrado.cd_titulo) LEFT JOIN area ON(solicitudcategorizacion.cd_areacarrera = area.cd_area) LEFT JOIN subarea ON(solicitudcategorizacion.cd_subareacarrera = subarea.cd_subarea) WHERE  solicitudcategorizacion.cd_solicitud = ?
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  string(2) "85"
+}
+
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT cyt_solicitudcategorizacion_estado.*, solicitudcategorizacion.cd_solicitud as solicitudcategorizacion_oid , docente.cd_docente as docente_oid , docente.ds_nombre as docente_ds_nombre , docente.ds_apellido as docente_ds_apellido , estadocategorizacion.cd_estado as estadocategorizacion_oid , estadocategorizacion.ds_estado as estadocategorizacion_ds_estado , cyt_user.oid AS cyt_user_oid, CASE cyt_user.ds_name WHEN '' THEN cyt_user.ds_username ELSE cyt_user.ds_name END AS ds_username FROM cyt_solicitudcategorizacion_estado LEFT JOIN solicitudcategorizacion ON(cyt_solicitudcategorizacion_estado.solicitud_oid = solicitudcategorizacion.cd_solicitud) LEFT JOIN docente ON(solicitudcategorizacion.cd_docente = docente.cd_docente) LEFT JOIN estadocategorizacion ON(cyt_solicitudcategorizacion_estado.estado_oid = estadocategorizacion.cd_estado) LEFT JOIN cyt_user ON(cyt_solicitudcategorizacion_estado.user_oid = cyt_user.oid) WHERE  cyt_solicitudcategorizacion_estado.solicitud_oid = ? AND (fechaHasta is null)
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  string(2) "83"
+}
+
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT solicitudcategorizacion.*, docente.cd_docente as docente_oid , docente.ds_nombre as docente_ds_nombre , docente.ds_apellido as docente_ds_apellido , docente.nu_documento as docente_nu_documento , docente.nu_precuil as docente_nu_precuil , docente.nu_postcuil as docente_nu_postcuil , facultad.cd_facultad as facultad_oid , facultad.ds_facultad as facultad_ds_facultad , FacultadPlanilla.cd_facultad as FacultadPlanilla_oid , FacultadPlanilla.ds_facultad as FacultadPlanilla_ds_facultad , periodo.cd_periodo as periodo_oid , periodo.ds_periodo as periodo_ds_periodo , cat.cd_cat as cat_oid , cat.ds_cat as cat_ds_cat , estadocategorizacion.cd_estado as estadocategorizacion_oid , estadocategorizacion.ds_estado as estadocategorizacion_ds_estado , cyt_solicitudcategorizacion_estado.oid as cyt_solicitudcategorizacion_estado_oid , cyt_solicitudcategorizacion_estado.fechaDesde as cyt_solicitudcategorizacion_estado_fechaDesde , cyt_solicitudcategorizacion_estado.fechaHasta as cyt_solicitudcategorizacion_estado_fechaHasta , unidad.cd_unidad as unidad_oid , unidad.ds_unidad as unidad_ds_unidad , unidad.ds_sigla as unidad_ds_sigla , cargo.cd_cargo as cargo_oid , cargo.ds_cargo as cargo_ds_cargo , deddoc.cd_deddoc as deddoc_oid , deddoc.ds_deddoc as deddoc_ds_deddoc , facultad.cd_facultad as facultad_oid , facultad.ds_facultad as facultad_ds_facultad , LugarTrabajoBeca.cd_unidad as LugarTrabajoBeca_oid , LugarTrabajoBeca.ds_unidad as LugarTrabajoBeca_ds_unidad , LugarTrabajoBeca.ds_sigla as LugarTrabajoBeca_ds_sigla , LugarTrabajoCarrera.cd_unidad as LugarTrabajoCarrera_oid , LugarTrabajoCarrera.ds_unidad as LugarTrabajoCarrera_ds_unidad , LugarTrabajoCarrera.ds_sigla as LugarTrabajoCarrera_ds_sigla , carrerainv.cd_carrerainv as carrerainv_oid , carrerainv.ds_carrerainv as carrerainv_ds_carrerainv , organismo.cd_organismo as organismo_oid , organismo.ds_organismo as organismo_ds_organismo , categoria.cd_categoria as categoria_oid , categoria.ds_categoria as categoria_ds_categoria , equivalencia.cd_equivalencia as equivalencia_oid , equivalencia.ds_equivalencia as equivalencia_ds_equivalencia , categoriasicadi.cd_categoriasicadi as categoriasicadi_oid , categoriasicadi.ds_categoriasicadi as categoriasicadi_ds_categoriasicadi , titulo.cd_titulo as titulo_oid , titulo.ds_titulo as titulo_ds_titulo , Tituloposgrado.cd_titulo as Tituloposgrado_oid , Tituloposgrado.ds_titulo as Tituloposgrado_ds_titulo , area.cd_area as area_oid , area.ds_area as area_ds_area , subarea.cd_subarea as subarea_oid , subarea.ds_subarea as subarea_ds_subarea  FROM solicitudcategorizacion LEFT JOIN facultad FacultadPlanilla ON(solicitudcategorizacion.cd_facultadplanilla = FacultadPlanilla.cd_facultad) LEFT JOIN docente ON(solicitudcategorizacion.cd_docente = docente.cd_docente) LEFT JOIN periodo ON(solicitudcategorizacion.cd_periodo = periodo.cd_periodo) LEFT JOIN cat ON(FacultadPlanilla.cd_cat = cat.cd_cat) LEFT JOIN cyt_solicitudcategorizacion_estado ON(cyt_solicitudcategorizacion_estado.solicitud_oid = solicitudcategorizacion.cd_solicitud) LEFT JOIN estadocategorizacion ON(cyt_solicitudcategorizacion_estado.estado_oid = estadocategorizacion.cd_estado) LEFT JOIN unidad ON(solicitudcategorizacion.cd_unidad = unidad.cd_unidad) LEFT JOIN cargo ON(solicitudcategorizacion.cd_cargo = cargo.cd_cargo) LEFT JOIN deddoc ON(solicitudcategorizacion.cd_deddoc = deddoc.cd_deddoc) LEFT JOIN facultad ON(solicitudcategorizacion.cd_facultad = facultad.cd_facultad) LEFT JOIN unidad LugarTrabajoBeca ON(solicitudcategorizacion.cd_unidadbeca = LugarTrabajoBeca.cd_unidad) LEFT JOIN unidad LugarTrabajoCarrera ON(solicitudcategorizacion.cd_unidadcarrera = LugarTrabajoCarrera.cd_unidad) LEFT JOIN organismo ON(solicitudcategorizacion.cd_organismo = organismo.cd_organismo) LEFT JOIN carrerainv ON(solicitudcategorizacion.cd_carrerainv = carrerainv.cd_carrerainv) LEFT JOIN categoria ON(solicitudcategorizacion.cd_categoria = categoria.cd_categoria) LEFT JOIN equivalencia ON(solicitudcategorizacion.cd_equivalencia = equivalencia.cd_equivalencia) LEFT JOIN categoriasicadi ON(solicitudcategorizacion.cd_categoriasicadi = categoriasicadi.cd_categoriasicadi) LEFT JOIN titulo ON(solicitudcategorizacion.cd_titulogrado = titulo.cd_titulo) LEFT JOIN titulo Tituloposgrado ON(solicitudcategorizacion.cd_tituloposgrado = Tituloposgrado.cd_titulo) LEFT JOIN area ON(solicitudcategorizacion.cd_areacarrera = area.cd_area) LEFT JOIN subarea ON(solicitudcategorizacion.cd_subareacarrera = subarea.cd_subarea) WHERE  solicitudcategorizacion.cd_solicitud = ?
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  string(2) "83"
+}
+
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT cyt_solicitudcategorizacion_estado.*, solicitudcategorizacion.cd_solicitud as solicitudcategorizacion_oid , docente.cd_docente as docente_oid , docente.ds_nombre as docente_ds_nombre , docente.ds_apellido as docente_ds_apellido , estadocategorizacion.cd_estado as estadocategorizacion_oid , estadocategorizacion.ds_estado as estadocategorizacion_ds_estado , cyt_user.oid AS cyt_user_oid, CASE cyt_user.ds_name WHEN '' THEN cyt_user.ds_username ELSE cyt_user.ds_name END AS ds_username FROM cyt_solicitudcategorizacion_estado LEFT JOIN solicitudcategorizacion ON(cyt_solicitudcategorizacion_estado.solicitud_oid = solicitudcategorizacion.cd_solicitud) LEFT JOIN docente ON(solicitudcategorizacion.cd_docente = docente.cd_docente) LEFT JOIN estadocategorizacion ON(cyt_solicitudcategorizacion_estado.estado_oid = estadocategorizacion.cd_estado) LEFT JOIN cyt_user ON(cyt_solicitudcategorizacion_estado.user_oid = cyt_user.oid) WHERE  cyt_solicitudcategorizacion_estado.solicitud_oid = ? AND (fechaHasta is null)
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  string(2) "82"
+}
+
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT solicitudcategorizacion.*, docente.cd_docente as docente_oid , docente.ds_nombre as docente_ds_nombre , docente.ds_apellido as docente_ds_apellido , docente.nu_documento as docente_nu_documento , docente.nu_precuil as docente_nu_precuil , docente.nu_postcuil as docente_nu_postcuil , facultad.cd_facultad as facultad_oid , facultad.ds_facultad as facultad_ds_facultad , FacultadPlanilla.cd_facultad as FacultadPlanilla_oid , FacultadPlanilla.ds_facultad as FacultadPlanilla_ds_facultad , periodo.cd_periodo as periodo_oid , periodo.ds_periodo as periodo_ds_periodo , cat.cd_cat as cat_oid , cat.ds_cat as cat_ds_cat , estadocategorizacion.cd_estado as estadocategorizacion_oid , estadocategorizacion.ds_estado as estadocategorizacion_ds_estado , cyt_solicitudcategorizacion_estado.oid as cyt_solicitudcategorizacion_estado_oid , cyt_solicitudcategorizacion_estado.fechaDesde as cyt_solicitudcategorizacion_estado_fechaDesde , cyt_solicitudcategorizacion_estado.fechaHasta as cyt_solicitudcategorizacion_estado_fechaHasta , unidad.cd_unidad as unidad_oid , unidad.ds_unidad as unidad_ds_unidad , unidad.ds_sigla as unidad_ds_sigla , cargo.cd_cargo as cargo_oid , cargo.ds_cargo as cargo_ds_cargo , deddoc.cd_deddoc as deddoc_oid , deddoc.ds_deddoc as deddoc_ds_deddoc , facultad.cd_facultad as facultad_oid , facultad.ds_facultad as facultad_ds_facultad , LugarTrabajoBeca.cd_unidad as LugarTrabajoBeca_oid , LugarTrabajoBeca.ds_unidad as LugarTrabajoBeca_ds_unidad , LugarTrabajoBeca.ds_sigla as LugarTrabajoBeca_ds_sigla , LugarTrabajoCarrera.cd_unidad as LugarTrabajoCarrera_oid , LugarTrabajoCarrera.ds_unidad as LugarTrabajoCarrera_ds_unidad , LugarTrabajoCarrera.ds_sigla as LugarTrabajoCarrera_ds_sigla , carrerainv.cd_carrerainv as carrerainv_oid , carrerainv.ds_carrerainv as carrerainv_ds_carrerainv , organismo.cd_organismo as organismo_oid , organismo.ds_organismo as organismo_ds_organismo , categoria.cd_categoria as categoria_oid , categoria.ds_categoria as categoria_ds_categoria , equivalencia.cd_equivalencia as equivalencia_oid , equivalencia.ds_equivalencia as equivalencia_ds_equivalencia , categoriasicadi.cd_categoriasicadi as categoriasicadi_oid , categoriasicadi.ds_categoriasicadi as categoriasicadi_ds_categoriasicadi , titulo.cd_titulo as titulo_oid , titulo.ds_titulo as titulo_ds_titulo , Tituloposgrado.cd_titulo as Tituloposgrado_oid , Tituloposgrado.ds_titulo as Tituloposgrado_ds_titulo , area.cd_area as area_oid , area.ds_area as area_ds_area , subarea.cd_subarea as subarea_oid , subarea.ds_subarea as subarea_ds_subarea  FROM solicitudcategorizacion LEFT JOIN facultad FacultadPlanilla ON(solicitudcategorizacion.cd_facultadplanilla = FacultadPlanilla.cd_facultad) LEFT JOIN docente ON(solicitudcategorizacion.cd_docente = docente.cd_docente) LEFT JOIN periodo ON(solicitudcategorizacion.cd_periodo = periodo.cd_periodo) LEFT JOIN cat ON(FacultadPlanilla.cd_cat = cat.cd_cat) LEFT JOIN cyt_solicitudcategorizacion_estado ON(cyt_solicitudcategorizacion_estado.solicitud_oid = solicitudcategorizacion.cd_solicitud) LEFT JOIN estadocategorizacion ON(cyt_solicitudcategorizacion_estado.estado_oid = estadocategorizacion.cd_estado) LEFT JOIN unidad ON(solicitudcategorizacion.cd_unidad = unidad.cd_unidad) LEFT JOIN cargo ON(solicitudcategorizacion.cd_cargo = cargo.cd_cargo) LEFT JOIN deddoc ON(solicitudcategorizacion.cd_deddoc = deddoc.cd_deddoc) LEFT JOIN facultad ON(solicitudcategorizacion.cd_facultad = facultad.cd_facultad) LEFT JOIN unidad LugarTrabajoBeca ON(solicitudcategorizacion.cd_unidadbeca = LugarTrabajoBeca.cd_unidad) LEFT JOIN unidad LugarTrabajoCarrera ON(solicitudcategorizacion.cd_unidadcarrera = LugarTrabajoCarrera.cd_unidad) LEFT JOIN organismo ON(solicitudcategorizacion.cd_organismo = organismo.cd_organismo) LEFT JOIN carrerainv ON(solicitudcategorizacion.cd_carrerainv = carrerainv.cd_carrerainv) LEFT JOIN categoria ON(solicitudcategorizacion.cd_categoria = categoria.cd_categoria) LEFT JOIN equivalencia ON(solicitudcategorizacion.cd_equivalencia = equivalencia.cd_equivalencia) LEFT JOIN categoriasicadi ON(solicitudcategorizacion.cd_categoriasicadi = categoriasicadi.cd_categoriasicadi) LEFT JOIN titulo ON(solicitudcategorizacion.cd_titulogrado = titulo.cd_titulo) LEFT JOIN titulo Tituloposgrado ON(solicitudcategorizacion.cd_tituloposgrado = Tituloposgrado.cd_titulo) LEFT JOIN area ON(solicitudcategorizacion.cd_areacarrera = area.cd_area) LEFT JOIN subarea ON(solicitudcategorizacion.cd_subareacarrera = subarea.cd_subarea) WHERE  solicitudcategorizacion.cd_solicitud = ?
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  string(2) "82"
+}
+
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT cyt_solicitudcategorizacion_estado.*, solicitudcategorizacion.cd_solicitud as solicitudcategorizacion_oid , docente.cd_docente as docente_oid , docente.ds_nombre as docente_ds_nombre , docente.ds_apellido as docente_ds_apellido , estadocategorizacion.cd_estado as estadocategorizacion_oid , estadocategorizacion.ds_estado as estadocategorizacion_ds_estado , cyt_user.oid AS cyt_user_oid, CASE cyt_user.ds_name WHEN '' THEN cyt_user.ds_username ELSE cyt_user.ds_name END AS ds_username FROM cyt_solicitudcategorizacion_estado LEFT JOIN solicitudcategorizacion ON(cyt_solicitudcategorizacion_estado.solicitud_oid = solicitudcategorizacion.cd_solicitud) LEFT JOIN docente ON(solicitudcategorizacion.cd_docente = docente.cd_docente) LEFT JOIN estadocategorizacion ON(cyt_solicitudcategorizacion_estado.estado_oid = estadocategorizacion.cd_estado) LEFT JOIN cyt_user ON(cyt_solicitudcategorizacion_estado.user_oid = cyt_user.oid) WHERE  cyt_solicitudcategorizacion_estado.solicitud_oid = ? AND (fechaHasta is null)
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  string(2) "81"
+}
+
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT solicitudcategorizacion.*, docente.cd_docente as docente_oid , docente.ds_nombre as docente_ds_nombre , docente.ds_apellido as docente_ds_apellido , docente.nu_documento as docente_nu_documento , docente.nu_precuil as docente_nu_precuil , docente.nu_postcuil as docente_nu_postcuil , facultad.cd_facultad as facultad_oid , facultad.ds_facultad as facultad_ds_facultad , FacultadPlanilla.cd_facultad as FacultadPlanilla_oid , FacultadPlanilla.ds_facultad as FacultadPlanilla_ds_facultad , periodo.cd_periodo as periodo_oid , periodo.ds_periodo as periodo_ds_periodo , cat.cd_cat as cat_oid , cat.ds_cat as cat_ds_cat , estadocategorizacion.cd_estado as estadocategorizacion_oid , estadocategorizacion.ds_estado as estadocategorizacion_ds_estado , cyt_solicitudcategorizacion_estado.oid as cyt_solicitudcategorizacion_estado_oid , cyt_solicitudcategorizacion_estado.fechaDesde as cyt_solicitudcategorizacion_estado_fechaDesde , cyt_solicitudcategorizacion_estado.fechaHasta as cyt_solicitudcategorizacion_estado_fechaHasta , unidad.cd_unidad as unidad_oid , unidad.ds_unidad as unidad_ds_unidad , unidad.ds_sigla as unidad_ds_sigla , cargo.cd_cargo as cargo_oid , cargo.ds_cargo as cargo_ds_cargo , deddoc.cd_deddoc as deddoc_oid , deddoc.ds_deddoc as deddoc_ds_deddoc , facultad.cd_facultad as facultad_oid , facultad.ds_facultad as facultad_ds_facultad , LugarTrabajoBeca.cd_unidad as LugarTrabajoBeca_oid , LugarTrabajoBeca.ds_unidad as LugarTrabajoBeca_ds_unidad , LugarTrabajoBeca.ds_sigla as LugarTrabajoBeca_ds_sigla , LugarTrabajoCarrera.cd_unidad as LugarTrabajoCarrera_oid , LugarTrabajoCarrera.ds_unidad as LugarTrabajoCarrera_ds_unidad , LugarTrabajoCarrera.ds_sigla as LugarTrabajoCarrera_ds_sigla , carrerainv.cd_carrerainv as carrerainv_oid , carrerainv.ds_carrerainv as carrerainv_ds_carrerainv , organismo.cd_organismo as organismo_oid , organismo.ds_organismo as organismo_ds_organismo , categoria.cd_categoria as categoria_oid , categoria.ds_categoria as categoria_ds_categoria , equivalencia.cd_equivalencia as equivalencia_oid , equivalencia.ds_equivalencia as equivalencia_ds_equivalencia , categoriasicadi.cd_categoriasicadi as categoriasicadi_oid , categoriasicadi.ds_categoriasicadi as categoriasicadi_ds_categoriasicadi , titulo.cd_titulo as titulo_oid , titulo.ds_titulo as titulo_ds_titulo , Tituloposgrado.cd_titulo as Tituloposgrado_oid , Tituloposgrado.ds_titulo as Tituloposgrado_ds_titulo , area.cd_area as area_oid , area.ds_area as area_ds_area , subarea.cd_subarea as subarea_oid , subarea.ds_subarea as subarea_ds_subarea  FROM solicitudcategorizacion LEFT JOIN facultad FacultadPlanilla ON(solicitudcategorizacion.cd_facultadplanilla = FacultadPlanilla.cd_facultad) LEFT JOIN docente ON(solicitudcategorizacion.cd_docente = docente.cd_docente) LEFT JOIN periodo ON(solicitudcategorizacion.cd_periodo = periodo.cd_periodo) LEFT JOIN cat ON(FacultadPlanilla.cd_cat = cat.cd_cat) LEFT JOIN cyt_solicitudcategorizacion_estado ON(cyt_solicitudcategorizacion_estado.solicitud_oid = solicitudcategorizacion.cd_solicitud) LEFT JOIN estadocategorizacion ON(cyt_solicitudcategorizacion_estado.estado_oid = estadocategorizacion.cd_estado) LEFT JOIN unidad ON(solicitudcategorizacion.cd_unidad = unidad.cd_unidad) LEFT JOIN cargo ON(solicitudcategorizacion.cd_cargo = cargo.cd_cargo) LEFT JOIN deddoc ON(solicitudcategorizacion.cd_deddoc = deddoc.cd_deddoc) LEFT JOIN facultad ON(solicitudcategorizacion.cd_facultad = facultad.cd_facultad) LEFT JOIN unidad LugarTrabajoBeca ON(solicitudcategorizacion.cd_unidadbeca = LugarTrabajoBeca.cd_unidad) LEFT JOIN unidad LugarTrabajoCarrera ON(solicitudcategorizacion.cd_unidadcarrera = LugarTrabajoCarrera.cd_unidad) LEFT JOIN organismo ON(solicitudcategorizacion.cd_organismo = organismo.cd_organismo) LEFT JOIN carrerainv ON(solicitudcategorizacion.cd_carrerainv = carrerainv.cd_carrerainv) LEFT JOIN categoria ON(solicitudcategorizacion.cd_categoria = categoria.cd_categoria) LEFT JOIN equivalencia ON(solicitudcategorizacion.cd_equivalencia = equivalencia.cd_equivalencia) LEFT JOIN categoriasicadi ON(solicitudcategorizacion.cd_categoriasicadi = categoriasicadi.cd_categoriasicadi) LEFT JOIN titulo ON(solicitudcategorizacion.cd_titulogrado = titulo.cd_titulo) LEFT JOIN titulo Tituloposgrado ON(solicitudcategorizacion.cd_tituloposgrado = Tituloposgrado.cd_titulo) LEFT JOIN area ON(solicitudcategorizacion.cd_areacarrera = area.cd_area) LEFT JOIN subarea ON(solicitudcategorizacion.cd_subareacarrera = subarea.cd_subarea) WHERE  solicitudcategorizacion.cd_solicitud = ?
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  string(2) "81"
+}
+
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT cyt_solicitudcategorizacion_estado.*, solicitudcategorizacion.cd_solicitud as solicitudcategorizacion_oid , docente.cd_docente as docente_oid , docente.ds_nombre as docente_ds_nombre , docente.ds_apellido as docente_ds_apellido , estadocategorizacion.cd_estado as estadocategorizacion_oid , estadocategorizacion.ds_estado as estadocategorizacion_ds_estado , cyt_user.oid AS cyt_user_oid, CASE cyt_user.ds_name WHEN '' THEN cyt_user.ds_username ELSE cyt_user.ds_name END AS ds_username FROM cyt_solicitudcategorizacion_estado LEFT JOIN solicitudcategorizacion ON(cyt_solicitudcategorizacion_estado.solicitud_oid = solicitudcategorizacion.cd_solicitud) LEFT JOIN docente ON(solicitudcategorizacion.cd_docente = docente.cd_docente) LEFT JOIN estadocategorizacion ON(cyt_solicitudcategorizacion_estado.estado_oid = estadocategorizacion.cd_estado) LEFT JOIN cyt_user ON(cyt_solicitudcategorizacion_estado.user_oid = cyt_user.oid) WHERE  cyt_solicitudcategorizacion_estado.solicitud_oid = ? AND (fechaHasta is null)
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  string(2) "78"
+}
+
+2023-10-24T10:01:45-03:00 DEBUG GenericDAO SELECT solicitudcategorizacion.*, docente.cd_docente as docente_oid , docente.ds_nombre as docente_ds_nombre , docente.ds_apellido as docente_ds_apellido , docente.nu_documento as docente_nu_documento , docente.nu_precuil as docente_nu_precuil , docente.nu_postcuil as docente_nu_postcuil , facultad.cd_facultad as facultad_oid , facultad.ds_facultad as facultad_ds_facultad , FacultadPlanilla.cd_facultad as FacultadPlanilla_oid , FacultadPlanilla.ds_facultad as FacultadPlanilla_ds_facultad , periodo.cd_periodo as periodo_oid , periodo.ds_periodo as periodo_ds_periodo , cat.cd_cat as cat_oid , cat.ds_cat as cat_ds_cat , estadocategorizacion.cd_estado as estadocategorizacion_oid , estadocategorizacion.ds_estado as estadocategorizacion_ds_estado , cyt_solicitudcategorizacion_estado.oid as cyt_solicitudcategorizacion_estado_oid , cyt_solicitudcategorizacion_estado.fechaDesde as cyt_solicitudcategorizacion_estado_fechaDesde , cyt_solicitudcategorizacion_estado.fechaHasta as cyt_solicitudcategorizacion_estado_fechaHasta , unidad.cd_unidad as unidad_oid , unidad.ds_unidad as unidad_ds_unidad , unidad.ds_sigla as unidad_ds_sigla , cargo.cd_cargo as cargo_oid , cargo.ds_cargo as cargo_ds_cargo , deddoc.cd_deddoc as deddoc_oid , deddoc.ds_deddoc as deddoc_ds_deddoc , facultad.cd_facultad as facultad_oid , facultad.ds_facultad as facultad_ds_facultad , LugarTrabajoBeca.cd_unidad as LugarTrabajoBeca_oid , LugarTrabajoBeca.ds_unidad as LugarTrabajoBeca_ds_unidad , LugarTrabajoBeca.ds_sigla as LugarTrabajoBeca_ds_sigla , LugarTrabajoCarrera.cd_unidad as LugarTrabajoCarrera_oid , LugarTrabajoCarrera.ds_unidad as LugarTrabajoCarrera_ds_unidad , LugarTrabajoCarrera.ds_sigla as LugarTrabajoCarrera_ds_sigla , carrerainv.cd_carrerainv as carrerainv_oid , carrerainv.ds_carrerainv as carrerainv_ds_carrerainv , organismo.cd_organismo as organismo_oid , organismo.ds_organismo as organismo_ds_organismo , categoria.cd_categoria as categoria_oid , categoria.ds_categoria as categoria_ds_categoria , equivalencia.cd_equivalencia as equivalencia_oid , equivalencia.ds_equivalencia as equivalencia_ds_equivalencia , categoriasicadi.cd_categoriasicadi as categoriasicadi_oid , categoriasicadi.ds_categoriasicadi as categoriasicadi_ds_categoriasicadi , titulo.cd_titulo as titulo_oid , titulo.ds_titulo as titulo_ds_titulo , Tituloposgrado.cd_titulo as Tituloposgrado_oid , Tituloposgrado.ds_titulo as Tituloposgrado_ds_titulo , area.cd_area as area_oid , area.ds_area as area_ds_area , subarea.cd_subarea as subarea_oid , subarea.ds_subarea as subarea_ds_subarea  FROM solicitudcategorizacion LEFT JOIN facultad FacultadPlanilla ON(solicitudcategorizacion.cd_facultadplanilla = FacultadPlanilla.cd_facultad) LEFT JOIN docente ON(solicitudcategorizacion.cd_docente = docente.cd_docente) LEFT JOIN periodo ON(solicitudcategorizacion.cd_periodo = periodo.cd_periodo) LEFT JOIN cat ON(FacultadPlanilla.cd_cat = cat.cd_cat) LEFT JOIN cyt_solicitudcategorizacion_estado ON(cyt_solicitudcategorizacion_estado.solicitud_oid = solicitudcategorizacion.cd_solicitud) LEFT JOIN estadocategorizacion ON(cyt_solicitudcategorizacion_estado.estado_oid = estadocategorizacion.cd_estado) LEFT JOIN unidad ON(solicitudcategorizacion.cd_unidad = unidad.cd_unidad) LEFT JOIN cargo ON(solicitudcategorizacion.cd_cargo = cargo.cd_cargo) LEFT JOIN deddoc ON(solicitudcategorizacion.cd_deddoc = deddoc.cd_deddoc) LEFT JOIN facultad ON(solicitudcategorizacion.cd_facultad = facultad.cd_facultad) LEFT JOIN unidad LugarTrabajoBeca ON(solicitudcategorizacion.cd_unidadbeca = LugarTrabajoBeca.cd_unidad) LEFT JOIN unidad LugarTrabajoCarrera ON(solicitudcategorizacion.cd_unidadcarrera = LugarTrabajoCarrera.cd_unidad) LEFT JOIN organismo ON(solicitudcategorizacion.cd_organismo = organismo.cd_organismo) LEFT JOIN carrerainv ON(solicitudcategorizacion.cd_carrerainv = carrerainv.cd_carrerainv) LEFT JOIN categoria ON(solicitudcategorizacion.cd_categoria = categoria.cd_categoria) LEFT JOIN equivalencia ON(solicitudcategorizacion.cd_equivalencia = equivalencia.cd_equivalencia) LEFT JOIN categoriasicadi ON(solicitudcategorizacion.cd_categoriasicadi = categoriasicadi.cd_categoriasicadi) LEFT JOIN titulo ON(solicitudcategorizacion.cd_titulogrado = titulo.cd_titulo) LEFT JOIN titulo Tituloposgrado ON(solicitudcategorizacion.cd_tituloposgrado = Tituloposgrado.cd_titulo) LEFT JOIN area ON(solicitudcategorizacion.cd_areacarrera = area.cd_area) LEFT JOIN subarea ON(solicitudcategorizacion.cd_subareacarrera = subarea.cd_subarea) WHERE  solicitudcategorizacion.cd_solicitud = ?
+2023-10-24T10:01:45-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  string(2) "78"
+}
+
+2023-10-24T10:01:45-03:00 DEBUG CdtActionController acción ejecutada
+2023-10-24T10:01:45-03:00 DEBUG CdtActionController Terminando controller
+2023-10-24T10:01:49-03:00 DEBUG CdtUtils execute controller
+2023-10-24T10:01:49-03:00 DEBUG CdtActionController acción a ejecutar AddSolicitudInitAction
+2023-10-24T10:01:49-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  int(1)
+}
+
+2023-10-24T10:01:49-03:00 DEBUG GenericDAO SELECT unidad.*, PADRE.cd_unidad as PADRE_cd_unidad , PADRE.ds_unidad as PADRE_ds_unidad , PADRE.ds_sigla as PADRE_ds_sigla  FROM unidad LEFT JOIN unidad PADRE ON(unidad.cd_padre = PADRE.cd_unidad) WHERE  unidad.bl_activa = ? ORDER BY unidad. ds_unidad ASC , unidad. cd_unidad ASC 
+2023-10-24T10:01:49-03:00 DEBUG CdtUtils array(13) {
+  [0]=>
+  int(1)
+  [1]=>
+  int(2)
+  [2]=>
+  int(3)
+  [3]=>
+  int(4)
+  [4]=>
+  int(5)
+  [5]=>
+  int(7)
+  [6]=>
+  int(8)
+  [7]=>
+  int(9)
+  [8]=>
+  int(10)
+  [9]=>
+  int(11)
+  [10]=>
+  int(12)
+  [11]=>
+  int(13)
+  [12]=>
+  int(14)
+}
+
+2023-10-24T10:01:49-03:00 DEBUG GenericDAO SELECT cargo.* FROM cargo WHERE  (cd_cargo IN (?,?,?,?,?,?,?,?,?,?,?,?,?)) ORDER BY cargo. nu_orden ASC 
+2023-10-24T10:01:49-03:00 DEBUG CdtUtils array(17) {
+  [0]=>
+  int(165)
+  [1]=>
+  int(167)
+  [2]=>
+  int(168)
+  [3]=>
+  int(169)
+  [4]=>
+  int(170)
+  [5]=>
+  int(171)
+  [6]=>
+  int(172)
+  [7]=>
+  int(173)
+  [8]=>
+  int(174)
+  [9]=>
+  int(175)
+  [10]=>
+  int(176)
+  [11]=>
+  int(177)
+  [12]=>
+  int(179)
+  [13]=>
+  int(180)
+  [14]=>
+  int(181)
+  [15]=>
+  int(187)
+  [16]=>
+  int(1220)
+}
+
+2023-10-24T10:01:49-03:00 DEBUG GenericDAO SELECT facultad.*, cat.cd_cat as cat_oid , cat.ds_cat as cat_ds_cat  FROM facultad LEFT JOIN cat ON(facultad.cd_cat = cat.cd_cat) WHERE  (cd_facultad IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)) ORDER BY facultad. cd_facultad ASC 
+2023-10-24T10:01:49-03:00 DEBUG CdtUtils array(5) {
+  [0]=>
+  int(6)
+  [1]=>
+  int(7)
+  [2]=>
+  int(8)
+  [3]=>
+  int(9)
+  [4]=>
+  int(10)
+}
+
+2023-10-24T10:01:49-03:00 DEBUG GenericDAO SELECT categoria.* FROM categoria WHERE  (cd_categoria IN (?,?,?,?,?)) ORDER BY categoria. cd_categoria ASC 
+2023-10-24T10:01:49-03:00 DEBUG CdtUtils array(0) {
+}
+
+2023-10-24T10:01:49-03:00 DEBUG GenericDAO SELECT categoriasicadi.* FROM categoriasicadi ORDER BY categoriasicadi. cd_categoriasicadi ASC 
+2023-10-24T10:01:49-03:00 DEBUG CdtUtils array(0) {
+}
+
+2023-10-24T10:01:49-03:00 DEBUG GenericDAO SELECT equivalencia.* FROM equivalencia ORDER BY equivalencia. ds_equivalencia ASC 
+2023-10-24T10:01:49-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  int(1)
+}
+
+2023-10-24T10:01:49-03:00 DEBUG GenericDAO SELECT unidad.*, PADRE.cd_unidad as PADRE_cd_unidad , PADRE.ds_unidad as PADRE_ds_unidad , PADRE.ds_sigla as PADRE_ds_sigla  FROM unidad LEFT JOIN unidad PADRE ON(unidad.cd_padre = PADRE.cd_unidad) WHERE  unidad.bl_activa = ? ORDER BY unidad. ds_unidad ASC , unidad. cd_unidad ASC 
+2023-10-24T10:01:49-03:00 DEBUG CdtUtils array(2) {
+  [0]=>
+  int(1)
+  [1]=>
+  int(2)
+}
+
+2023-10-24T10:01:49-03:00 DEBUG GenericDAO SELECT organismo.* FROM organismo WHERE  (cd_organismo IN (?,?)) ORDER BY organismo. cd_organismo ASC 
+2023-10-24T10:01:49-03:00 DEBUG CdtUtils array(1) {
+  [0]=>
+  int(1)
+}
+
+2023-10-24T10:01:49-03:00 DEBUG GenericDAO SELECT unidad.*, PADRE.cd_unidad as PADRE_cd_unidad , PADRE.ds_unidad as PADRE_ds_unidad , PADRE.ds_sigla as PADRE_ds_sigla  FROM unidad LEFT JOIN unidad PADRE ON(unidad.cd_padre = PADRE.cd_unidad) WHERE  unidad.bl_activa = ? ORDER BY unidad. ds_unidad ASC , unidad. cd_unidad ASC 
+2023-10-24T10:01:49-03:00 DEBUG CdtUtils array(0) {
+}
+
+2023-10-24T10:01:49-03:00 DEBUG GenericDAO SELECT area.* FROM area ORDER BY area. ds_area ASC 
+2023-10-24T10:01:49-03:00 DEBUG CdtUtils array(0) {
+}
+
+2023-10-24T10:01:49-03:00 DEBUG GenericDAO SELECT subarea.* FROM subarea ORDER BY subarea. cd_subarea ASC 
+2023-10-24T10:01:49-03:00 DEBUG CdtUtils array(17) {
+  [0]=>
+  int(165)
+  [1]=>
+  int(167)
+  [2]=>
+  int(168)
+  [3]=>
+  int(169)
+  [4]=>
+  int(170)
+  [5]=>
+  int(171)
+  [6]=>
+  int(172)
+  [7]=>
+  int(173)
+  [8]=>
+  int(174)
+  [9]=>
+  int(175)
+  [10]=>
+  int(176)
+  [11]=>
+  int(177)
+  [12]=>
+  int(179)
+  [13]=>
+  int(180)
+  [14]=>
+  int(181)
+  [15]=>
+  int(187)
+  [16]=>
+  int(1220)
+}
+
+2023-10-24T10:01:49-03:00 DEBUG GenericDAO SELECT facultad.*, cat.cd_cat as cat_oid , cat.ds_cat as cat_ds_cat  FROM facultad LEFT JOIN cat ON(facultad.cd_cat = cat.cd_cat) WHERE  (cd_facultad IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)) ORDER BY facultad. cd_facultad ASC 
+2023-10-24T10:01:49-03:00 DEBUG CdtActionController Filtros aplicados
+2023-10-24T10:01:49-03:00 DEBUG CdtActionController acción ejecutada
+2023-10-24T10:01:49-03:00 DEBUG CdtActionController Terminando controller
+2023-10-24T10:01:50-03:00 DEBUG CdtUtils execute controller
+2023-10-24T10:01:50-03:00 DEBUG CdtActionController acción a ejecutar AddSolicitudAreaSubareaAction
+2023-10-24T10:01:50-03:00 DEBUG CdtActionController Filtros aplicados
+2023-10-24T10:01:50-03:00 DEBUG CdtUtils array(0) {
+}
+
+2023-10-24T10:01:50-03:00 DEBUG GenericDAO SELECT subarea.* FROM subarea ORDER BY subarea. cd_subarea ASC 
+2023-10-24T10:01:50-03:00 DEBUG CdtActionController acción ejecutada
+2023-10-24T10:01:50-03:00 DEBUG CdtActionController Terminando controller
+2023-10-24T10:01:50-03:00 DEBUG CdtUtils execute controller
+2023-10-24T10:01:50-03:00 DEBUG CdtActionController acción a ejecutar AddSolicitudCategoriaEquivalenciaAction
+2023-10-24T10:01:50-03:00 DEBUG CdtActionController Filtros aplicados
+2023-10-24T10:01:50-03:00 DEBUG CdtUtils array(0) {
+}
+
+2023-10-24T10:01:50-03:00 DEBUG GenericDAO SELECT categoriasicadi.* FROM categoriasicadi ORDER BY categoriasicadi. cd_categoriasicadi ASC 
+2023-10-24T10:01:50-03:00 DEBUG CdtActionController acción ejecutada
+2023-10-24T10:01:50-03:00 DEBUG CdtActionController Terminando controller
+2023-10-24T10:02:02-03:00 DEBUG CdtUtils execute controller
+2023-10-24T10:02:02-03:00 DEBUG CdtActionController acción a ejecutar AddSolicitudTipoBecaAction
+2023-10-24T10:02:02-03:00 DEBUG CdtActionController Filtros aplicados
+2023-10-24T10:02:02-03:00 DEBUG CdtActionController acción ejecutada
+2023-10-24T10:02:02-03:00 DEBUG CdtActionController Terminando controller

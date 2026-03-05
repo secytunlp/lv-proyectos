@@ -1,0 +1,256 @@
+----------------------------------------
+Instalación del módulo codnet_secure
+----------------------------------------
+
+1) definir las siguientes constantes
+
+define( CDT_SECURE_PATH, APP_PATH . CLASS_PATH . 'cdt_secure' );
+define( CDT_SECURE_LOGIN_TITLE, 'Mi APP' );
+define( CDT_SECURE_LOGIN_SUBTITLE, 'descripción de Mi APP' );
+define( CDT_SECURE_REGISTER_TITLE, 'Mi APP' );
+define( CDT_SECURE_REGISTER_SUBTITLE, 'descripción de Mi APP' );
+define( CDT_SECURE_PERFIL_DEFAULT_ID, id_perfil_default ) ;
+
+2) agregar el módulo al CLASS_PATH
+
+	$classpath[] =  CDT_SECURE_PATH ;
+	$classpath[] =  ...
+	define ( 'CLASS_PATH', implode(",", $classpath)  );
+
+
+
+3) incluir el archivo de configuración del módulo.
+
+include_once (CDT_SECURE_PATH . '/conf/init.php' )
+
+4) ejecutar el script script_secure.sql para crear tablas en la base de datos
+
+5) mapear las acciones en el archivo de configuraci�n de la aplicaci�n "navigation.xml":
+
+
+	<!-- ********************************* -->
+	<!-- cdt_secure -->
+	<!-- ********************************* -->
+
+	<!-- inicio y login -->
+	<action name='login_init' class='CdtLoginInitAction' />
+	<action name='login' class='CdtLoginAction' />
+	<forward name='login_success' url='doAction?action=home' />
+	<forward name='login_error' url='doAction?action=login_init' />
+
+	<action name='home' class='SmilePanelAction' currentMenuGroup='' />
+	<action name='exit' class='CdtExitAction' />
+	<forward name='exit_success' url='doAction?action=login_init' />
+
+	<!-- registracion -->
+	<action name='signup_init' class='CdtSignupInitAction' />
+    <action name='signup' class='CdtSignupAction' />
+    <action name='signup_success' class='CdtSignupSuccessAction' />
+    <action name='activate_registration' class='ActivateCdtRegistrationAction' />
+    <action name='activate_registration_success' class='ActivateCdtRegistrationSuccessAction' />
+    <action name='terms_conditions' class='CdtTermsAndConditionsAction' />
+    
+    <forward name='signup_error' url='doAction?action=signup_init' />
+    <forward name='signup_success' url='doAction?action=signup_success' />
+    <forward name='activate_registration_error' url='doAction?action=error' />
+    <forward name='activate_registration_success' url='doAction?action=activate_registration_success' />
+
+	<!-- solicitud de nueva contraseña -->
+	<action name='forgot_password_init' class='CdtForgotPasswordInitAction' />
+    <action name='forgot_password' class='CdtForgotPasswordAction' />
+    <action name='forgot_password_success' class='CdtForgotPasswordSuccessAction' />
+    
+    <forward name='forgot_password_error' url='doAction?action=forgot_password_init' />
+    <forward name='forgot_password_success' url='doAction?action=forgot_password_success' />
+
+	<!-- CdtActionFunctions -->
+	<action name='list_cdtactionfunctions' class='ListCdtActionFunctionsAction'
+		activeMenuGroup='10' />
+	<action name='add_cdtactionfunction' class='AddCdtActionFunctionAction' />
+	<action name='add_cdtactionfunction_init' class='AddCdtActionFunctionInitAction' />
+	<action name='update_cdtactionfunction' class='UpdateCdtActionFunctionAction' />
+	<action name='update_cdtactionfunction_init' class='UpdateCdtActionFunctionInitAction' />
+	<action name='view_cdtactionfunction' class='ViewCdtActionFunctionAction' />
+	<action name='delete_cdtactionfunction' class='DeleteCdtActionFunctionAction' />
+	<action name='pdf_cdtactionfunctions' class='PDFCdtActionFunctionsAction' />
+	<action name='xls_cdtactionfunctions' class='XlsCdtActionFunctionsAction' />
+
+	<forward name='add_cdtactionfunction_success' url='doAction?action=list_cdtactionfunctions' />
+	<forward name='add_cdtactionfunction_error' url='doAction?action=add_cdtactionfunction_init' />
+	<forward name='update_cdtactionfunction_success' url='doAction?action=list_cdtactionfunctions' />
+	<forward name='update_cdtactionfunction_error' url='doAction?action=add_cdtactionfunction_init' />
+	<forward name='delete_cdtactionfunction_success' url='doAction?action=list_cdtactionfunctions' />
+	<forward name='delete_cdtactionfunction_error' url='doAction?action=list_cdtactionfunctions' />
+	<forward name='list_cdtactionfunction_error' url='doAction?action=list_cdtactionfunctions' />
+	<forward name='pdf_cdtactionfunction_error' url='doAction?action=list_cdtactionfunctions' />
+	<forward name='xls_cdtactionfunction_error' url='doAction?action=list_cdtactionfunctions' />
+
+
+	<!-- CdtFunctions -->
+	<action name='list_cdtfunctions' class='ListCdtFunctionsAction'
+		currentMenuGroup='1' />
+	<action name='add_cdtfunction' class='AddCdtFunctionAction' />
+	<action name='add_cdtfunction_init' class='AddCdtFunctionInitAction' />
+	<action name='update_cdtfunction' class='UpdateCdtFunctionAction' />
+	<action name='update_cdtfunction_init' class='UpdateCdtFunctionInitAction' />
+	<action name='view_cdtfunction' class='ViewCdtFunctionAction' />
+	<action name='delete_cdtfunction' class='DeleteCdtFunctionAction' />
+	<action name='pdf_cdtfunctions' class='PDFCdtFunctionsAction' />
+	<action name='xls_cdtfunctions' class='XlsCdtFunctionsAction' />
+
+	<forward name='add_cdtfunction_success' url='doAction?action=list_cdtfunctions' />
+	<forward name='add_cdtfunction_error' url='doAction?action=add_cdtfunction_init' />
+	<forward name='update_cdtfunction_success' url='doAction?action=list_cdtfunctions' />
+	<forward name='update_cdtfunction_error' url='doAction?action=add_cdtfunction_init' />
+	<forward name='delete_cdtfunction_success' url='doAction?action=list_cdtfunctions' />
+	<forward name='delete_cdtfunction_error' url='doAction?action=list_cdtfunctions' />
+	<forward name='list_cdtfunction_error' url='doAction?action=list_cdtfunctions' />
+	<forward name='pdf_cdtfunction_error' url='doAction?action=list_cdtfunctions' />
+	<forward name='xls_cdtfunction_error' url='doAction?action=list_cdtfunctions' />
+
+
+	<!-- CdtMenuGroups -->
+	<action name='list_cdtmenugroups' class='ListCdtMenuGroupsAction'
+		currentMenuGroup='1' />
+	<action name='add_cdtmenugroup' class='AddCdtMenuGroupAction' />
+	<action name='add_cdtmenugroup_init' class='AddCdtMenuGroupInitAction' />
+	<action name='update_cdtmenugroup' class='UpdateCdtMenuGroupAction' />
+	<action name='update_cdtmenugroup_init' class='UpdateCdtMenuGroupInitAction' />
+	<action name='view_cdtmenugroup' class='ViewCdtMenuGroupAction' />
+	<action name='delete_cdtmenugroup' class='DeleteCdtMenuGroupAction' />
+	<action name='pdf_cdtmenugroups' class='PDFCdtMenuGroupsAction' />
+	<action name='xls_cdtmenugroups' class='XlsCdtMenuGroupsAction' />
+
+	<forward name='add_cdtmenugroup_success' url='doAction?action=list_cdtmenugroups' />
+	<forward name='add_cdtmenugroup_error' url='doAction?action=add_cdtmenugroup_init' />
+	<forward name='update_cdtmenugroup_success' url='doAction?action=list_cdtmenugroups' />
+	<forward name='update_cdtmenugroup_error' url='doAction?action=add_cdtmenugroup_init' />
+	<forward name='delete_cdtmenugroup_success' url='doAction?action=list_cdtmenugroups' />
+	<forward name='delete_cdtmenugroup_error' url='doAction?action=list_cdtmenugroups' />
+	<forward name='list_cdtmenugroup_error' url='doAction?action=list_cdtmenugroups' />
+	<forward name='pdf_cdtmenugroup_error' url='doAction?action=list_cdtmenugroups' />
+	<forward name='xls_cdtmenugroup_error' url='doAction?action=list_cdtmenugroups' />
+
+
+	<!-- CdtMenuOptions -->
+	<action name='list_cdtmenuoptions' class='ListCdtMenuOptionsAction'
+		currentMenuGroup='1' />
+	<action name='add_cdtmenuoption' class='AddCdtMenuOptionAction' />
+	<action name='add_cdtmenuoption_init' class='AddCdtMenuOptionInitAction' />
+	<action name='update_cdtmenuoption' class='UpdateCdtMenuOptionAction' />
+	<action name='update_cdtmenuoption_init' class='UpdateCdtMenuOptionInitAction' />
+	<action name='view_cdtmenuoption' class='ViewCdtMenuOptionAction' />
+	<action name='delete_cdtmenuoption' class='DeleteCdtMenuOptionAction' />
+	<action name='pdf_cdtmenuoptions' class='PDFCdtMenuOptionsAction' />
+	<action name='xls_cdtmenuoptions' class='XlsCdtMenuOptionsAction' />
+
+	<forward name='add_cdtmenuoption_success' url='doAction?action=list_cdtmenuoptions' />
+	<forward name='add_cdtmenuoption_error' url='doAction?action=add_cdtmenuoption_init' />
+	<forward name='update_cdtmenuoption_success' url='doAction?action=list_cdtmenuoptions' />
+	<forward name='update_cdtmenuoption_error' url='doAction?action=add_cdtmenuoption_init' />
+	<forward name='delete_cdtmenuoption_success' url='doAction?action=list_cdtmenuoptions' />
+	<forward name='delete_cdtmenuoption_error' url='doAction?action=list_cdtmenuoptions' />
+	<forward name='list_cdtmenuoption_error' url='doAction?action=list_cdtmenuoptions' />
+	<forward name='pdf_cdtmenuoption_error' url='doAction?action=list_cdtmenuoptions' />
+	<forward name='xls_cdtmenuoption_error' url='doAction?action=list_cdtmenuoptions' />
+
+
+	<!-- CdtRegistrations -->
+	<action name='list_cdtregistrations' class='ListCdtRegistrationsAction'
+		currentMenuGroup='1' />
+	<action name='add_cdtregistration' class='AddCdtRegistrationAction' />
+	<action name='add_cdtregistration_init' class='AddCdtRegistrationInitAction' />
+	<action name='update_cdtregistration' class='UpdateCdtRegistrationAction' />
+	<action name='update_cdtregistration_init' class='UpdateCdtRegistrationInitAction' />
+	<action name='view_cdtregistration' class='ViewCdtRegistrationAction' />
+	<action name='delete_cdtregistration' class='DeleteCdtRegistrationAction' />
+	<action name='pdf_cdtregistrations' class='PDFCdtRegistrationsAction' />
+	<action name='xls_cdtregistrations' class='XlsCdtRegistrationsAction' />
+
+	<forward name='add_cdtregistration_success' url='doAction?action=list_cdtregistrations' />
+	<forward name='add_cdtregistration_error' url='doAction?action=add_cdtregistration_init' />
+	<forward name='update_cdtregistration_success' url='doAction?action=list_cdtregistrations' />
+	<forward name='update_cdtregistration_error' url='doAction?action=add_cdtregistration_init' />
+	<forward name='delete_cdtregistration_success' url='doAction?action=list_cdtregistrations' />
+	<forward name='delete_cdtregistration_error' url='doAction?action=list_cdtregistrations' />
+	<forward name='list_cdtregistration_error' url='doAction?action=list_cdtregistrations' />
+	<forward name='pdf_cdtregistration_error' url='doAction?action=list_cdtregistrations' />
+	<forward name='xls_cdtregistration_error' url='doAction?action=list_cdtregistrations' />
+
+
+	<!-- CdtUsers -->
+	<action name='list_cdtusers' class='ListCdtUsersAction'
+		currentMenuGroup='1' />
+	<action name='add_cdtuser' class='AddCdtUserAction' />
+	<action name='add_cdtuser_init' class='AddCdtUserInitAction' />
+	<action name='update_cdtuser' class='UpdateCdtUserAction' />
+	<action name='update_cdtuser_init' class='UpdateCdtUserInitAction' />
+	<action name='view_cdtuser' class='ViewCdtUserAction' />
+	<action name='delete_cdtuser' class='DeleteCdtUserAction' />
+	<action name='pdf_cdtusers' class='PDFCdtUsersAction' />
+	<action name='xls_cdtusers' class='XlsCdtUsersAction' />
+	<action name='edit_cdtuser_add_ip' class='EditCdtUserAddIPAction' />
+	<action name='edit_cdtuser_delete_ip' class='EditCdtUserDeleteIPAction' />
+	
+	<forward name='add_cdtuser_success' url='doAction?action=list_cdtusers' />
+	<forward name='add_cdtuser_error' url='doAction?action=add_cdtuser_init' />
+	<forward name='update_cdtuser_success' url='doAction?action=list_cdtusers' />
+	<forward name='update_cdtuser_error' url='doAction?action=update_cdtuser_init' />
+	<forward name='delete_cdtuser_success' url='doAction?action=list_cdtusers' />
+	<forward name='delete_cdtuser_error' url='doAction?action=list_cdtusers' />
+	<forward name='list_cdtuser_error' url='doAction?action=list_cdtusers' />
+	<forward name='pdf_cdtuser_error' url='doAction?action=list_cdtusers' />
+	<forward name='xls_cdtuser_error' url='doAction?action=list_cdtusers' />
+
+
+	<!-- CdtUserGroups -->
+	<action name='list_cdtusergroups' class='ListCdtUserGroupsAction'
+		currentMenuGroup='1' />
+	<action name='add_cdtusergroup' class='AddCdtUserGroupAction' />
+	<action name='add_cdtusergroup_init' class='AddCdtUserGroupInitAction' />
+	<action name='update_cdtusergroup' class='UpdateCdtUserGroupAction' />
+	<action name='update_cdtusergroup_init' class='UpdateCdtUserGroupInitAction' />
+	<action name='view_cdtusergroup' class='ViewCdtUserGroupAction' />
+	<action name='delete_cdtusergroup' class='DeleteCdtUserGroupAction' />
+	<action name='pdf_cdtusergroups' class='PDFCdtUserGroupsAction' />
+	<action name='xls_cdtusergroups' class='XlsCdtUserGroupsAction' />
+
+	<forward name='add_cdtusergroup_success' url='doAction?action=list_cdtusergroups' />
+	<forward name='add_cdtusergroup_error' url='doAction?action=add_cdtusergroup_init' />
+	<forward name='update_cdtusergroup_success' url='doAction?action=list_cdtusergroups' />
+	<forward name='update_cdtusergroup_error' url='doAction?action=add_cdtusergroup_init' />
+	<forward name='delete_cdtusergroup_success' url='doAction?action=list_cdtusergroups' />
+	<forward name='delete_cdtusergroup_error' url='doAction?action=list_cdtusergroups' />
+	<forward name='list_cdtusergroup_error' url='doAction?action=list_cdtusergroups' />
+	<forward name='pdf_cdtusergroup_error' url='doAction?action=list_cdtusergroups' />
+	<forward name='xls_cdtusergroup_error' url='doAction?action=list_cdtusergroups' />
+
+
+	<!-- CdtUserGroupFunctions -->
+	<action name='list_cdtusergroupfunctions' class='ListCdtUserGroupFunctionsAction'
+		currentMenuGroup='1' />
+	<action name='add_cdtusergroupfunction' class='AddCdtUserGroupFunctionAction' />
+	<action name='add_cdtusergroupfunction_init' class='AddCdtUserGroupFunctionInitAction' />
+	<action name='update_cdtusergroupfunction' class='UpdateCdtUserGroupFunctionAction' />
+	<action name='update_cdtusergroupfunction_init' class='UpdateCdtUserGroupFunctionInitAction' />
+	<action name='view_cdtusergroupfunction' class='ViewCdtUserGroupFunctionAction' />
+	<action name='delete_cdtusergroupfunction' class='DeleteCdtUserGroupFunctionAction' />
+	<action name='pdf_cdtusergroupfunctions' class='PDFCdtUserGroupFunctionsAction' />
+	<action name='xls_cdtusergroupfunctions' class='XlsCdtUserGroupFunctionsAction' />
+
+	<forward name='add_cdtusergroupfunction_success' url='doAction?action=list_cdtusergroupfunctions' />
+	<forward name='add_cdtusergroupfunction_error' url='doAction?action=add_cdtusergroupfunction_init' />
+	<forward name='update_cdtusergroupfunction_success' url='doAction?action=list_cdtusergroupfunctions' />
+	<forward name='update_cdtusergroupfunction_error' url='doAction?action=add_cdtusergroupfunction_init' />
+	<forward name='delete_cdtusergroupfunction_success' url='doAction?action=list_cdtusergroupfunctions' />
+	<forward name='delete_cdtusergroupfunction_error' url='doAction?action=list_cdtusergroupfunctions' />
+	<forward name='list_cdtusergroupfunction_error' url='doAction?action=list_cdtusergroupfunctions' />
+	<forward name='pdf_cdtusergroupfunction_error' url='doAction?action=list_cdtusergroupfunctions' />
+	<forward name='xls_cdtusergroupfunction_error' url='doAction?action=list_cdtusergroupfunctions' />
+	
+	<filter name='seguridad' class='SecureFilter' />
+
+6) dependencias:
+   
+    - cdt_core
+	

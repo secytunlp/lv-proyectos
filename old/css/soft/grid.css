@@ -1,0 +1,72 @@
+@import url("../grid/rich_grid.css");
+
+/* GRID */
+.block table td {
+	border: 1px solid #CCCCCC;
+	border-right: 1px solid #FFFFFF;
+	font-size: 11px;
+	height: 24px;
+	line-height: 24px;
+	padding: 0 0 0 4px;
+}
+
+.block table thead th {
+	font-size: 11px;
+	height: 24px;
+	line-height: 24px;
+	padding: 0 0 0 6px;
+}
+
+.block th {
+	background: none;
+}
+
+.tablaSummaryHeader {
+	float: left;
+	margin-bottom: 1%;
+	/*padding-bottom: 0.5%;*/
+	padding-top: 0.5%;
+	width: 50%;
+}
+
+.grid_title { /*display: none;*/
+	text-align: center;
+	width: 100%;
+	height: 33px;
+	padding-left: 0px;
+	padding-top: 15px;
+}
+
+.grid_filters table tr td {
+	border: none;
+}
+
+.grid_filters table { /*background: none repeat scroll 0 0 #FFE57E;*/
+	border-radius: 5px 5px 5px 5px;
+	/*box-shadow: 0 5px 60px #888888;*/
+}
+
+.rich_options {
+	display: none;
+	float: left;
+	margin: 0px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	white-space: nowrap;
+}
+
+.rich_actions_content {
+	top: 0px;
+}
+
+.rich_option_item {
+	
+}
+
+.rich_option_item span {
+	
+}
+
+.rich_option_item_view {
+	
+}

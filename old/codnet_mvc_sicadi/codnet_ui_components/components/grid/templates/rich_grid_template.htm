@@ -1,0 +1,659 @@
+<!-- BEGIN: main -->
+<link rel="stylesheet" href="{grid_style}" type="text/css" />
+<link rel="stylesheet" href="{rich_grid_style}" type="text/css" />
+
+<!-- BEGIN: style -->
+<link rel="stylesheet" href="{style}" type="text/css" />
+<!-- END: style -->
+
+<!--[if IE 7]><link rel="stylesheet" href="{WEB_PATH}css/grid/rich_grid_ie.css" type="text/css" /><![endif]-->
+<!--[if IE 8]><link rel="stylesheet" href="{WEB_PATH}css/grid/rich_grid_ie.css" type="text/css" /><![endif]-->
+
+<style>
+#ui-datepicker-div{
+	z-index:112;
+}
+</style>
+
+<script nonce="tu_nonce_generado">
+
+	//para mantener los items seleccionados.
+	//a través de todas las páginas.
+	var itemsSelected_{gridId} = new Array();
+
+
+	//por cada filtro guardamos su descripción
+	var filtersMap_{gridId} = new Array();
+	//por cada valor de un combo, guardamos tb la descripción.
+	var filtersMapCombo_{gridId} = new Array();
+
+	function addFilterMap_{gridId}( filterField, filterValue ){
+	 	filtersMap_{gridId}[ filterField ] = filterValue;
+	}
+
+	function initFilterMapCombo_{gridId}( filterField ){
+		filtersMapCombo_{gridId}[ filterField ] = new Array();		
+	}
+
+	function addFilterMapCombo_{gridId}( filterField, optionValue, optionLabel ){
+		
+		
+		/*
+		\u00e1 -> á
+		\u00e9 -> é
+		\u00ed -> í
+		\u00f3 -> ó
+		\u00fa -> ú
+		\u00c1 -> Á
+		\u00c9 -> É
+		\u00cd -> Í
+		\u00d3 -> Ó
+		\u00da -> Ú
+		\u00f1 -> ñ
+		\u00d1 -> Ñ 
+		*/
+		filtersMapCombo_{gridId}[ filterField ][ optionValue ] = optionLabel;
+	}
+
+	function filtersMapComboHas_{gridId}( filterField ){
+		return !( filtersMapCombo_{gridId}[ filterField ] === undefined ) ;
+	}
+
+
+	function startSearch( id ){
+		$( id ).fadeTo("fast", 0.33);
+
+		right = ($(window).width() / 2) - (32);		
+		htmlSearching = "<div style='position:absolute; right:" + right + "px;top:0px;'><img src='{WEB_PATH}css/grid/loading.gif' /></div>";
+		$( id ).html($( id ).html() + htmlSearching);
+	}
+
+	function endSearch( id ){
+		$( id ).fadeTo("fast", 1);
+		
+		//selecciono los que ya fueron previamente seleccionados.
+		checkAllPageItemsSelected_{gridId}();
+		
+	}	
+    function sort_ajax_{gridId}(orderField, orderType){
+
+        jQuery("#orderField_{gridId}").val( orderField );
+        jQuery("#orderType_{gridId}").val( orderType );
+
+        
+        search_ajax_{gridId}();
+    }
+
+    function paginate_ajax_{gridId}( page ){
+
+    	previous = jQuery("#filterValue_{gridId}").val();
+    	
+    	if( isAdvancedSearch_{gridId}() ){
+    		jQuery("#filterValue_{gridId}").val("");	
+    	}
+    	
+    	
+    	data = $('#searchform_{gridId}').serialize();
+
+    	startSearch("#searchdiv_{gridId}");
+    	
+        jQuery("#searchdiv_{gridId}").load(  "doAction?search=1&page_{gridId}=" +page + "&" + data,  function() {
+				
+        		jQuery("#filterValue_{gridId}").val( previous );
+        		endSearch("#searchdiv_{gridId}");
+			});
+
+    }
+
+    function search_ajax_{gridId}( action ){
+
+    	previous = jQuery("#filterValue_{gridId}").val();
+
+    	if( isAdvancedSearch_{gridId}() ){
+    		jQuery("#filterValue_{gridId}").val("");	
+    	}
+    	    	
+        if( action )
+            jQuery("#action").val( action );
+
+        
+        if( validate( 'searchform_{gridId}' ) ){
+        
+        	close_menu_filters_{gridId}();
+           
+             //for (var fm in filtersMap){ alert(fm);}
+            searchValues = "";
+            count = 0;
+            countCombosVacios = 0;
+            $('.menu_filter_{gridId}').each(function(key, value) {
+             	
+            	if( value.value!="" ){
+
+	            	desc = filtersMap_{gridId}[value.name];
+	            	textToSearch = value.value;
+	            	
+	            	//chequeamos si es el valor de un combo, en ese caso buscamos la
+	            	//descripción asociada.
+	            	if( filtersMapComboHas_{gridId}( value.name ) ){
+
+						//si es un combo y el valor es 0 no lo tomamos.
+						//FIXME
+						if(value.value!=-1){
+							textToSearch = filtersMapCombo_{gridId}[value.name][value.value];
+							searchValues += desc + ":[" + textToSearch +"],";
+	            			count += 1;
+						}else{
+							countCombosVacios +=1;
+						} 
+	            	}else{
+	            		searchValues += desc + ":[" + textToSearch +"],";
+            			count += 1;
+	            	}      		  	
+            	} 
+            	
+            });
+            if(count>0){
+            	searchValues = searchValues.substr(0,searchValues.length-1);
+            	jQuery("#filterValue_{gridId}").val("");
+            	data = $('#searchform_{gridId}').serialize();
+            	startSearch("#searchdiv_{gridId}");
+            	jQuery("#searchdiv_{gridId}").load(  "doAction?search=1&" + data , function() {
+  					jQuery("#search_label_{gridId}").html(  "{lbl_result_search}" );
+            		jQuery("#filterValue_{gridId}").val(searchValues);
+            		endSearch("#searchdiv_{gridId}");
+				});
+            	
+            }else{
+				//if(countCombosVacios>0)
+				//	previous = "";
+                //jQuery("#filterValue_{gridId}").val( previous );
+            	//if(validate( 'searchform_{gridId}' )){
+            		data = $('#searchform_{gridId}').serialize();
+                	jQuery("#search_label_{gridId}").html(  "{lbl_default_search_by}&nbsp;<i>{defaultFilterLabel}</i>" );
+                	startSearch("#searchdiv_{gridId}");
+                	jQuery("#searchdiv_{gridId}").load(  "doAction?search=1&" + data );
+                	endSearch("#searchdiv_{gridId}");	
+            	//}
+            	
+            	
+            }
+            	
+            //alert(searchValues);
+            
+        }
+        
+        
+        
+    }
+
+    function export_{gridId}( action ){
+
+        if( action )
+            jQuery("#action").val( action );
+	
+		previous = jQuery("#filterValue_{gridId}").val();
+    	if( isAdvancedSearch_{gridId}() ){
+    		jQuery("#filterValue_{gridId}").val("");	
+    	}        
+        
+        data = $('#searchform_{gridId}').serialize();
+        close_menu_filters_{gridId}();
+
+	
+        window.location.href =  "doAction?search=1&" + data ;
+
+    	
+   		jQuery("#filterValue_{gridId}").val(previous);    	
+    }
+
+    function search_all_ajax_{gridId}( action ){
+
+        jQuery("#filterValue_{gridId}").val("");
+        clear_filters_{gridId}();
+	
+        search_ajax_{gridId}( action );
+    }
+
+
+    function loadPopup_{gridId}(  url, title, height, width ){
+
+        if( !height )
+            height = 500;
+
+        if( !width )
+            width = 750;
+	
+        var dialogOpts = {
+            title : title,
+            modal : true,
+            autoOpen : false,
+            bgiframe : true,
+            height : height,
+            width : width,
+            open : function() {
+                jQuery("#list_popup_{gridId}").load(url);
+            }
+        };
+        jQuery("#list_popup_{gridId}").children().remove();
+        jQuery("#list_popup_{gridId}").dialog("destroy");
+        jQuery("#list_popup_{gridId}").dialog(dialogOpts);
+        jQuery("#list_popup_{gridId}").dialog("open");
+
+    }
+    
+    function loadTargetBlank(  url  ){
+
+    	window.open( url);
+    	//jQuery(window).load(  url );
+
+    }
+
+    function morefilters_{gridId}(){
+        $('#menu_filters_{gridId}').css({'display': "block"});
+    }
+    function clear_filters_{gridId}(){
+	
+        $('.menu_filter_{gridId}').val("");
+        $('.menu_filter_{gridId}').selected("");
+        $("#filterValue_{gridId}").val("");
+        
+    }
+
+
+
+    $(document).ready(function() {
+
+        /*
+        $('#menu_filters_{gridId}').hover(
+                          function () {
+                                  $('#menu_filters_{gridId}').css({'display': "block"});
+                          },
+                          function () {
+                                  $('#menu_filters_{gridId}').css({'display': "none"});
+                          });
+         */
+	
+        $('#grid_more_filters_{gridId}').click(
+        function () {
+            open_menu_filters_{gridId}()
+        });
+
+        $('#grid_close_filters_{gridId}').click(
+        function () {
+            close_menu_filters_{gridId}()
+        });
+        
+        $("#filterValue_{gridId}").click(
+      	   function () {
+      		   	if ( isAdvancedSearch_{gridId}() ){
+      		   		open_menu_filters_{gridId}();
+      		 	}
+           });
+	  
+    });
+    
+    function isAdvancedSearch_{gridId}(){
+    	
+    	//si existen filtros avanzados, abrimos el menú de filtros.
+		var value = $("#filterValue_{gridId}").val();
+		//regex para verificar si hay filtros avanzados "Nombre:"
+		var patron  = /[a-zA-Z0-9]+:/;
+		return (value.search(patron)>= 0) ;
+    }
+
+    function open_menu_filters_{gridId}(){
+        $('#menu_filters_{gridId}').css({'display': "block"});
+    }
+
+    function close_menu_filters_{gridId}(){
+        $('#menu_filters_{gridId}').css({'display': "none"});
+    }
+
+    
+    /**
+     * agregamos un item a la colección de 
+     * items seleccionados (para todas las páginas)
+     */
+    function addItemsSelected_{gridId}( value ){
+    	
+    	if( ! isItemSelected_{gridId}( value ) )
+    		itemsSelected_{gridId}.push( value );
+    	
+    }
+
+    /**
+     * se elimina el item de la colección de 
+     * items seleccionados (para todas las páginas)
+     */
+    function removeItemsSelected_{gridId}( value ){
+    	
+    	
+    	
+    	for(var i=0; i<itemsSelected_{gridId}.length; i++) {
+            if (itemsSelected_{gridId}[i] == value){
+            	delete  itemsSelected_{gridId}[i];
+            	return true;
+            } 
+            	
+        }
+    }
+    
+    /**
+     * true si el item está seleccionado
+     * (para todas las páginas)
+     */
+    function isItemSelected_{gridId}(value){
+    	
+    	for(var i=0; i<itemsSelected_{gridId}.length; i++) {
+            if (itemsSelected_{gridId}[i] == value) 
+            	return true;
+        }
+    	return false;
+    }
+    
+    /**
+     * se chequean los items de la página actual que 
+     * estén seleccionados en la lista global de item
+     * seleccionados.
+     */
+    function checkAllPageItemsSelected_{gridId}(){
+
+    	var mostrar = false;
+    	for(var i=0; i<itemsSelected_{gridId}.length; i++) {
+         
+    		var item = itemsSelected_{gridId}[i];
+    		
+    		if ($("#" + item).length>0) {
+    		
+    			$("#" + item).css({'background-color': '#FFFFCC'});
+    			//$("#" + item).checked(true);
+    			
+    			//reemplazar item x row.
+    			var row = item.replace("row","item");
+    			
+    			$("input[name=" + row + "]").attr('checked', true);
+    			
+    			mostrar = true;
+    		}
+        }
+    	
+    	setOptions_{gridId}( mostrar );
+    }
+
+    /**
+     * se obtiene una lista separada por comas con los
+     * items seleccionados a través de todas las páginas.
+     */
+    function getAllPageItemsSelected_{gridId}(){
+    	 
+    	var selected = "";
+    	var first = true;
+    	
+    	for (i=0; i<itemsSelected_{gridId}.length; i++){
+    	
+    		if( first ) 
+     			selected +=  itemsSelected_{gridId}[i]  ;
+     		else
+     			selected +=  "," + itemsSelected_{gridId}[i];
+
+    		first = false;
+    	
+    	}
+    	return selected;
+    }    
+    
+
+</script>
+
+<div class="grid" >
+
+    <div class="grid_title">{title}</div>
+
+    <div class="grid_filters">
+        <form name="searchform_{gridId}" id="searchform_{gridId}" action="doAction" method="GET" onsubmit ="return validate('searchform_{gridId}');">
+            <!-- BEGIN: hidden -->
+            <input type="hidden" name="action" id="action" value="{actionList}" />
+            <input type="hidden" name="orderType_{gridId}" id="orderType_{gridId}" value="{orderType}" />
+            <input type="hidden" name="orderField_{gridId}" id="orderField_{gridId}" value="{orderField}" />
+            <input type="hidden" name="model_{gridId}" id="model_{gridId}" value="{gridModelClazz}" />
+            <input type="hidden" name="renderer_{gridId}" id="renderer_{gridId}" value="{rendererClazz}" />
+            <input type="hidden" name="gridId" id="gridId" value="{gridId}" />
+            <!-- END: hidden -->
+
+            <!-- BEGIN: extra_hidden -->
+            <input type="hidden" name="{name}" id="{id}" value="{value}" />
+            <!-- END: extra_hidden -->
+
+            <!-- BEGIN: table_buttons -->
+
+            <div style="position: relative; display:inline-block;">
+
+                <table style="border:0px;">
+                	<!-- BEGIN:filters -->
+                    <tr>
+                        <!-- BEGIN:default_search  -->
+                        <td>
+                        	<div id="search_label_{gridId}">
+                            {lbl_default_search_by}&nbsp;<i>{defaultFilterLabel}</i>
+                            </div>                            
+                        </td>
+						<!-- END:default_search  -->
+						<!-- BEGIN:advanced_search -->
+                        <td>
+                        	<div id="search_label_{gridId}">
+                            {lbl_result_search}
+                            </div>                            
+                        </td>
+						<!-- END:advanced_search  -->
+                        <td>
+                            <div style="position: relative;">
+                            	<!-- BEGIN: default_string -->
+                            	<input type="text" name="filterValue_{gridId}" id="filterValue_{gridId}" value="{filterValue}" size="40" maxlength="2048" class="grid_search_input">
+                                <!-- END: default_string -->
+								<!-- BEGIN: default_date -->
+                            	<input type="text" name="filterValue_{gridId}" id="filterValue_{gridId}" value="{filterValue}" size="40" maxlength="2048" class="grid_search_input">
+                            	<script type="text/javascript">
+									$(function() {
+        								$("#filterValue_{gridId}").datepicker({ dateFormat: '{pattern}' });
+    								});
+								</script>
+                                <!-- END: default_date -->
+                                <!-- BEGIN: default_datetime -->
+                            	<input type="text" name="filterValue_{gridId}" id="filterValue_{gridId}" value="{filterValue}" size="40" maxlength="2048" class="grid_search_input">
+                            	<script type="text/javascript">
+									$(function() {
+										$("#filterValue_{gridId}").datetimepicker({
+											timeOnlyTitle: 'Fecha y hora',
+											timeText: 'Hora',
+											hourText: 'hora',
+											minuteText: 'minutos',
+											secondText: 'listo',
+											currentText: 'Ahora',
+											closeText: 'Listo'}		
+									);
+    								});
+								</script>
+                                <!-- END: default_datetime -->
+                            	<!-- BEGIN: default_number -->
+                            	<input type="text" name="filterValue_{gridId}" id="filterValue_{gridId}" 
+                            			value="{filterValue}" size="40" maxlength="2048" class="grid_search_input"  
+                            			jVal="{valid:function (val) { return number(val,'{msg_invalid_number}'); }}">
+                                <!-- END: default_number -->
+                                
+                                <!-- BEGIN: menu_filters -->                                
+                                <div class="grid_more_filters">
+                                    <div class="grid_more_filters_img" id="grid_more_filters_{gridId}"></div>
+                                </div>
+                                <div id="menu_filters_{gridId}" class="grid_menu_filters">
+                                    <div class="grid_menu_filters_container">
+                                        <div class="grid_menu_filter_item">
+                                            <div class="grid_close_filters" id="grid_close_filters_{gridId}"></div>
+                                        </div>
+                                        <!-- BEGIN: filter -->
+                                        <script type="text/javascript">addFilterMap_{gridId}("{filterFieldName}_{gridId}", "{filterLabel}");</script>
+                                        <div class="grid_menu_filter_item">
+                                            <span class="grid_menu_filter_item_label">
+											{filterLabel}
+                                            </span>
+                                            <span class="grid_menu_filter_item_input">
+                                            	<!-- BEGIN: type_string -->
+												<input class="menu_filter_{gridId}" type="text" name="{filterFieldName}_{gridId}" id="{filterFieldId}_{gridId}" value="{filterValue}"/>
+												<!-- END: type_string -->
+                                            	
+                                            	<!-- BEGIN: type_date -->
+												<input class="menu_filter_{gridId}" type="text" name="{filterFieldName}_{gridId}" id="{filterFieldId}_{gridId}" value="{filterValue}"/>
+												<script type="text/javascript">
+												    $(function() {
+        												$("#{filterFieldId}_{gridId}").datepicker({ dateFormat: '{pattern}' });        												
+    												});
+												</script>
+												<!-- END: type_date -->
+												
+												<!-- BEGIN: type_combobox -->
+												<script type="text/javascript">initFilterMapCombo_{gridId}("{filterFieldName}_{gridId}");</script>													
+												<select class="menu_filter_{gridId}"  name="{filterFieldName}_{gridId}" id="{filterFieldId}_{gridId}">
+													<option value="-1">-</option>
+													<script type="text/javascript">addFilterMapCombo_{gridId}("{filterFieldName}_{gridId}", "-1", "-");</script>
+													<!-- BEGIN: filter_option -->
+													<option value={optionValueSelected}>{optionLabel}</option>
+													<script type="text/javascript">addFilterMapCombo_{gridId}("{filterFieldName}_{gridId}", "{optionValue}", "{optionLabel}");</script>
+													<!-- END: filter_option -->
+												</select>
+												<!-- END: type_combobox -->
+
+                                            	<!-- BEGIN: type_number -->
+												<input class="menu_filter_{gridId}" type="text" name="{filterFieldName}_{gridId}" id="{filterFieldId}_{gridId}" 
+													value="{filterValue}" jVal="{valid:function (val) { return number(val,'{msg_invalid_number}'); }}"/>
+												<!-- END: type_number -->									
+												
+												<!-- BEGIN: type_datetime -->
+												<input class="menu_filter_{gridId}" type="text" name="{filterFieldName}_{gridId}" id="{filterFieldId}_{gridId}" value="{filterValue}"/>
+												<script type="text/javascript">
+												    $(function() {
+        												//$('#{filterFieldId}_{gridId}').datetimepicker();
+        												$("#{filterFieldId}_{gridId}").datetimepicker({
+        														timeOnlyTitle: 'Fecha y hora',
+        														timeText: 'Hora',
+        														hourText: 'hora',
+        														minuteText: 'minutos',
+        														secondText: 'listo',
+        														currentText: 'Ahora',
+        														closeText: 'Listo',
+        														dateFormat:'dd/mm/yy',
+        														timeFormat: 'HH:mm:ss'}		
+        												);
+    												});
+												</script>
+												<!-- END: type_datetime -->
+												
+												<!-- BEGIN: type_time -->
+												<input class="menu_filter_{gridId}" type="text" name="{filterFieldName}_{gridId}" id="{filterFieldId}_{gridId}" value="{filterValue}"/>
+												<script type="text/javascript">
+												    $(function() {
+        												$('#{filterFieldId}_{gridId}').timepicker();
+    												});
+												</script>
+												<!-- END: type_time -->
+												
+                                            </span>
+                                        </div>
+                                        <!-- END: filter -->
+                                        
+                                        <div class="grid_menu_filter_item">
+                                            <input type="button" name="btnsearch2_{gridId}"  id="btnsearch2_{gridId}" value="{lbl_search}" onclick="javascript:search_ajax_{gridId}( '{actionList}' );">
+                                            <input type="button" name="btnsearch2_{gridId}"  id="btnsearch2_{gridId}" value="{lbl_clear}" onclick="javascript:clear_filters_{gridId}();">
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- END: menu_filters -->
+                            </div>                            
+                        </td>
+                    </tr>
+                    <!-- END:filters -->
+                    
+                    <!-- BEGIN: additional_filters --> 
+                    <tr>
+                    	<td colspan="2">
+                    	{additionalFilters}
+                    	</td>
+                    </tr>
+                    <!-- END: additional_filters -->
+                     
+                    <!-- BEGIN: customFilter -->
+                    <tr>
+                    	<td style="text-align: right;">
+                    		{label}
+                    	</td>
+                    	<td style="text-align: right;">
+                    		<!-- BEGIN: valueDate -->
+                    		<input class="menu_filter" type="text" name="{filterName}_{gridId}" id="{filterName}_{gridId}" value="{filterValue}"/>
+							<script type="text/javascript">
+								$(function() {
+        							$("#{filterName}_{gridId}").datepicker({ dateFormat: '{pattern}' });
+    							});
+							</script>												
+                    		<!-- END: valueDate -->
+                    		<!-- BEGIN: valueString -->
+                    		<input class="menu_filter" type="text" name="{filterName}_{gridId}" id="{filterName}_{gridId}" value="{filterValue}"/>
+							<!-- END: valueString -->
+							<!-- BEGIN: valueCombo -->
+                    		<select></select>
+							<!-- END: valueCombo -->
+							<!-- BEGIN: valueFindObject -->
+                    		{findObject}
+							<!-- END: valueFindObject -->
+							<!-- BEGIN: valueNumber -->
+							<input type="text" name="{filterName}_{gridId}" id="{filterName}_{gridId}" value="{filterValue}" 
+							style="width: 50px;" size="40" class="grid_search_input" 
+							jValKey="{valid:/[0-9]/, message:'x', cFunc:'$(\'#searchform_offers\').jVal()'}">
+							<!-- END: valueNumber -->
+                    	</td>
+                    </tr>
+                    <!-- END: customFilter -->
+                    <tr>
+					    <td colspan="2">
+                            <input type="button" name="btnsearch_{gridId}"  id="btnsearch_{gridId}" value="{lbl_search}" onclick="javascript:search_ajax_{gridId}( '{actionList}' );">
+                            <input type="button" name="btnall_{gridId}"  id="btnall_{gridId}"  value="{lbl_search_all}" onclick="javascript:search_all_ajax_{gridId}( '{actionList}' );">
+                        </td>
+                    
+                    </tr>
+                </table>
+            </div>
+            
+            <!-- END: table_buttons -->
+
+
+        </form>
+    </div>
+
+
+    <div class="rich_actions_content">
+        <div id="rich_option_items" class="rich_options" style="display: block;" >
+            <!-- BEGIN: action -->
+            <a title="{label}"  href="doAction?action={action}" onclick="javascript:{callback};" >
+                <div class="rich_option_item">
+                    <div class="rich_option_item_{liClass}">
+                    </div>
+                </div>
+            </a>
+            <!-- END: action -->
+        </div>
+    </div>
+
+
+    <div id="searchdiv_{gridId}" class="grid_searchdiv">
+
+        <!-- BEGIN:error_message -->
+        <div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: 0 .7em;">
+            <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+			{error_message}
+            </p>
+        </div>
+        <!-- END:error_message -->
+
+
+	{search_first_time}
+    </div>
+    <div style="display: none;" id="list_popup_{gridId}"></div>
+</div>
+<!-- END: main -->

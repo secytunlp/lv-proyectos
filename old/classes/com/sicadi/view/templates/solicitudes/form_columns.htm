@@ -1,0 +1,1872 @@
+<!-- BEGIN: main -->
+<!-- <script type="text/javascript" src="{WEB_PATH}libs/ckeditor/ckeditor.js"></script>  -->
+<style>
+#formTabs{
+
+}
+#formTabs fieldset {
+    background: none repeat scroll 0 0 #FFFFFF;
+    border-radius: 4px 4px 0 0;
+    box-shadow:none;
+    margin-top: 1em;
+    padding: 1.5em;
+    text-shadow: 0 1px 0 #FFFFFF;
+}
+
+#upload-file-container {
+	width: 90px;
+	height: 90px;
+	position: relative;
+	border:2px solid;
+	border-radius:20px;
+	border-color:rgb(58,147,231);
+	color:rgb(58,147,231);
+	overflow: hidden;
+	float:right;
+}
+
+#upload-file-container input[type="file"] {
+	margin: 0;
+	opacity: 0;
+	font-size: 100px;
+}
+.tooltip {
+	position: relative;
+}
+.tooltip:before,
+.tooltip:after {
+	display: block;
+	opacity: 0;
+	pointer-events: none;
+	position: absolute;
+}
+.tooltip:after {
+	border-right: 6px solid transparent;
+	border-bottom: 6px solid rgba(0,0,0,.75);
+	border-left: 6px solid transparent;
+	content: '';
+	height: 0;
+	top: 20px;
+	left: 20px;
+	width: 0;
+}
+.tooltip:before {
+	background: rgba(0,0,0,.75);
+	border-radius: 2px;
+	color: #fff;
+	content: attr(data-title);
+	font-size: 14px;
+	padding: 6px 10px;
+	top: 26px;
+	white-space: nowrap;
+}
+
+/* the animations */
+/* fade */
+.tooltip.fade:after,
+.tooltip.fade:before {
+	transform: translate3d(0,-10px,0);
+	transition: all .15s ease-in-out;
+}
+.tooltip.fade:hover:after,
+.tooltip.fade:hover:before {
+	opacity: 1;
+	transform: translate3d(0,0,0);
+}
+
+/* expand */
+.tooltip.expand:before {
+	transform: scale3d(.2,.2,1);
+	transition: all .2s ease-in-out;
+}
+.tooltip.expand:after {
+	transform: translate3d(0,6px,0);
+	transition: all .1s ease-in-out;
+}
+.tooltip.expand:hover:before,
+.tooltip.expand:hover:after {
+	opacity: 1;
+	transform: scale3d(1,1,1);
+}
+.tooltip.expand:hover:after {
+	transition: all .2s .1s ease-in-out;
+}
+
+/* swing */
+.tooltip.swing:before,
+.tooltip.swing:after {
+	transform: translate3d(0,30px,0) rotate3d(0,0,1,60deg);
+	transform-origin: 0 0;
+	transition: transform .15s ease-in-out, opacity .2s;
+}
+.tooltip.swing:after {
+	transform: translate3d(0,60px,0);
+	transition: transform .15s ease-in-out, opacity .2s;
+}
+.tooltip.swing:hover:before,
+.tooltip.swing:hover:after {
+	opacity: 1;
+	transform: translate3d(0,0,0) rotate3d(1,1,1,0deg);
+}
+
+/* basic styling: has nothing to do with tooltips: */
+h1 {
+	/*padding-left: 50px;*/
+}
+ul {
+	/*margin-bottom: 40px;*/
+}
+li {
+	cursor: pointer;
+	display: inline-block;
+	padding: 0 10px;
+}
+</style>
+<script nonce="tu_nonce_generado" type="text/javascript">
+
+	$(document).ready(function() {
+
+		$('.js-example-basic-single').select2();
+		 // Espera a que el documento esté completamente cargado antes de ejecutar el código
+
+		// Encuentra los botones por sus IDs
+		var cancelButton = $('#input_cancel');
+		var submitButton = $('#input_submit');
+		var submitAjaxButton = $('#input_submit_ajax');
+		var button1 = $('#input_button_1'); // Reemplaza '1' con el índice correcto si es necesario
+
+		// Asocia eventos de clic a los botones
+		cancelButton.on('click', function() {
+			// Código para manejar el clic en el botón Cancelar
+		   {function};
+		});
+
+		submitButton.on('click', function() {
+			// Código para manejar el clic en el botón Submit
+			submitForm('{form_id}');
+		});
+
+		submitAjaxButton.on('click', function() {
+			// Código para manejar el clic en el botón Submit Ajax
+			submitForm('{form_id}');
+		});
+
+		button1.on('click', function() {
+			// Código para manejar el clic en el botón personalizado 1
+			// Ejemplo: función_personalizada();
+		});
+
+		
+		// Obtén el valor de {actionFile} dentro del comentario BEGIN y END
+		var actionFileValue = '{actionFile}';
+
+		
+
+		// Agrega un manejador de eventos para el evento 'change'
+		$("#ds_fotoF").change(function() {
+			console.log('foto');
+			// Obtiene el valor del archivo seleccionado
+			var selectedFile = this.files[0];
+
+			// Llama a la función 'uploadAjax' con el nombre del archivo
+			// y el valor de {actionFile}
+			uploadAjax(selectedFile, actionFileValue, 'ds_foto');
+
+			// Puedes realizar otras acciones aquí si es necesario
+		});
+
+
+		
+		// Agrega un manejador de eventos para el evento 'change'
+		$("#ds_resbecaF").change(function() {
+			console.log('beca');
+			// Obtiene el valor del archivo seleccionado
+			var selectedFile = this.files[0];
+
+			// Llama a la función 'uploadAjax' con el nombre del archivo
+			// y el valor de {actionFile}
+			uploadAjax(selectedFile, actionFileValue, 'ds_resbeca');
+
+			// Puedes realizar otras acciones aquí si es necesario
+		});
+		
+
+		// Agrega un manejador de eventos para el evento 'change'
+		$("#ds_rescarreraF").change(function() {
+			// Obtiene el valor del archivo seleccionado
+			var selectedFile = this.files[0];
+
+			// Llama a la función 'uploadAjax' con el nombre del archivo
+			// y el valor de {actionFile}
+			uploadAjax(selectedFile, actionFileValue, 'ds_rescarrera');
+
+			// Puedes realizar otras acciones aquí si es necesario
+		});
+
+		
+
+		// Agrega un manejador de eventos para el evento 'change'
+		$("#ds_archivoF").change(function() {
+			// Obtiene el valor del archivo seleccionado
+			var selectedFile = this.files[0];
+
+			// Llama a la función 'uploadAjax' con el nombre del archivo
+			// y el valor de {actionFile}
+			uploadAjax(selectedFile, actionFileValue, 'ds_archivo');
+
+			// Puedes realizar otras acciones aquí si es necesario
+		});
+
+		
+		// Agrega un manejador de eventos para el evento 'change'
+		$("#ds_curriculumF").change(function() {
+			// Obtiene el valor del archivo seleccionado
+			var selectedFile = this.files[0];
+
+			// Llama a la función 'uploadAjax' con el nombre del archivo
+			// y el valor de {actionFile}
+			uploadAjax(selectedFile, actionFileValue, 'ds_curriculum');
+
+			// Puedes realizar otras acciones aquí si es necesario
+		});
+
+		
+		
+		// Agrega un manejador de eventos para el evento 'change'
+		$("#ds_informe1F").change(function() {
+			
+			// Obtiene el valor del archivo seleccionado
+			var selectedFile = this.files[0];
+
+			// Llama a la función 'uploadAjax' con el nombre del archivo
+			// y el valor de {actionFile}
+			uploadAjax(selectedFile, actionFileValue, 'ds_informe1');
+
+			// Puedes realizar otras acciones aquí si es necesario
+		});
+
+		
+		// Agrega un manejador de eventos para el evento 'change'
+		$("#ds_informe2F").change(function() {
+			// Obtiene el valor del archivo seleccionado
+			var selectedFile = this.files[0];
+
+			// Llama a la función 'uploadAjax' con el nombre del archivo
+			// y el valor de {actionFile}
+			uploadAjax(selectedFile, actionFileValue, 'ds_informe2');
+
+			// Puedes realizar otras acciones aquí si es necesario
+		});
+
+		
+		// Agrega un manejador de eventos para el evento 'change'
+		$("#ds_informe3F").change(function() {
+			// Obtiene el valor del archivo seleccionado
+			var selectedFile = this.files[0];
+
+			// Llama a la función 'uploadAjax' con el nombre del archivo
+			// y el valor de {actionFile}
+			uploadAjax(selectedFile, actionFileValue, 'ds_informe3');
+
+			// Puedes realizar otras acciones aquí si es necesario
+		});
+
+
+	});
+
+$(function() {
+
+	$( "#tabs" ).tabs();
+});
+
+
+
+$(function() {
+
+        $("#{form_id}").submit(function(e) {
+        	
+        	if( $("#{form_id}_input_submit").length > 0){
+        		$submit = $("#{form_id}_input_submit");
+            	$restoreOpacity = $submit.css("opacity");	
+        	}
+        	
+        	
+        	 e.preventDefault();
+        	 
+        	 if( {useAjaxSubmit} ) {
+
+                	submitAjaxForm('{form_id}', '{action}', {onSuccessCallback},{beforeSubmit});
+                	
+                	return false;
+             }else{
+            	 
+            	
+         		$submit.css({"opacity":$restoreOpacity});
+         		$submit.removeAttr( "disabled" );
+             }
+        	 
+        	 
+        	 
+        });
+	
+            								
+});
+
+function  seleccionarInstitucion(ds_institucion){
+	
+	if(ds_institucion){
+		$("#item-div-ds_orgbeca").append("<span id='iconoLoadingOrgBeca' style='position:absolute;'><img src='css/grid/loading.gif' /></span>")
+	jQuery.ajax({
+		url:"doAction?action=add_solicitud_tipo_beca&ds_institucion=" + ds_institucion,
+		dataType:"json",
+		success: function(data){
+
+			if (data === null) {
+				// La respuesta es nula, maneja el caso de error aquí
+				console.error('La respuesta es nula.');
+			} else {
+				
+			// La respuesta es válida, realiza tus operaciones aquí
+				if (data && "error" in data && data["error"] !== null) {
+					console.error('hay error '+data["error"]);
+					showMessageError( data["error"], true );
+					//inhabilitar el submit.
+					$("#edit_solicitud_input_submit_ajax").hide();
+				}
+
+				else{
+					$("#edit_solicitud_input_submit_ajax").show();
+					var tipobeca = $("#ds_tipobeca").val();
+					$("#ds_tipobeca").empty();
+					$.each(data, function(k,v){
+						$("#ds_tipobeca").append("<option value=\""+k+"\">"+v+"</option>");
+					});
+					if (tipobeca === null || tipobeca === "") {
+                        //$("#ds_tipobeca option:first").attr("selected", "selected");
+                    } else {
+                        $("#ds_tipobeca").val(tipobeca);
+                    }
+				}
+			}
+			$("#iconoLoadingOrgBeca").remove();
+		}
+	});
+	}
+	else{
+		$("#ds_tipobeca").empty();
+	}
+	
+
+
+}
+
+function  seleccionarOrganismo(cd_organismo){
+	if(cd_organismo){
+		$("#item-div-organismo_oid").append("<span id='iconoLoadingOrganismo' style='position:absolute;'><img src='css/grid/loading.gif' /></span>")
+		jQuery.ajax({
+			url:"doAction?action=add_solicitud_carrera&cd_organismo=" + cd_organismo,
+			dataType:"json",
+			success: function(data){
+
+				if (data === null) {
+					// La respuesta es nula, maneja el caso de error aquí
+					//console.error('La respuesta es nula.');
+				} else {
+				// La respuesta es válida, realiza tus operaciones aquí
+					if (data && "error" in data && data["error"] !== null) {
+					showMessageError( data["error"], true );
+					//inhabilitar el submit.
+					$("#edit_solicitud_input_submit_ajax").hide();
+				}
+
+				else{
+					$("#edit_solicitud_input_submit_ajax").show();
+					var carrera = $("#carrerainv_oid").val();
+
+					$("#carrerainv_oid").empty();
+					// Definir el orden deseado de las constantes
+					const ordenDeseado = [
+						'6',
+						'12',
+						'3',
+						'2',
+						'1',
+						'13',
+						'9',
+						'8'
+						// ... Agregar mÃ¡s valores segÃºn sea necesario
+					];
+					// Agregar opciones al select en el orden deseado
+					ordenDeseado.forEach(function(valor) {
+						if (data[valor]) {
+							$("#carrerainv_oid").append("<option value=\"" + valor + "\">" + data[valor] + "</option>");
+						}
+					});
+					if (carrera === null || carrera === "") {
+						//$("#carrerainv_oid option:first").attr("selected", "selected");
+					} else {
+						$("#carrerainv_oid").val(carrera);
+					}
+					
+				}
+				}
+				$("#iconoLoadingOrganismo").remove();
+			}
+		});
+	}
+	else{
+		$("#carrerainv_oid").empty();
+	}
+
+
+}
+
+function  seleccionarEquivalencia(cd_equivalencia){
+	$("#item-div-equivalencia_oid").append("<span id='iconoLoadingEquivalencia' style='position:absolute;'><img src='css/grid/loading.gif' /></span>")
+	jQuery.ajax({
+		url:"doAction?action=add_solicitud_categoria_equivalencia&cd_equivalencia=" + cd_equivalencia+"&cd_categoria=" + $("#categoria_oid").val(),
+		dataType:"json",
+		success: function(data){
+			if (data === null) {
+				// La respuesta es nula, maneja el caso de error aquí
+				//console.error('La respuesta es nula.');
+			} else {
+			// La respuesta es válida, realiza tus operaciones aquí
+				if (data && "error" in data && data["error"] !== null) {
+				showMessageError( data["error"], true );
+				//inhabilitar el submit.
+				$("#edit_solicitud_input_submit_ajax").hide();
+			}
+
+			else{
+				$("#edit_solicitud_input_submit_ajax").show();
+				var categoriasicadi_oid = $("#categoriasicadi_oid").val();
+				$("#categoriasicadi_oid").empty();
+				$.each(data, function(k,v){
+					$("#categoriasicadi_oid").append("<option value=\""+k+"\">"+v+"</option>");
+				});
+				if (categoriasicadi_oid === null || categoriasicadi_oid === "") {
+					//$("#categoriasicadi_oid option:first").attr("selected", "selected");
+				} else {
+					$("#categoriasicadi_oid").val(categoriasicadi_oid);
+				}
+				
+				if (cd_equivalencia==5){
+					$("#informes").show();
+				}
+				else{
+					$("#informes").hide();
+				}
+			}
+			}
+			$("#iconoLoadingEquivalencia").remove();
+		}
+	});
+
+
+}
+
+function  seleccionarAreaBeca(cd_area){
+
+	$("#item-div-areabeca_oid").append("<span id='iconoLoadingAreaBeca' style='position:absolute;'><img src='css/grid/loading.gif' /></span>")
+	jQuery.ajax({
+		url:"doAction?action=add_solicitud_area_subarea&cd_area=" + cd_area,
+		dataType:"json",
+		success: function(data){
+
+			if (data === null) {
+				// La respuesta es nula, maneja el caso de error aquí
+				//console.error('La respuesta es nula.');
+			} else {
+			// La respuesta es válida, realiza tus operaciones aquí
+				if (data && "error" in data && data["error"] !== null) {
+				showMessageError( data["error"], true );
+				//inhabilitar el submit.
+				$("#edit_solicitud_input_submit_ajax").hide();
+			}
+
+			else{
+				$("#edit_solicitud_input_submit_ajax").show();
+				var subareabeca_oid = $("#subareabeca_oid").val();
+				$("#subareabeca_oid").empty();
+				$("#subareabeca_oid").append("<option value=\"0\">--seleccionar--</option>");
+				if(cd_area){
+					$.each(data, function(k,v){
+						$("#subareabeca_oid").append("<option value=\""+k+"\">"+v+"</option>");
+					});
+				}
+				if (subareabeca_oid === null || subareabeca_oid === "") {
+					//$("#subareabeca_oid option:first").attr("selected", "selected");
+				} else {
+					$("#subareabeca_oid").val(subareabeca_oid);
+				}
+				
+
+			}
+			}
+			$("#iconoLoadingAreaBeca").remove();
+		}
+	});
+
+
+}
+
+function  seleccionarAreaCarrera(cd_area){
+	$("#item-div-areacarrera_oid").append("<span id='iconoLoadingAreaCarrera' style='position:absolute;'><img src='css/grid/loading.gif' /></span>")
+	jQuery.ajax({
+		url:"doAction?action=add_solicitud_area_subarea&cd_area=" + cd_area,
+		dataType:"json",
+		success: function(data) {
+			if (data === null) {
+				// La respuesta es nula, maneja el caso de error aquí
+				//console.error('La respuesta es nula.');
+			} else {
+				// La respuesta es válida, realiza tus operaciones aquí
+				if (data && "error" in data && data["error"] !== null) {
+					// Tratar el caso de error aquí
+					showMessageError(data["error"], true);
+					$("#edit_solicitud_input_submit_ajax").hide();
+				} else {
+					// Continuar con las operaciones normales aquí
+					$("#edit_solicitud_input_submit_ajax").show();
+					var subareacarrera_oid = $("#subareacarrera_oid").val();
+					$("#subareacarrera_oid").empty();
+					$("#subareacarrera_oid").append("<option value=\"0\">--seleccionar--</option>");
+					if (cd_area) {
+						$.each(data, function(k, v) {
+							$("#subareacarrera_oid").append("<option value=\"" + k + "\">" + v + "</option>");
+						});
+					}
+					if (subareacarrera_oid === null || subareacarrera_oid === "") {
+						$("#subareacarrera_oid option:first").attr("selected", "selected");
+					} else {
+						$("#subareacarrera_oid").val(subareacarrera_oid);
+					}
+					
+				}
+			}
+			$("#iconoLoadingAreaCarrera").remove();
+		}
+
+	});
+
+
+}
+
+function uploadAjax(file, action, name){
+	//console.log(inputElement+', '+action+', '+name);
+	//var file = inputElement.files[0];
+	var data = new FormData();
+	var $submit_ajax = $("#{form_id}_input_submit_ajax");
+	var $restoreOpacity = $submit_ajax.css("opacity");
+	data.append(name,file);
+	 $.ajax({
+	            url:action,
+	            type:'POST',
+	            contentType:false,
+	            data:data,
+	            processData:false,  
+	            cache:false,
+	            beforeSend: function(){
+					$submit_ajax.css({opacity:0.5});
+					$submit_ajax.attr("disabled", "disabled");
+					$("#"+name+"_cargado").html("");
+				  },
+				  complete: function(){ 
+				  },
+				  error: function(){ 
+					 	
+					 	$submit_ajax.css({"opacity":$restoreOpacity});
+					 	$submit_ajax.removeAttr( "disabled" )
+					  },
+				  success: function(content){
+				    
+					
+					$submit_ajax.css({"opacity":$restoreOpacity});
+					$submit_ajax.removeAttr( "disabled" );
+					 
+					
+					
+				  }
+					  
+	            
+	 }).done(function(msg){
+		    $("#"+name+"_cargado").append(msg); //Mostrara los archivos cargados en el div con el id "Cargados"
+	  });
+	}
+
+
+function successDefault_{form_id}(data ){
+
+	try {
+		
+		 jsondata = $.parseJSON(data);
+
+		 if( jsondata != null && jsondata["error"]!=null){
+				showMessageError( jsondata["error"], false );
+			}
+
+		 if( jsondata != null && jsondata["info"]!=null){
+				//showMessageInfo( jsondata["info"], false );
+				//$('#{form_id}').reset();
+				{onCancel};
+				
+			}			
+	} catch (e) {
+	   return;
+	}
+	
+	
+}
+
+
+</script>
+
+<form <!-- BEGIN: property --> {name}="{value}" <!-- END: property --> >
+<input type="hidden" name="csrf_token" value="{csrf_token}">
+<a name="ancla" id="ancla"></a>
+	<!-- BEGIN: fieldset -->
+		<fieldset>
+	    <!-- BEGIN: legend -->
+		<legend>{value}</legend>
+		<!-- END: legend -->
+			<div class="form-flex" style="align-items: center;">
+
+				<!-- BEGIN:column -->
+				<div class="form-right" style="width: 50%;">
+					<!-- BEGIN: ds_investigador -->
+					<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+					    
+					    <!-- BEGIN: label -->
+					    <label for="{input_name}">{value} {required}</label>
+					    <!-- END: label -->
+					    <!-- BEGIN: input -->
+					    {input}
+					    <!-- END: input -->
+					</div>
+					<!-- END: ds_investigador -->
+					<!-- BEGIN: nu_cuil -->
+					<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+					    
+					    <!-- BEGIN: label -->
+					    <label for="{input_name}">{value} {required}</label>
+					    <!-- END: label -->
+					    <!-- BEGIN: input -->
+					    {input}
+					    <!-- END: input -->
+					</div>
+					<!-- END: nu_cuil -->
+				</div>
+				<div class="form-left">
+				<!-- BEGIN: ds_foto -->
+
+				<div class="form-row" style="min-width: {minWidth};display:{display};text-align: right;"  id="item-div-ds_foto">
+
+
+					<br>
+					<span id="ds_foto_cargado" >
+						  <!-- Aqui van los archivos cargados -->
+						  {ds_foto_cargado}
+						</span>
+					<!-- BEGIN: input -->
+					<br>
+					<input id="ds_fotoF" type="file" placeholder="Foto" value="" size="32" name="ds_foto">
+				
+					<!-- END: input -->
+
+					<div style="color:#A43B3B; font-weight:bold">{label_foto}</div>
+				</div>
+				<!-- END: ds_foto -->
+
+			</div>
+				<!-- END:column -->
+
+			</div>
+	</fieldset>
+	<!-- END: fieldset -->
+	<!-- BEGIN: field_hidden -->
+	{input_hidden}
+	<!-- END: field_hidden -->
+	<div id="tabs">
+	<ul>
+		
+		<li><a href="#tabs-1">{domicilio_tab}</a></li>
+		<li><a href="#tabs-2">{universidad_tab}</a></li>
+		<li><a href="#tabs-3">{becario_tab}</a></li>
+		<li><a href="#tabs-4">{carrerainv_tab}</a></li>
+		<li><a href="#tabs-5">{proyectos_tab}</a></li>
+		<li><a href="#tabs-6">{descripcion_tab}</a></li>
+		
+	</ul>
+<div id="formTabs">
+<fieldset>	
+
+	
+	<div id="tabs-1" style="position:relative;">
+		<div class="form-flex">
+			<div class="form-right">
+		{titulo_domicilio}
+			</div>
+		</div>
+		<div class="form-flex">
+			<div class="form-right">
+
+
+		<!-- BEGIN: ds_calle -->
+					<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+					    
+					    <!-- BEGIN: label -->
+					    <label for="{input_name}">{value}</label>
+					    <!-- END: label -->
+					    <!-- BEGIN: input -->
+					    {input}
+					    <!-- END: input -->
+						<div class="obligatorio">
+							<h3>*</h3>
+						</div>
+					</div>
+		<!-- END: ds_calle -->
+			</div>
+			<div class="form-left">
+		<!-- BEGIN: nu_nro -->
+					<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}" >
+					    
+					    <!-- BEGIN: label -->
+					    <label for="{input_name}">{value}</label>
+					    <!-- END: label -->
+					    <!-- BEGIN: input -->
+					    {input}
+					    <!-- END: input -->
+						<div class="obligatorio">
+							<h3>*</h3>
+						</div>
+					</div>
+		<!-- END: nu_nro -->
+			</div>
+			</div><div class="form-flex">
+			<div class="form-right">
+		<!-- BEGIN: nu_piso -->
+					<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+					    
+					    <!-- BEGIN: label -->
+					    <label for="{input_name}">{value}</label>
+					    <!-- END: label -->
+					    <!-- BEGIN: input -->
+					    {input}
+					    <!-- END: input -->
+					</div>
+		<!-- END: nu_piso -->
+			</div>
+			<div class="form-left">
+		<!-- BEGIN: ds_depto -->
+					<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+					    
+					    <!-- BEGIN: label -->
+					    <label for="{input_name}">{value}</label>
+					    <!-- END: label -->
+					    <!-- BEGIN: input -->
+					    {input}
+					    <!-- END: input -->
+					</div>
+		<!-- END: ds_depto -->
+			</div>
+			</div><div class="form-flex">
+			<div class="form-right">
+		<!-- BEGIN: nu_cp -->
+					<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+					    
+					    <!-- BEGIN: label -->
+					    <label for="{input_name}">{value}</label>
+					    <!-- END: label -->
+					    <!-- BEGIN: input -->
+					    {input}
+					    <!-- END: input -->
+						<div class="obligatorio">
+							<h3>*</h3>
+						</div>
+					</div>
+		<!-- END: nu_cp -->
+			</div>
+			<div class="form-left">
+				<!-- BEGIN: nu_telefono -->
+				<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+
+					<!-- BEGIN: label -->
+					<label for="{input_name}">{value}</label>
+					<!-- END: label -->
+					<!-- BEGIN: input -->
+					{input}
+					<!-- END: input -->
+					<div class="obligatorio">
+						<h3>*</h3>
+					</div>
+				</div>
+				<!-- END: nu_telefono -->
+
+			</div>
+				</div>
+		<div class="form-flex">
+			<div class="form-right">
+				<!-- BEGIN: ds_mail -->
+				<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+
+					<!-- BEGIN: label -->
+					<label for="{input_name}">{value}</label>
+					<!-- END: label -->
+					<!-- BEGIN: input -->
+					{input}
+					<!-- END: input -->
+					<div class="obligatorio">
+						<h3>*</h3>
+					</div>
+				</div>
+				<!-- END: ds_mail -->
+
+				</div>
+			<div class="form-left">
+				<!-- BEGIN: bl_notificacion -->
+				<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+
+					<!-- BEGIN: input -->
+					{value}{input}
+					<!-- END: input -->
+
+
+
+				</div>
+				<!-- END: bl_notificacion -->
+
+			</div>
+			</div><div class="form-flex">
+			<div class="form-right">
+				<!-- BEGIN: ds_otromail -->
+				<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+
+					<!-- BEGIN: label -->
+					<label for="{input_name}">{value}</label>
+					<!-- END: label -->
+					<!-- BEGIN: input -->
+					{input}
+					<!-- END: input -->
+				</div>
+				<!-- END: ds_otromail -->
+
+			</div>
+			<div class="form-left">
+				<!-- BEGIN: ds_genero -->
+				<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+
+					<!-- BEGIN: label -->
+					<label for="{input_name}">{value}</label>
+					<!-- END: label -->
+					<!-- BEGIN: input -->
+					{input}
+					<!-- END: input -->
+				</div>
+				<!-- END: ds_genero -->
+
+			</div>
+			</div><div class="form-flex">
+			<div class="form-right">
+		<!-- BEGIN: dt_nacimiento -->
+					<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+					    
+					    <!-- BEGIN: label -->
+					    <label for="{input_name}">{value}</label>
+					    <!-- END: label -->
+					    <!-- BEGIN: input -->
+					    {input}
+					    <!-- END: input -->
+						<div class="obligatorio">
+							<h3>*</h3>
+						</div>
+					</div>
+		<!-- END: dt_nacimiento -->
+			</div>
+			<div class="form-left">
+		<!-- BEGIN: ds_orcid -->
+		<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+
+			<!-- BEGIN: label -->
+			<label for="{input_name}">{value}</label>
+			<!-- END: label -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+			<div class="obligatorio">
+				<h3>*</h3>
+			</div>
+		</div>
+		<!-- END: ds_orcid -->
+			</div>
+			</div><div class="form-flex">
+			<div class="form-right">
+		<!-- BEGIN: ds_sedici -->
+		<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+
+			<!-- BEGIN: label -->
+			<label for="{input_name}">{value}</label>
+			<!-- END: label -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+			<div class="obligatorio">
+				<h3>*</h3>
+			</div>
+		</div>
+		<!-- END: ds_sedici -->
+			</div>
+			<div class="form-left">
+		<!-- BEGIN: ds_scholar -->
+		<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+
+			<!-- BEGIN: label -->
+			<label for="{input_name}">{value}</label>
+			<!-- END: label -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+			<div class="obligatorio">
+				<h3>*</h3>
+			</div>
+		</div>
+		<!-- END: ds_scholar -->
+			</div>
+			</div><div class="form-flex">
+			<div class="form-right">
+		<!-- BEGIN: ds_scopus -->
+		<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+
+			<!-- BEGIN: label -->
+			<label for="{input_name}">{value}</label>
+			<!-- END: label -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+		</div>
+		<!-- END: ds_scopus -->
+			</div>
+			<div class="form-left">
+		<!-- BEGIN: ds_instagram -->
+		<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+
+			<!-- BEGIN: label -->
+			<label for="{input_name}">{value}</label>
+			<!-- END: label -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+		</div>
+		<!-- END: ds_instagram -->
+			</div>
+			</div><div class="form-flex">
+			<div class="form-right">
+			<!-- BEGIN: ds_twitter -->
+			<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+
+				<!-- BEGIN: label -->
+				<label for="{input_name}">{value}</label>
+				<!-- END: label -->
+				<!-- BEGIN: input -->
+				{input}
+				<!-- END: input -->
+			</div>
+			<!-- END: ds_twitter -->
+			</div>
+			<div class="form-left">
+			<!-- BEGIN: ds_facebook -->
+			<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+
+				<!-- BEGIN: label -->
+				<label for="{input_name}">{value}</label>
+				<!-- END: label -->
+				<!-- BEGIN: input -->
+				{input}
+				<!-- END: input -->
+			</div>
+			<!-- END: ds_facebook -->
+			</div>
+
+</div>
+		<div style="color:#A43B3B; font-weight:bold">{label_resguardo}</div>
+	</div>
+
+	<div id="tabs-2" style="position:relative;">
+		<div class="form-flex">
+			<div class="form-right">
+		<!-- BEGIN: solicitud_filter_titulo_oid -->
+					<div class="form-row tooltip fade" style="min-width: {minWidth};display:{display};z-index: 10;"  id="item-div-{input_name}" data-title="{input_help}">
+
+					    
+					    <!-- BEGIN: label -->
+					    <label for="{input_name}">{value}</label>
+					    <!-- END: label -->
+					    <!-- BEGIN: input -->
+					    {input}
+					    <!-- END: input -->
+						<div class="obligatorioFind">
+							<h3>*</h3>
+						</div>
+					</div>
+		<!-- END: solicitud_filter_titulo_oid -->
+			</div>
+			<div class="form-left">
+		<!-- BEGIN: dt_egresogrado -->
+					<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}" >
+					    
+					    <!-- BEGIN: label -->
+					    <label for="{input_name}">{value}</label>
+					    <!-- END: label -->
+					    <!-- BEGIN: input -->
+					    {input}
+					    <!-- END: input -->
+						<div class="obligatorio">
+							<h3>*</h3>
+						</div>
+					</div>
+		<!-- END: dt_egresogrado -->
+			</div>
+		</div>
+		<div class="form-flex">
+			<div class="form-right">
+		<!-- BEGIN: solicitud_filter_tituloposgrado_oid -->
+		<div class="form-row tooltip fade" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}" data-title="{input_help}">
+					    
+					    <!-- BEGIN: label -->
+					    <label for="{input_name}">{value}</label>
+					    <!-- END: label -->
+					    <!-- BEGIN: input -->
+					    {input}
+					    <!-- END: input -->
+					</div>
+		<!-- END: solicitud_filter_tituloposgrado_oid -->
+			</div>
+			<div class="form-left">
+		<!-- BEGIN: dt_egresoposgrado -->
+					<span class="form-row">
+					    
+					    <!-- BEGIN: label -->
+					    <label id="label_egresoposgrado" for="{input_name}">{value}</label>
+					    <!-- END: label -->
+					    <!-- BEGIN: input -->
+					    {input}
+					    <!-- END: input -->
+					</span>
+		<!-- END: dt_egresoposgrado -->
+			</div>
+		</div>
+		<!-- BEGIN: bl_doctorado -->
+					<span class="form-row"   >
+					    
+					 <!-- BEGIN: input -->
+					     {value}{input}
+					    <!-- END: input -->
+					    
+					
+					   
+					</span>
+		<!-- END: bl_doctorado -->
+		
+		
+		<!-- BEGIN: cargo_oid -->
+		<!--<div class="item tooltip fade" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}" data-title="{input_help}">-->
+					    
+					    <!-- BEGIN: label -->
+					    <!--<label for="{input_name}">{value} {required}:</label>-->
+					    <!-- END: label -->
+					    <!-- BEGIN: input -->
+					    <!--{input} -->
+					    <!-- END: input -->
+					<!-- </div> -->
+		<!-- END: cargo_oid -->
+		<!-- BEGIN: deddoc_oid -->
+		<!--<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}"> -->
+
+            <!-- BEGIN: label -->
+		<!--  <label for="{input_name}">{value} {required}:</label> -->
+          <!-- END: label -->
+					    <!-- BEGIN: input -->
+		<!--  {input} -->
+          <!-- END: input -->
+		<!-- </div> -->
+<!-- END: deddoc_oid -->
+		<!-- BEGIN: facultad_oid -->
+		<!-- <div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}"> -->
+
+            <!-- BEGIN: label -->
+		<!--    <label for="{input_name}">{value} *:</label> -->
+            <!-- END: label -->
+					    <!-- BEGIN: input -->
+		<!--	    {input} -->
+                <!-- END: input -->
+		<!--	</div> -->
+<!-- END: facultad_oid -->
+
+		{HTMLCargos}
+
+		<br><br>
+
+		<!-- BEGIN: lugarTrabajo_oid -->
+					<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+					    
+					    <!-- BEGIN: label -->
+					    <label id="labelLugarTrabajo" for="{input_name}">{value}</label><br>
+					    <!-- END: label -->
+					    <!-- BEGIN: input -->
+					    {input}
+					    <!-- END: input -->
+						<div class="obligatorioFindLugar">
+							<h3>*</h3>
+						</div>
+					</div>
+		<!-- END: lugarTrabajo_oid -->
+
+		<!-- BEGIN: ds_experticiaD -->
+		<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+
+			<!-- BEGIN: label -->
+			<label for="{input_name}">{value}:</label>
+			<!-- END: label -->
+			<!-- BEGIN: input -->
+			<br><br>{input}
+			<!-- END: input -->
+		</div>
+		<!-- END: ds_experticiaD -->
+
+
+		<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+			<!-- <label for="claves">Palabras claves:</label>
+			<br> -->
+			<!-- BEGIN: ds_claveD1 -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+			<!-- END: ds_claveD1 -->
+			<!-- BEGIN: ds_claveD2 -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+			<!-- END: ds_claveD2 -->
+			<!-- BEGIN: ds_claveD3 -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+			<!-- END: ds_claveD3 -->
+			<!-- BEGIN: ds_claveD4 -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+			<!-- END: ds_claveD4 -->
+			<!-- BEGIN: ds_claveD5 -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+			<!-- END: ds_claveD5 -->
+			<!-- BEGIN: ds_claveD6 -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+			<!-- END: ds_claveD6 -->
+
+		</div>
+
+		
+	</div>
+
+	<div id="tabs-3" style="position:relative;">
+		<div class="form-flex">
+
+		<div style="color:#A43B3B; font-weight:bold">{titulo_becario}</div>
+		</div>
+		<div class="form-flex">
+			<div class="form-right">
+		<!-- BEGIN: ds_orgbeca -->
+					<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+					    
+					<!-- BEGIN: label -->
+					    <label for="{input_name}">{value}</label>
+					    <!-- END: label -->
+					    <!-- BEGIN: input -->
+					    {input}
+					    <!-- END: input -->
+					    
+					
+					   
+					</div>
+		<!-- END: ds_orgbeca -->
+			</div>
+			<div class="form-left">
+		<!-- BEGIN: ds_tipobeca -->
+					<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+					    
+					 <!-- BEGIN: label -->
+					    <label for="{input_name}">{value}</label>
+					    <!-- END: label -->
+					    <!-- BEGIN: input -->
+					    {input}
+					    <!-- END: input -->
+					    
+					
+					   
+					</div>
+		<!-- END: ds_tipobeca -->
+			</div>
+		</div>
+		<div class="form-flex">
+			<div class="form-right">
+		<!-- BEGIN: dt_becadesde -->
+					<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+					    
+					 <!-- BEGIN: label -->
+					    <label for="{input_name}">{value}</label>
+					    <!-- END: label -->
+					    <!-- BEGIN: input -->
+					    {input}
+					    <!-- END: input -->
+					    
+					
+					   
+					</div>
+		<!-- END: dt_becadesde -->
+			</div>
+			<div class="form-left">
+		<!-- BEGIN: dt_becahasta -->
+					<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+					    
+					 <!-- BEGIN: label -->
+					    <label for="{input_name}">{value}</label>
+					    <!-- END: label -->
+					    <!-- BEGIN: input -->
+					    {input}
+					    <!-- END: input -->
+					    
+					
+					   
+					</div>
+		<!-- END: dt_becahasta -->
+			</div>
+		</div>
+		<div class="form-flex">
+		<!-- BEGIN: lugarTrabajoBeca_oid -->
+					<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+					    
+					<!-- BEGIN: label -->
+					    <label for="{input_name}">{value}</label>
+					    <!-- END: label -->
+					    <!-- BEGIN: input -->
+					    {input}
+					    <!-- END: input -->
+					    
+					
+					   
+					</div>
+		<!-- END: lugarTrabajoBeca_oid -->
+		</div>
+		<div class="form-flex">
+		<!-- BEGIN: ds_resbeca -->
+
+		<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-ds_resbeca">
+
+			<!-- BEGIN: label -->
+			<label for="ds_resbeca">{value}:</label>
+			<!-- END: label -->
+			<!-- BEGIN: input -->
+			<input id="ds_resbecaF" type="file" value="" size="32" name="ds_resbeca" >
+			<!-- END: input -->
+			<span id="ds_resbeca_cargado" >
+						  <!-- Aqui van los archivos cargados -->
+						  {ds_resbeca_cargado}
+						</span>
+			<div style="color:#A43B3B; font-weight:bold">{label_resbeca}</div>
+		</div>
+		<!-- END: ds_resbeca -->
+		</div>
+
+
+		<!-- BEGIN: ds_experticiaB -->
+		<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+
+			<!-- BEGIN: label -->
+			<label for="{input_name}">{value}</label>
+			<!-- END: label -->
+			<!-- BEGIN: input -->
+			<br><br>{input}
+			<!-- END: input -->
+		</div>
+		<!-- END: ds_experticiaB -->
+
+
+		<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+			<!-- <label for="claves">Palabras claves:</label>
+			<br>-->
+			<!-- BEGIN: ds_claveB1 -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+			<!-- END: ds_claveB1 -->
+			<!-- BEGIN: ds_claveB2 -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+			<!-- END: ds_claveB2 -->
+			<!-- BEGIN: ds_claveB3 -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+			<!-- END: ds_claveB3 -->
+			<!-- BEGIN: ds_claveB4 -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+			<!-- END: ds_claveB4 -->
+			<!-- BEGIN: ds_claveB5 -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+			<!-- END: ds_claveB5 -->
+			<!-- BEGIN: ds_claveB6 -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+			<!-- END: ds_claveB6 -->
+
+		</div>
+		
+	</div>
+	<div id="tabs-4" style="position:relative;">
+		<div class="form-flex">
+
+			<div style="color:#A43B3B; font-weight:bold">{titulo_carrera}</div>
+		</div>
+		<div class="form-flex">
+			<div class="form-right">
+		<!-- BEGIN: organismo_oid -->
+					<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+					    
+					<!-- BEGIN: label -->
+					    <label for="{input_name}">{value}</label>
+					    <!-- END: label -->
+					    <!-- BEGIN: input -->
+					    {input}
+					    <!-- END: input -->
+					    
+					
+					   
+					</div>
+		<!-- END: organismo_oid -->
+				</div>
+					<div class="form-left">
+		<!-- BEGIN: carrerainv_oid -->
+					<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+					    
+					<!-- BEGIN: label -->
+					    <label for="{input_name}">{value}</label>
+					    <!-- END: label -->
+					    <!-- BEGIN: input -->
+					    {input}
+					    <!-- END: input -->
+					    
+					
+					   
+					</div>
+		<!-- END: carrerainv_oid -->
+					</div>
+				</div>
+				<div class="form-flex">
+					<div class="form-right">
+		<!-- BEGIN: dt_ingreso -->
+					<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+					    
+					 <!-- BEGIN: label -->
+					    <label for="{input_name}">{value}</label>
+					    <!-- END: label -->
+					    <!-- BEGIN: input -->
+					    {input}
+					    <!-- END: input -->
+					    
+					
+					   
+					</div>
+		<!-- END: dt_ingreso -->
+					</div>
+
+
+					<div class="form-left">
+		<!-- BEGIN: lugarTrabajoCarrera_oid -->
+					<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+					    
+					<!-- BEGIN: label -->
+					    <label for="{input_name}">{value}</label>
+					    <!-- END: label -->
+					    <!-- BEGIN: input -->
+					    {input}
+					    <!-- END: input -->
+					    
+					
+					   
+					</div>
+		<!-- END: lugarTrabajoCarrera_oid -->
+					</div>
+				</div>
+				<div class="form-flex">
+					<div class="form-right">
+		<!-- BEGIN: ds_rescarrera -->
+
+		<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-ds_rescarrera">
+
+			<!-- BEGIN: label -->
+			<label for="ds_rescarrera">{value}</label>
+			<!-- END: label -->
+			<!-- BEGIN: input -->
+			<input id="ds_rescarreraF" type="file" value="" size="32" name="ds_rescarrera" >
+			<!-- END: input -->
+			<span id="ds_rescarrera_cargado" >
+						  <!-- Aqui van los archivos cargados -->
+						  {ds_rescarrera_cargado}
+						</span>
+			<div style="color:#A43B3B; font-weight:bold">{label_rescarrera}</div>
+		</div>
+		<!-- END: ds_rescarrera -->
+
+					</div>
+				</div>
+
+		<!-- BEGIN: ds_experticiaC -->
+		<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+
+			<!-- BEGIN: label -->
+			<label for="{input_name}">{value}:</label>
+			<!-- END: label -->
+			<!-- BEGIN: input -->
+			<br><br>{input}
+			<!-- END: input -->
+		</div>
+		<!-- END: ds_experticiaC -->
+
+
+		<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+			<!--<label for="claves">Palabras claves:</label>-->
+			<br>
+			<!-- BEGIN: ds_claveC1 -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+			<!-- END: ds_claveC1 -->
+			<!-- BEGIN: ds_claveC2 -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+			<!-- END: ds_claveC2 -->
+			<!-- BEGIN: ds_claveC3 -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+			<!-- END: ds_claveC3 -->
+			<!-- BEGIN: ds_claveC4 -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+			<!-- END: ds_claveC4 -->
+			<!-- BEGIN: ds_claveC5 -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+			<!-- END: ds_claveC5 -->
+			<!-- BEGIN: ds_claveC6 -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+			<!-- END: ds_claveC6 -->
+
+		</div>
+		
+	</div>
+	<div id="tabs-5" style="position:relative;">
+		<div style="color:#A43B3B; font-weight:bold">{titulo_proyectos}</div>
+		{HTMLProyectos}
+		{fieldsetopen}
+		{otrosProyectos_title}
+		<div class="form-flex">
+		<div class="form-right">
+		<!-- BEGIN: ds_organismoproyecto -->
+		<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+
+			<!-- BEGIN: label -->
+			<label for="{input_name}">{value}</label>
+			<!-- END: label -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+
+
+
+		</div>
+		<!-- END: ds_organismoproyecto -->
+		</div>
+			<div class="form-left">
+		<!-- BEGIN: ds_codigoproyecto -->
+		<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+
+			<!-- BEGIN: label -->
+			<label for="{input_name}">{value}</label>
+			<!-- END: label -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+
+
+
+		</div>
+		<!-- END: ds_codigoproyecto -->
+			</div>
+		</div>
+		<div class="form-flex">
+			<div class="form-right">
+			<!-- BEGIN: ds_directorproyecto -->
+			<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+
+				<!-- BEGIN: label -->
+				<label for="{input_name}">{value}</label>
+				<!-- END: label -->
+				<!-- BEGIN: input -->
+				{input}
+				<!-- END: input -->
+
+
+
+			</div>
+			<!-- END: ds_directorproyecto -->
+			</div>
+		</div>
+		<div class="form-flex">
+			<div class="form-right">
+			<!-- BEGIN: ds_tituloproyecto -->
+			<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+
+				<!-- BEGIN: label -->
+				<label for="{input_name}">{value}</label>
+				<!-- END: label -->
+				<!-- BEGIN: input -->
+				{input}
+				<!-- END: input -->
+
+
+
+			</div>
+			<!-- END: ds_tituloproyecto -->
+			</div>
+		</div>
+		<div class="form-flex">
+			<div class="form-right">
+		<!-- BEGIN: dt_proyectodesde -->
+		<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+
+			<!-- BEGIN: label -->
+			<label for="{input_name}">{value}</label>
+			<!-- END: label -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+
+
+
+		</div>
+		<!-- END: dt_proyectodesde -->
+				</div>
+			<div class="form-left">
+		<!-- BEGIN: dt_proyectohasta -->
+		<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+
+			<!-- BEGIN: label -->
+			<label for="{input_name}">{value}</label>
+			<!-- END: label -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+
+
+
+		</div>
+		<!-- END: dt_proyectohasta -->
+			</div>
+		</div>
+		<div class="form-flex">
+			<div class="form-right">
+			<!-- BEGIN: ds_archivo -->
+
+			<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-ds_archivo">
+
+				<!-- BEGIN: label -->
+				<label for="ds_archivo">{value}</label>
+				<!-- END: label -->
+				<!-- BEGIN: input -->
+				<input id="ds_archivoF" type="file" value="" size="32" name="ds_archivo" >
+				<!-- END: input -->
+				<span id="ds_archivo_cargado" >
+						  <!-- Aqui van los archivos cargados -->
+						  {ds_archivo_cargado}
+						</span>
+				<div style="color:#A43B3B; font-weight:bold">{label_archivo}</div>
+			</div>
+			<!-- END: ds_archivo -->
+			</div>
+		</div>
+		{fieldsetclose}
+	</div>
+	<div id="tabs-6" style="position:relative;">
+		{titulo_tipo_investigador}
+		<div style="position: relative; float: left; width: 70%;">
+			<div class="form-flex">
+				<div class="form-right">
+		<!-- BEGIN: facultadplanilla_oid -->
+		<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+
+			<!-- BEGIN: label -->
+			<label for="{input_name}">{value}</label>
+			<!-- END: label -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+			<div class="obligatorioFacultad">
+				<h3>*</h3>
+			</div>
+		</div>
+		<!-- END: facultadplanilla_oid -->
+				</div>
+			</div>
+			<div class="form-flex">
+				<div class="form-right">
+		<!-- BEGIN: categoria_oid -->
+					<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+					    
+					    <!-- BEGIN: label -->
+					    <label for="{input_name}">{value}</label>
+					    <!-- END: label -->
+					    <!-- BEGIN: input -->
+					    {input}
+					    <!-- END: input -->
+					</div>
+		<!-- END: categoria_oid -->
+				</div>
+			</div>
+			<div class="form-flex">
+				<div class="form-right">
+		<!-- BEGIN: equivalencia_oid -->
+		<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}" >
+
+			<!-- BEGIN: label -->
+			<label for="{input_name}">{value}</label>
+			<!-- END: label -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+			<div class="obligatorioEquivalencia">
+				<h3>*</h3>
+			</div>
+		</div>
+		<!-- END: equivalencia_oid -->
+				</div>
+			</div>
+			<div class="form-flex">
+				<div class="form-right">
+		<!-- BEGIN: categoriasicadi_oid -->
+		<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}">
+
+			<!-- BEGIN: label -->
+			<label for="{input_name}">{value}</label>
+			<!-- END: label -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+			<div class="obligatorioSolicitada">
+				<h3>*</h3>
+			</div>
+		</div>
+		<!-- END: categoriasicadi_oid -->
+				</div>
+			</div>
+			<div class="form-flex">
+				<div class="form-right">
+		<!-- BEGIN: ds_curriculum -->
+					
+					<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-ds_curriculum">
+					    
+					     <!-- BEGIN: label -->
+					    <label for="ds_curriculum">{value} *:</label>
+					    <!-- END: label -->
+					    <!-- BEGIN: input -->
+					    <input id="ds_curriculumF" type="file" value="" size="32" name="ds_curriculum">
+					    <!-- END: input -->
+					    <span id="ds_curriculum_cargado" >
+						  <!-- Aqui van los archivos cargados -->
+						  {ds_curriculum_cargado}
+						</span>
+					   <div style="color:#A43B3B; font-weight:bold">{label_curriculum}</div> 
+					</div>
+		<!-- END: ds_curriculum -->
+				</div>
+			</div>
+			<div class="form-flex">
+		<div id="informes">
+			<fieldset>
+
+				<legend>3 informes</legend>
+				<div class="form-flex">
+					<div class="form-row">
+			<!-- BEGIN: nu_year1 -->
+			<!-- BEGIN: input -->
+			{input}
+			<!-- END: input -->
+			<!-- END: nu_year1 -->
+					</div>
+					<div class="form-row">
+			<!-- BEGIN: ds_informe1 -->
+
+
+
+				<!-- BEGIN: label -->
+				<label for="ds_informe1">{value}</label>
+				<!-- END: label -->
+				<!-- BEGIN: input -->
+				<input id="ds_informe1F" type="file" value="" size="32" name="ds_informe1" >
+				<!-- END: input -->
+				<span id="ds_informe1_cargado" >
+						  <!-- Aqui van los archivos cargados -->
+						  {ds_informe1_cargado}
+						</span>
+
+
+			<!-- END: ds_informe1 -->
+				</div>
+				</div >
+				<div class="form-flex">
+				<div class="form-row">
+				<!-- BEGIN: nu_year2 -->
+				<!-- BEGIN: input -->
+				{input}
+				<!-- END: input -->
+				<!-- END: nu_year2 -->
+				</div>
+				<!-- BEGIN: ds_informe2 -->
+
+
+<div class="form-row">
+				<!-- BEGIN: label -->
+				<label for="ds_informe2">{value}</label>
+				<!-- END: label -->
+				<!-- BEGIN: input -->
+				<input id="ds_informe2F" type="file" value="" size="32" name="ds_informe2" >
+				<!-- END: input -->
+				<span id="ds_informe2_cargado" >
+						  <!-- Aqui van los archivos cargados -->
+						  {ds_informe2_cargado}
+						</span>
+
+
+				<!-- END: ds_informe2 -->
+					</div>
+				</div>
+				<div class="form-flex">
+						<div class="form-row">
+				<!-- BEGIN: nu_year3 -->
+				<!-- BEGIN: input -->
+				{input}
+				<!-- END: input -->
+				<!-- END: nu_year3 -->
+						</div>
+					<div class="form-row">
+				<!-- BEGIN: ds_informe3 -->
+
+
+
+				<!-- BEGIN: label -->
+				<label for="ds_informe3">{value}</label>
+				<!-- END: label -->
+				<!-- BEGIN: input -->
+				<input id="ds_informe3F" type="file" value="" size="32" name="ds_informe3" >
+				<!-- END: input -->
+				<span id="ds_informe3_cargado" >
+						  <!-- Aqui van los archivos cargados -->
+						  {ds_informe3_cargado}
+						</span>
+
+
+				<!-- END: ds_informe3 -->
+						</div>
+				</div>
+			</fieldset>
+		</div>
+			</div>
+			<div class="form-flex">
+
+			<!-- BEGIN: areacarrera_oid -->
+			<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}" >
+
+				<!-- BEGIN: label -->
+				<label for="{input_name}">{value}</label>
+				<!-- END: label -->
+				<!-- BEGIN: input -->
+				{input}
+				<!-- END: input -->
+			</div>
+			<!-- END: areacarrera_oid -->
+				</div>
+			<div class="form-flex">
+			<!-- BEGIN: subareacarrera_oid -->
+			<div class="form-row" style="min-width: {minWidth};display:{display}"  id="item-div-{input_name}" >
+
+				<!-- BEGIN: label -->
+				<label for="{input_name}">{value}</label>
+				<!-- END: label -->
+				<!-- BEGIN: input -->
+				{input}
+				<!-- END: input -->
+			</div>
+			<!-- END: subareacarrera_oid -->
+				</div>
+			</div>
+
+
+		<div style="position: relative; float: left; width: 30%;">
+			<div style="color:gray">{label_equivalencia_help}</div>
+		</div>
+		
+	</div>
+
+</fieldset>
+</div>
+	</div>
+
+</form>
+
+{customHTML}
+
+
+
+<!-- BEGIN: buttons -->
+<form id="buttons{inputId}">
+	<fieldset class="tblFooters">
+	
+		
+		
+		<!-- BEGIN: submit -->
+		<input type="button" value="{lbl_submit}" id="input_submit">
+		<!-- END: submit -->
+		
+		<!-- BEGIN: submit_ajax -->
+		<input type="button" value="{lbl_button}" id="input_submit_ajax">
+		<!-- END: submit_ajax -->
+		
+		<!-- BEGIN: button -->
+		<input type="button" value="{lbl_button}" id="input_button_{i}">
+		<!-- END: button -->
+
+		<!-- BEGIN: cancel -->
+		<input type="button" value="{lbl_cancel}" id="input_cancel">
+		<!-- END: cancel -->
+	
+		<div class="camposRequeridos">(*) {msg_required_fields}</div>	
+	</fieldset>
+</form>	
+<!-- END: buttons -->
+<!-- END: main -->

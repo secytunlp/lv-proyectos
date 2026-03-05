@@ -1,0 +1,384 @@
+<!-- BEGIN: main -->
+<link rel="stylesheet" href="{grid_style}" type="text/css" />
+<link rel="stylesheet" href="{rich_grid_style}" type="text/css" />
+
+<!--[if IE 7]><link rel="stylesheet" href="{WEB_PATH}css/grid/rich_grid_ie.css" type="text/css" /><![endif]-->
+<!--[if IE 8]><link rel="stylesheet" href="{WEB_PATH}css/grid/rich_grid_ie.css" type="text/css" /><![endif]-->
+<script language="javascript" src="{WEB_PATH}js/autocomplete/simpleAutoComplete.js"></script>
+<link rel="stylesheet" href="{WEB_PATH}css/autocomplete/simpleAutoComplete.css" type="text/css" />
+
+
+<style>
+
+
+#ui-datepicker-div{
+	z-index:112;
+}
+
+#grid_filters {
+ width: 50%;
+}
+
+#grid_filters form fieldset{
+ /*background: none;*/
+ padding:2em;
+}
+#grid_filters form .tblFooters{
+ border: none;
+ background: none;
+ box-shadow:none;
+ padding:0px;
+ margin-top:4px;
+    /*float: right;*/
+}
+#grid_filters form .camposRequeridos{
+ display: none;
+}
+</style>
+
+<script nonce="tu_nonce_generado">
+
+	function showResults(data){
+
+		$("#searchdiv_{gridId}").html(data);
+		endSearch("#searchdiv_{gridId}");
+	}
+
+	//para mantener los items seleccionados.
+	//a través de todas las páginas.
+	var itemsSelected = new Array()
+	 itemsSelected['{gridId}'] = new Array();
+
+
+
+	function startSearch( id ){
+		
+		$( id ).fadeTo("fast", 0.33);
+
+		right = ($(window).width() / 2) - (32);		
+		htmlSearching = "<div style='position:absolute; right:" + right + "px;top:40px;'><img src='{WEB_PATH}css/grid/loading.gif' /></div>";
+		$( id ).html($( id ).html() + htmlSearching);
+	}
+
+	function endSearch( id ){
+		$( id ).fadeTo("fast", 1);
+		
+		//selecciono los que ya fueron previamente seleccionados.
+		//checkAllPageItemsSelected_{gridId}();
+		
+	}	
+
+    function sort_ajax(filterId, orderBy, orderType){
+
+        $("#" + filterId + " :input").each(function(){
+        		var name = $(this).attr('name');
+        		if(name=="orderBy"){
+					$(this).val(orderBy);
+            	}
+            });
+        
+        $("#" + filterId + " :input").each(function(){
+    		var name = $(this).attr('name');
+    		if(name=="orderType"){
+				$(this).val(orderType);
+        	}
+        });
+    
+
+        search_ajax(filterId);
+    }
+
+    
+
+    function paginate_ajax(filterId ,page ){
+
+
+    	$("#" + filterId + " :input").each(function(){
+    		var name = $(this).attr('name');
+    		if(name=="page"){
+				$(this).val(page);
+        	}
+        });
+    
+
+        search_ajax(filterId);
+
+    }
+
+    
+    function search_ajax( filterId, action ){
+		
+    	if( !action ){
+    		action = "cmp_entitygrid";
+    	}
+
+		// Elimina las comillas del valor de filterId si est�n presentes
+		filterId = filterId.replace(/['"]+/g, '');
+    	
+        if( action ){
+        	$("#" + filterId + " :input").each(function(){
+        		var name = $(this).attr('name');
+        		if(name=="action"){
+					$(this).val(action);
+            	}
+            });
+        
+        }
+        
+        startSearch("#searchdiv_{gridId}");
+        $("#" + filterId ).submit();
+        
+    }
+
+    function resetFilterPage_{filterId}(){
+		
+    	$("#{filterId} :input").each(function(){
+    		var name = $(this).attr('name');
+        	if(name=="page"){
+				$(this).val(1);
+        	}
+        });
+    }
+    
+
+    function export_{gridId}(filterId, action ){
+
+        if( action ){
+        	$("#" + filterId + " :input").each(function(){
+        		var name = $(this).attr('name');
+        		if(name=="action"){
+					$(this).val(action);
+            	}
+            });
+        
+        }
+        	
+        data = $('#'+filterId).serialize();
+
+        window.location.href =  "doAction?search=1&" + data ;
+
+   		jQuery("#filterValue_{gridId}").val(previous);    	
+    }
+
+    function search_all_ajax( filterId, action ){
+
+        //jQuery("#filterValue_{gridId}").val("");
+		// Elimina las comillas del valor de filterId si est�n presentes
+		filterId = filterId.replace(/['"]+/g, '');
+        clear_filters(filterId);
+	
+        search_ajax( filterId, action );
+    }
+
+
+    function paginate_ajax_{gridId}(page ){
+        paginate_ajax('{filterId}', page);
+    }
+
+	function beforeSubmitFilter( formId ){
+
+		$("#" + formId + " :input").each(function(){
+    		var name = $(this).attr('name');
+    		if(name=="page"){
+				//$(this).val(1);
+        	}
+        });
+		
+	}
+        
+    function loadPopup_{gridId}( url, title, height, width ){
+
+        if( !height )
+            height = 500;
+
+        if( !width )
+            width = 750;
+	
+        var dialogOpts = {
+            title : title,
+            modal : true,
+            autoOpen : false,
+            bgiframe : true,
+            height : height,
+            width : width,
+            open : function() {
+                jQuery("#list_popup_{gridId}").load(url);
+            }
+        };
+        jQuery("#list_popup_{gridId}").children().remove();
+        jQuery("#list_popup_{gridId}").dialog("destroy");
+        jQuery("#list_popup_{gridId}").dialog(dialogOpts);
+        jQuery("#list_popup_{gridId}").dialog("open");
+
+    }
+    
+    function loadTargetBlank(  url  ){
+
+    	window.open( url);
+    	//jQuery(window).load(  url );
+
+    }
+
+    function morefilters(gridId){
+        $("#menu_filters_" + gridId).css({'display': "block"});
+    }
+    function clear_filters(gridId){
+	
+        $(".menu_filter_" + gridId).val("");
+        $(".menu_filter_" + gridId).selected("");
+        $("#filterValue_" + gridId).val("");
+        
+    }
+
+
+
+    $(document).ready(function () {
+		// Manejar el clic en los enlaces de acci�n
+		$(".action-link").on("click", function (event) {
+			event.preventDefault(); // Evitar la navegaci�n predeterminada
+			const callback = $(this).data("callback");
+			if (callback && window[callback] && typeof window[callback] === "function") {
+				window[callback](); // Llama a la funci�n de callback
+			}
+		});
+	});
+
+    
+
+    
+    /**
+     * agregamos un item a la colección de 
+     * items seleccionados (para todas las páginas)
+     */
+    function addItemsSelected(gridId, value ){
+
+    	
+    	if( ! isItemSelected( gridId, value ) )
+    		itemsSelected[gridId].push( value );
+    	
+    }
+
+    /**
+     * se elimina el item de la colección de 
+     * items seleccionados (para todas las páginas)
+     */
+    function removeItemsSelected(gridId, value ){
+    	
+    	
+    	
+    	for(var i=0; i<itemsSelected[gridId].length; i++) {
+            if (itemsSelected[gridId][i] == value){
+            	delete  itemsSelected[gridId][i];
+            	return true;
+            } 
+            	
+        }
+    }
+    
+    /**
+     * true si el item está seleccionado
+     * (para todas las páginas)
+     */
+    function isItemSelected(gridId,value){
+    	
+    	for(var i=0; i<itemsSelected[gridId].length; i++) {
+            if (itemsSelected[gridId][i] == value) 
+            	return true;
+        }
+    	return false;
+    }
+    
+    /**
+     * se chequean los items de la página actual que 
+     * estén seleccionados en la lista global de item
+     * seleccionados.
+     */
+    function checkAllPageItemsSelected(gridId){
+
+    	var mostrar = false;
+    	for(var i=0; i<itemsSelected[gridId].length; i++) {
+         
+    		var item = itemsSelected[gridId][i];
+    		
+    		if ($("#" + item).length>0) {
+    		
+    			$("#" + item).css({'background-color': '#FFFFCC'});
+    			//$("#" + item).checked(true);
+    			
+    			//reemplazar item x row.
+    			var row = item.replace("row","item");
+    			
+    			$("input[name=" + row + "]").attr('checked', true);
+    			
+    			mostrar = true;
+    		}
+        }
+    	
+    	setOptions(gridId,mostrar );
+    }
+
+    /**
+     * se obtiene una lista separada por comas con los
+     * items seleccionados a través de todas las páginas.
+     */
+    function getAllPageItemsSelected(gridId){
+    	 
+    	var selected = "";
+    	var first = true;
+    	
+    	for (i=0; i<itemsSelected[gridId].length; i++){
+    	
+    		if( first ) 
+     			selected +=  itemsSelected[gridId][i]  ;
+     		else
+     			selected +=  "," + itemsSelected[gridId][i];
+
+    		first = false;
+    	
+    	}
+    	return selected;
+    }    
+    
+
+    
+</script>
+<script language="javascript" src="{WEB_PATH}js/form/form.js"></script>
+<div class="grid" >
+
+    <div class="grid_title">{title}</div>
+
+    <div id="grid_filters">
+        
+        {cmp_filter}
+        
+    </div>
+
+
+    <div class="rich_actions_content">
+		<div id="rich_option_items" class="rich_options" style="display: block;">
+			<!-- BEGIN: action -->
+			<a title="{label}" href="doAction?action={action}" class="action-link" data-callback="{callback}">
+				<div class="rich_option_item">
+					<div class="rich_option_item_{liClass}"></div>
+				</div>
+			</a>
+			<!-- END: action -->
+		</div>
+	</div>
+
+
+
+    <div id="searchdiv_{gridId}" class="grid_searchdiv">
+
+       <!-- BEGIN:error_message -->
+		<script type="text/javascript">
+		showMessageError( '{error_message}', false );
+		</script>
+		<!-- END:error_message -->
+
+
+	{search_first_time}
+    </div>
+    <div style="display: none;" id="list_popup_{gridId}"></div>
+</div>
+<!-- END: main -->

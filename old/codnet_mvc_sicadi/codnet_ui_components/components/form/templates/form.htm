@@ -1,0 +1,128 @@
+<!-- BEGIN: main -->
+<script nonce="tu_nonce_generado" type="text/javascript">
+
+
+$(function() {
+
+        $("#{form_id}").submit(function(e) {
+            		
+                if( {useAjaxSubmit} ) {
+
+                	submitAjaxForm('{form_id}', '{action}', {onSuccessCallback},{beforeSubmit});
+                	return false;
+                }
+        });
+	
+            								
+});
+
+function successDefault_{form_id}(data ){
+
+	try {
+		
+		 jsondata = $.parseJSON(data);
+
+		 if( jsondata != null && jsondata["error"]!=null){
+				showMessageError( jsondata["error"], false );
+			}
+
+		 if( jsondata != null && jsondata["info"]!=null){
+				//showMessageInfo( jsondata["info"], false );
+				//$('#{form_id}').reset();
+				{onCancel};
+				
+			}
+					
+	} catch (e) {
+	   return;
+	}
+	  
+}
+
+$(document).ready(function() {
+    // Espera a que el documento esté completamente cargado antes de ejecutar el código
+
+    // Encuentra los botones por sus IDs
+    var cancelButton = $('#input_cancel');
+    var submitButton = $('#input_submit');
+    var submitAjaxButton = $('#input_submit_ajax');
+    var button1 = $('#input_button_1'); // Reemplaza '1' con el índice correcto si es necesario
+
+    // Asocia eventos de clic a los botones
+    cancelButton.on('click', function() {
+        // Código para manejar el clic en el botón Cancelar
+        // Ejemplo: window.location.href = 'url_de_cancelar';
+    });
+
+    submitButton.on('click', function() {
+        // Código para manejar el clic en el botón Submit
+        submitForm('{form_id}');
+    });
+
+    submitAjaxButton.on('click', function() {
+        // Código para manejar el clic en el botón Submit Ajax
+        submitForm('{form_id}');
+    });
+
+    button1.on('click', function() {
+        // Código para manejar el clic en el botón personalizado 1
+        // Ejemplo: función_personalizada();
+    });
+});
+
+
+</script>
+
+<form <!-- BEGIN: property --> {name}="{value}" <!-- END: property --> >
+
+	<!-- BEGIN: fieldset -->
+		<fieldset>
+	    <!-- BEGIN: legend -->
+		<legend>{value}</legend>
+		<!-- END: legend -->
+
+		<!-- BEGIN: field -->
+		<div class="item" style="min-width: {minWidth};">
+		    
+		    <!-- BEGIN: label -->
+		    <label for="{input_name}">{value} {required}:</label>
+		    <!-- END: label -->
+		    <!-- BEGIN: input -->
+		    {input}
+		    <!-- END: input -->
+		</div>
+		<!-- END: field -->
+	</fieldset>
+	<!-- END: fieldset -->
+	<!-- BEGIN: field_hidden -->
+	{input_hidden}
+	<!-- END: field_hidden -->
+</form>
+
+{customHTML}
+
+<!-- BEGIN: buttons -->
+<form id="buttons{inputId}">
+	<fieldset class="tblFooters">
+	
+		<!-- BEGIN: cancel -->
+		<input type="button" value="{lbl_cancel}" id="input_cancel">
+		<!-- END: cancel -->
+		
+		<!-- BEGIN: submit -->
+		<input type="button" value="{lbl_submit}" id="input_submit">
+		<!-- END: submit -->
+		
+		<!-- BEGIN: submit_ajax -->
+		<input type="button" value="{lbl_button}" id="input_submit_ajax">
+		<!-- END: submit_ajax -->
+		
+		<!-- BEGIN: button -->
+		<input type="button" value="{lbl_button}" id="input_button_{i}">
+		<!-- END: button -->
+	
+		<div class="camposRequeridos">(*) {msg_required_fields}</div>	
+	</fieldset>
+</form>	
+<!-- END: buttons -->
+<!-- END: main -->

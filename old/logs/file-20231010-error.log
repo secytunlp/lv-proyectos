@@ -1,0 +1,426 @@
+2023-10-10T15:27:06-03:00 ERROR CdtUtils E_WARNING: Undefined array key "layout"
+2023-10-10T15:27:06-03:00 ERROR CdtUtils file: /var/www/sicadi/codnet_mvc_sicadi/codnet_core/utils/CdtUtils.Class.php
+2023-10-10T15:27:06-03:00 ERROR CdtUtils line: 395
+2023-10-10T15:27:06-03:00 ERROR CdtUtils E_WARNING: Undefined array key "search"
+2023-10-10T15:27:06-03:00 ERROR CdtUtils file: /var/www/sicadi/codnet_mvc_sicadi/codnet_core/utils/CdtUtils.Class.php
+2023-10-10T15:27:06-03:00 ERROR CdtUtils line: 395
+2023-10-10T15:27:06-03:00 ERROR CdtUtils E_WARNING: Undefined array key "gridId"
+2023-10-10T15:27:06-03:00 ERROR CdtUtils file: /var/www/sicadi/codnet_mvc_sicadi/codnet_core/utils/CdtUtils.Class.php
+2023-10-10T15:27:06-03:00 ERROR CdtUtils line: 395
+2023-10-10T15:27:06-03:00 ERROR CdtUtils E_WARNING: Undefined array key "search"
+2023-10-10T15:27:06-03:00 ERROR CdtUtils file: /var/www/sicadi/codnet_mvc_sicadi/codnet_core/utils/CdtUtils.Class.php
+2023-10-10T15:27:06-03:00 ERROR CdtUtils line: 395
+2023-10-10T15:27:06-03:00 ERROR CdtUtils E_WARNING: Undefined array key "component"
+2023-10-10T15:27:06-03:00 ERROR CdtUtils file: /var/www/sicadi/codnet_mvc_sicadi/codnet_core/utils/CdtUtils.Class.php
+2023-10-10T15:27:06-03:00 ERROR CdtUtils line: 395
+2023-10-10T15:27:06-03:00 ERROR CdtUtils E_WARNING: Undefined array key "orderBy"
+2023-10-10T15:27:06-03:00 ERROR CdtUtils file: /var/www/sicadi/codnet_mvc_sicadi/codnet_core/utils/CdtUtils.Class.php
+2023-10-10T15:27:06-03:00 ERROR CdtUtils line: 395
+2023-10-10T15:27:06-03:00 ERROR CdtUtils E_WARNING: Undefined array key "orderType"
+2023-10-10T15:27:06-03:00 ERROR CdtUtils file: /var/www/sicadi/codnet_mvc_sicadi/codnet_core/utils/CdtUtils.Class.php
+2023-10-10T15:27:06-03:00 ERROR CdtUtils line: 395
+2023-10-10T15:27:06-03:00 ERROR CdtUtils E_WARNING: Undefined array key "page"
+2023-10-10T15:27:06-03:00 ERROR CdtUtils file: /var/www/sicadi/codnet_mvc_sicadi/codnet_core/utils/CdtUtils.Class.php
+2023-10-10T15:27:06-03:00 ERROR CdtUtils line: 395
+2023-10-10T15:27:06-03:00 ERROR CdtUtils E_WARNING: Undefined array key "rowPerPage"
+2023-10-10T15:27:06-03:00 ERROR CdtUtils file: /var/www/sicadi/codnet_mvc_sicadi/codnet_core/utils/CdtUtils.Class.php
+2023-10-10T15:27:06-03:00 ERROR CdtUtils line: 395
+2023-10-10T15:27:06-03:00 ERROR CdtUtils E_WARNING: Undefined array key "gridId"
+2023-10-10T15:27:06-03:00 ERROR CdtUtils file: /var/www/sicadi/codnet_mvc_sicadi/codnet_core/utils/CdtUtils.Class.php
+2023-10-10T15:27:06-03:00 ERROR CdtUtils line: 395
+2023-10-10T15:27:06-03:00 ERROR CdtUtils E_WARNING: Undefined array key "fCallback"
+2023-10-10T15:27:06-03:00 ERROR CdtUtils file: /var/www/sicadi/codnet_mvc_sicadi/codnet_core/utils/CdtUtils.Class.php
+2023-10-10T15:27:06-03:00 ERROR CdtUtils line: 395
+2023-10-10T15:27:06-03:00 ERROR CdtUtils E_WARNING: Undefined array key "search"
+2023-10-10T15:27:06-03:00 ERROR CdtUtils file: /var/www/sicadi/codnet_mvc_sicadi/codnet_core/utils/CdtUtils.Class.php
+2023-10-10T15:27:06-03:00 ERROR CdtUtils line: 395
+2023-10-10T15:27:06-03:00 ERROR CdtUtils E_WARNING: Undefined array key "search"
+2023-10-10T15:27:06-03:00 ERROR CdtUtils file: /var/www/sicadi/codnet_mvc_sicadi/codnet_core/utils/CdtUtils.Class.php
+2023-10-10T15:27:06-03:00 ERROR CdtUtils line: 395
+2023-10-10T15:27:06-03:00 ERROR CdtUtils E_WARNING: Undefined array key "search"
+2023-10-10T15:27:06-03:00 ERROR CdtUtils file: /var/www/sicadi/codnet_mvc_sicadi/codnet_core/utils/CdtUtils.Class.php
+2023-10-10T15:27:06-03:00 ERROR CdtUtils line: 395
+2023-10-10T15:27:06-03:00 ERROR CdtUtils E_WARNING: Undefined array key "component"
+2023-10-10T15:27:06-03:00 ERROR CdtUtils file: /var/www/sicadi/codnet_mvc_sicadi/codnet_core/utils/CdtUtils.Class.php
+2023-10-10T15:27:06-03:00 ERROR CdtUtils line: 395
+2023-10-10T15:27:06-03:00 ERROR CdtUtils E_WARNING: Undefined array key "orderBy"
+2023-10-10T15:27:06-03:00 ERROR CdtUtils file: /var/www/sicadi/codnet_mvc_sicadi/codnet_core/utils/CdtUtils.Class.php
+2023-10-10T15:27:06-03:00 ERROR CdtUtils line: 395
+2023-10-10T15:27:06-03:00 ERROR CdtUtils E_WARNING: Undefined array key "orderType"
+2023-10-10T15:27:06-03:00 ERROR CdtUtils file: /var/www/sicadi/codnet_mvc_sicadi/codnet_core/utils/CdtUtils.Class.php
+2023-10-10T15:27:06-03:00 ERROR CdtUtils line: 395
+2023-10-10T15:27:06-03:00 ERROR CdtUtils E_WARNING: Undefined array key "page"
+2023-10-10T15:27:06-03:00 ERROR CdtUtils file: /var/www/sicadi/codnet_mvc_sicadi/codnet_core/utils/CdtUtils.Class.php
+2023-10-10T15:27:06-03:00 ERROR CdtUtils line: 395
+2023-10-10T15:27:06-03:00 ERROR CdtUtils E_WARNING: Undefined array key "rowPerPage"
+2023-10-10T15:27:06-03:00 ERROR CdtUtils file: /var/www/sicadi/codnet_mvc_sicadi/codnet_core/utils/CdtUtils.Class.php
+2023-10-10T15:27:06-03:00 ERROR CdtUtils line: 395
+2023-10-10T15:27:06-03:00 ERROR CdtUtils E_WARNING: Undefined array key "gridId"
+2023-10-10T15:27:06-03:00 ERROR CdtUtils file: /var/www/sicadi/codnet_mvc_sicadi/codnet_core/utils/CdtUtils.Class.php
+2023-10-10T15:27:06-03:00 ERROR CdtUtils line: 395
+2023-10-10T15:27:06-03:00 ERROR CdtUtils E_WARNING: Undefined array key "fCallback"
+2023-10-10T15:27:06-03:00 ERROR CdtUtils file: /var/www/sicadi/codnet_mvc_sicadi/codnet_core/utils/CdtUtils.Class.php
+2023-10-10T15:27:06-03:00 ERROR CdtUtils line: 395
+2023-10-10T16:05:15-03:00 ERROR CdtUtils E_WARNING: Undefined array key "sicadi"
+2023-10-10T16:05:15-03:00 ERROR CdtUtils file: /var/www/sicadi/codnet_mvc_sicadi/codnet_secure/utils/CdtSecureUtils.Class.php
+2023-10-10T16:05:15-03:00 ERROR CdtUtils line: 108
+2023-10-10T16:05:15-03:00 ERROR CdtUtils E_WARNING: Trying to access array offset on value of type null
+2023-10-10T16:05:15-03:00 ERROR CdtUtils file: /var/www/sicadi/codnet_mvc_sicadi/codnet_secure/utils/CdtSecureUtils.Class.php
+2023-10-10T16:05:15-03:00 ERROR CdtUtils line: 108
+2023-10-10T18:36:46-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_user"
+2023-10-10T18:36:46-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:36:46-03:00 ERROR CdtUtils line: 534
+2023-10-10T18:36:46-03:00 ERROR CdtUtils E_WARNING: Undefined array key "functions"
+2023-10-10T18:36:46-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:36:46-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:36:46-03:00 ERROR CdtUtils : unserialize(): Passing null to parameter #1 ($data) of type string is deprecated
+2023-10-10T18:36:46-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:36:46-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:36:46-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_username"
+2023-10-10T18:36:46-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:36:46-03:00 ERROR CdtUtils line: 536
+2023-10-10T18:36:46-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_name"
+2023-10-10T18:36:46-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:36:46-03:00 ERROR CdtUtils line: 537
+2023-10-10T18:36:46-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_usergroup"
+2023-10-10T18:36:46-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:36:46-03:00 ERROR CdtUtils line: 538
+2023-10-10T18:36:46-03:00 ERROR CdtUtils : stripslashes(): Passing null to parameter #1 ($string) of type string is deprecated
+2023-10-10T18:36:46-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/action/users/EditCYTUserProfileInitAction.Class.php
+2023-10-10T18:36:46-03:00 ERROR CdtUtils line: 121
+2023-10-10T18:36:47-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_user"
+2023-10-10T18:36:47-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:36:47-03:00 ERROR CdtUtils line: 534
+2023-10-10T18:36:47-03:00 ERROR CdtUtils E_WARNING: Undefined array key "functions"
+2023-10-10T18:36:47-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:36:47-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:36:47-03:00 ERROR CdtUtils : unserialize(): Passing null to parameter #1 ($data) of type string is deprecated
+2023-10-10T18:36:47-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:36:47-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:36:47-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_username"
+2023-10-10T18:36:47-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:36:47-03:00 ERROR CdtUtils line: 536
+2023-10-10T18:36:47-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_name"
+2023-10-10T18:36:47-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:36:47-03:00 ERROR CdtUtils line: 537
+2023-10-10T18:36:47-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_usergroup"
+2023-10-10T18:36:47-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:36:47-03:00 ERROR CdtUtils line: 538
+2023-10-10T18:36:47-03:00 ERROR CdtUtils : stripslashes(): Passing null to parameter #1 ($string) of type string is deprecated
+2023-10-10T18:36:47-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/action/users/EditCYTUserProfileInitAction.Class.php
+2023-10-10T18:36:47-03:00 ERROR CdtUtils line: 121
+2023-10-10T18:36:47-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_user"
+2023-10-10T18:36:47-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:36:47-03:00 ERROR CdtUtils line: 534
+2023-10-10T18:36:47-03:00 ERROR CdtUtils E_WARNING: Undefined array key "functions"
+2023-10-10T18:36:47-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:36:47-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:36:47-03:00 ERROR CdtUtils : unserialize(): Passing null to parameter #1 ($data) of type string is deprecated
+2023-10-10T18:36:47-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:36:47-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:36:47-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_username"
+2023-10-10T18:36:47-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:36:47-03:00 ERROR CdtUtils line: 536
+2023-10-10T18:36:47-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_name"
+2023-10-10T18:36:47-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:36:47-03:00 ERROR CdtUtils line: 537
+2023-10-10T18:36:47-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_usergroup"
+2023-10-10T18:36:47-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:36:47-03:00 ERROR CdtUtils line: 538
+2023-10-10T18:36:47-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_user"
+2023-10-10T18:36:47-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:36:47-03:00 ERROR CdtUtils line: 534
+2023-10-10T18:36:47-03:00 ERROR CdtUtils E_WARNING: Undefined array key "functions"
+2023-10-10T18:36:47-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:36:47-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:36:47-03:00 ERROR CdtUtils : unserialize(): Passing null to parameter #1 ($data) of type string is deprecated
+2023-10-10T18:36:47-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:36:47-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:36:47-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_username"
+2023-10-10T18:36:47-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:36:47-03:00 ERROR CdtUtils line: 536
+2023-10-10T18:36:47-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_name"
+2023-10-10T18:36:47-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:36:47-03:00 ERROR CdtUtils line: 537
+2023-10-10T18:36:47-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_usergroup"
+2023-10-10T18:36:47-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:36:47-03:00 ERROR CdtUtils line: 538
+2023-10-10T18:36:47-03:00 ERROR CdtUtils : stripslashes(): Passing null to parameter #1 ($string) of type string is deprecated
+2023-10-10T18:36:47-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/action/users/EditCYTUserProfileInitAction.Class.php
+2023-10-10T18:36:47-03:00 ERROR CdtUtils line: 121
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_user"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 534
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "functions"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:44:39-03:00 ERROR CdtUtils : unserialize(): Passing null to parameter #1 ($data) of type string is deprecated
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_username"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 536
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_name"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 537
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_usergroup"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 538
+2023-10-10T18:44:39-03:00 ERROR CdtUtils : stripslashes(): Passing null to parameter #1 ($string) of type string is deprecated
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/action/users/EditCYTUserProfileInitAction.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 121
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_user"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 534
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "functions"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:44:39-03:00 ERROR CdtUtils : unserialize(): Passing null to parameter #1 ($data) of type string is deprecated
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_username"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 536
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_name"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 537
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_usergroup"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 538
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_user"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 534
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "functions"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:44:39-03:00 ERROR CdtUtils : unserialize(): Passing null to parameter #1 ($data) of type string is deprecated
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_username"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 536
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_name"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 537
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_usergroup"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 538
+2023-10-10T18:44:39-03:00 ERROR CdtUtils : stripslashes(): Passing null to parameter #1 ($string) of type string is deprecated
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/action/users/EditCYTUserProfileInitAction.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 121
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_user"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 534
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "functions"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:44:39-03:00 ERROR CdtUtils : unserialize(): Passing null to parameter #1 ($data) of type string is deprecated
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_username"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 536
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_name"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 537
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_usergroup"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 538
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_user"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 534
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "functions"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:44:39-03:00 ERROR CdtUtils : unserialize(): Passing null to parameter #1 ($data) of type string is deprecated
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_username"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 536
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_name"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 537
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_usergroup"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 538
+2023-10-10T18:44:39-03:00 ERROR CdtUtils : stripslashes(): Passing null to parameter #1 ($string) of type string is deprecated
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/action/users/EditCYTUserProfileInitAction.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 121
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_user"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 534
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "functions"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:44:39-03:00 ERROR CdtUtils : unserialize(): Passing null to parameter #1 ($data) of type string is deprecated
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_username"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 536
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_name"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 537
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_usergroup"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 538
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_user"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 534
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "functions"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:44:39-03:00 ERROR CdtUtils : unserialize(): Passing null to parameter #1 ($data) of type string is deprecated
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_username"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 536
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_name"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 537
+2023-10-10T18:44:39-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_usergroup"
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 538
+2023-10-10T18:44:39-03:00 ERROR CdtUtils : stripslashes(): Passing null to parameter #1 ($string) of type string is deprecated
+2023-10-10T18:44:39-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/action/users/EditCYTUserProfileInitAction.Class.php
+2023-10-10T18:44:39-03:00 ERROR CdtUtils line: 121
+2023-10-10T18:52:35-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_user"
+2023-10-10T18:52:35-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:35-03:00 ERROR CdtUtils line: 534
+2023-10-10T18:52:35-03:00 ERROR CdtUtils E_WARNING: Undefined array key "functions"
+2023-10-10T18:52:35-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:35-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:52:35-03:00 ERROR CdtUtils : unserialize(): Passing null to parameter #1 ($data) of type string is deprecated
+2023-10-10T18:52:35-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:35-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:52:35-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_username"
+2023-10-10T18:52:35-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:35-03:00 ERROR CdtUtils line: 536
+2023-10-10T18:52:35-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_name"
+2023-10-10T18:52:35-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:35-03:00 ERROR CdtUtils line: 537
+2023-10-10T18:52:35-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_usergroup"
+2023-10-10T18:52:35-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:35-03:00 ERROR CdtUtils line: 538
+2023-10-10T18:52:35-03:00 ERROR CdtUtils : stripslashes(): Passing null to parameter #1 ($string) of type string is deprecated
+2023-10-10T18:52:35-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/action/users/EditCYTUserProfileInitAction.Class.php
+2023-10-10T18:52:35-03:00 ERROR CdtUtils line: 121
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_user"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 534
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "functions"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:52:36-03:00 ERROR CdtUtils : unserialize(): Passing null to parameter #1 ($data) of type string is deprecated
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_username"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 536
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_name"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 537
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_usergroup"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 538
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_user"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 534
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "functions"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:52:36-03:00 ERROR CdtUtils : unserialize(): Passing null to parameter #1 ($data) of type string is deprecated
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_username"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 536
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_name"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 537
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_usergroup"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 538
+2023-10-10T18:52:36-03:00 ERROR CdtUtils : stripslashes(): Passing null to parameter #1 ($string) of type string is deprecated
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/action/users/EditCYTUserProfileInitAction.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 121
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_user"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 534
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "functions"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:52:36-03:00 ERROR CdtUtils : unserialize(): Passing null to parameter #1 ($data) of type string is deprecated
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_username"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 536
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_name"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 537
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_usergroup"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 538
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_user"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 534
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "functions"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:52:36-03:00 ERROR CdtUtils : unserialize(): Passing null to parameter #1 ($data) of type string is deprecated
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_username"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 536
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_name"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 537
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_usergroup"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 538
+2023-10-10T18:52:36-03:00 ERROR CdtUtils : stripslashes(): Passing null to parameter #1 ($string) of type string is deprecated
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/action/users/EditCYTUserProfileInitAction.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 121
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_user"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 534
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "functions"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:52:36-03:00 ERROR CdtUtils : unserialize(): Passing null to parameter #1 ($data) of type string is deprecated
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_username"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 536
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_name"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 537
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_usergroup"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 538
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_user"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 534
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "functions"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:52:36-03:00 ERROR CdtUtils : unserialize(): Passing null to parameter #1 ($data) of type string is deprecated
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 535
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_username"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 536
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "ds_name"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 537
+2023-10-10T18:52:36-03:00 ERROR CdtUtils E_WARNING: Undefined array key "cd_usergroup"
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/utils/CYTSecureUtils.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 538
+2023-10-10T18:52:36-03:00 ERROR CdtUtils : stripslashes(): Passing null to parameter #1 ($string) of type string is deprecated
+2023-10-10T18:52:36-03:00 ERROR CdtUtils file: /var/www/sicadi/cyt_mvc_sicadi/cyt_secure/action/users/EditCYTUserProfileInitAction.Class.php
+2023-10-10T18:52:36-03:00 ERROR CdtUtils line: 121

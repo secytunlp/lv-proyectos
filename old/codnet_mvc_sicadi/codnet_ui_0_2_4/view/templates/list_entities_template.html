@@ -1,0 +1,106 @@
+<!-- BEGIN: main -->
+<script>
+
+function ordenar_ajax(orderField, orderType){
+
+	jQuery("#orderField").val( orderField );
+	jQuery("#orderType").val( orderType );
+
+	buscar_ajax();
+}
+
+function paginar_ajax( page ){
+
+	data = $('#buscar').serialize();
+
+	jQuery("#search").load(  "doAction?search=1&page=" +page + "&" + data );
+
+}
+
+function buscar_ajax( action ){
+
+	if( action )
+		jQuery("#action").val( action );
+	
+	data = $('#buscar').serialize();
+	jQuery("#search").load(  "doAction?search=1&" + data );
+}
+
+function buscar_all_ajax( action ){
+
+	jQuery("#filterValue").val("");
+	
+	buscar_ajax( action );
+}
+
+function loadPopup(  url, title, height, width ){
+
+	if( !height )
+		height = 500;
+
+	if( !width )
+		width = 750;
+	
+	var dialogOpts = {
+          title : title,
+          modal : true,
+          autoOpen : false,
+          bgiframe : true,
+          height : 550,
+          width : 750,
+          open : function() {
+              jQuery("#list_popup").load(url);
+          }
+    };
+	jQuery("#list_popup").children().remove();
+	jQuery("#list_popup").dialog("destroy");
+	jQuery("#list_popup").dialog(dialogOpts);
+	jQuery("#list_popup").dialog("open");
+
+}
+
+</script>
+<div class="titulo_listar">{title}</div>
+
+<ul class="lista_opciones">
+	<!-- BEGIN: export_xls -->
+	<li class="excel"><a  title="{lbl_export_xls}" href="xls" onclick="javascript:submit_blank('{actionXls}');return false;"><span>{lbl_export_xls}</span></a></li>
+	<!-- END: export_xls -->
+	<!-- BEGIN: export_pdf -->
+	<li class="pdf"><a  title="{lbl_export_pdf}" href="pdf" onclick="javascript:submit_blank('{actionPdf}');return false;"><span>{lbl_export_pdf}</span></a></li>
+	<!-- END: export_pdf -->
+	<!-- BEGIN: option -->
+		<li class="{liClass}"><a  title="{label}" href="doAction?action={action}"><span>{label}</span></a></li>
+	<!-- END: option -->
+</ul>
+
+<div class="botonesTabla">
+	<form name="buscar" id="buscar" action="doAction" method="GET" onsubmit ="return checkFilter();">
+		<!-- BEGIN: hidden -->
+		<input type="hidden" name="action" id="action" value="{actionList}" />
+		<input type="hidden" name="orderType" id="orderType" value="{orderType}" />
+		<input type="hidden" name="orderField" id="orderField" value="{orderField}" />
+		<input type="hidden" name="validate" id="validate" value="false" />
+		<!-- END: hidden -->
+		
+		<!-- BEGIN: table_buttons -->
+		<!-- BEGIN: filters_combobox -->
+		<select name="filterField" id="filterField">
+			<!-- BEGIN: filter_option -->
+			<option value={filterField}>{filterLabel}</option>
+			<!-- END: filter_option -->
+		</select>			
+		<input type="text" name="filterValue" id="filterValue" value="{filterValue}" />
+		<!-- END: filters_combobox -->
+		<!-- BEGIN: additional_filters --> {additionalFilters} <!-- END: additional_filters -->
+		<input type="button" name="buscar"  id="buscar" value="{lbl_search}" onclick="javascript:buscar_ajax( '{actionList}' );">
+		<input type="button" name="listar"  id="listar"  value="{lbl_search_all}" onclick="javascript:buscar_all_ajax( '{actionList}' );">
+		<!-- END: table_buttons -->
+				
+	</form>
+</div>
+<div id="search">
+	{search_first_time}
+</div>
+<div style="display: none;" id="list_popup"></div>
+<!-- END: main -->

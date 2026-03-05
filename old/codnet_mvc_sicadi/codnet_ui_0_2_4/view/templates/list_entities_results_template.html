@@ -1,0 +1,61 @@
+<!-- BEGIN: main -->
+<div id="search_results">
+<!-- BEGIN: msg -->
+<div class="{classMsg}"> {msg} </div>
+<!-- END: msg -->
+
+<div class="paginas" id="paginador">
+	<div style="float:left">
+	<!-- BEGIN: paginator_pages --> {pages} <!-- END: paginator_pages -->	
+	</div>
+	<!-- BEGIN: paginator_results --> {results} <!-- END: paginator_results -->
+</div>
+
+<div style="float: left; width: 100%"> 
+
+<!-- BEGIN: header -->
+<div class='tablaSummaryHeader'>{header}</div>
+<!-- END: header -->
+<div class="block">
+
+<table border="1">
+	<thead>
+	<tr>
+		<!-- BEGIN: TH -->		
+		<th>
+		
+			<a title="{lbl_order_by} {orderLabel} - {orderType}" alt="{lbl_order_by} {orderLabel} - {orderType}" 
+				href="none"	onclick="javascript: ordenar_ajax( '{orderField}', '{orderType}'); return false;">
+				{label}
+			</a>
+			
+			</th>
+		<!-- END: TH -->
+		<th></th>
+	</tr>
+	</thead>
+	<!-- BEGIN: row -->
+	<tbody class="{rowClass}">
+	<tr>
+		<!-- BEGIN: column -->
+		<td>{value}</td>
+		<!-- END: column -->
+		<td class="acciones">
+			
+			<!-- BEGIN: action -->				
+			<a onclick="{onclick}" href="{href}"><img class="hrefImg" src="{img}" title="{title}" /></a>&nbsp;
+			<!-- END: action -->
+			
+		</td>
+	</tr>
+	</tbody>
+	<!-- END: row -->
+</table>
+
+<!-- BEGIN: footer -->
+<div class='tablaSummaryFooter'>{footer}</div>
+<!-- END: footer -->
+</div>
+</div>
+</div>
+<!-- END: main -->

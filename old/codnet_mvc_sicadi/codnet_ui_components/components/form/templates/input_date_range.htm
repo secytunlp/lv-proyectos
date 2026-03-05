@@ -1,0 +1,19 @@
+<!-- BEGIN:main -->
+<script nonce="tu_nonce_generado">
+    $(function() {
+        $("#{input_id}").datepicker({
+        	 changeMonth: true,
+        	 changeYear: true, 
+            dateFormat: '{format}'
+        });
+    });
+</script>
+
+<input type='text'  {custom} <!-- BEGIN: property --> {name}="{value}" <!-- END: property -->
+ 
+ <!-- BEGIN:required -->
+ <!--jVal="{valid:function (val) { return required(val,'{msg_required}'); }}"-->
+ <!-- END:required -->
+
+ />
+<!-- END:main -->

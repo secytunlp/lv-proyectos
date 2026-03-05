@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/codnet_mvc/!svn/ver/303/trunk/codnet_geo/action/paises
+END
+EditarPaisInitAction.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/codnet_mvc/!svn/ver/193/trunk/codnet_geo/action/paises/EditarPaisInitAction.Class.php
+END
+VerPaisAction.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/codnet_mvc/!svn/ver/303/trunk/codnet_geo/action/paises/VerPaisAction.Class.php
+END
+ModificarPaisAction.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/codnet_mvc/!svn/ver/303/trunk/codnet_geo/action/paises/ModificarPaisAction.Class.php
+END
+EliminarPaisAction.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/codnet_mvc/!svn/ver/303/trunk/codnet_geo/action/paises/EliminarPaisAction.Class.php
+END
+AltaPaisAction.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/codnet_mvc/!svn/ver/303/trunk/codnet_geo/action/paises/AltaPaisAction.Class.php
+END
+ModificarPaisInitAction.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/codnet_mvc/!svn/ver/303/trunk/codnet_geo/action/paises/ModificarPaisInitAction.Class.php
+END
+PDFPaisesAction.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/codnet_mvc/!svn/ver/303/trunk/codnet_geo/action/paises/PDFPaisesAction.Class.php
+END
+AltaPaisInitAction.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/codnet_mvc/!svn/ver/303/trunk/codnet_geo/action/paises/AltaPaisInitAction.Class.php
+END
+ListarPaisesAction.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/codnet_mvc/!svn/ver/303/trunk/codnet_geo/action/paises/ListarPaisesAction.Class.php
+END
+EditarPaisAction.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/codnet_mvc/!svn/ver/221/trunk/codnet_geo/action/paises/EditarPaisAction.Class.php
+END
+ExcelPaisesAction.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/codnet_mvc/!svn/ver/303/trunk/codnet_geo/action/paises/ExcelPaisesAction.Class.php
+END

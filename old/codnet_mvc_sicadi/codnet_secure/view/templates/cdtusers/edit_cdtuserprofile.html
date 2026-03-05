@@ -1,0 +1,170 @@
+<!-- BEGIN:main -->
+<script language="javascript" src="{WEB_PATH}js/pwd_meter.js"></script>
+
+<script type="text/javascript">
+
+function showPswSecurityLevel( psw ){
+
+	var oScorebar = document.getElementById("scorebar");
+	var oScore = document.getElementById("score");
+
+	oScorebar.style.backgroundPosition = "0";
+	$("#score").html("");
+	$("#psw_level").html("");
+	
+	var nScore = getPassScore(psw);
+
+	if( nScore >= 0 ){
+
+		if (nScore > 100) { nScore = 100; } else if (nScore < 0) { nScore = 0; }
+		if (nScore >= 0 && nScore < 20) { sComplexity = "Very Weak"; }
+		else if (nScore >= 20 && nScore < 40) { sComplexity = "Weak"; }
+		else if (nScore >= 40 && nScore < 60) { sComplexity = "Good"; }
+		else if (nScore >= 60 && nScore < 80) { sComplexity = "Strong"; }
+		else if (nScore >= 80 && nScore <= 100) { sComplexity = "Very Strong"; }
+
+		$("#psw_level").html(sComplexity);
+		oScorebar.style.backgroundPosition = "-" + parseInt(nScore * 4) + "px";
+		oScore.innerHTML = nScore + "%";
+	}
+	
+	
+	
+}
+
+</script>
+<style>
+
+#scorebarBorder {
+    background: none repeat scroll 0 0 #333333;
+    border: 1px solid #000000;
+    height: 16px;
+    margin-bottom: 2px;
+    width: 100px;
+}
+#score {
+    color: #000000;
+    font-size: 85%;
+    position: absolute;
+    text-align: center;
+    width: 100px;
+    z-index: 10;
+}
+
+#scorebar {
+    background-image: url("{WEB_PATH}css/images/bg_strength_gradient.jpg");
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    position: absolute;
+    width: 100px;
+    z-index: 0;
+}
+
+#pswSecutiryLevel{
+	/*float:left;*/
+
+}
+
+</style>
+
+<div id="editar">
+	<div align="justify"><p class="titulo">{title}</p></div>
+
+	<!-- BEGIN:msg -->
+	<script type="text/javascript">
+	showMessageError('{msg}', 1);
+	</script>
+	<!-- END:msg -->
+
+	<form name='editCdtUser' id='editCdtUser' action='doAction?action={submit}' method='post' onsubmit="return validate('editCdtUser');">
+		
+		<table>
+			<tr>
+				<td align="right">{cd_user_label}:</td>
+				<td align="left">
+					{cd_user}
+					<input type="hidden" name="cd_user" id="cd_user" value="{cd_user}"/>
+				</td>
+			</tr>
+			
+			<tr>
+				<td align="right">{ds_username_label}</td>
+				<td align="left">
+					{ds_username}
+					<input type='hidden' name='ds_username' id='ds_username' size='40' value="{ds_username}"/>
+				</td>
+			</tr>
+			
+						
+			<tr>
+				<td align="right">{ds_name_label}</td>
+				<td align="left">
+					<input type='text' name='ds_name' id='ds_name' size='40' value="{ds_name}"/>
+				</td>
+			</tr>
+						
+			<tr>
+				<td align="right">{ds_email_label}</td>
+				<td align="left">
+					<input type='text' name='ds_email' id='ds_email' size='40' value="{ds_email}"/>
+				</td>
+			</tr>
+						
+			<tr>
+				<td align="right">{ds_password_label}</td>
+				<td align="left">
+					<input type='password' name='ds_password' id='ds_password' size='40' />
+				</td>
+			</tr>
+			
+			<tr>
+				<td align="right">{ds_new_password_label}</td>
+				<td align="left" style="position: relative;">
+					<input onkeyup="showPswSecurityLevel(this.value);" type='password' name='ds_new_password' id='ds_new_password' size='40'/>
+					<div id="pswSecutiryLevel">
+						<div id="scorebarBorder">
+	                        <div id="score"></div>
+	                        <div id="scorebar" style="background-position: -400px center;">&nbsp;</div>
+	                    </div>
+	                    <div id="psw_level"></div>
+                    </div>
+					
+				</td>
+			</tr>
+			
+			<tr>
+				<td align="right">{ds_repeat_new_password_label}</td>
+				<td align="left">
+					<input type='password' name='ds_repeat_new_password' id='ds_repeat_new_password' size='40'
+					jVal="{valid:function (val) { if ( val != eval('$(\'#ds_new_password\').val()') ) return false; else return true; }, message:'{invalid_passwords}'}"
+					/>
+				</td>
+			</tr>
+			
+						
+			<tr>
+				<td align="right">{ds_phone_label}</td>
+				<td align="left">
+					<input type='text' name='ds_phone' id='ds_phone' size='40' value="{ds_phone}"/>
+				</td>
+			</tr>
+						
+			<tr>
+				<td align="right">{ds_address_label}</td>
+				<td align="left">
+					<input type='text' name='ds_address' id='ds_address' size='40' value="{ds_address}"/>
+				</td>
+			</tr>
+			
+		</table>
+		
+		<p style="text-align:center">
+			<input type='submit' name='{lbl_save}' value='{lbl_save}'/>
+			<input type='reset' name='{lbl_cancel}' value='{lbl_cancel}' onclick="javascript:window.location.href= 'doAction?action=home';"/>
+		</p>
+		
+		
+	</form>		
+	<div class="camposRequeridos">(*) {msg_required_fields}</div>
+</div>
+<!-- END:main -->

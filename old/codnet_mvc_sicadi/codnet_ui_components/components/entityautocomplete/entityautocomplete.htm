@@ -1,0 +1,70 @@
+<!-- BEGIN: main -->
+
+<style>
+#autocomplete_item_desc{
+	font-size:10px;
+	
+}
+#autocomplete_item_desc table{
+	background:none;
+	margin: 0;
+	padding: 0;
+}
+
+
+
+</style>
+<!-- BEGIN: autocomplete -->
+
+
+
+
+
+<script nonce="tu_nonce_generado" type="text/javascript">
+    $(document).ready(function () {
+        initializeAutocomplete{inputId}('{parent}');
+    });
+
+    function initializeAutocomplete{inputId}(parent) {
+        if ($('#{inputId}').length > 0)
+            $('#{inputId}').remove();
+
+        var inputHTML = "<input size=\"{inputSize}\" class=\"{inputCss}\" type=\"text\" id=\"{inputId}\" name=\"{inputName}\" value=\"{inputValue}\" {disabled} ";
+
+        <!-- BEGIN:required -->
+        //inputHTML += "jVal=\"{valid:function (val) { return required(val,'{msg_required}'); }}\"";
+        <!-- END:required -->
+        inputHTML += "/>";
+        $('#autocomplete_span{inputId}').append(inputHTML);
+
+        $('#{inputId}').on('keypress', function (event) {
+            // Agrega aquí la lógica que deseas ejecutar en el evento keypress
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                return false;
+            }
+        });
+
+        $('#{inputId}').simpleAutoComplete('doAction?action=cmp_entityautocomplete&component={autocompleteClazz}&parent=' + parent, {
+            autoCompleteClassName: 'autocomplete',
+            selectedClassName: 'sel',
+            attrCallBack: 'rel',
+            identifier: '{inputName}'
+        } {functionCallback});
+
+        var width = $('#{inputId}').width();
+        $('.autocomplete').css({ 'width': width });
+    }
+</script>
+
+
+<!-- BEGIN: label -->
+<span class="{labelCss}">{label}:</span>
+<!-- END: label -->
+
+<span id="autocomplete_span{inputId}" >
+
+</span>
+
+<!-- END: autocomplete -->
+<!-- END: main -->

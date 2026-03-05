@@ -1,0 +1,267 @@
+<!-- BEGIN: main -->
+
+<script nonce="tu_nonce_generado" type="text/javascript">
+
+function findentity_setParent_{inputId}( oid ){
+
+	//seteamos el parent en el hidden.
+	$("#findentity_parent{inputId}").val(oid);
+
+	//se lo mandamos al autocomplete.
+	initializeAutocomplete{inputLabelId}(oid);
+
+}
+
+function findentity_popup_callback{inputId}( oid ){
+
+	$("#{inputCodeId}").val( oid );
+	$("#{inputCodeId}").blur();
+	
+}
+
+function findentity_bycode_callback{inputId}( jsondata ){
+
+	if( jsondata == null ){
+		$("#{inputCodeId}").val( "" );
+		$("#{inputLabelId}").val( "" );
+	}
+	
+	if( jsondata != null && jsondata["error"]!=null){
+
+				findentity_showMessageError( jsondata["error"]["msg"], true )
+				$("#{inputCodeId}").val( "" );
+				$("#{inputLabelId}").val( "" );
+	}
+
+
+	if( jsondata != null && jsondata["entity"]!=null){
+
+			//$("#{inputCodeId}").val( jsondata["entity"]["code"] );
+			$("#{inputLabelId}").val( jsondata["entity"]["label"] );
+
+			//funci贸n callback definida por el usuario del componente.
+			if( "{functionCallback}".length > 0  )
+		  		{functionCallback}(jsondata);	
+	}
+		
+	
+}
+
+function findentity_addentity_callback{inputId}( data ){
+
+	findentity_close_addentity{inputId}();
+	
+	jsondata = $.parseJSON(data);
+	
+	$("#{inputCodeId}").val( jsondata["{itemCode}"] );
+	$("#{inputCodeId}").blur();
+	
+}
+
+function findentity_close_addentity{inputId}(){
+	$("#ui-dialog-add_{inputId}").dialog("destroy");
+}
+function findentity_autocomplete_callback{inputId}( oid ){
+	
+	$("#{inputCodeId}").val( oid );
+	$("#{inputCodeId}").blur();
+	
+}
+function findentity_showMessageError( msg, hide ){
+	
+	$( "#text_findentity_msg_{inputId}" ).html( msg );
+	
+	updated_right = ($(window).width() / 2) - ($( "#findentity_msg_{inputId}" ).width()/2);
+	$( "#findentity_msg_{inputId}" ).css({'right': updated_right});
+	
+	if( hide )
+		$( "#findentity_msg_{inputId}" ).show().delay(4000).slideUp(300);
+	else
+		$( "#findentity_msg_{inputId}" ).show();
+}
+
+function findentity_show_popup{inputId}(){
+	//url = "{WEB_PATH}doAction?action=cmp_findpopup&model_{inputId}={gridModel}&callback_{inputId}=findentity_popup_callback{inputId}&inputId={inputId}";
+	var parent = $("#findentity_parent{inputId}").val();
+	url = "{WEB_PATH}doAction?action=cmp_findentity_popup&component={gridClazz}&fCallback=findentity_popup_callback{inputId}&inputId={inputId}&gridId={inputId}&parent="+parent;
+	var uiDialog = "#ui-dialog_{inputId}";
+	var dialogOpts = {
+            title : "{title}",
+            modal : true,
+            autoOpen : false,
+            bgiframe : true,
+            height : {heightPopup},
+            width : {widthPopup},
+            open : function() {
+                $(uiDialog).load(url);
+            }
+        };
+    $(uiDialog).children().remove();
+    $(uiDialog).dialog("destroy");
+    $(uiDialog).dialog(dialogOpts);
+    $(uiDialog).dialog("open");
+}
+
+function findentity_show_addentity{inputId}(){
+
+	var uiDialog = "#ui-dialog-add_{inputId}";
+	var text = $("#{inputLabelId}").val();
+	
+	url = "doAction?action={addentity_action}&onCancel=findentity_close_addentity{inputId}()&onSuccessCallback=findentity_addentity_callback{inputId}";
+    var dialogOpts = {
+            title : "{title_add_entity}",
+            modal : true,
+            autoOpen : false,
+            bgiframe : true,
+            height : {heightAddEntityPopup},
+            width : {widthAddEntityPopup},
+            open : function() {
+            	$(uiDialog).load(url);
+            }
+        };
+	//$("#ui-dialog_{profesional_oid}").children().remove();
+	$(uiDialog).children().remove();
+	$(uiDialog).dialog("destroy");
+	$(uiDialog).dialog(dialogOpts);
+	$(uiDialog).dialog("open");
+}
+
+$(document).ready(function() {
+
+ // Asocia un evento de clic al elemento de imagen por su ID
+  $('#closeImage').on('click', function() {
+    // Oculta el elemento con el ID 'findentity_msg_{inputId}'
+    $('#findentity_msg_{inputId}').hide();
+  });
+
+$('#link_popup').click(function(e) {
+    e.preventDefault(); // Evita que el enlace redireccione a una nueva p醙ina
+    findentity_show_popup{inputId}(); // Llama a la funci髇 findentity_show_popup{inputId}()
+  });
+
+  $('link_addentity').click(function(e) {
+    e.preventDefault(); // Evita que el enlace redireccione a una nueva p醙ina
+    findentity_show_addentity{inputId}(); // Llama a la funci髇 findentity_show_popup{inputId}()
+  });
+	/*
+	$("#link_popup").fancybox({
+		'width'				: '75%',
+		'height'			: '75%',
+		'autoScale'			: false,
+		'transitionIn'		: 'none',
+		'transitionOut'		: 'none',
+		//'type'				: 'iframe'
+		'type'				: 'ajax'
+	});
+	
+	$("#link_addentity").fancybox({
+		'width'				: '50%',
+		'height'			: '50%',
+		'autoScale'			: false,
+		'transitionIn'		: 'none',
+		'transitionOut'		: 'none',
+		'type'				: 'ajax'
+	});
+	*/
+	//agregamos el div para el dialogo si es que no existe.
+	if (!$("#ui-dialog_{inputId}").length) {
+		
+		$("#findentity_{inputId}").append("<div id='ui-dialog_{inputId}' style='display: none;'></div>");
+		
+	}
+
+	//agregamos el div para el dialogo de agregar si es que no existe.
+	if (!$("#ui-dialog-add_{inputId}").length) {
+		
+		$("#findentity_{inputId}").append("<div id='ui-dialog-add_{inputId}' style='display: none;'></div>");
+		
+	}
+	
+	$('#{inputCodeId}').blur(function() {
+
+		$('#findentity_msg_{inputId}').hide();
+		var query = $(this).val();
+		var parent = $("#findentity_parent{inputId}").val();
+		if( query.length > 0 ){
+		  	$.ajax({
+			      data: "finder={finder}&parent=" + parent + "&attributes={attributes}&query=" + query  + "{customQuery}", //customquery es para alg煤n parametro adicional espec铆fico
+			      type: "GET",
+			      dataType: "json",
+			      url: "doAction?action=cmp_findentity_by_code",
+			      success: function(data){
+		      		//funci贸n callback utilizada por el componente.
+		  			findentity_bycode_callback{inputId}(data);
+			      },
+		  		  error: function(data){
+			      		//funci贸n callback utilizada por el componente.
+			  			alert("error");
+				      }
+			     });
+		}else{
+			findentity_bycode_callback{inputId}(null);
+		}
+	});
+	$('#{inputCodeId}').blur();
+});
+
+</script> 
+
+<style>
+#ui-dialog_{inputId} #grid_filters{
+	width: 100%;
+}
+#ui-dialog-add_{inputId} #editar{
+	width: 100%;
+}
+.ui-widget {
+    font-size: 1em;
+}
+.ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
+    font-family: 'Roboto',sans-serif;
+    font-size: 1em;
+}
+
+#findentity_{inputCodeId} .jval_error_img{
+ display:block;
+}
+</style>
+
+<!-- buscar {inputId} -->
+
+<div id="findentity_{inputId}" style="min-width: {minWidth};">
+
+<!-- input hidden para el parent -->
+<input type="hidden" id="findentity_parent{inputId}" value="{parent}"/>
+
+<!-- link para buscar la entity con un popup -->
+<!-- BEGIN:popup -->
+<a id="link_popup" href="#"> 
+	<img class="hrefImg" src="{WEB_PATH}/css/findobject/search.gif" /> 
+</a>
+<!-- END:popup -->
+
+<!-- input para ingresar el c贸digo. -->
+
+{input_code}
+
+<!-- input para mostrar la descripci贸n de la entidad encontrada -->
+{input_autocomplete}
+
+<!-- BEGIN:addentity --> 
+<a id="link_addentity" style="z-index:300;" href="#"> 
+	<img class="hrefImg" style="z-index:300;margin-left:10px;" src="{WEB_PATH}/css/findobject/add.png" /> 
+</a>
+<!-- END:addentity -->
+
+<div style="display:none;" class="ui-state-error ui-corner-all " id="findentity_msg_{inputId}">
+	<p>
+	<span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+	<span id="text_findentity_msg_{inputId}"></span>
+	<span id="close_findentity_msg_{inputId}" style="display:none">
+		<img src="{WEB_PATH}css/smile/images/close.png" style="cursor: pointer;" id="closeImage"  />
+	</span>
+	</p>	
+</div>
+</div>
+<!-- fin buscar_{inputId} -->
+<!-- END: main -->

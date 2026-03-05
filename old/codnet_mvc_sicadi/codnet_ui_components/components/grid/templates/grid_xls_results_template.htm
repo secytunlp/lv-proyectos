@@ -1,0 +1,36 @@
+<!-- BEGIN: main -->
+<div id="search_results_{gridId}">
+
+<div class="grid_title">{title}</div>
+<!-- BEGIN: header -->
+<div class='tablaSummaryHeader'>{header}</div>
+<!-- END: header -->
+<div class="block">
+
+<table border="1">
+	<thead>
+	<tr>
+		<!-- BEGIN: TH -->		
+		<th>
+				{label}
+		</th>
+		<!-- END: TH -->
+	</tr>
+	</thead>
+	<!-- BEGIN: row -->
+	<tbody class="{rowClass}">
+	<tr>
+		<!-- BEGIN: column -->
+		<td style="{column_style}" class="{column_class}" >{value}</td>
+		<!-- END: column -->
+	</tr>
+	</tbody>
+	<!-- END: row -->
+</table>
+
+<!-- BEGIN: footer -->
+<div class='tablaSummaryFooter'>{footer}</div>
+<!-- END: footer -->
+</div>
+</div>
+<!-- END: main -->

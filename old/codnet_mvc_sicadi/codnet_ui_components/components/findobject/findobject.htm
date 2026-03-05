@@ -1,0 +1,172 @@
+<!-- BEGIN: main -->
+
+<!-- buscar {inputId} -->
+<div id="div_{inputId}" style="white-space:nowrap; min-width: {minWidth};">
+<script type="text/javascript">
+
+	function cmp_findobject_newEntity_{inputId}() {
+
+		//var nombre = $("#ds_cliente_oid").val();
+		var uiDialog = "#ui-dialog-add_{inputId}";
+		var text = $("#ds_{inputId}").val();
+		url = "doAction?action={add_entity_init_action}&text="+text;
+	    var dialogOpts = {
+	            title : "{title_add_entity}",
+	            modal : true,
+	            autoOpen : false,
+	            bgiframe : true,
+	            height : 500,
+	            width : 750,
+	            open : function() {
+	            	$(uiDialog).load(url);
+	            }
+	        };
+		//$("#ui-dialog_{profesional_oid}").children().remove();
+		$(uiDialog).children().remove();
+		$(uiDialog).dialog("destroy");
+		$(uiDialog).dialog(dialogOpts);
+		$(uiDialog).dialog("open");
+			
+	}
+
+	function closePopupAddEntity_{inputId}(){
+
+		$("#ui-dialog-add_{inputId}").dialog("destroy");
+		
+	}
+		
+
+	function cmp_findobject_newEntity_{inputId}_succes(data) {
+
+		jsondata = $.parseJSON(data);
+		
+		closePopupAddEntity_{inputId}();
+
+		autocomplete_change_{inputId}( jsondata["{itemCode}"]);
+		
+	}
+		
+	function buscar_{inputId}(url) {
+		url = "doAction?action=cmp_findpopup&model_{inputId}={gridModel}&callback_{inputId}={callback}&itemCode={itemCode}&itemLabel={itemLabel}&inputId={inputId}&itemAttrCallback={itemAttrCallback}";
+
+		var uiDialog = "#ui-dialog_{inputId}";
+		var dialogOpts = {
+                title : "{title}",
+                modal : true,
+                autoOpen : false,
+                bgiframe : true,
+                height : 500,
+                width : 750,
+                open : function() {
+                    $(uiDialog).load(url);
+                }
+            };
+        $(uiDialog).children().remove();
+        $(uiDialog).dialog("destroy");
+        $(uiDialog).dialog(dialogOpts);
+        $(uiDialog).dialog("open");
+	
+	}
+	
+	function restults_{inputId}(data) {
+
+		if(data.find){
+			$("#ds_{inputId}").attr('value', data.label);
+			$("#info_{inputId}").html('');
+		}
+		else{
+			$("#ds_{inputId}").attr('value', '' );
+			$("#info_{inputId}").html(data.msg);
+		}  
+		
+	    
+	}
+
+	function autocomplete_change_{inputId}(code){
+		$("#{inputId}").attr('value', code);
+		$("#{inputId}").blur();
+
+		
+		
+	}
+
+	$(document).ready(function(){
+
+		//agregamos el div para el dialogo si es que no existe.
+		if (!$("#ui-dialog_{inputId}").length) {
+			
+			$("#div_{inputId}").append("<div id='ui-dialog_{inputId}' style='display: none;'></div>");
+			
+		}
+
+		//agregamos el div para el dialogo de agregar si es que no existe.
+		if (!$("#ui-dialog-add_{inputId}").length) {
+			
+			$("#div_{inputId}").append("<div id='ui-dialog-add_{inputId}' style='display: none;'></div>");
+			
+		}
+
+		
+		$('#{inputId}').blur(function() {
+			var query = $(this).val();
+
+		  	
+		  	$.ajax({
+			      data: "query=" + query + "&requestClass={requestClass}&requestMethod={requestMethod}&itemClass={itemClass}&itemCode={itemCode}&itemLabel={itemLabel}&inputName={inputName}&functionCallback={functionCallback}&itemAttrCallback={itemAttrCallback}",
+			      type: "GET",
+			      dataType: "json",
+			      url: "doAction?action=cmp_findobject",
+			      success: function(data){
+			      	restults_{inputId}(data);
+			      	{functionCallback}(data);
+			      }
+			      });
+		});
+
+		$("#{inputId}").blur();
+      });
+
+
+
+	
+		
+</script> 
+
+<style type="text/css">
+/*para que no muestre el texto de la validación en el código*/
+div#code .jfVal, .jValSpacercover {
+    display: none;
+}
+</style>
+
+<!-- BEGIN: label --> <span class="{labelCss}">{label}:</span> <!-- END: label -->
+
+<!-- link para buscar la entidad con un popup -->
+<!-- BEGIN:popup --> 
+<a href="#"	onclick='buscar_{inputId}();'> 
+	<img class="hrefImg" src="{WEB_PATH}/css/findobject/search.gif" /> 
+</a>
+<!-- END:popup -->
+
+<!-- input para ingresar el código. -->
+<div id="code" style="display:inline;"> 
+<input type="{code_type}" class="{inputCss}" name="{inputName}" id="{inputId}" size="{inputCodeSize}" value="{inputValue}" {code_obligatorio} {disabled}/> 
+</div>
+
+<!-- input para mostrar la descripción de la entidad encontrada -->
+{autocomplete}
+<!-- 
+<input type="text" size="30" class="{inputCss}" readonly name="ds_{inputId}" id="ds_{inputId}" value="{inputValueDesc}" size="{inputLabelSize}" {desc_obligatorio}/>
+ -->
+<!-- BEGIN:addentity --> 
+<a href="#"	onclick='cmp_findobject_newEntity_{inputId}();'> 
+	<img class="hrefImg" src="{WEB_PATH}/css/findobject/add.png" /> 
+</a>
+<!-- END:addentity -->
+
+
+<div id="info_{inputId}"></div>
+
+</div>
+<!-- fin buscar_{inputId} -->
+<!-- END: main -->

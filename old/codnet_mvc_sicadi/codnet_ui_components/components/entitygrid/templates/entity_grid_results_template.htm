@@ -1,0 +1,431 @@
+<!-- BEGIN: main -->
+<script nonce="tu_nonce_generado">
+$(document).ready(function () {
+    // Manejar el clic en los enlaces de acción
+    $(".rich_options a[data-callback]").on("click", function (event) {
+        event.preventDefault(); // Evitar la navegación predeterminada
+        const callback = $(this).data("callback");
+        if (callback && window[callback] && typeof window[callback] === "function") {
+            window[callback](); // Llama a la función de callback
+        }
+    });
+
+    // Manejar el clic en los enlaces de barra_opcion
+    $(".rich_options a[data-function-callback]").on("click", function (event) {
+        event.preventDefault(); // Evitar la navegación predeterminada
+        const functionCallback = $(this).data("function-callback");
+        if (functionCallback && window[functionCallback] && typeof window[functionCallback] === "function") {
+            window[functionCallback](); // Llama a la función de functionCallback
+        }
+    });
+
+	// Manejar el clic en los enlaces de encabezado
+    $(".sortable-header").on("click", function (event) {
+        event.preventDefault(); // Evitar la navegación predeterminada
+        const filterId = $(this).data("filter-id");
+        const orderField = $(this).data("order-field");
+        const orderType = $(this).data("order-type");
+        sort_ajax(filterId, orderField, orderType);
+    });
+
+    // Manejar el clic en la casilla de verificación "checkAll"
+    $(".checkAllCheckbox").on("click", function () {
+        const gridId = this.id.split("_")[1];
+        checkTodos(gridId, this.id, "search_results_" + gridId);
+    });
+
+	// Manejar el clic en las casillas de verificación de elementos
+    $(".itemCheckbox").on("click", function () {
+        const gridId = this.id.split("_")[1];
+        resetOptions(gridId, "row_" + gridId + "_" + this.value, this.checked);
+    });
+
+    // Manejar el clic en las celdas de columna
+    $(".selectable-row").on("click", function () {
+        const gridId = $(this).data("grid-id");
+        const rowId = $(this).data("row-id");
+        const itemId = $(this).data("item-id");
+        selectRow(gridId, rowId, itemId);
+    });
+	
+    
+
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Escucha los clics en el documento
+    document.addEventListener('click', function (event) {
+        var target = event.target;
+
+        // Verifica si el elemento clickeado o alguno de sus ancestros tiene la clase .btn-link
+        while (target && (!target.classList || !target.classList.contains('btn-link'))) {
+            target = target.parentNode;
+        }
+
+        if (!target) {
+            return; // No se hizo clic en ningún elemento .btn-link
+        }
+
+        event.preventDefault();
+
+        var action = target.getAttribute('data-action');
+
+        if (action) {
+            // Si tiene data-action, realiza la lógica según el valor de data-action
+            var targetUrl = target.getAttribute('data-target-url') + {getSelected}
+
+            switch (action) {
+                case 'loadContent':
+                    // Lógica para cargar contenido
+                    loadContent(targetUrl);
+                    break;
+                case 'confirm_action':
+                    // Lógica para confirmar acción
+                    var confirmMessage = target.getAttribute('data-confirm-message');
+                    var message = confirmMessage.split("|")[0];
+                    var confirmTitle = confirmMessage.split("|")[1];
+
+                    // Lógica para quitar el código no deseado
+                    // Eliminar todo lo que sigue después del segundo paréntesis
+                    targetUrl = targetUrl.replace(/\)\s*\(.*/, ')');
+
+                    var functionCallback = target.getAttribute('data-function-callback');
+
+                    // Utiliza una expresión regular para extraer el parámetro entre paréntesis de la función
+                    var paramMatch = functionCallback.match(/delete_items\('([^']+)'\)/);
+
+                    if (paramMatch) {
+                        // Si se encuentra un parámetro, elimina las comillas y espacios
+                        var param = paramMatch[1].replace(/['"\s]/g, '');
+
+                        // Llama a la función confirm_action antes de llamar a delete_items
+                        confirm_action(message, confirmTitle, function () {
+                            // Lógica para confirmar acción
+                            console.log('Confirmando acción:', message, confirmTitle);
+
+                            // Luego, llama a delete_items con el parámetro
+                            delete_items(param);
+                        });
+                    }
+                    break;
+                case 'loadTargetBlank':
+                    // Lógica para cargar en una nueva ventana
+                    loadTargetBlank(targetUrl);
+                    break;
+                // Agrega más casos según sea necesario
+                default:
+                    console.error('Acción desconocida:', action);
+            }
+        } else if (target.tagName === 'A') {
+            // Si es un enlace <a> sin data-action, redirige al href
+            window.location.href = target.getAttribute('href');
+        }
+
+        event.stopPropagation();
+    });
+});
+
+
+
+
+/*function confirm_action(message, title, callback) {
+   
+    if (confirm(title + '\n\n' + message)) {
+        callback();
+    }
+}*/
+
+function setOptions(gridId, value ){
+	if( value )
+		$(".rich_option_item_" + gridId).show();
+	else
+		$(".rich_option_item_" + gridId).hide();
+}
+
+function selectRow(gridId, rowId, checkInputId ){
+
+	if(document.getElementById(checkInputId).checked)
+		document.getElementById(checkInputId).checked  ="";
+	else
+		document.getElementById(checkInputId).checked  ="checked";
+
+	resetOptions(gridId, rowId, document.getElementById(checkInputId).checked );
+}
+
+function resetOptions( gridId,rowId, checked ){
+
+	var mostrar = checked ;
+	$("#search_results_" + gridId + " :checkbox").each(function (i) {
+	 	//si alguna estï¿½ chequeado, habilitamos las opciones.
+		mostrar = mostrar ||  $(this).is(':checked') ;
+
+	 });
+
+	 
+	setOptions( gridId,mostrar );
+
+	paintSelected( gridId,rowId, checked );
+	
+	//lo incluimos en la lista global de items seleccionados.
+	if( checked )
+		addItemsSelected(gridId,rowId);
+	else
+		removeItemsSelected(gridId,rowId);
+}
+
+
+
+function paintSelected( gridId,rowId, checked ){
+
+	if( checked )
+		$("#" + rowId).css({'background-color': '#FFFFCC'});
+	else
+		$("#" + rowId).css({'background-color': ''});
+}
+
+function paintAllSelected(gridId){
+
+	$("#search_results_" + gridId + " :checkbox").each(function (i) {
+
+		var itemId = $(this).val();
+		
+		if( $(this).is(':checked') ){
+				$("#row_" + gridId + "_" + itemId).css({'background-color': '#FFFFCC'});
+		}else
+			$("#row_" + gridId + "_" + itemId).css({'background-color': ''});
+		
+		 
+ 	});
+
+	
+}
+
+function getSelected_{gridId}( ){
+
+	var selected = "";
+	var first = true;
+	$("#search_results_{gridId} :checkbox").each(function (i) {
+
+		 	if (  $(this).is(':checked')  && $(this).attr('name') != 'checkAll__{gridId}' ){
+
+		 		if( first ) 
+		 			selected +=  $(this).val()  ;
+		 		else
+		 			selected +=  "," + $(this).val();
+
+	 			first = false;
+			}
+			
+			 	 
+	 });
+	return selected;
+}
+
+
+function checkTodos(gridId,id,pID) {
+	 
+	   $( "#" + pID + " :checkbox").attr('checked', $('#' + id).is(':checked'));
+
+	   mostrar = $('#' + id).is(':checked');
+	   
+	  
+	   
+	   setOptions( gridId,mostrar  ); 
+
+	   paintAllSelected(gridId);
+	
+	   //vemos si hay que deseleccionar o seleccionar en el arreglo de
+	   //items de todas las pÃ¡ginas.
+	   $("#search_results_" + gridId + " :checkbox").each(function (i) {
+			
+			var rowId = "row_" + gridId + "_" + $(this).val();
+		   
+			
+			if( $(this).is(':checked') ) 
+				addItemsSelected(gridId,rowId);
+			else
+				removeItemsSelected(gridId,rowId);
+			 
+	 	})
+	   	
+}
+
+function checkOnlyOneSelected_{gridId}( onSuccess ){
+
+	var count = 0;
+	$("#search_results_{gridId} :checkbox").each(function (i) {
+		
+		if( $(this).is(':checked') ){
+			count ++;
+		}
+		 
+ 	})
+ 	if( count == 1 ){
+		onSuccess();
+ 	}else{
+		jAlert("{msgSelectOnlyOneItem}");
+ 	 }
+}
+
+function delete_items( action ){
+	//jAlert("doAction?action=" + action + "&id=" + getSelected_{gridId}());
+	// jQuery("#searchdiv_{gridId}").load( "doAction?action=" + action + "&id=" + getSelected_{gridId}() );
+	var loadUrl = "doAction?action=" + action + "&id=" + getSelected_{gridId}();
+	startSearch("#searchdiv_{gridId}");
+	$.ajax({
+		url: loadUrl,
+		type: "GET",
+		dataType: 'json',
+		cache: false,
+		complete:function(){
+			
+			search_ajax( '{filterId}' );
+		},	
+		success: function(data){
+			
+			if( data["error"]!=null ){
+			
+				console.log("error:" + data["error"]);
+				showMessageError( data["error"], false );
+				$("#submit_buttons").show();
+				
+			}else{
+				console.log("info:" + data["info"]);
+				showMessageInfo( data["info"], true );
+				
+			}
+			  
+		  }
+		});
+}
+
+function doAction( action ){
+
+	//jAlert("doAction?action=" + action + "&id=" + getSelected_{gridId}());
+	jQuery("#searchdiv_{gridId}").load( "doAction?action=" + action + "&id=" + getSelected_{gridId}() );
+
+}
+
+</script>
+<!-- BEGIN: header -->
+<div class='tablaSummaryHeader'>{header}</div>
+<!-- END: header -->
+<div id="search_results_{gridId}">
+
+<div class="rich_options_content">
+    <div class="rich_options" style="display: block; margin-right: 4px;">
+        <!-- BEGIN: action -->
+        <a class="btn-link" title="{label}" href="doAction?action={action}" data-callback="{callback}">
+            <span class="btn-inner btn-link-left">
+                <span class="btn-text">{label}</span>
+                <span class="btn-icon-left btn-icon rich_option_item_{liClass}"></span>
+            </span>
+        </a>
+        <!-- END: action -->
+    </div>
+
+    <div class="rich_options rich_option_item_{gridId}">
+        <!-- BEGIN: barra_opcion -->
+        <a class="btn-link" title="{title}" href="#" data-function-callback="{functionCallback}"
+		data-action="{callback_action}" 
+       data-confirm-message="{callback_confirm}"
+       data-target-url="{callback_url}">
+		
+            <span class="btn-inner btn-link-left">
+                <span class="btn-text">{label}</span>
+                <span class="btn-icon-left btn-icon rich_option_item_{divClass}"></span>
+            </span>
+        </a>
+        <!-- END: barra_opcion -->
+    </div>
+</div>
+
+
+<!-- BEGIN:error_message -->
+<script type="text/javascript">
+showMessageError( '{error_message}', false );
+</script>
+<!-- END:error_message -->
+
+<div class="grid_pages" id="paginator_{gridId}">
+	<div style="float:right;">
+	<!-- BEGIN: pagination --> {pagination} <!-- END: pagination -->
+	</div>
+</div>
+
+<div style="float: left; width: 100%"> 
+
+<div class="block">
+
+<table border="1">
+	<thead>
+    <tr>
+        <!-- BEGIN: TH_CHECKBOX -->
+        <th rowspan="{group_levels}">
+            <input id="checkAll_{gridId}" name="checkAll_{gridId}" type="checkbox" class="checkAllCheckbox">
+        </th>
+        <!-- END: TH_CHECKBOX -->
+        <!-- BEGIN: TH -->
+
+        <!-- BEGIN: SIMPLE -->
+        <th rowspan="{group_levels}">
+            <a title="{lbl_order_by} {orderLabel} - {orderType}" href="#" class="sortable-header"
+               data-filter-id="{filterId}" data-order-field="{orderField}" data-order-type="{orderType}">
+                {label}
+            </a>
+        </th>
+        <!-- END: SIMPLE -->
+
+        <!-- BEGIN: GROUP -->
+        <th colspan="{group_size}">
+            <a title="{lbl_order_by} {orderLabel} - {orderType}" href="#" class="sortable-header"
+               data-filter-id="{filterId}" data-order-field="{orderField}" data-order-type="{orderType}">
+                {group_label}
+            </a>
+        </th>
+        <!-- END: GROUP -->
+
+        <!-- END: TH -->
+    </tr>
+    <!-- BEGIN: SUB_HEADER -->
+    <tr>
+        <!-- BEGIN: TH -->
+        <th>
+            <a title="{lbl_order_by} {orderLabel} - {orderType}" href="#" class="sortable-header"
+               data-filter-id="{filterId}" data-order-field="{orderField}" data-order-type="{orderType}">
+                {label}
+            </a>
+        </th>
+        <!-- END: TH -->
+    </tr>
+    <!-- END: SUB_HEADER -->
+</thead>
+
+	
+	<!-- BEGIN: row -->
+	
+	<tbody class="{rowClass}" id="row_{gridId}_{itemId}">
+    <tr style="cursor: pointer;" class="{row_class}">
+        <!-- BEGIN: checkbox -->
+        <td>
+            <input type="checkbox" name="item_{gridId}_{itemId}" id="item_{gridId}_{itemId}" value="{itemId}" class="itemCheckbox">
+        </td>
+        <!-- END: checkbox -->
+        <!-- BEGIN: column -->
+        <td style="{column_style}" class="{column_class} selectable-row" data-grid-id="{gridId}" data-row-id="row_{gridId}_{itemId}" data-item-id="item_{gridId}_{itemId}">
+            {value}
+        </td>
+        <!-- END: column -->
+    </tr>
+</tbody>
+
+	<!-- END: row -->
+</table>
+
+<!-- BEGIN: footer -->
+<div class='tablaSummaryFooter'>{footer}</div>
+<!-- END: footer -->
+</div>
+</div>
+</div>
+<!-- END: main -->

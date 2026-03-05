@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/codnet_mvc/!svn/ver/303/trunk/codnet_geo/action/localidades
+END
+EditarLocalidadInitAction.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/svn/codnet_mvc/!svn/ver/193/trunk/codnet_geo/action/localidades/EditarLocalidadInitAction.Class.php
+END
+VerLocalidadAction.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/codnet_mvc/!svn/ver/303/trunk/codnet_geo/action/localidades/VerLocalidadAction.Class.php
+END
+ModificarLocalidadAction.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svn/codnet_mvc/!svn/ver/303/trunk/codnet_geo/action/localidades/ModificarLocalidadAction.Class.php
+END
+EliminarLocalidadAction.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/codnet_mvc/!svn/ver/303/trunk/codnet_geo/action/localidades/EliminarLocalidadAction.Class.php
+END
+AltaLocalidadAction.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/codnet_mvc/!svn/ver/303/trunk/codnet_geo/action/localidades/AltaLocalidadAction.Class.php
+END
+ModificarLocalidadInitAction.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/svn/codnet_mvc/!svn/ver/303/trunk/codnet_geo/action/localidades/ModificarLocalidadInitAction.Class.php
+END
+PDFLocalidadesAction.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/codnet_mvc/!svn/ver/303/trunk/codnet_geo/action/localidades/PDFLocalidadesAction.Class.php
+END
+AltaLocalidadInitAction.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/codnet_mvc/!svn/ver/303/trunk/codnet_geo/action/localidades/AltaLocalidadInitAction.Class.php
+END
+ListarLocalidadesAction.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/codnet_mvc/!svn/ver/303/trunk/codnet_geo/action/localidades/ListarLocalidadesAction.Class.php
+END
+EditarLocalidadAction.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/codnet_mvc/!svn/ver/221/trunk/codnet_geo/action/localidades/EditarLocalidadAction.Class.php
+END
+ExcelLocalidadesAction.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/codnet_mvc/!svn/ver/303/trunk/codnet_geo/action/localidades/ExcelLocalidadesAction.Class.php
+END

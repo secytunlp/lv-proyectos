@@ -1,0 +1,45 @@
+<configuration xmlns="http://logging.apache.org/log4php/">
+
+	<appender name="loggerDebug" class="LoggerAppenderDailyFile"
+		threshold="DEBUG">
+		<layout class="LoggerLayoutPattern" />
+		<param name="file" value="/var/www/sicadi/logs/file-%s-debug.log" />
+		<param name="datePattern" value="Ymd" />
+	</appender>
+
+	<appender name="loggerInfo" class="LoggerAppenderDailyFile"
+		threshold="INFO">
+		<layout class="LoggerLayoutPattern" />
+		<param name="file" value="/var/www/sicadi/logs/file-%s-info.log" />
+		<param name="datePattern" value="Ymd" />
+	</appender>
+
+	<appender name="loggerWarn" class="LoggerAppenderDailyFile"
+		threshold="WARN">
+		<layout class="LoggerLayoutPattern" />
+		<param name="file" value="/var/www/sicadi/logs/file-%s-warn.log" />
+		<param name="datePattern" value="Ymd" />
+	</appender>
+
+	<appender name="loggerError" class="LoggerAppenderDailyFile"
+		threshold="ERROR">
+		<layout class="LoggerLayoutPattern" />
+		<param name="file" value="/var/www/sicadi/logs/file-%s-error.log" />
+		<param name="datePattern" value="Ymd" />
+	</appender>
+
+	<appender name="loggerErrorMail" class="LoggerAppenderMailEvent"
+		threshold="TRACE">
+		<layout class="LoggerLayoutPattern" />
+		<param name="to" value="marcosp@presi.unlp.edu.ar" />
+		<param name="from" value="marcosp@presi.unlp.edu.ar" />
+	</appender>
+
+	<root>
+		<appender_ref ref="loggerDebug" />
+		<appender_ref ref="loggerInfo" />
+		<appender_ref ref="loggerError" />
+		<appender_ref ref="loggerWarn" />
+	</root>
+
+</configuration>

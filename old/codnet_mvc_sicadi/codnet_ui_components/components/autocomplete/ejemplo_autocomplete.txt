@@ -1,0 +1,111 @@
+
+***********************************************************
+	En navigation.xml
+***********************************************************
+Debemos mapear la acción que atiende por 
+ajax el autocomplete.
+
+<accion nombre='cmp_autocomplete' clase='CMPAutocompleteAction' />
+
+
+***********************************************************
+	En el la clase que parse el form (algún editarInit)
+***********************************************************
+
+        $oAutocomplete = new Autocomplete();
+
+		/**** propiedades REQUERIDAS  ****/
+
+		//name para el input
+        $oAutocomplete->setInputName( 'my_item_name' );
+
+		//id para el input
+        $oAutocomplete->setInputId( 'my_item_id' );
+
+		//clase a la que le pedimos los items
+		$oAutocomplete->setRequestClass( 'MyItemManager' );
+ 
+		//atributo código del item.
+		$oAutocomplete->setItemCode( 'cd_item' );
+
+		//atributo label del item (lo que se muestra en el input).
+		$oAutocomplete->setItemLabel( 'ds_item' );
+
+
+		/**** propiedades REQUERIDAS  si usamos objetos ****/
+
+		//clase de los items.
+		//si no se setea, se asume que cada item es un array. 
+        $oAutocomplete->setItemClass( 'MyItemClass' );
+
+
+		/**** propiedades OPCIONALES  ****/
+		
+        //label a mostrar para el input
+		$oAutocomplete->setLabel( 'Label' );
+
+		//método para obtener los items, sería un método de la clase definida arriba.
+		//si no se setea, se asume que la clase implementa la interface IListar
+		//por lo cual se utilizará el método "getEntidades"
+		$oAutocomplete->setRequestMethod( 'getMyItems' );
+
+		//atributos del item a mostrar en el dropdown (sin espacios!!).
+		$oAutocomplete->setItemAttributesList( 'cd_item,ds_nombre,ds_descripcion' );
+
+		//función javascript que se invoca al seleccionar un item.
+		$oAutocomplete->setFunctionCallback('tabtext_change');
+
+		//atributos del item a pasar por parámetro en la función callback (sin espacios!!).
+		$oAutocomplete->setItemAttributesCallback( 'cd_item,ds_nombre,ds_descripcion' );
+
+        //clase de css para el label
+		$oAutocomplete->setLabelCss( 'label_css' );
+
+        //clase de css para el input
+		$oAutocomplete->setInputCss( 'input_css' );
+
+        //para setear disabled el input
+		$oAutocomplete->setDisabled( true );
+		
+		//TODO parámetros adicionales
+		$oAutocomplete->setExtraParam( '' );
+		
+		
+        $xtpl->assign('autocomplete_tabtext', $oAutocomplete->show() );
+
+
+***********************************************************
+	En el HTML
+***********************************************************
+
+<!-- hay que incluir el js y el css del autocomplete. -->
+<script language="javascript" src="{WEB_PATH}js/autocomplete/simpleAutoComplete.js"></script>
+<link rel="stylesheet" href="{WEB_PATH}css/autocomplete/simpleAutoComplete.css" type="text/css" />
+ 
+<script>
+
+//incluimos la función callback, esta se invoca cuando se selecciona un item de la lista.
+function callback_change(attr){
+
+	/*
+	esta variable attr es un arreglo con los de los atributos del item
+	seleccionado, seteado en el mismo orden que en itemAttributesCallback
+
+	en este ejemplo sería:
+
+		attr[0] --> cd_item
+		attr[1] --> ds_nombre
+		attr[2] --> ds_descripcion
+
+	 
+	*/
+	
+	 
+}
+</script>
+
+
+<!-- luego, en algún lugar de nuestro form agregamos
+el nombre del bloque para parsear el autocomplete con xtemplate -->
+
+{autocomplete_ejemplo}

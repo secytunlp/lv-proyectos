@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/codnet_mvc/!svn/ver/193/trunk/codnet_geo/view/tableModel
+END
+LocalidadTableModel.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/codnet_mvc/!svn/ver/193/trunk/codnet_geo/view/tableModel/LocalidadTableModel.Class.php
+END
+PaisTableModel.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/codnet_mvc/!svn/ver/193/trunk/codnet_geo/view/tableModel/PaisTableModel.Class.php
+END
+ProvinciaTableModel.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/codnet_mvc/!svn/ver/193/trunk/codnet_geo/view/tableModel/ProvinciaTableModel.Class.php
+END

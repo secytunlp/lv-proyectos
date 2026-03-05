@@ -1,0 +1,71 @@
+<!-- BEGIN: main -->
+<style>
+
+body{
+ background: none;
+}
+
+.jfVal, .jValSpacercover {
+    display: none;
+}
+
+</style>
+<div id="login-container">
+
+<!-- BEGIN: msg_error -->
+<script type="text/javascript">
+showMessageError('{msg}', false);
+</script>	
+<!-- END: msg_error -->
+
+<div id="login-box">
+<center>
+<H2>{login_titulo}</H2>
+<h1>{login_subtitulo}</h1></center>
+
+	<form id = "loginform" name = "loginform" action='{WEB_PATH}{login_action}'  onsubmit="return validate('loginform');" method='post'>
+		<input type="hidden" name="backTo" value="{backTo}" />
+		<table>
+			<tr>
+				<td>{lbl_username}*:</td>
+				<td>
+					<input type="text" class="form-login" name="username" value="{username}"  size="30" id="username" jVal="{valid:function (val) { return required(val,'{txt_ingrese_username}'); }}"/>
+				</td>
+			</tr>			
+			<tr>
+				<td>{lbl_password}*:</td>
+				<td>
+					<input type="password" class="form-login" name="password" id="password" value="{ds_password}" size="30" jVal="{valid:function (val) { return required(val,'{txt_ingrese_password}'); }}"/>
+				</td>
+			</tr>			
+			<tr>
+				<td></td>
+				<td>
+					<a href="#" style="margin-left:30px;" onclick="javascript: linkTo('{solicitar_clave_init_action}'); return false;">{txt_recurepar_password}</a>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2" style="text-align: center;">
+					<button value="{btn_ingresar}" type="submit" id="submit">{btn_ingresar}</button>
+				</td>
+				
+				
+			</tr>
+			<tr>
+				<td colspan="2" >
+					<div class="required-fields">(*) {txt_campos_obligatorios}</div>
+				</td>
+			</tr>
+			<!-- BEGIN: registration -->
+			<tr>
+				<td colspan="2">
+					<p class="new_user">{link_registrarse}&nbsp;&nbsp;</p>
+				</td>
+			</tr>
+			<!-- END: registration -->
+		</table>
+        
+	</form>
+</div>
+</div>		
+<!-- END: main -->

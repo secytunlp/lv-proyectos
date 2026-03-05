@@ -1,0 +1,95 @@
+<!-- BEGIN: main -->
+<div id="search_results_{gridId}">
+
+<!-- BEGIN:error_message -->
+	<div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+		<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+			{error_message}
+		</p>
+	</div>
+	<!-- END:error_message -->
+	
+<div class="grid_pages" id="paginator_{gridId}">
+	<!-- BEGIN: pagination --> {pagination} <!-- END: pagination -->
+	<div style="float:left">
+	<!-- BEGIN: paginator_pages --> {pages} <!-- END: paginator_pages -->	
+	</div>
+	<!-- BEGIN: paginator_results --> {results} <!-- END: paginator_results -->
+</div>
+
+<div style="float: left; width: 100%"> 
+
+<!-- BEGIN: header -->
+<div class='tablaSummaryHeader'>{header}</div>
+<!-- END: header -->
+<div class="block">
+
+<table border="1">
+	<thead>
+	<tr>
+		<!-- BEGIN: TH -->
+				
+			<!-- BEGIN: SIMPLE -->
+			<th rowspan={group_levels}>
+			
+				<a title="{lbl_order_by} {orderLabel} - {orderType}" 
+					href="none"	onclick="javascript: sort_ajax_{gridId}( '{orderField}', '{orderType}'); return false;">
+					{label}
+				</a>
+				
+			</th>
+			<!-- END: SIMPLE -->
+			
+			<!-- BEGIN: GROUP -->		
+			<th colspan={group_size}>
+				<a title="{lbl_order_by} {orderLabel} - {orderType}" 
+					href="none"	onclick="javascript: sort_ajax_{gridId}( '{orderField}', '{orderType}'); return false;">
+					{group_label}				
+				</a>
+			</th>
+			<!-- END: GROUP -->
+			
+		<!-- END: TH -->
+		<th></th>
+	</tr>
+	<!-- BEGIN: SUB_HEADER -->
+	<tr>
+		<!-- BEGIN: TH -->		
+		<th>
+		
+			<a title="{lbl_order_by} {orderLabel} - {orderType}"  
+				href="none"	onclick="javascript: sort_ajax_{gridId}( '{orderField}', '{orderType}'); return false;">
+				{label}
+			</a>
+			
+		</th>
+		<!-- END: TH -->
+	</tr>	
+	<!-- END: SUB_HEADER -->
+	
+	</thead>
+	<!-- BEGIN: row -->
+	<tbody class="{rowClass}">
+	<tr>
+		<!-- BEGIN: column -->
+		<td>{value}</td>
+		<!-- END: column -->
+		<td class="acciones">
+			
+			<!-- BEGIN: action -->
+			<a onclick="{onclick}" href="{href}"><img class="hrefImg" src="{img}" title="{title}" /></a>&nbsp;
+			<!-- END: action -->
+			
+		</td>
+	</tr>
+	</tbody>
+	<!-- END: row -->
+</table>
+
+<!-- BEGIN: footer -->
+<div class='tablaSummaryFooter'>{footer}</div>
+<!-- END: footer -->
+</div>
+</div>
+</div>
+<!-- END: main -->

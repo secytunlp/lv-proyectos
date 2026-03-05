@@ -1,0 +1,169 @@
+<!-- BEGIN: main -->
+<style>
+#becas{
+
+}
+#becas fieldset {
+    background: none repeat scroll 0 0 #EEEEEE;
+    border-radius: 4px 4px 0 0;
+    box-shadow:none;
+    margin-top: 1em;
+    padding: 1.5em;
+    text-shadow: 0 1px 0 #FFFFFF;
+}
+#becas .tblFooters {
+    /*margin-top: -16px;*/
+    background: none;
+    border:none;
+    text-align: center;
+    margin-bottom: -34px;
+    margin-top: -16px;
+}
+#becas .camposRequeridos {
+    display: none;
+}
+#becas form fieldset .item {
+    padding: 1px;
+}
+</style>
+
+
+
+<script nonce="tu_nonce_generado" type="text/javascript">
+
+function before_submit_beca(){
+
+	wait("#tbody_becas");
+}
+
+function remove_beca( itemOid ){
+
+	before_submit_beca();
+	soft_load(false, "doAction?action=delete_beca_session&item_oid="+itemOid, "GET", null, show_becas, false);
+}
+
+function add_beca( data ){
+	show_becas( data );
+	$("#item_oid").val("");
+	$("#item_oid").blur();
+	//$("#item_oid").focus();
+}
+
+function show_becas( data ){
+	
+	var data = $.parseJSON(data);
+	if( data != null && data["error"]!=null){
+		showMessageError( data["error"], true );
+	}
+	
+	if( data != null && data["becas"]!=null){
+
+		var becas = data["becas"];
+		var becaColumns = data["becaColumns"];
+		var becaColumnsAlign = data["becaColumnsAlign"];
+		var becaColumnsLabels = data["becaColumnsLabels"];
+
+		$('#thead_becas').find('tr').remove();
+		$("#thead_becas").last().append( $('<tr>') );
+		var trHeadBeca = $('#thead_becas').find('tr').last();
+		
+		for( var colIndex=0; colIndex < becaColumnsLabels.length;colIndex++){
+
+			var label = becaColumnsLabels[colIndex];
+			var align =  becaColumnsAlign[colIndex];
+			trHeadBeca.append($('<th>')
+	                .text( label )
+	                .attr('style', 'text-align:' + align + ';')
+	            );
+			
+		}
+
+		$('#tbody_becas').find('tr').remove();
+				
+		for( var index=0; index< becas.length;index++){
+
+			var beca = becas[index];
+
+			$("#tbody_becas").last().append( $('<tr>') );
+			
+			var trBeca = $('#tbody_becas').find('tr').last();
+			
+			for( var colIndex=0; colIndex < becaColumns.length;colIndex++){
+
+				var column = becaColumns[colIndex];
+				var align =  becaColumnsAlign[colIndex];
+				var valor = beca[column]; 
+
+				trBeca.append($('<td>')
+		                .text( valor )
+		                .attr('style', 'text-align:' + align + ';')
+		            );
+				
+			}
+
+			if(beca["bl_agregado"]==1){
+				trBeca.append($('<td>')
+						.attr('style', 'text-align:center;')
+						.append($('<href>')
+								.append($('<img>')
+						                .attr('src', '{WEB_PATH}css/smile/images/chk_off.png')
+						                .text('quitar')
+						            )
+						        .attr('href', '#')
+						        .attr('style', 'cursor:pointer;')
+						        .attr('onclick', 'javascript: remove_beca( encodeURI( \"' + beca["item_oid"] +  '\")); return false;' )
+				            )
+		            ); 
+			}
+			else trBeca.append($('<td>'));
+
+		}
+		
+	}
+
+	wakeUp("#tbody_becas");
+	
+	$('#edit_beca').each (function(){
+		  this.reset();
+		});
+	
+	
+}
+
+
+
+</script>
+<div id="becas">
+<fieldset>
+	
+<table id="becas">
+   	<thead id="thead_becas">
+   	<tr>
+   		<!-- BEGIN: beca_th -->
+   		<th style="text-align: {align};">{beca_label}</th>
+   		<!-- END: beca_th -->
+   		<th></th>
+   	</tr>
+   	</thead>
+   	<tbody id="tbody_becas">
+   	<!-- BEGIN: beca -->   	
+   	<tr>
+   		<!-- BEGIN: beca_data -->	
+   		<td style="text-align: {align};">{data}</td>
+   		<!-- END: beca_data -->
+   		
+   		<td style="text-align: center;">
+   			<!-- BEGIN:editar_beca -->
+   			<a href="#"><img src='{WEB_PATH}css/smile/images/chk_off.png' style="cursor:pointer;" onclick="javascript: remove_beca(encodeURI('{item_oid}')); return false;"></a>
+   			<!-- END:editar_beca -->
+   		</td>
+   	</tr>
+   	<!-- END: beca -->
+   	</tbody>
+</table>
+<br />
+{formulario}
+</fieldset>
+    
+</div>
+<!-- END: main -->

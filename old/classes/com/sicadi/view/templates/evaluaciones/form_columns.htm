@@ -1,0 +1,844 @@
+<!-- BEGIN: main -->
+<style>
+.fValidator-a {
+    color: #708090;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: bold;
+}
+</style>
+<script type="text/javascript">
+
+
+
+
+function sumar_total(){
+	$("#{form_id}_input_submit_ajax").show();
+	var posgrado = $("input[name='cd_posgradomaximo']:checked").val();
+	
+	
+	if (posgrado != null){
+		var posgradoArray = posgrado.split('-');
+	}
+	else{
+		var posgradoArray = [];
+		posgradoArray[1]=0;
+	}
+	
+	$('#spanPosgrado').text(posgradoArray[1]);
+	
+	total = 0;
+	
+	
+	
+	
+	var bl_posgrado = $('#bl_posgrado');
+	var nu_factor = $('#nu_factor');
+	var spanF = $('#spanF');
+	var totalAntAcad=0;
+	var submax=0;
+	var subpuntaje=parseFloat(total);
+	
+	for (var i=0; i<$('#nu_cantantacad').val(); i++){
+		
+		nu_tope = $('#nu_topeantacad'+i);
+		nu_puntaje = $('#nu_puntajeantacad'+i);
+		
+		cd_puntajegrupo = $('#cd_puntajegrupoantacad'+i);
+		nu_max = $('#nu_maxantacad'+i);
+		nu_min = $('#nu_minantacad'+i);
+		div = $('#divpuntajeantacad'+i);
+		div.text('');
+		span = $('#spanpuntajeantacad'+i);
+		valor=$('#nu_valorantacad'+i);
+		if (cd_puntajegrupo != null){
+			nu_maxpuntajegrupo = $('#nu_maxgrupo'+cd_puntajegrupo.val());
+		}
+		if (nu_puntaje != null){
+			
+			if(nu_puntaje.attr('type') == "checkbox"){
+				puntaje = (nu_puntaje.attr("checked"))?parseFloat(nu_puntaje.val()):0;
+				
+				edit=0;
+			}
+			else if(nu_puntaje.attr('type') == "hidden"){
+				if(bl_posgrado.attr("checked")){
+					nu_puntaje.val(1);
+					
+				}
+				else
+					nu_puntaje.val(nu_factor.val());
+				spanF.text(nu_puntaje.val());
+				puntaje = formatDec(nu_puntaje.val()*(parseFloat($('#spanPosgrado').text())+parseFloat($('#nu_valorantacad'+(i-1)).val())+parseFloat($('#nu_valorantacad'+(i-2)).val())),2);
+					
+			}
+			else puntaje = (nu_puntaje.val()!='')?parseFloat(nu_puntaje.val()):0;
+			
+			
+			
+			if((nu_tope.val() != 0)&&(nu_puntaje.attr('type') != "checkbox")&&(( (nu_max.val()!=0)&&(puntaje*nu_max.val()>parseFloat(nu_tope.val())))||( (nu_max.val()==0)&&(puntaje>parseFloat(nu_tope.val()))))  ){
+				div.text('Excedido, toma el max.');
+				span.text(nu_tope.val());
+				ptotal = nu_tope.val();
+				
+				valor.val(parseFloat(ptotal));
+				
+			}
+			else{
+				if((nu_puntaje.attr('type') == "checkbox")||(nu_puntaje.attr('type') == "hidden")||(nu_max.val() == 0)){
+					span.text(formatDec(puntaje,2));
+					ptotal = puntaje;
+					if(nu_puntaje.attr('type') == "hidden"){
+						ptotal = puntaje - parseFloat($('#nu_valorantacad'+(i-1)).val())-parseFloat($('#nu_valorantacad'+(i-2)).val())-parseFloat($('#nu_posgrado').val()) ;
+						
+					}
+				}
+				
+				else{
+					span.text(puntaje*nu_max.val());
+					ptotal = formatDec(puntaje*nu_max.val(),2);
+					valor.val(parseFloat(ptotal));
+					
+				}
+				
+			div.text('');
+			
+			}
+			
+			if ((i==0)||(submax==cd_puntajegrupo.val() )){
+				
+				subpuntaje = parseFloat(subpuntaje) + parseFloat(ptotal);
+			}
+			else {
+				cd_puntajegrupoant = $('#cd_puntajegrupoantacad'+(i-1));
+				if (cd_puntajegrupoant != null){
+					nu_maxpuntajegrupoant = $('#nu_maxgrupo'+cd_puntajegrupoant.val());
+					divgrupo = $('#divgrupoAntacad'+cd_puntajegrupoant.val());
+					spangrupo = $('#spangrupoAntacad'+cd_puntajegrupoant.val());
+				}
+				if(subpuntaje > nu_maxpuntajegrupoant.val()){
+					totalAntAcad=parseFloat(totalAntAcad)+parseFloat(nu_maxpuntajegrupoant.val());
+					spangrupo.text(parseFloat(nu_maxpuntajegrupoant.val()));
+					divgrupo.text('Excedido, toma el max.');
+					}
+				else{
+					totalAntAcad=parseFloat(totalAntAcad)+parseFloat(subpuntaje);
+					spangrupo.text(formatDec(parseFloat(subpuntaje),2));
+					divgrupo.text('');
+					}
+				subpuntaje=puntaje;
+			}
+			submax=cd_puntajegrupo.val();
+				
+				
+				
+			
+				//}
+			//}
+		
+		}
+		
+	}
+	
+	cd_puntajegrupoant = $('#cd_puntajegrupoantacad'+(i-1));
+	if (cd_puntajegrupoant != null){
+		nu_maxpuntajegrupoant = $('#nu_maxgrupoantacad'+cd_puntajegrupoant.val());
+		divgrupo = $('#divgrupoAntacad'+cd_puntajegrupoant.val());
+		spangrupo = $('#spangrupoAntacad'+cd_puntajegrupoant.val());
+	}
+	if(subpuntaje > nu_maxpuntajegrupoant.val()){
+		totalAntAcad=parseFloat(totalAntAcad)+parseFloat(nu_maxpuntajegrupoant.val());
+		spangrupo.text(parseFloat(nu_maxpuntajegrupoant.val()));
+		divgrupo.text('Excedido, toma el max.');
+		}
+	else{
+		totalAntAcad=parseFloat(totalAntAcad)+parseFloat(subpuntaje);
+		spangrupo.text(formatDec(parseFloat(subpuntaje),2));
+		divgrupo.text('');
+		}
+	total = parseFloat(total) + parseFloat(totalAntAcad);
+	var cargo = $("input[name='cd_cargomaximo']:checked").val();
+	
+	
+	if (cargo != null){
+		var cargoArray = cargo.split('-');
+	}
+	else{
+		var cargoArray = [];
+		cargoArray[1]=0;
+	}
+	
+	$('#spanCargo').text(cargoArray[1]);
+	
+	
+	total = parseFloat(total) + parseFloat($('#spanCargo').text());
+	
+	cantidad = $('#nu_cantantotros');
+	var totalOtros=0;
+	var submax=0;
+	var subpuntaje=0;
+	//control = $('#control');
+	for (var i=0; i<cantidad.val(); i++){
+			
+		//nu_cant = $('#nu_cantantacad'+i);
+		nu_tope = $('#nu_topeantotros'+i);
+		nu_puntaje = $('#nu_puntajeantotros'+i);
+		cd_puntajegrupo = $('#cd_puntajegrupoantotros'+i);
+		nu_max = $('#nu_maxantotros'+i);
+		nu_min = $('#nu_minantotros'+i);
+		div = $('#divpuntajeantotros'+i);
+		div.text('');
+		span = $('#spanpuntajeantotros'+i);
+		valor=$('#nu_valorantotros'+i);
+		if (cd_puntajegrupo != null){
+			nu_maxpuntajegrupo = $('#nu_maxgrupoantotros'+cd_puntajegrupo.val());
+		}
+		if (nu_puntaje != null){
+			
+			if(nu_puntaje.attr('type') == "checkbox"){
+				puntaje = (nu_puntaje.attr("checked"))?parseFloat(nu_puntaje.val()):0;
+				
+			}
+			else puntaje = (nu_puntaje.val()!='')?parseFloat(nu_puntaje.val()):0;
+			
+		
+				if((nu_tope.val() != 0)&&(nu_puntaje.attr('type') != "checkbox")&&(( (nu_max.val()!=0)&&(puntaje*nu_max.val()>parseFloat(nu_tope.val())))||( (nu_max.val()==0)&&(puntaje>parseFloat(nu_tope.val()))))  ){
+					div.text('Excedido, toma el max.');
+					span.text(nu_tope.val());
+					ptotal = nu_tope.val();
+					
+				}
+				else{
+					if((nu_puntaje.attr('type') == "checkbox")||(nu_max.val() == 0)){
+						span.text(formatDec(puntaje,2));
+						ptotal = puntaje;
+					}
+					else{
+						span.text(formatDec(puntaje*nu_max.val(),2));
+						ptotal = puntaje*nu_max.val();
+						valor.val(parseFloat(ptotal));
+						
+					}
+					
+					div.text('');
+					
+					}
+					if ((i==0)||(submax==cd_puntajegrupo.val() )){
+						subpuntaje = parseFloat(subpuntaje) + parseFloat(ptotal);
+					}
+					else {
+						cd_puntajegrupoant = $('#cd_puntajegrupoantotros'+(i-1));
+						
+						if (cd_puntajegrupoant != null){
+							nu_maxpuntajegrupoant = $('#nu_maxgrupoantotros'+cd_puntajegrupoant.val());
+							divgrupo = $('#divgrupoAntotros'+cd_puntajegrupoant.val());
+							spangrupo = $('#spangrupoAntotros'+cd_puntajegrupoant.val());
+						}
+						
+						if(subpuntaje > nu_maxpuntajegrupoant.val()){
+							totalOtros=parseFloat(totalOtros)+parseFloat(nu_maxpuntajegrupoant.val());
+							spangrupo.text(parseFloat(nu_maxpuntajegrupoant.val()));
+							divgrupo.text('Excedido, toma el max.');
+							}
+						else{
+							totalOtros=parseFloat(totalOtros)+parseFloat(subpuntaje);
+							spangrupo.text(formatDec(parseFloat(subpuntaje),2));
+							divgrupo.text('');
+							}
+						subpuntaje=ptotal;
+					}
+					submax=cd_puntajegrupo.val();
+					
+					
+					
+					}
+				//}
+			//}
+		
+	}
+	cd_puntajegrupoant = $('#cd_puntajegrupoantotros'+(i-1));
+	
+	if (cd_puntajegrupoant != null){
+		
+		nu_maxpuntajegrupoant = $('#nu_maxgrupoantotros'+cd_puntajegrupoant.val());
+		divgrupo = $('#divgrupoAntotros'+cd_puntajegrupoant.val());
+		spangrupo = $('#spangrupoAntotros'+cd_puntajegrupoant.val());
+		
+	}
+	
+	if(subpuntaje > nu_maxpuntajegrupoant.val()){
+		
+		totalOtros=parseFloat(totalOtros)+parseFloat(nu_maxpuntajegrupoant.val());
+		spangrupo.text(parseFloat(nu_maxpuntajegrupoant.val()));
+		divgrupo.text('Excedido, toma el max.');
+		
+		}
+	else{
+		
+		totalOtros=parseFloat(totalOtros)+parseFloat(subpuntaje);
+		spangrupo.text(formatDec(parseFloat(subpuntaje),2));
+		divgrupo.text('');
+		}
+	cd_puntajegrupoant = $('#nu_maxgrupootros');
+	if (cd_puntajegrupoant.length > 0){
+		nu_maxpuntajegrupoant = $('#nu_maxgrupootros');
+		divgrupo = $('#divgrupootros');
+		spangrupo = $('#spangrupootros');
+	}
+
+	if(totalOtros > nu_maxpuntajegrupoant.val()){
+		totalOtros=parseFloat(nu_maxpuntajegrupoant.val());
+		spangrupo.text(parseFloat(nu_maxpuntajegrupoant.val()));
+		divgrupo.text('Excedido, toma el max.');
+		}
+	else{
+		
+		spangrupo.text(formatDec(parseFloat(totalOtros),2));
+		divgrupo.text('');
+		}
+	total = parseFloat(total) + parseFloat(totalOtros);
+	
+	cantidad = $('#nu_cantantproduccion');
+	var totalProduccion=0;
+	var submax=0;
+	var subpuntaje=0;
+	
+	
+	for (var i=0; i<cantidad.val(); i++){
+			
+		nu_cant = $('#nu_cantantproduccion'+i);
+		nu_tope = $('#nu_topeantproduccion'+i);
+		nu_puntaje = $('#nu_puntajeantproduccion'+i);
+		cd_puntajegrupo = $('#cd_puntajegrupoantproduccion'+i);
+		nu_max = $('#nu_maxantproduccion'+i);
+		nu_min = $('#nu_minantproduccion'+i);
+		div = $('#divpuntajeantproduccion'+i);
+		div.text('');
+		span = $('#spanpuntajeantproduccion'+i);
+		valor=$('#nu_valorantproduccion'+i);
+		
+		if (cd_puntajegrupo.length > 0){
+			nu_maxpuntajegrupo = $('#nu_maxgrupo'+cd_puntajegrupo.val());
+		}
+		if (nu_cant.length > 0){
+			cant = (nu_cant.val()!='')?parseFloat(nu_cant.val()):0;
+			if(nu_puntaje.attr('type') == "checkbox"){
+				puntaje = (nu_puntaje.attr("checked"))?parseFloat(nu_puntaje.val()):0;
+				
+				
+			}
+			else
+				puntaje = (nu_puntaje.val()!='')?parseFloat(nu_puntaje.val()):0;
+			if((cant!=0)&&(puntaje==0)){
+				div.text('Falta el puntaje');
+				$("#{form_id}_input_submit_ajax").hide();
+				
+			}
+			else{
+				
+				
+					if(puntaje>(cant*parseFloat(nu_max.val()))){
+						
+						div.text('Puntaje excedido');
+
+						$("#{form_id}_input_submit_ajax").hide();
+						
+					}
+				$pasoElTope = 0;
+				if(nu_tope.val() != 0){
+					
+					if(puntaje>(nu_tope.val())){
+						
+						div.text('Puntaje excedido no puede superar a '+ nu_tope.val());
+						$pasoElTope = 1;	
+						$("#{form_id}_input_submit_ajax").hide();
+						
+					}
+					
+					
+				}
+			}
+		}
+		
+
+		if ((nu_puntaje.length > 0)){
+			if(nu_puntaje.attr('type') == "checkbox"){
+				puntaje = (nu_puntaje.attr("checked"))?parseFloat(nu_puntaje.val()):0;
+				
+			}
+			else
+				puntaje = (nu_puntaje.val()!='')?parseFloat(nu_puntaje.val()):0;
+				
+				if((nu_tope.val() != 0)&&(nu_puntaje.attr('type') != "checkbox")&&(puntaje>parseFloat(nu_tope.val()))) {
+					if(!$pasoElTope){
+						div.text('Excedido, toma el max.');
+						span.text(nu_tope.val());
+						ptotal = nu_tope.val();
+					}
+					
+					
+				}
+				else{
+					if((nu_puntaje.attr('type') == "checkbox")||(nu_max.val() == 0)){
+						span.text(formatDec(puntaje,2));
+						ptotal = puntaje;
+						
+					}
+					else{
+						
+						if (nu_cant.length > 0){
+							
+							ptotal = puntaje;
+						}
+						else{
+							
+							span.text(formatDec(puntaje*nu_max.val(),2));
+							ptotal = puntaje*nu_max.val();
+							
+						
+						}
+						valor.val(parseFloat(ptotal));
+						
+					}
+					
+					//div.text('');
+					
+					}
+					//alert('i: '+i+' - submax: '+submax+' - cd_puntajegrupo.val(): '+cd_puntajegrupo.val());
+					if ((i==0)||(submax==cd_puntajegrupo.val() )){
+						
+						subpuntaje = parseFloat(subpuntaje) + parseFloat(ptotal);
+						//alert(subpuntaje+' > '+nu_maxpuntajegrupoant.val()+' > '+totalProduccion+' > '+ptotal)	
+						
+					}
+					else {
+						
+						cd_puntajegrupoant = $('#cd_puntajegrupoantproduccion'+(i-1));
+						
+						if (cd_puntajegrupoant.length > 0){
+							nu_maxpuntajegrupoant = $('#nu_maxgrupo'+cd_puntajegrupoant.val());
+							divgrupo = $('#divgrupoAntproduccion'+cd_puntajegrupoant.val());
+							spangrupo = $('#spangrupoAntproduccion'+cd_puntajegrupoant.val());
+						}
+						
+						if(subpuntaje > nu_maxpuntajegrupoant.val()){
+							totalProduccion=parseFloat(totalProduccion)+parseFloat(nu_maxpuntajegrupoant.val());
+							spangrupo.text(parseFloat(nu_maxpuntajegrupoant.val()));
+							divgrupo.text('Excedido, toma el max.');
+							
+							}
+						else{
+							totalProduccion=parseFloat(totalProduccion)+parseFloat(subpuntaje);
+							spangrupo.text(formatDec(parseFloat(subpuntaje),2));
+							divgrupo.text('');
+							
+							}
+						
+						subpuntaje=ptotal;
+					}
+					
+					submax=cd_puntajegrupo.val();
+					
+					
+					
+					}
+				//}
+			//}
+		
+	}
+	cd_puntajegrupoant = $('#cd_puntajegrupoantproduccion'+(i-1));
+	if (cd_puntajegrupoant.length > 0){
+		nu_maxpuntajegrupoant = $('#nu_maxgrupo'+cd_puntajegrupoant.val());
+		divgrupo = $('#divgrupoAntproduccion'+cd_puntajegrupoant.val());
+		spangrupo = $('#spangrupoAntproduccion'+cd_puntajegrupoant.val());
+	}
+	if(subpuntaje > nu_maxpuntajegrupoant.val()){
+		totalProduccion=parseFloat(totalProduccion)+parseFloat(nu_maxpuntajegrupoant.val());
+		spangrupo.text(parseFloat(nu_maxpuntajegrupoant.val()));
+		divgrupo.text('Excedido, toma el max.');
+		}
+	else{
+		totalProduccion=parseFloat(totalProduccion)+parseFloat(subpuntaje);
+		spangrupo.text(formatDec(parseFloat(subpuntaje),2));
+		divgrupo.text('');
+		}
+
+
+	cd_puntajegrupoant = $('#nu_maxgrupoantproduccion');
+	if (cd_puntajegrupoant.length > 0){
+		nu_maxpuntajegrupoant = $('#nu_maxgrupoantproduccion');
+		divgrupo = $('#divgrupoproduccion');
+		spangrupo = $('#spangrupoproduccion');
+	}
+	//alert(subpuntaje+' > '+nu_maxpuntajegrupoant.val()+' > '+totalProduccion)
+	if(totalProduccion > nu_maxpuntajegrupoant.val()){
+		totalProduccion=parseFloat(nu_maxpuntajegrupoant.val());
+		spangrupo.text(parseFloat(nu_maxpuntajegrupoant.val()));
+		divgrupo.text('Excedido, toma el max.');
+		}
+	else{
+		//totalProduccion=totalProduccion+parseFloat(subpuntaje);
+		spangrupo.text(formatDec(parseFloat(totalProduccion),2));
+		divgrupo.text('');
+		}
+	
+	total = parseFloat(total) + parseFloat(totalProduccion);
+	
+	cantidad = $('#nu_cantsubanterior');
+	var totalSubanterior=0;
+	var submax=0;
+	var subpuntaje=0;
+	//control = $('#control');
+	for (var i=0; i<cantidad.val(); i++){
+			
+		//nu_cant = $('#nu_cantantacad'+i);
+		nu_tope = $('#nu_topesubanterior'+i);
+		nu_puntaje = $('#nu_puntajesubanterior'+i);
+		cd_puntajegrupo = $('#cd_puntajegruposubanterior'+i);
+		nu_max = $('#nu_maxsubanterior'+i);
+		nu_min = $('#nu_minsubanterior'+i);
+		div = $('#divpuntajesubanterior'+i);
+		div.text('');
+		span = $('#spanpuntajesubanterior'+i);
+		valor=$('#nu_valorsubanterior'+i);
+		if (cd_puntajegrupo != null){
+			nu_maxpuntajegrupo = $('#nu_maxgruposubanterior'+cd_puntajegrupo.val());
+		}
+		if (nu_puntaje != null){
+			
+			if(nu_puntaje.attr('type') == "checkbox"){
+				puntaje = (nu_puntaje.attr("checked"))?parseFloat(nu_puntaje.val()):0;
+				
+			}
+			else puntaje = (nu_puntaje.val()!='')?parseFloat(nu_puntaje.val()):0;
+			
+		
+				if((nu_tope.val() != 0)&&(nu_puntaje.attr('type') != "checkbox")&&(( (nu_max.val()!=0)&&(puntaje*nu_max.val()>parseFloat(nu_tope.val())))||( (nu_max.val()==0)&&(puntaje>parseFloat(nu_tope.val()))))  ){
+					div.text('Excedido, toma el max.');
+					span.text(nu_tope.val());
+					ptotal = nu_tope.val();
+					
+				}
+				else{
+					if((nu_puntaje.attr('type') == "checkbox")||(nu_max.val() == 0)){
+						span.text(formatDec(puntaje,2));
+						ptotal = puntaje;
+					}
+					else{
+						span.text(formatDec(puntaje*nu_max.val(),2));
+						ptotal = puntaje*nu_max.val();
+						valor.val(parseFloat(ptotal));
+						
+					}
+					
+					div.text('');
+					
+					}
+					if ((i==0)||(submax==cd_puntajegrupo.val() )){
+						subpuntaje = parseFloat(subpuntaje) + parseFloat(ptotal);
+					}
+					else {
+						cd_puntajegrupoant = $('#cd_puntajegruposubanterior'+(i-1));
+						if (cd_puntajegrupoant != null){
+							nu_maxpuntajegrupoant = $('#nu_maxgrupo'+cd_puntajegrupoant.val());
+							divgrupo = $('#divgrupoSubanterior'+cd_puntajegrupoant.val());
+							spangrupo = $('#spangrupoSubanterior'+cd_puntajegrupoant.val());
+						}
+						if(subpuntaje > nu_maxpuntajegrupoant.val()){
+							totalSubanterior=parseFloat(totalSubanterior)+parseFloat(nu_maxpuntajegrupoant.val());
+							spangrupo.text(parseFloat(nu_maxpuntajegrupoant.val()));
+							divgrupo.text('Excedido, toma el max.');
+							}
+						else{
+							totalSubanterior=parseFloat(totalSubanterior)+parseFloat(subpuntaje);
+							spangrupo.text(formatDec(parseFloat(subpuntaje),2));
+							divgrupo.text('');
+							}
+						subpuntaje=puntaje;
+					}
+					submax=cd_puntajegrupo.val();
+					
+					
+					
+					}
+				//}
+			//}
+		
+	}
+	cd_puntajegrupoant = $('#cd_puntajegruposubanterior'+(i-1));
+	if (cd_puntajegrupoant != null){
+		nu_maxpuntajegrupoant = $('#nu_maxgruposubanterior'+cd_puntajegrupoant.val());
+		divgrupo = $('#divgrupoSubanterior'+cd_puntajegrupoant.val());
+		spangrupo = $('#spangrupoSubanterior'+cd_puntajegrupoant.val());
+	}
+	if(subpuntaje > nu_maxpuntajegrupoant.val()){
+		totalSubanterior=parseFloat(totalSubanterior)+parseFloat(nu_maxpuntajegrupoant.val());
+		spangrupo.text(parseFloat(nu_maxpuntajegrupoant.val()));
+		divgrupo.text('Excedido, toma el max.');
+		}
+	else{
+		totalSubanterior=parseFloat(totalSubanterior)+parseFloat(subpuntaje);
+		spangrupo.text(formatDec(parseFloat(subpuntaje),2));
+		divgrupo.text('');
+		}
+	
+	total = parseFloat(total) + parseFloat(totalSubanterior);
+
+
+	cantidad = $('#nu_cantantjustificacion');
+	var totalJustificacion=0;
+	var submax=0;
+	var subpuntaje=0;
+	
+	for (var i=0; i<cantidad.val(); i++){
+			
+		
+		nu_tope = $('#nu_topeantjustificacion'+i);
+		nu_puntaje = $('#nu_puntajeantjustificacion'+i);
+		cd_puntajegrupo = $('#cd_puntajegrupoantjustificacion'+i);
+		nu_max = $('#nu_maxantjustificacion'+i);
+		nu_min = $('#nu_minantjustificacion'+i);
+		div = $('#divpuntajeantjustificacion'+i);
+		div.text('');
+		span = $('#spanpuntajeantjustificacion'+i);
+		valor=$('#nu_valorantjustificacion'+i);
+		if (cd_puntajegrupo.length > 0){
+			nu_maxpuntajegrupo = $('#nu_maxgrupoantjustificacion'+cd_puntajegrupo.val());
+		}
+		if (nu_puntaje.length > 0){
+			puntaje = (nu_puntaje.val()!='')?parseFloat(nu_puntaje.val()):0;
+			
+		
+				if((nu_tope.val() != 0)&&(( (nu_max.val()!=0)&&(puntaje*nu_max.val()>parseFloat(nu_tope.val())))||( (nu_max.val()==0)&&(puntaje>parseFloat(nu_tope.val()))))  ){
+					div.text('Excedido, toma el max.');
+					span.text(nu_tope.val());
+					ptotal = nu_tope.val();
+					
+					
+				}
+				else{
+					if((nu_max.val() == 0)){
+						span.text(formatDec(puntaje,2));
+						ptotal = puntaje;
+					}
+					else{
+						span.text(formatDec(puntaje*nu_max.val(),2));
+						ptotal = puntaje*nu_max.val();
+						valor.val(parseFloat(ptotal));
+						
+					}
+					
+					div.text('');
+					
+					}
+					if ((i==0)||(submax==cd_puntajegrupo.val() )){
+						subpuntaje = parseFloat(subpuntaje) + parseFloat(ptotal);
+					}
+					else {
+						cd_puntajegrupoant = $('#cd_puntajegrupoantjustificacion'+(i-1));
+						if (cd_puntajegrupoant.length > 0){
+							nu_maxpuntajegrupoant = $('#nu_maxgrupo'+cd_puntajegrupoant.val());
+							divgrupo = $('#divgrupoAntjustificacion'+cd_puntajegrupoant.val());
+							spangrupo = $('#spangrupoAntjustificacion'+cd_puntajegrupoant.val());
+						}
+						if(subpuntaje > nu_maxpuntajegrupoant.val()){
+							totalJustificacion=parseFloat(totalJustificacion)+parseFloat(nu_maxpuntajegrupoant.val());
+							spangrupo.text(parseFloat(nu_maxpuntajegrupoant.val()));
+							divgrupo.text('Excedido, toma el max.');
+							}
+						else{
+							totalJustificacion=parseFloat(totalJustificacion)+parseFloat(subpuntaje);
+							spangrupo.text(formatDec(parseFloat(subpuntaje),2));
+							divgrupo.text('');
+							}
+						subpuntaje=puntaje;
+					}
+					submax=cd_puntajegrupo.val();
+					
+					
+					
+					}
+				//}
+			//}
+		
+	}
+	cd_puntajegrupoant = $('#cd_puntajegrupoantjustificacion'+(i-1));
+	if (cd_puntajegrupoant.length > 0){
+		nu_maxpuntajegrupoant = $('#nu_maxgrupoantjustificacion'+cd_puntajegrupoant.val());
+		divgrupo = $('#divgrupoAntjustificacion'+cd_puntajegrupoant.val());
+		spangrupo = $('#spangrupoAntjustificacion'+cd_puntajegrupoant.val());
+	}
+	if(subpuntaje > nu_maxpuntajegrupoant.val()){
+		totalJustificacion=parseFloat(totalJustificacion)+parseFloat(nu_maxpuntajegrupoant.val());
+		spangrupo.text(parseFloat(nu_maxpuntajegrupoant.val()));
+		divgrupo.text('Excedido, toma el max.');
+		}
+	else{
+		totalJustificacion=parseFloat(totalJustificacion)+parseFloat(subpuntaje);
+		spangrupo.text(formatDec(parseFloat(subpuntaje),2));
+		divgrupo.text('');
+		}
+	
+	total = parseFloat(total) + parseFloat(totalJustificacion);
+	
+	$('#nu_puntaje').val(total);
+	$('#spanTotal').text(total);
+	
+}
+
+
+$(document).ready(function() {
+ 
+	$( 'input[name="cd_posgradomaximo"]:radio' ).change(function() {
+		     if(this.id=='cd_posgradomaximo0'){
+				$('#bl_posgrado').prop('checked', true);
+
+			 }
+			 else{
+				$('#bl_posgrado').prop('checked', false);
+			 }
+		});
+});
+
+$(document).ready(sumar_total);
+
+
+
+$(function() {
+
+        $("#{form_id}").submit(function(e) {
+        	
+        	if( $("#{form_id}_input_submit").length > 0){
+        		$submit = $("#{form_id}_input_submit");
+            	$restoreOpacity = $submit.css("opacity");	
+        	}
+        	
+        	
+        	 e.preventDefault();
+        	 
+        	 if( {useAjaxSubmit} ) {
+        		 	$("form :input").each(function(){
+        			    $(this).removeAttr( "disabled" );
+        			});
+        		 	
+                	submitAjaxForm('{form_id}', '{action}', {onSuccessCallback},{beforeSubmit});
+                	
+                	return false;
+             }else{
+            	 
+            	
+         		$submit.css({"opacity":$restoreOpacity});
+         		$submit.removeAttr( "disabled" );
+             }
+        	 
+        	 
+        	 
+        });
+	
+            								
+});
+
+
+
+
+function successDefault_{form_id}(data ){
+
+	try {
+		
+		 jsondata = $.parseJSON(data);
+
+		 if( jsondata != null && jsondata["error"]!=null){
+				showMessageError( jsondata["error"], false );
+			}
+
+		 if( jsondata != null && jsondata["info"]!=null){
+				//showMessageInfo( jsondata["info"], false );
+				//$('#{form_id}').reset();
+				{onCancel};
+				
+			}			
+	} catch (e) {
+	   return;
+	}
+	
+	
+}
+
+
+
+</script>
+
+<form <!-- BEGIN: property --> {name}="{value}" <!-- END: property --> >
+<a name="ancla" id="ancla"></a>
+	<!-- BEGIN: fieldset -->
+		<fieldset>
+	    <!-- BEGIN: legend -->
+		<legend>{value}</legend>
+		<!-- END: legend -->
+		<table style="width:100%; border-style: solid; border-width: 1px; border-color: #666">
+           <tr style="border-style: solid; border-width: 1px;">
+               <td><!-- BEGIN: ds_investigador --><!-- BEGIN: label -->{value}<!-- END: label -->:<!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_investigador --></td>
+               <td><!-- BEGIN: ds_facultad --><!-- BEGIN: label -->{value}<!-- END: label -->:<!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_facultad --></td>
+           </tr>
+       </table>
+		<table style="width:100%">
+            <tr></tr>
+            <tr style="background-color: #333;color:#fff">
+                <td style="width:80px">{p_max_item}</td>
+                <td>{detalle_puntaje}</td>
+                <td style="width:90px">{puntaje_otorgado}</td>
+            </tr>
+        </table>
+		{ds_contenido}
+        <table style="width:100%; border-style: solid; border-width: 1px;  border-color: #666;margin-bottom:5px">
+                    <tr style="border-style: solid; border-width: 1px; border-color: #666">
+                        <td>
+                            <table style="width:100%">
+                                <tr>
+                                    <td><div align="right">
+                                      
+                                     
+                                     <strong> {total} (max. <!-- BEGIN: nu_max --><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: nu_max -->)</strong></div></td>
+                                </tr>
+                        </table>                        </td>
+                        <td style="background-color: #eee;color:#333; width:80px"><div align="right"><strong><span id="spanTotal"></span></strong></div></td>
+                    </tr>
+                </table>
+       <p><!-- BEGIN: ds_observacion --><!-- BEGIN: label -->{value}<!-- END: label --><br><!-- BEGIN: input -->{input}<!-- END: input --> <!-- END: ds_observacion --></p>
+	</fieldset>
+	<!-- END: fieldset -->
+	<!-- BEGIN: field_hidden -->
+	{input_hidden}
+	<!-- END: field_hidden -->
+	
+
+
+	{intoFormCustomHTML}
+</form>
+
+{customHTML}
+
+<!-- BEGIN: buttons -->
+<form id="buttons{inputId}">
+	<fieldset class="tblFooters">
+	
+		<!-- BEGIN: submit -->
+		<input type="button" value="{lbl_submit}" id="{form_id}_input_submit" onclick="javascript:submitForm('{form_id}');">
+		<!-- END: submit -->
+		
+		<!-- BEGIN: submit_ajax -->
+		<input type="button" value="{lbl_button}" id="{form_id}_input_submit_ajax" onclick="javascript: submitForm('{form_id}');">
+		<!-- END: submit_ajax -->
+		
+		<!-- BEGIN: button -->
+		<input type="button" value="{lbl_button}" id="{form_id}_input_button_{i}" onclick="javascript: {function}; ">
+		<!-- END: button -->
+	
+		<!-- BEGIN: cancel -->
+		<input type="button" value="{lbl_cancel}" id="{form_id}_input_cancel" onclick="javascript: {function};">
+		<!-- END: cancel -->
+			
+	</fieldset>
+</form>	
+<!-- END: buttons -->
+<!-- END: main -->

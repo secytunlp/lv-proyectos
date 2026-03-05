@@ -1,0 +1,24 @@
+<!-- BEGIN: main -->
+
+<!-- BEGIN: autocomplete -->
+<script type="text/javascript">
+	$(document).ready(function()
+	{
+	    $('#{inputId}').simpleAutoComplete('doAction?action=cmp_autocomplete&requestClass={requestClass}&requestMethod={requestMethod}&itemClass={itemClass}&itemCode={itemCode}&itemLabel={itemLabel}&itemField={itemField}&itemAttrCallback={itemAttrCallback}&itemAttrList={itemAttrList}',{
+		autoCompleteClassName: 'autocomplete'
+		,selectedClassName: 'sel'
+		{attributeCallback}
+		,identifier: '{inputName}'
+		{extraParam}
+	    } {functionCallback});
+
+        });
+</script>
+
+<!-- BEGIN: label -->
+<span class="{labelCss}">{label}:</span>
+<!-- END: label -->
+<input onkeypress="javascript: return disabledEnter(event);" size="{inputSize}" class="{inputCss}" type="text" id="{inputId}" name="{inputName}" value="{inputValue}" {disabled} {obligatorio}/>
+<!-- END: autocomplete -->
+
+<!-- END: main -->

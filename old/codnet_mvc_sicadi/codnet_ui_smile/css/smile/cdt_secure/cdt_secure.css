@@ -1,0 +1,70 @@
+
+/* tabs */
+ul.tabs li.accesos a {
+	background-image: url(images/tab-accesos.png);
+}
+
+ul.tabs li.admin a {
+	background-image: url(images/tab-builder.png);
+}
+
+ul.tabs li.config a {
+	background-image: url(images/tab-config.png);
+}
+
+/* {salir} */
+ul.panel li.exit a {
+	background-image: url(images/salir.png);
+}
+
+
+/* {cdtactionfunctions} */
+ul.panel li.cdtactionfunctions a {
+	background-image: url(images/cdtactionfunctions.png);
+}
+
+
+/* {cdtfunctions} */
+ul.panel li.cdtfunctions a {
+	background-image: url(images/cdtfunctions.png);
+}
+
+/* {cdtmenugroups} */
+ul.panel li.cdtmenugroups a {
+	background-image: url(images/cdtmenugroups.png);
+}
+
+
+/* {cdtmenuoptions} */
+ul.panel li.cdtmenuoptions a {
+	background-image: url(images/cdtmenuoptions.png);
+}
+
+
+
+/* {cdtregistrations} */
+ul.panel li.cdtregistrations a {
+	background-image: url(images/cdtregistrations.png);
+}
+
+
+/* {cdtusers} */
+ul.panel li.cdtusers a {
+	background-image: url(images/cdtusers.png);
+}
+
+/* {cdtusergroups} */
+ul.panel li.cdtusergroups a {
+	background-image: url(images/cdtusergroups.png);
+}
+
+/* {cdtusergroupfunctions} */
+ul.panel li.cdtusergroupfunctions a {
+	background-image: url(images/cdtusergroupfunctions.png);
+}
+
+
+/* {tiposTitulo} */
+ul.panel li.tiposTitulo a {
+	background: url(images/tiposTitulo.png);
+}

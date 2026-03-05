@@ -1,0 +1,28 @@
+.rich_option_item {
+	display: inline;
+}
+
+.rich_pagination {
+	display: inline;
+}
+
+.rich_pagination_pages {
+	display: inline;
+}
+
+.rich_img_container {
+	display: inline;
+}
+
+.rich_img_container_disabled {
+	display: inline;
+}
+
+.rich_pagination_menu {
+	overflow: hidden;
+}
+
+.rich_pagination_menu_container {
+	height: 100%;
+	overflow: hidden;
+}

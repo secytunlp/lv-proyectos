@@ -1,0 +1,34 @@
+----------------------------------------
+Instalación del módulo cdt_geo
+----------------------------------------
+
+1) copiar el módulo dentro del CLASS_PATH
+
+Por ejemplo, si el CLASS_PATH fuere "mi_app/classes/com", el módulo debe de
+quedar en "mi_app/classes/com/cdt_geo"
+
+2) definir las siguientes constantes
+
+define( CDT_GEO_PATH, APP_PATH . CLASS_PATH . 'cdt_geo' );
+
+3) incluir el archivo de configuración del módulo.
+
+include_once (CDT_GEO_PATH . '/conf/init.php' )
+
+4) ejecutar el script tablas_geo.sql para crear tablas en la base de datos:
+
+	-localidad
+	-provincia
+	-pais
+
+5) mapear las acciones en el archivo de configuración de la aplicación "navigation.xml":
+
+	<!-- localidades -->
+	<accion_default entidad='localidad' plural='localidades' menuGroups='' menuOptions='' menuGroupActivo='1'/>
+
+	<!-- provincias -->
+	<accion_default entidad='provincia' plural='provincias' menuGroups='' menuOptions='' menuGroupActivo='1'/>
+
+	<!-- paises -->
+	<accion_default entidad='pais' plural='paises' menuGroups='' menuOptions='' menuGroupActivo='1'/>
+	

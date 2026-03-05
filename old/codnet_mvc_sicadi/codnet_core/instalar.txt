@@ -1,0 +1,60 @@
+----------------------------------------
+Instalación del módulo cdt_mvc
+----------------------------------------
+
+1) incluir el archivo de configuración del módulo.
+
+include_once (CDT_CORE_PATH . '/conf/init.php' )
+
+
+2) definir las siguientes constantes 
+
+define ( 'APP_PATH', $_SERVER ['DOCUMENT_ROOT'] . '/mi_app/' );
+define ( 'WEB_PATH', 'http://' . $_SERVER ['HTTP_HOST'] . '/mi_app/' );
+define ( 'CLASS_PATH', 'classs/com/' );
+
+
+define( CDT_MVC_APP_TITULO, 'Mi APP' );
+define( CDT_MVC_APP_SUBTITULO, 'descripción de Mi APP' );
+
+//acá van los recursos externos (fpdf, fpdi, captche, phpmailer, etc)
+define( CDT_EXTERNAL_LIB_PATH, APP_PATH . "libs" );
+
+
+3) incluir el módulo al CLASS_PATH
+
+Por ejemplo, si el CLASS_PATH fuere "mi_app/classes/com", el módulo debe de
+quedar en "mi_app/classes/com/cdt_core"
+
+
+4) mapear las actiones en el archivo de configuración de la aplicación "navigation.xml":
+
+	<!-- pagina no encontrada -->
+	<action name='page_not_found' class='CdtPageNotFoundAction' />
+		
+	<!-- acceso denegado -->
+	<action name='access_denied' class='CdtAccessDeniedAction' />
+		
+	<!-- pagina de error -->
+	<action name='error' class='CdtErrorAction' />
+	
+	<!-- forwards -->
+	<forward name='page_not_found' url='doAction?action=page_not_fount' />
+	<forward name='access_denied' url='doAction?action=access_denied' />
+	<forward name='error' url='doAction?action=error' />
+
+
+5) recursos externos requeridos:  
+
+	- fpdf  a  CDT_EXTERNAL_LIB_PATH
+	- fpdi  a  CDT_EXTERNAL_LIB_PATH
+
+
+6) copiar las imáganes en WEB_PATH/images:  
+
+	- cdt_core/images/*.*  a  WEB_PATH/images/
+	
+7) copiar los archivos de scripts en WEB_PATH/js:  
+
+	- cdt_core/js/*.*  a  WEB_PATH/js/
+	

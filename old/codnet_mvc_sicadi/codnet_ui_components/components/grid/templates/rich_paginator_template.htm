@@ -1,0 +1,101 @@
+<!-- BEGIN: main -->
+<script nonce="tu_nonce_generado" type="text/javascript">
+
+	$(document).ready(function() {
+
+
+		$('#rich_pagination_pages_{gridId}').hover(
+				  function () {
+					  $('#menu_pages_{gridId}').css({'display': "block"});
+				  }, 
+				  function () {
+					  $('#menu_pages_{gridId}').css({'display': "none"});
+				  });
+
+		$('#menu_pages_{gridId}').hover(
+				  function () {
+					  $('#menu_pages_{gridId}').css({'display': "block"});
+				  }, 
+				  function () {
+					  $('#menu_pages_{gridId}').css({'display': "none"});
+				  });
+
+		$('#menu_first_page_{gridId}').click(
+				  function () {
+					  paginate_ajax_{gridId}({firstPage});					 
+				  });
+
+		  $('#menu_last_page_{gridId}').click(
+				  function () {
+					  paginate_ajax_{gridId}({lastPage});					 
+				  });
+				  // Manejar el clic en las imágenes de paginación
+		$(".rich_img_container img[data-page-offset]").on("click", function () {
+			const gridId = $(this).data("grid-id");
+			const pageOffset = $(this).data("page-offset");
+			paginate_ajax_{gridId}(pageOffset);
+		});
+	});
+</script>
+
+<div class="rich_pagination">
+	<span class="rich_pagination_Di">
+    <div class="rich_pagination_pages" id="rich_pagination_pages_{gridId}">
+        <span class="rich_pagination_pages_text"><b>{rangeFrom}</b>&ndash;<b>{rangeTo}</b> de <b>{totalRows}</b></span>
+    </div>
+    <!-- BEGIN: previous_page -->
+    <div class="rich_img_container">
+        <img src="css/grid/cleardot.gif" class="rich_img img_page_previous" alt="{lbl_previous}" title="{lbl_previous}" data-grid-id="{gridId}" data-page-offset="{previousPage}">
+    </div>
+    <!-- END: previous_page -->
+
+    <!-- BEGIN: previous_page_disabled -->
+    <div class="rich_img_container_disabled">
+        <img src="css/grid/cleardot.gif" class="rich_img img_page_previous">
+    </div>
+    <!-- END: previous_page_disabled -->
+
+    <!-- BEGIN: next_page -->
+    <div class="rich_img_container">
+        <img src="css/grid/cleardot.gif" class="rich_img img_page_next" alt="{lbl_next}" title="{lbl_next}" data-grid-id="{gridId}" data-page-offset="{nextPage}">
+    </div>
+    <!-- END: next_page -->
+
+    <!-- BEGIN: next_page_disabled -->
+    <div class="rich_img_container_disabled">
+        <img src="css/grid/cleardot.gif" class="rich_img img_page_next">
+    </div>
+    <!-- END: next_page_disabled -->
+</span>
+
+	
+	<!-- BEGIN:menu_pages -->
+	<div id="menu_pages_{gridId}" class="rich_pagination_menu">
+		<div class="rich_pagination_menu_container">
+			<!-- BEGIN: first_page -->
+			<div class="rich_pagination_menu_item">
+				<div id="menu_first_page_{gridId}">{lbl_firstPage}</div>
+			</div>
+			<!-- END: first_page -->
+			<!-- BEGIN: first_page_disabled -->
+			<div class="rich_pagination_menu_item">
+				<div style="opacity:0.5;cursor:default;">{lbl_firstPage}</div>
+			</div>
+			<!-- END: first_page_disabled -->
+			
+			<!-- BEGIN: last_page -->
+			<div class="rich_pagination_menu_item">
+				<div id="menu_last_page_{gridId}">{lbl_lastPage}</div>
+			</div>
+			<!-- END: last_page -->
+			
+			<!-- BEGIN: last_page_disabled -->
+			<div class="rich_pagination_menu_item">
+				<div style="opacity:0.5;cursor:default;">{lbl_lastPage}</div>
+			</div>
+			<!-- END: last_page_disabled -->
+		</div>
+	</div>
+	<!-- END:menu_pages -->
+</div>
+<!-- END: main -->

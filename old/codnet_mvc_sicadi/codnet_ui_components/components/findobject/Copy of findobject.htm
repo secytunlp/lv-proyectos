@@ -1,0 +1,104 @@
+<!-- BEGIN: main -->
+<script type="text/javascript">
+		  
+function cmpfindobject_find(inputId, gridModel, callback, itemCode, itemLabel, itemAttrCallback, title) {
+	url = "doAction?action=cmp_findpopup&model_" + inputId + "=" + gridModel + "&callback_" + inputId + "=" + callback + "&itemCode=" + itemCode + "&itemLabel=" + itemLabel + "&inputId=" + inputId + "&itemAttrCallback=" + itemAttrCallback;
+    var dialogOpts = {
+            title : title,
+            modal : true,
+            autoOpen : false,
+            bgiframe : true,
+            height : 500,
+            width : 750,
+            open : function() {
+                jQuery("#ui-dialog_" + inputId).load(url);
+            }
+        };
+        jQuery("#ui-dialog_" + inputId).children().remove();
+        jQuery("#ui-dialog_" + inputId).dialog("destroy");
+        jQuery("#ui-dialog_" + inputId).dialog(dialogOpts);
+        jQuery("#ui-dialog_" + inputId).dialog("open");
+
+}
+	function cmpfindobject_results(data, inputId) {
+
+		if(data.find){
+			$("#ds_" + inputId).attr('value', data.label);
+			$("#info_" + inputId).html('');
+		}
+		else{
+			$("#ds_" + inputId).attr('value', '' );
+			$("#info_" + inputId).html(data.msg);
+		}  
+		
+	    
+	}
+
+	function cmpfindobject_autocomplete_change(code, inputId){
+		$("#" + inputId).attr('value', code);
+		$("#" + inputId).blur();
+		
+	}
+
+	$(document).ready(function(){
+		
+		$('#{inputId}').blur(function() {
+			var query = $(this).val();
+		  	
+		  	$.ajax({
+			      data: "query=" + query + "&requestClass={requestClass}&requestMethod={requestMethod}&itemClass={itemClass}&itemCode={itemCode}&itemLabel={itemLabel}&inputName={inputName}&functionCallback={functionCallback}&itemAttrCallback={itemAttrCallback}",
+			      type: "GET",
+			      dataType: "json",
+			      url: "doAction?action=cmp_findobject",
+			      success: function(data){
+		  		    cmpfindobject_results(data, '{inputId}' );
+			      	{functionCallback}(data);
+			      }
+			      });
+		});
+
+		$("#{inputId}").blur();
+      });
+
+
+
+	
+		
+</script> 
+
+<style type="text/css">
+/*para que no muestre el texto de la validación en el código*/
+div#code .jfVal, .jValSpacercover {
+    display: none;
+}
+</style>
+
+
+<!-- buscar_{inputId} -->
+<div id="div_{inputId}">
+
+<!-- BEGIN: label --> <span class="{labelCss}">{label}:</span> <!-- END: label -->
+
+<!-- input para ingresar el código. -->
+<div id="code" style="display:inline;"> 
+<input type="{code_type}" class="{inputCss}" name="{inputName}" id="{inputId}" size="{inputSize}" value="{inputValue}" {code_obligatorio}/> 
+</div>
+
+<!-- input para mostrar la descripción de la entidad encontrada -->
+{autocomplete}
+<!-- 
+<input type="text" size="30" class="{inputCss}" readonly name="ds_{inputId}" id="ds_{inputId}" value="{inputValueDesc}" size="{inputLabelSize}" {desc_obligatorio}/>
+ -->
+
+<!-- link para buscar la entidad con un popup -->
+<!-- BEGIN:popup --> 
+<a href="#"	onclick="cmpfindobject_find('{inputId}', '{gridModel}', '{callback}', '{itemCode}', '{itemLabel}', '{itemAttrCallback}', '{title}' );"> 
+	<img class="hrefImg" src="{WEB_PATH}/css/findobject/search.gif" /> 
+</a>
+<div style="display: none;" id="ui-dialog_{inputId}"></div>
+<!-- END:popup -->
+<div id="info_{inputId}"></div>
+
+</div>
+<!-- fin buscar_{inputId} -->
+<!-- END: main -->

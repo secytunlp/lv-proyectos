@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/codnet_mvc/!svn/ver/113/trunk/codnet_geo/dao/factory
+END
+ProvinciaFactory.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/codnet_mvc/!svn/ver/113/trunk/codnet_geo/dao/factory/ProvinciaFactory.Class.php
+END
+LocalidadFactory.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/codnet_mvc/!svn/ver/113/trunk/codnet_geo/dao/factory/LocalidadFactory.Class.php
+END
+PaisFactory.Class.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/codnet_mvc/!svn/ver/113/trunk/codnet_geo/dao/factory/PaisFactory.Class.php
+END
