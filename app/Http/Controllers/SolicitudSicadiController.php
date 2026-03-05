@@ -1539,29 +1539,33 @@ class SolicitudSicadiController extends Controller
             $errores[] = 'Complete el campo Lugar de trabajo en la pestaña Datos Académicos';
         }
 
-        if (empty($solicitud->proyecto_entidad) ) {
-            $errores[] = 'Complete el campo Entidad en la pestaña Proyecto';
+        if(!Constants::SICADI_SIN_PROYECTO){
+            if (empty($solicitud->proyecto_entidad) ) {
+                $errores[] = 'Complete el campo Entidad en la pestaña Proyecto';
+            }
+
+            if (empty($solicitud->proyecto_codigo) ) {
+                $errores[] = 'Complete el campo Código en la pestaña Proyecto';
+            }
+
+            if (empty($solicitud->proyecto_director) ) {
+                $errores[] = 'Complete el campo Director en la pestaña Proyecto';
+            }
+
+            if (empty($solicitud->proyecto_inicio) ) {
+                $errores[] = 'Complete el campo Inicio en la pestaña Proyecto';
+            }
+
+            if (empty($solicitud->proyecto_fin) ) {
+                $errores[] = 'Complete el campo Fin en la pestaña Proyecto';
+            }
+
+            if (empty($solicitud->proyecto_titulo) ) {
+                $errores[] = 'Complete el campo Título en la pestaña Proyecto';
+            }
         }
 
-        if (empty($solicitud->proyecto_codigo) ) {
-            $errores[] = 'Complete el campo Código en la pestaña Proyecto';
-        }
 
-        if (empty($solicitud->proyecto_director) ) {
-            $errores[] = 'Complete el campo Director en la pestaña Proyecto';
-        }
-
-        if (empty($solicitud->proyecto_inicio) ) {
-            $errores[] = 'Complete el campo Inicio en la pestaña Proyecto';
-        }
-
-        if (empty($solicitud->proyecto_fin) ) {
-            $errores[] = 'Complete el campo Fin en la pestaña Proyecto';
-        }
-
-        if (empty($solicitud->proyecto_titulo) ) {
-            $errores[] = 'Complete el campo Título en la pestaña Proyecto';
-        }
 
         if (empty($solicitud->convocatoria_id) ) {
             $errores[] = 'Complete el campo Convocatoria en la pestaña Categorización';
