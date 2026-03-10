@@ -82,8 +82,14 @@
                                                 <div class="form-group">
                                                     <input type="hidden" name="proyecto_id" value="{{ $proyecto->id ?? '' }}">
                                                     <input type="hidden" name="alta" value="{{ ($integrante->alta)?date('Y-m-d', strtotime($integrante->alta)):'' }}">
+                                                    @php
+                                                        $integranteTipos = config('integranteTipos');
+                                                        unset($integranteTipos['Director']);
+                                                        unset($integranteTipos['Codirector']);
+                                                        unset($integranteTipos['Colaborador']);
+                                                    @endphp
                                                     {{Form::label('tipo', 'Tipo')}}
-                                                    {{ Form::select('tipo',[''=>'','Investigador Formado'=>'Investigador Formado','Investigador En Formación'=>'Investigador En Formación','Becario, Tesista'=>'Becario, Tesista'], $integrante->tipo,['class' => 'form-control']) }}
+                                                    {{ Form::select('tipo',$integranteTipos, $integrante->tipo,['class' => 'form-control']) }}
                                                 </div>
                                             </div>
                                             <div class="col-md-2">

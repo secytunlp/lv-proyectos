@@ -33,7 +33,7 @@
                 <div class="col-xs-12">
                     <div class="box">
                         <div class="box-header with-border">
-                            <h3 class="box-title">Solicitud</h3>
+
                             @can('solicitud-rechazar')
                                 <a class='pull-right btn btn-info' style="margin-left: 5px;" id="exportar-datos" href="#">Exportar</a>
                             @endcan

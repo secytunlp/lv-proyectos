@@ -80,8 +80,13 @@
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     <input type="hidden" name="proyecto_id" value="{{ $proyecto->id ?? '' }}">
+                                                    @php
+                                                        $integranteTipos = config('integranteTipos');
+                                                        unset($integranteTipos['Director']);
+                                                        unset($integranteTipos['Codirector']);
+                                                    @endphp
                                                     {{Form::label('tipo', 'Tipo')}}
-                                                    {{ Form::select('tipo',[''=>'','Investigador Formado'=>'Investigador Formado','Investigador En Formación'=>'Investigador En Formación','Becario, Tesista'=>'Becario, Tesista','Colaborador'=>'Colaborador'], '',['class' => 'form-control']) }}
+                                                    {{ Form::select('tipo',$integranteTipos, '',['class' => 'form-control']) }}
                                                 </div>
                                             </div>
                                             <div class="col-md-2">
