@@ -72,9 +72,30 @@ class DetectarTitulosDuplicados extends Command
                 ->update(['titulopost_id' => $mantener]);
 
             // Pivot investigador_titulos
-            DB::table('investigador_titulos')
+            $pivotTitulos = DB::table('investigador_titulos')
                 ->where('titulo_id', $eliminar)
-                ->update(['titulo_id' => $mantener]);
+                ->get();
+
+            foreach ($pivotTitulos as $pivot) {
+                $exists = DB::table('investigador_titulos')
+                    ->where('investigador_id', $pivot->investigador_id)
+                    ->where('titulo_id', $mantener)
+                    ->exists();
+
+                if ($exists) {
+                    // Ya existe → eliminar
+                    DB::table('investigador_titulos')
+                        ->where('investigador_id', $pivot->investigador_id)
+                        ->where('titulo_id', $eliminar)
+                        ->delete();
+                } else {
+                    // No existe → actualizar
+                    DB::table('investigador_titulos')
+                        ->where('investigador_id', $pivot->investigador_id)
+                        ->where('titulo_id', $eliminar)
+                        ->update(['titulo_id' => $mantener]);
+                }
+            }
 
             // Pivot investigador_tituloposts
             DB::table('investigador_tituloposts')
