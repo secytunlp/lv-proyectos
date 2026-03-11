@@ -103,6 +103,7 @@ class TituloController extends Controller
             'nombre' => 'required',
             'nivel' => 'required',
             'universidad_id' => 'required',
+            'nombre' => 'unique:titulos,nombre,NULL,id,universidad_id,' . $request->universidad_id
         ]);
 
 
@@ -153,8 +154,10 @@ class TituloController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'nombre' => 'required'
-
+            'nombre' => 'required',
+            'nivel' => 'required',
+            'universidad_id' => 'required',
+            'nombre' => 'unique:titulos,nombre,' . $id . ',id,universidad_id,' . $request->universidad_id
         ]);
 
         $input = $this->sanitizeInput($request->all());
