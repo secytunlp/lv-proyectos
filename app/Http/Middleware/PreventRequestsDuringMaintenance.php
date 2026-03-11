@@ -12,6 +12,15 @@ class PreventRequestsDuringMaintenance extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        '163.10.35.7',
+        //
     ];
+
+    public function handle($request, \Closure $next)
+    {
+        if ($request->ip() === '163.10.35.7') {
+            return $next($request);
+        }
+
+        return parent::handle($request, $next);
+    }
 }
