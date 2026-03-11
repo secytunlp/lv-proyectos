@@ -17,7 +17,9 @@ class PreventRequestsDuringMaintenance extends Middleware
 
     public function handle($request, \Closure $next)
     {
-        if ($request->ip() === '163.10.35.7') {
+        $ip = $request->ip();
+
+        if (strpos($ip, '163.10.35.') === 0) {
             return $next($request);
         }
 
