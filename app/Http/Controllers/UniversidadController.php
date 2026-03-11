@@ -53,7 +53,7 @@ class UniversidadController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'nombre' => 'required'
+            'nombre' => 'required|unique:universidads,nombre'
 
         ]);
 
@@ -104,7 +104,7 @@ class UniversidadController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'nombre' => 'required'
+            'nombre' => 'required|unique:universidads,nombre,' . $id
 
         ]);
 
