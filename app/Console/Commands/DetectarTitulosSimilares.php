@@ -104,6 +104,8 @@ class DetectarTitulosSimilares extends Command
             'magister en enseñanza de las ciencias exactas y naturales con mencion en',
             'magister scientiae de la universidad de buenos aires en',
 
+            'licenciado en lengua y literatura',
+
             'licenciado/a en',
             'licenciado en',
             'licenciada en',
