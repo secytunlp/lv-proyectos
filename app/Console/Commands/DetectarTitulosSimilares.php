@@ -101,71 +101,39 @@ class DetectarTitulosSimilares extends Command
         $texto = str_replace('ñ', 'n', $texto);
         $prefijos = [
 
-            'magister en enseñanza de las ciencias exactas y naturales con',
-            'magister scientiae de la universidad de buenos aires en',
+
 
             'licenciado en lengua y literatura',
 
             'profesor en lengua y literatura',
             'profesor de lengua y literatura',
 
-            'especialista en bioquimica clinica en',
-
-            'profesor de enseñanza media y superior en',
-            'profesor en enseñanza media y superior en',
 
             'profesor de musica especialidad',
 
-            'profesor superior en',
-
-            'licenciado/a en',
-            'licenciado en',
-            'licenciada en',
-            'licenciatura en',
-
-            'ingeniero/a en',
-            'ingeniero en',
-            'ingeniera en',
-            'ingenieria en',
-
-            'profesor/a en',
-            'profesor en',
-            'profesora en',
             'profesor/a de',
             'profesor de',
             'profesora de',
 
-            'doctorado en',
-            'doctor en',
-            'doctora en',
-
-            'maestria en',
-            'magister en',
             'magister scientiae',
 
-            'medico especialista en',
-            'medica especialista en',
 
             'abogado especializado en derecho',
             'abogada especializada en derecho',
-            'abogado especializado en',
-            'abogada especializado en',
 
             'especialista en derecho',
-            'especialista en',
 
-            'traductor publico nacional en'
         ];
 
         foreach ($prefijos as $p) {
             $texto = str_replace($p, '', $texto);
         }
 
-        $texto = str_replace([
-            'de la universidad de',
-            'universidad de',
-            'universidad nacional de'
-        ], '', $texto);
+        // quedarse con lo que está después del último " en "
+        if (str_contains($texto, ' en ')) {
+            $partes = explode(' en ', $texto);
+            $texto = end($partes);
+        }
 
 
 
