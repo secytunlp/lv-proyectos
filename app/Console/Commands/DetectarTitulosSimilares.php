@@ -74,13 +74,18 @@ class DetectarTitulosSimilares extends Command
 
         $prefijos = [
             'licenciado en',
+            'licenciada en',
             'licenciatura en',
             'ingeniero en',
+            'ingeniera en',
             'ingenieria en',
             'doctorado en',
             'doctor en',
+            'doctora en',
             'maestria en',
-            'magister en'
+            'magister en',
+            'medico especialista',
+            'medica especialista'
         ];
 
         foreach ($prefijos as $p) {
