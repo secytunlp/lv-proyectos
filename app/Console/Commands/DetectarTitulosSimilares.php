@@ -100,36 +100,46 @@ class DetectarTitulosSimilares extends Command
         $texto = strtolower($texto);
 
         $prefijos = [
+
+            'magister en enseñanza de las ciencias exactas y naturales con mencion en',
+            'magister scientiae de la universidad de buenos aires en',
+
+            'licenciado/a en',
             'licenciado en',
             'licenciada en',
-            'licenciado/a en',
             'licenciatura en',
-            'ingeniero en',
+
             'ingeniero/a en',
+            'ingeniero en',
             'ingeniera en',
             'ingenieria en',
-            'profesor en',
+
             'profesor/a en',
+            'profesor en',
             'profesora en',
-            'profesor de',
             'profesor/a de',
+            'profesor de',
             'profesora de',
+
             'doctorado en',
             'doctor en',
             'doctora en',
+
             'maestria en',
             'magister en',
             'magister scientiae',
+
             'medico especialista en',
             'medica especialista en',
+
             'abogado especializado en derecho',
             'abogada especializada en derecho',
             'abogado especializado en',
             'abogada especializado en',
+
             'especialista en derecho',
             'especialista en',
-            'magister scientiae de la universidad de buenos aires en',
-            'magister en enseñanza de las ciencias exactas y naturales con mencion en',
+
             'traductor publico nacional en'
         ];
 
