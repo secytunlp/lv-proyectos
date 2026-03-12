@@ -50,6 +50,8 @@ class DetectarTitulosSimilares extends Command
 
                     if ($porcentaje >= 85) {
 
+                        $this->info("\nUniversidad: {$universidad_id}");
+
                         $this->warn("\nSimilitud {$porcentaje}%");
 
                         $this->line("{$t1->id} - {$t1->nombre}");
