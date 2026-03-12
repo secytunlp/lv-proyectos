@@ -64,6 +64,20 @@ class DetectarTitulosSimilares extends Command
 
                             $eliminar = $mantener == $t1->id ? $t2->id : $t1->id;
 
+                            // obtener nombres originales
+                            $tituloMantener = DB::table('titulos')->where('id', $mantener)->first();
+                            $tituloEliminar = DB::table('titulos')->where('id', $eliminar)->first();
+
+                            $nuevoNombre = $this->unificarGenero($tituloMantener->nombre, $tituloEliminar->nombre);
+
+                            if ($nuevoNombre) {
+                                DB::table('titulos')
+                                    ->where('id', $mantener)
+                                    ->update(['nombre' => $nuevoNombre]);
+
+                                $this->info("Nombre actualizado a: {$nuevoNombre}");
+                            }
+
                             $this->fusionarTitulos($mantener, $eliminar);
 
                             $this->info("Título {$eliminar} fusionado con {$mantener}");
@@ -85,12 +99,18 @@ class DetectarTitulosSimilares extends Command
         $prefijos = [
             'licenciado en',
             'licenciada en',
+            'licenciado/a en',
             'licenciatura en',
             'ingeniero en',
+            'ingeniero/a en',
             'ingeniera en',
             'ingenieria en',
             'profesor en',
+            'profesor/a en',
             'profesora en',
+            'profesor de',
+            'profesor/a de',
+            'profesora de',
             'doctorado en',
             'doctor en',
             'doctora en',
@@ -105,7 +125,9 @@ class DetectarTitulosSimilares extends Command
             'abogada especializado en',
             'especialista en derecho',
             'especialista en',
-            'magister scientiae de la universidad de buenos aires en'
+            'magister scientiae de la universidad de buenos aires en',
+            'magister en enseñanza de las ciencias exactas y naturales con mencion en',
+            'traductor publico nacional en'
         ];
 
         foreach ($prefijos as $p) {
@@ -121,6 +143,40 @@ class DetectarTitulosSimilares extends Command
 
 
         return trim($texto);
+    }
+
+    private function unificarGenero($nombre1, $nombre2)
+    {
+        $n1 = strtolower($nombre1);
+        $n2 = strtolower($nombre2);
+
+        $palabras1 = explode(' ', $n1);
+        $palabras2 = explode(' ', $n2);
+
+        if (count($palabras1) !== count($palabras2)) {
+            return null;
+        }
+
+        for ($i = 0; $i < count($palabras1); $i++) {
+
+            if ($palabras1[$i] !== $palabras2[$i]) {
+
+                $p1 = $palabras1[$i];
+                $p2 = $palabras2[$i];
+
+                if (
+                    substr($p1, -1) === 'o' &&
+                    substr($p2, -1) === 'a' &&
+                    substr($p1, 0, -1) === substr($p2, 0, -1)
+                ) {
+                    $palabras1[$i] = substr($p1, 0, -1) . 'o/a';
+                } else {
+                    return null;
+                }
+            }
+        }
+
+        return strtoupper(implode(' ', $palabras1));
     }
     private function fusionarTitulos($mantener, $eliminar)
     {
