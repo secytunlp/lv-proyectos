@@ -96,6 +96,7 @@ class DetectarTitulosSimilares extends Command
             'doctora en',
             'maestria en',
             'magister en',
+            'magister scientiae',
             'medico especialista',
             'medica especialista',
             'abogado especializado en derecho',
@@ -105,6 +106,17 @@ class DetectarTitulosSimilares extends Command
 
         foreach ($prefijos as $p) {
             $texto = str_replace($p, '', $texto);
+        }
+
+        $texto = str_replace([
+            'de la universidad de',
+            'universidad de',
+            'universidad nacional de'
+        ], '', $texto);
+
+        // quitar lo que venga después de " en "
+        if (str_contains($texto, ' en ')) {
+            $texto = explode(' en ', $texto, 2)[0];
         }
 
         return trim($texto);
