@@ -36,6 +36,16 @@ class DetectarTitulosSimilares extends Command
                     $nombre1 = $this->limpiarTitulo($t1->nombre);
                     $nombre2 = $this->limpiarTitulo($t2->nombre);
 
+                    if (str_contains($nombre1, 'orientacion') && str_contains($nombre2, 'orientacion')) {
+
+                        $o1 = trim(explode('orientacion', $nombre1)[1]);
+                        $o2 = trim(explode('orientacion', $nombre2)[1]);
+
+                        if ($o1 !== $o2) {
+                            continue; // son orientaciones distintas
+                        }
+                    }
+
                     similar_text($nombre1, $nombre2, $porcentaje);
 
                     if ($porcentaje >= 85) {
