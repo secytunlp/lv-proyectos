@@ -19,7 +19,7 @@ class DetectarTitulosSimilares extends Command
 
         foreach ($universidades as $universidad_id) {
 
-            $this->info("\nUniversidad: {$universidad_id}");
+            //$this->info("\nUniversidad: {$universidad_id}");
 
             $titulos = DB::table('titulos')
                 ->where('universidad_id', $universidad_id)
