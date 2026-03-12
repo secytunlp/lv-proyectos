@@ -108,6 +108,8 @@ class DetectarTitulosSimilares extends Command
 
             'profesor en lengua y literatura',
 
+            'profesor superior en',
+
             'licenciado/a en',
             'licenciado en',
             'licenciada en',
