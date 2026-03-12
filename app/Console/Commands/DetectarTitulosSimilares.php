@@ -68,7 +68,10 @@ class DetectarTitulosSimilares extends Command
                             $tituloMantener = DB::table('titulos')->where('id', $mantener)->first();
                             $tituloEliminar = DB::table('titulos')->where('id', $eliminar)->first();
 
-                            $nuevoNombre = $this->unificarGenero($tituloMantener->nombre, $tituloEliminar->nombre);
+                            $nuevoNombre = $this->unificarGenero(
+                                strtolower($tituloMantener->nombre),
+                                strtolower($tituloEliminar->nombre)
+                            );
 
                             if ($nuevoNombre) {
                                 DB::table('titulos')
