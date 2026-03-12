@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Titulo;
 use App\Models\Universidad;
 use App\Traits\SanitizesInput;
+use Illuminate\Database\QueryException;
 class TituloController extends Controller
 {
     use SanitizesInput;
@@ -183,9 +184,17 @@ class TituloController extends Controller
     {
 
 
-        Titulo::find($id)->delete();
+        try {
 
-        return redirect()->route('titulos.index')
-            ->with('success','Titulo eliminado con éxito');
+            Titulo::findOrFail($id)->delete();
+
+            return redirect()->route('titulos.index')
+                ->with('success', 'Título eliminado con éxito');
+
+        } catch (QueryException $e) {
+
+            return redirect()->route('titulos.index')
+                ->with('error', 'No se puede eliminar el título porque está siendo utilizado en otros registros.');
+        }
     }
 }
