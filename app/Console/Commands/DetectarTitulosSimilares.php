@@ -103,7 +103,8 @@ class DetectarTitulosSimilares extends Command
             'abogada especializada en derecho',
             'abogado especializado',
             'abogada especializado',
-            'especialista en derecho'
+            'especialista en derecho',
+            'especialista en'
         ];
 
         foreach ($prefijos as $p) {
