@@ -104,7 +104,8 @@ class DetectarTitulosSimilares extends Command
             'abogado especializado',
             'abogada especializado',
             'especialista en derecho',
-            'especialista en'
+            'especialista en',
+            'magister scientiae de la universidad de buenos aires en'
         ];
 
         foreach ($prefijos as $p) {
@@ -117,11 +118,7 @@ class DetectarTitulosSimilares extends Command
             'universidad nacional de'
         ], '', $texto);
 
-        // si tiene " en " quedarse con la especialidad
-        if (str_contains($texto, ' en ')) {
-            $partes = explode(' en ', $texto, 2);
-            $texto = $partes[1];
-        }
+
 
         return trim($texto);
     }
