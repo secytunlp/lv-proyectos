@@ -117,10 +117,7 @@ class DetectarTitulosSimilares extends Command
             'universidad nacional de'
         ], '', $texto);
 
-        // quitar lo que venga después de " en "
-        if (str_contains($texto, ' en ')) {
-            $texto = explode(' en ', $texto, 2)[0];
-        }
+
 
         return trim($texto);
     }
