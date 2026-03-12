@@ -117,7 +117,11 @@ class DetectarTitulosSimilares extends Command
             'universidad nacional de'
         ], '', $texto);
 
-
+        // si tiene " en " quedarse con la especialidad
+        if (str_contains($texto, ' en ')) {
+            $partes = explode(' en ', $texto, 2);
+            $texto = $partes[1];
+        }
 
         return trim($texto);
     }
