@@ -111,6 +111,8 @@ class DetectarTitulosSimilares extends Command
 
             'especialista en bioquimica clinica en',
 
+            'profesor de enseñanza media y superior en',
+
             'profesor superior en',
 
             'licenciado/a en',
