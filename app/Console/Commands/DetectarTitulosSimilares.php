@@ -89,6 +89,8 @@ class DetectarTitulosSimilares extends Command
             'ingeniero en',
             'ingeniera en',
             'ingenieria en',
+            'profesor en',
+            'profesora en',
             'doctorado en',
             'doctor en',
             'doctora en',
