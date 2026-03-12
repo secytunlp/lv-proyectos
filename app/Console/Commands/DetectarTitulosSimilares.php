@@ -98,7 +98,7 @@ class DetectarTitulosSimilares extends Command
     private function limpiarTitulo($texto)
     {
         $texto = strtolower($texto);
-
+        $texto = str_replace('ñ', 'n', $texto);
         $prefijos = [
 
             'magister en enseñanza de las ciencias exactas y naturales con mencion en',
