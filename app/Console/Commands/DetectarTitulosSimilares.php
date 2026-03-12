@@ -114,6 +114,8 @@ class DetectarTitulosSimilares extends Command
             'profesor de enseñanza media y superior en',
             'profesor en enseñanza media y superior en',
 
+            'profesor de musica especialidad',
+
             'profesor superior en',
 
             'licenciado/a en',
