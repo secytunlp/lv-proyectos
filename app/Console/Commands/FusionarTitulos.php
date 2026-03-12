@@ -37,6 +37,7 @@ class FusionarTitulos extends Command
 
         DB::transaction(function () use ($mantener, $eliminar) {
 
+            // Investigador
             DB::table('investigadors')
                 ->where('titulo_id', $eliminar)
                 ->update(['titulo_id' => $mantener]);
@@ -45,10 +46,33 @@ class FusionarTitulos extends Command
                 ->where('titulopost_id', $eliminar)
                 ->update(['titulopost_id' => $mantener]);
 
-            DB::table('investigador_titulos')
+            // Pivot investigador_titulos
+            $pivotTitulos = DB::table('investigador_titulos')
                 ->where('titulo_id', $eliminar)
-                ->update(['titulo_id' => $mantener]);
+                ->get();
 
+            foreach ($pivotTitulos as $pivot) {
+                $exists = DB::table('investigador_titulos')
+                    ->where('investigador_id', $pivot->investigador_id)
+                    ->where('titulo_id', $mantener)
+                    ->exists();
+
+                if ($exists) {
+                    // Ya existe → eliminar
+                    DB::table('investigador_titulos')
+                        ->where('investigador_id', $pivot->investigador_id)
+                        ->where('titulo_id', $eliminar)
+                        ->delete();
+                } else {
+                    // No existe → actualizar
+                    DB::table('investigador_titulos')
+                        ->where('investigador_id', $pivot->investigador_id)
+                        ->where('titulo_id', $eliminar)
+                        ->update(['titulo_id' => $mantener]);
+                }
+            }
+
+            // Pivot investigador_tituloposts
             DB::table('investigador_tituloposts')
                 ->where('titulo_id', $eliminar)
                 ->update(['titulo_id' => $mantener]);
@@ -60,7 +84,7 @@ class FusionarTitulos extends Command
             DB::table('integrantes')
                 ->where('titulopost_id', $eliminar)
                 ->update(['titulopost_id' => $mantener]);
-
+            // Joven
             DB::table('jovens')
                 ->where('titulo_id', $eliminar)
                 ->update(['titulo_id' => $mantener]);
@@ -69,10 +93,12 @@ class FusionarTitulos extends Command
                 ->where('titulopost_id', $eliminar)
                 ->update(['titulopost_id' => $mantener]);
 
+            // Viaje
             DB::table('viajes')
                 ->where('titulo_id', $eliminar)
                 ->update(['titulo_id' => $mantener]);
 
+            // eliminar duplicado
             DB::table('titulos')
                 ->where('id', $eliminar)
                 ->delete();
