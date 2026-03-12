@@ -101,7 +101,7 @@ class DetectarTitulosSimilares extends Command
         $texto = str_replace('ñ', 'n', $texto);
         $prefijos = [
 
-            'magister en enseñanza de las ciencias exactas y naturales con mencion en',
+            'magister en enseñanza de las ciencias exactas y naturales con',
             'magister scientiae de la universidad de buenos aires en',
 
             'licenciado en lengua y literatura',
