@@ -153,6 +153,10 @@ class DetectarTitulosSimilares extends Command
         $n1 = iconv('UTF-8', 'ASCII//TRANSLIT', $n1);
         $n2 = iconv('UTF-8', 'ASCII//TRANSLIT', $n2);
 
+        // normalizar de/en
+        $n1 = str_replace(' de ', ' en ', $n1);
+        $n2 = str_replace(' de ', ' en ', $n2);
+
         $palabras1 = explode(' ', $n1);
         $palabras2 = explode(' ', $n2);
 
