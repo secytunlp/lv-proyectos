@@ -101,6 +101,8 @@ class DetectarTitulosSimilares extends Command
             'medica especialista',
             'abogado especializado en derecho',
             'abogada especializada en derecho',
+            'abogado especializado',
+            'abogada especializado',
             'especialista en derecho'
         ];
 
