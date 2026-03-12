@@ -150,6 +150,9 @@ class DetectarTitulosSimilares extends Command
         $n1 = strtolower($nombre1);
         $n2 = strtolower($nombre2);
 
+        $n1 = iconv('UTF-8', 'ASCII//TRANSLIT', $n1);
+        $n2 = iconv('UTF-8', 'ASCII//TRANSLIT', $n2);
+
         $palabras1 = explode(' ', $n1);
         $palabras2 = explode(' ', $n2);
 
