@@ -1411,7 +1411,15 @@ class IntegranteController extends Controller
         } catch (QueryException $ex) {
             // Manejar la excepción de la base de datos
             DB::rollback();
+
             if ($ex->errorInfo[1] == 1062) {
+                Log::error('Error 1062 - Integrante duplicado', [
+                    'integrante_id' => $id,
+                    'proyecto_id' => $proyecto_id,
+                    'mensaje' => $ex->getMessage(),
+                    'sql' => $ex->getSql(),
+                    'bindings' => $ex->getBindings()
+                ]);
                 $respuestaID = 'error';
                 $respuestaMSJ = 'El/la integrante ya forma parte del proyecto.';
             } else {
