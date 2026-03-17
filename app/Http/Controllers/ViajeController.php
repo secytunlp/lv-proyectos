@@ -2619,7 +2619,7 @@ class ViajeController extends Controller
         Mail::to($user->email)->send(new ViajeEnviada($datosCorreo,$viaje, $adjuntarArchivos, $adjuntarPlanilla));
 
         // Enviar correo electrónico a tu servidor (ejemplo)
-        Mail::to('marcosp@presi.unlp.edu.ar')->send(new ViajeEnviada($datosCorreo,$viaje, $adjuntarArchivos, $adjuntarPlanilla));
+        Mail::to(Constants::MAIL_VIAJES)->send(new ViajeEnviada($datosCorreo,$viaje, $adjuntarArchivos, $adjuntarPlanilla));
 
         // Obtener el nombre del rol correspondiente al id 4
         $roleName = Role::find(Constants::ID_ADMIN_FACULTAD_PROYECTOS)->name;

@@ -2259,7 +2259,7 @@ class JovenController extends Controller
         Mail::to($user->email)->send(new JovenEnviada($datosCorreo,$joven, $adjuntarArchivos, $adjuntarPlanilla));
 
         // Enviar correo electrónico a tu servidor (ejemplo)
-        Mail::to('marcosp@presi.unlp.edu.ar')->send(new JovenEnviada($datosCorreo,$joven, $adjuntarArchivos, $adjuntarPlanilla));
+        Mail::to(Constants::MAIL_JOVENES)->send(new JovenEnviada($datosCorreo,$joven, $adjuntarArchivos, $adjuntarPlanilla));
 
         // Obtener el nombre del rol correspondiente al id 4
         $roleName = Role::find(Constants::ID_ADMIN_FACULTAD_PROYECTOS)->name;
