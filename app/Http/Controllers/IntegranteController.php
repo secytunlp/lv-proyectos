@@ -3155,9 +3155,13 @@ class IntegranteController extends Controller
             $egresoGrado = $integrante->egresogrado;
 
             // Comprobar si el título ya está asociado con el investigador
-            $existingTitulo = $investigador->titulos->first(function ($titulo) use ($tituloId) {
+            /*$existingTitulo = $investigador->titulos->first(function ($titulo) use ($tituloId) {
                 return $titulo->id == $tituloId;
-            });
+            });*/
+
+            $existingTitulo = $investigador->titulos()
+                ->where('titulo_id', $tituloId)
+                ->first();
 
             if ($existingTitulo) {
                 // Si el título ya está asociado, actualizar la relación si el egreso es diferente
