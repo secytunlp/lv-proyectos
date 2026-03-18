@@ -627,16 +627,16 @@ class ViajeController extends Controller
             ->where(function ($query) {
                 $query->where('estado', '!=', 'Baja Creada')
                     ->where('estado', '!=', 'Baja Recibida')
-                    ->orWhereNull('estado'); // Incluye estado = null
+                    ->orWhereNull('estado');
             })
             ->where(function ($q) use ($fechaCorte) {
-                $q->where('baja', '>', $fechaCorte) // Asegurarse que la baja sea futura
-                ->orWhereNull('baja')
+                $q->where('baja', '>', $fechaCorte)
+                    ->orWhereNull('baja')
                     ->orWhere('baja', '0000-00-00');
             })
             ->whereHas('proyecto', function ($query) use ($fechaCorte) {
-                $query->where('estado', 'Acreditado')
-                    ->where('fin', '>', $fechaCorte); // Proyectos vigentes
+                $query->whereIn('estado', ['Acreditado', 'En evaluación']) // 👈 acá el cambio
+                ->where('fin', '>', $fechaCorte);
             })
             ->get();
 
