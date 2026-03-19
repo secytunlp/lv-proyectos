@@ -195,33 +195,28 @@ class RepararTitulos extends Command
     private function limpiarTitulo($texto)
     {
         $texto = strtolower($texto);
-        $texto = str_replace('ñ', 'n', $texto);
 
-        if (str_contains($texto, ' en ')) {
-            $partes = explode(' en ', $texto);
-            $texto = end($partes);
-        }
+        // 🔥 quitar acentos
+        $texto = iconv('UTF-8', 'ASCII//TRANSLIT', $texto);
 
-        // 🔥 normalización inteligente
-        $map = [
-            'abogacia' => 'abog',
-            'abogado' => 'abog',
-            'abogada' => 'abog',
+        // caracteres raros
+        $texto = str_replace(['/', '.', ','], ' ', $texto);
 
-            'contador' => 'conta',
-            'contadora' => 'conta',
-            'contaduria' => 'conta',
-
-            'psicologia' => 'psico',
-            'psicologo' => 'psico',
-            'psicologa' => 'psico',
+        // eliminar palabras comunes
+        $basura = [
+            'licenciado', 'licenciada', 'lic',
+            'profesor', 'profesora', 'prof',
+            'tecnico', 'tecnica', 'tecnicatura',
+            'magister', 'doctor', 'doctora',
+            'especialista', 'en', 'y'
         ];
 
-        foreach ($map as $k => $v) {
-            if (strpos($texto, $k) !== false) {
-                $texto = $v;
-            }
+        foreach ($basura as $b) {
+            $texto = str_replace($b, '', $texto);
         }
+
+        // espacios múltiples
+        $texto = preg_replace('/\s+/', ' ', $texto);
 
         return trim($texto);
     }
