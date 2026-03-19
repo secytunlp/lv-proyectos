@@ -14,7 +14,6 @@ class RepararTitulos extends Command
     {
         $this->info('Buscando títulos huérfanos...');
 
-        // 1. Obtener IDs usados
         $ids = collect()
             ->merge(DB::table('investigadors')->pluck('titulo_id'))
             ->merge(DB::table('investigadors')->pluck('titulopost_id'))
@@ -22,10 +21,11 @@ class RepararTitulos extends Command
             ->merge(DB::table('integrantes')->pluck('titulopost_id'))
             ->merge(DB::table('investigador_titulos')->pluck('titulo_id'))
             ->merge(DB::table('investigador_tituloposts')->pluck('titulo_id'))
-            ->filter()
+            ->filter(function ($v) {
+                return !is_null($v);
+            })
             ->unique();
 
-        // 2. Filtrar inválidos
         $invalidos = $ids->filter(function ($id) {
             return !DB::table('titulos')->where('id', $id)->exists();
         });
@@ -40,7 +40,7 @@ class RepararTitulos extends Command
             $this->warn("\n==============================");
             $this->warn("ID huérfano: {$id}");
 
-            // 3. Buscar nombre en DB externa
+            // DB externa
             $tituloViejo = DB::connection('mysql_testing')
                 ->table('titulos as t')
                 ->join('universidads as u', 'u.id', '=', 't.universidad_id')
@@ -56,28 +56,61 @@ class RepararTitulos extends Command
             $this->info("Título: {$tituloViejo->titulo}");
             $this->info("Universidad: {$tituloViejo->universidad}");
 
-            // 4. Buscar similares
-            $similares = DB::table('titulos')
+            // 🔥 MATCHING REAL (tu lógica)
+            $titulos = DB::table('titulos')
                 ->where('universidad_id', $tituloViejo->universidad_id)
-                ->where(function ($q) use ($tituloViejo) {
-                    $q->where('nombre', 'LIKE', "%{$tituloViejo->titulo}%")
-                        ->orWhere('nombre', 'LIKE', "%" . substr($tituloViejo->titulo, 0, 5) . "%");
-                })
                 ->get();
 
-            if ($similares->isNotEmpty()) {
-                $this->info("Posibles matches:");
-                foreach ($similares as $t) {
-                    $this->line("{$t->id} - {$t->nombre}");
+            $nombreBase = $this->limpiarTitulo($tituloViejo->titulo);
+
+            $matches = [];
+
+            foreach ($titulos as $t) {
+
+                $nombreActual = $this->limpiarTitulo($t->nombre);
+
+                // orientación (tu lógica)
+                if (str_contains($nombreBase, 'orientacion') && str_contains($nombreActual, 'orientacion')) {
+
+                    $o1 = trim(explode('orientacion', $nombreBase)[1]);
+                    $o2 = trim(explode('orientacion', $nombreActual)[1]);
+
+                    if ($o1 !== $o2) {
+                        continue;
+                    }
                 }
-            } else {
-                $this->warn("No se encontraron similares");
+
+                similar_text($nombreBase, $nombreActual, $porcentaje);
+
+                if ($porcentaje >= 70) {
+                    $matches[] = [
+                        'id' => $t->id,
+                        'nombre' => $t->nombre,
+                        'score' => $porcentaje
+                    ];
+                }
             }
 
-            // 5. Acción
+            if (empty($matches)) {
+                $this->warn("No se encontraron similares");
+                continue;
+            }
+
+            // ordenar por mejor match
+            usort($matches, function ($a, $b) {
+                return $b['score'] <=> $a['score'];
+            });
+
+            $this->info("Posibles matches:");
+
+            foreach ($matches as $m) {
+                $this->line("[{$m['id']}] {$m['nombre']} ({$m['score']}%)");
+            }
+
+            // acción
             $accion = $this->choice(
                 '¿Qué hacer?',
-                ['fusionar', 'crear', 'null', 'skip'],
+                ['fusionar', 'fusionar manual', 'crear', 'null', 'skip'],
                 0
             );
 
@@ -85,20 +118,32 @@ class RepararTitulos extends Command
                 continue;
             }
 
-            DB::transaction(function () use ($id, $accion, $tituloViejo) {
+            DB::transaction(function () use ($id, $accion, $tituloViejo, $matches) {
 
                 $nuevoId = null;
 
                 if ($accion === 'fusionar') {
-                    $nuevoId = $this->ask('ID destino');
+                    $opciones = array_column($matches, 'id');
+                    $nuevoId = $this->choice('Elegí ID destino', $opciones);
+                }
+
+                if ($accion === 'fusionar manual') {
+                    $nuevoId = $this->ask('ID destino manual');
                 }
 
                 if ($accion === 'crear') {
                     $nuevoId = DB::table('titulos')->insertGetId([
-                        'nombre' => $tituloViejo
+                        'nombre' => $tituloViejo->titulo,
+                        'universidad_id' => $tituloViejo->universidad_id
                     ]);
 
                     $this->info("Creado nuevo título ID {$nuevoId}");
+                }
+
+                // VALIDACIÓN
+                if (!is_null($nuevoId) && !DB::table('titulos')->where('id', $nuevoId)->exists()) {
+                    $this->error("El ID {$nuevoId} no existe ❌");
+                    return;
                 }
 
                 // === ACTUALIZACIONES ===
@@ -131,7 +176,6 @@ class RepararTitulos extends Command
                     ->where('titulo_id', $id)
                     ->update(['titulo_id' => $nuevoId]);
 
-                // Pivot simples (sin lógica anti-duplicado por ahora)
                 DB::table('investigador_titulos')
                     ->where('titulo_id', $id)
                     ->update(['titulo_id' => $nuevoId]);
@@ -145,5 +189,19 @@ class RepararTitulos extends Command
         }
 
         $this->info("\nProceso finalizado 🚀");
+    }
+
+    // 👇 reutilizás tu lógica
+    private function limpiarTitulo($texto)
+    {
+        $texto = strtolower($texto);
+        $texto = str_replace('ñ', 'n', $texto);
+
+        if (str_contains($texto, ' en ')) {
+            $partes = explode(' en ', $texto);
+            $texto = end($partes);
+        }
+
+        return trim($texto);
     }
 }
