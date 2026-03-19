@@ -230,9 +230,36 @@ class DetectarInvestigadoresSimilares extends Command
             // FINAL
             // =========================
 
+            // =========================
+// PERSONA (antes de eliminar investigador)
+// =========================
+
+// Obtener persona_id del investigador a eliminar
+            $persona = DB::table('investigadors')
+                ->where('id', $eliminar)
+                ->value('persona_id');
+
+// Verificar si esa persona está en uso por otro investigador
+            $enUso = DB::table('investigadors')
+                ->where('persona_id', $persona)
+                ->where('id', '!=', $eliminar)
+                ->exists();
+
+// =========================
+// FINAL
+// =========================
+
+// Eliminar investigador
             DB::table('investigadors')
                 ->where('id', $eliminar)
                 ->delete();
+
+// Si la persona no está en uso → eliminarla
+            if (!$enUso && $persona) {
+                DB::table('personas')
+                    ->where('id', $persona)
+                    ->delete();
+            }
 
         });
     }
