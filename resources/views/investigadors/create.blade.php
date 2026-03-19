@@ -849,6 +849,7 @@
             let cargo = "{{ request('cargo') }}";
             let facultad = "{{ request('facultad') }}";
             let deddoc = "{{ request('deddoc') }}";
+            let ingreso = "{{ request('ingreso') }}";
 
             if (cargo) {
 
@@ -873,7 +874,7 @@
                 </select>
             </td>
 
-            <td><input type="date" name="ingresos[]" class="form-control"></td>
+            <td><input type="date" name="ingresos[]" class="form-control" value="${ingreso ?? ''}"></td>
 
             <td>
                 <select name="facultads[]" class="form-control">
@@ -888,13 +889,13 @@
             <td>
                 <select name="universidads[]" class="form-control">
                     @foreach($universidades as $id => $nombre)
-                <option value="{{ $id }}">{{ $nombre }}</option>
+                <option value="{{ $id }}" {{ $id == 11 ? 'selected' : '' }}>{{ $nombre }}</option>
                     @endforeach
                 </select>
             </td>
 
             <td><input type="checkbox" name="activos[]" value="1" checked></td>
-            <td></td>
+            <td><a href="#" class="btn btn-danger removeCargo"><i class="glyphicon glyphicon-remove"></i></a></td>
         </tr>
         `;
 

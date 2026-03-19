@@ -56,13 +56,14 @@ class ActualizarCargosDocentes extends Command
                     $nombreCompleto = trim($docente->investigador);
 
                     $partes = explode(' ', $nombreCompleto);
-                    
+
                     $apellido = str_replace(',', '', $partes[0] ?? '');
                     $nombre = implode(' ', array_slice($partes, 1));
                     $dni = trim($docente->dni);
                     $cargo = (int) $docente->cd_cargo;
                     $facultad = (int) $docente->cd_facultad;
                     $nacimiento = $docente->nacimiento ?? '';
+                    $ingreso = $docente->dt_fecha ?? '';
                     $deddocMap = [
                         1 => 'Exclusiva',
                         2 => 'Semi Exclusiva',
@@ -79,6 +80,7 @@ class ActualizarCargosDocentes extends Command
                             'cargo' => $cargo,
                             'facultad' => $facultad,
                             'deddoc' => $deddoc,
+                            'ingreso' => $ingreso,
                         ]);
 
                     // guardar en archivo

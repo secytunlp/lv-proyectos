@@ -158,6 +158,7 @@ class InvestigadorController extends Controller
             'cargo' => $request->cargo,
             'facultad' => $request->facultad,
             'deddoc' => $request->deddoc,
+            'ingreso' => $request->ingreso,
         ];
 
 
