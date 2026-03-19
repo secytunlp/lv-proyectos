@@ -479,23 +479,20 @@ class JovenController extends Controller
             $errores[] = 'Ud. no ha rendido la solicitud del año ' . $noRendida->year;
         }
 
-        $currentPeriodo = Constants::YEAR_VIAJES;
+        $currentPeriodo = Constants::YEAR_JOVENES;
 
-        // Obtener los años en los que el investigador tuvo solicitudes otorgadas en los últimos dos años
         $noRendidas = Joven::where('investigador_id', $investigador->id)
-            ->where('estado', 'Otorgada')
+            ->where('estado', 'Otorgada-No-Rendida')
             ->join('periodos', 'jovens.periodo_id', '=', 'periodos.id')
-            ->whereIn('periodos.nombre', [$currentPeriodo - 1, $currentPeriodo - 2])
+            ->where('periodos.nombre', '<', $currentPeriodo) // opcional pero recomendado
             ->pluck('periodos.nombre')
             ->unique()
             ->sort()
             ->values();
 
         if ($noRendidas->isNotEmpty()) {
-            // Crear un mensaje con los años en los que ya tiene solicitudes otorgadas
             $years = $noRendidas->join(', ', ' y ');
-            //return redirect()->back()->with('error', "El investigador ya tiene solicitudes otorgadas en los años $years.");
-            $errores[] = 'Ud. no ha rendido la solicitud del año ' . $years;
+            $errores[] = 'Ud. no ha rendido la solicitud de los años ' . $years;
         }
 
         if (!empty($errores)) {
