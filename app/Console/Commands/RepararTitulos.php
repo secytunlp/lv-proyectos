@@ -43,7 +43,7 @@ class RepararTitulos extends Command
             // 3. Buscar nombre en DB externa
             $tituloViejo = DB::connection('mysql_testing')
                 ->table('titulos as t')
-                ->join('universidades as u', 'u.id', '=', 't.universidad_id')
+                ->join('universidads as u', 'u.id', '=', 't.universidad_id')
                 ->where('t.id', $id)
                 ->select('t.nombre as titulo', 'u.nombre as universidad', 't.universidad_id')
                 ->first();
