@@ -49,7 +49,92 @@ class RepararTitulos extends Command
                 ->first();
 
             if (!$tituloViejo) {
+
                 $this->error("No existe en DB externa ⚠️");
+
+                // 🔥 investigadores afectados
+                $investigadores = DB::table('investigadors')
+                    ->where('titulo_id', $id)
+                    ->orWhere('titulopost_id', $id)
+                    ->get();
+
+                if ($investigadores->isNotEmpty()) {
+
+                    $this->info("Investigadores afectados:");
+
+                    foreach ($investigadores as $inv) {
+                        $this->line("ID: {$inv->id} - DNI: {$inv->documento}");
+                    }
+                } else {
+                    $this->warn("No hay investigadores asociados");
+                }
+
+                // 🔥 acción obligatoria
+                $accion = $this->choice(
+                    '¿Qué hacer?',
+                    ['fusionar manual', 'null', 'skip'],
+                    0
+                );
+
+                DB::transaction(function () use ($id, $accion) {
+
+                    $nuevoId = null;
+
+                    if ($accion === 'fusionar manual') {
+                        $nuevoId = $this->ask('ID destino manual');
+                    }
+
+                    if ($accion === 'skip') {
+                        return;
+                    }
+
+                    // VALIDACIÓN
+                    if (!is_null($nuevoId) && !DB::table('titulos')->where('id', $nuevoId)->exists()) {
+                        $this->error("El ID {$nuevoId} no existe ❌");
+                        return;
+                    }
+
+                    // === ACTUALIZACIONES ===
+
+                    DB::table('investigadors')
+                        ->where('titulo_id', $id)
+                        ->update(['titulo_id' => $nuevoId]);
+
+                    DB::table('investigadors')
+                        ->where('titulopost_id', $id)
+                        ->update(['titulopost_id' => $nuevoId]);
+
+                    DB::table('integrantes')
+                        ->where('titulo_id', $id)
+                        ->update(['titulo_id' => $nuevoId]);
+
+                    DB::table('integrantes')
+                        ->where('titulopost_id', $id)
+                        ->update(['titulopost_id' => $nuevoId]);
+
+                    DB::table('jovens')
+                        ->where('titulo_id', $id)
+                        ->update(['titulo_id' => $nuevoId]);
+
+                    DB::table('jovens')
+                        ->where('titulopost_id', $id)
+                        ->update(['titulopost_id' => $nuevoId]);
+
+                    DB::table('viajes')
+                        ->where('titulo_id', $id)
+                        ->update(['titulo_id' => $nuevoId]);
+
+                    DB::table('investigador_titulos')
+                        ->where('titulo_id', $id)
+                        ->update(['titulo_id' => $nuevoId]);
+
+                    DB::table('investigador_tituloposts')
+                        ->where('titulo_id', $id)
+                        ->update(['titulo_id' => $nuevoId]);
+                });
+
+                $this->info("✔ Procesado ID {$id}");
+
                 continue;
             }
 
