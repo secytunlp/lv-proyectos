@@ -39,7 +39,7 @@ class ActualizarCargosDocentes extends Command
                 ->get()
                 ->groupBy('dni');
 
-            $faltantes = [];
+
             foreach ($cargos as $dni => $lista) {
 
                 $investigador = Investigador::whereHas('persona', function($q) use ($dni){
@@ -48,17 +48,37 @@ class ActualizarCargosDocentes extends Command
 
                 if (!$investigador) {
 
-                    if (!isset($faltantes[$dni])) {
 
-                        $docente = $lista->first();
+                    $docente = $lista->first();
+                    $nombreCompleto = trim($docente->investigador);
 
-                        $faltantes[$dni] = [
-                            'investigador' => $docente->investigador ?? '',
-                            'cargo'  => $docente->cd_cargo ?? '',
-                            'facultad' => $docente->cd_facultad ?? ''
-                        ];
-                    }
+                    $partes = explode(' ', $nombreCompleto);
 
+                    $apellido = $partes[0] ?? '';
+                    $nombre = implode(' ', array_slice($partes, 1));
+                    $dni = trim($docente->dni);
+                    $cargo = (int) $docente->cd_cargo;
+                    $facultad = (int) $docente->cd_facultad;
+                    $nacimiento = $docente->nacimiento ?? '';
+                    $deddocMap = [
+                        1 => 'Exclusiva',
+                        2 => 'Semi Exclusiva',
+                        3 => 'Simple'
+                    ];
+
+                    $deddoc = $deddocMap[(int)$docente->cd_deddoc] ?? '';
+                    $url = 'https://sicadi.presi.unlp.edu.ar/investigadors/create?' . http_build_query([
+                            'dni' => $dni,
+                            'apellido' => $apellido,
+                            'nombre' => $nombre,
+                            'nacimiento' => $nacimiento,
+                            // 👇 BONUS
+                            'cargo' => $cargo,
+                            'facultad' => $facultad,
+                            'deddoc' => $deddoc,
+                        ]);
+
+                    $this->line($url);
                     continue;
                 }
 
@@ -166,22 +186,7 @@ class ActualizarCargosDocentes extends Command
                 }
 
             }
-            if (count($faltantes)) {
 
-                $this->warn('');
-                $this->warn('Docentes en padrón que NO están cargados como investigadores:');
-                $this->warn('-------------------------------------------------------------');
-
-                foreach ($faltantes as $dni => $d) {
-
-                    $this->line(
-                        $dni.' | '.$d['investigador'].' | Cargo: '.$d['cargo'].' | Facultad: '.$d['facultad']
-                    );
-                }
-
-                $this->warn('-------------------------------------------------------------');
-                $this->warn('Total faltantes: '.count($faltantes));
-            }
             DB::commit();
 
             $this->info('Proceso OK');

@@ -56,25 +56,25 @@
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 {{Form::label('apellido', 'Apellido')}}
-                                                {{Form::text('apellido', '', ['class' => 'form-control','placeholder'=>'Apellido'])}}
+                                                {{Form::text('apellido', $prefill['apellido'] ?? '', ['class' => 'form-control','placeholder'=>'Apellido'])}}
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 {{Form::label('nombre', 'Nombre')}}
-                                                {{Form::text('nombre', '', ['class' => 'form-control','placeholder'=>'Nombre'])}}
+                                                {{Form::text('nombre', $prefill['nombre'] ?? '', ['class' => 'form-control','placeholder'=>'Nombre'])}}
                                             </div>
                                         </div>
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 {{Form::label('documento', 'Documento')}}
-                                                {{Form::number('documento', '', ['class' => 'form-control','placeholder'=>'Documento'])}}
+                                                {{Form::number('documento', $prefill['dni'] ?? '', ['class' => 'form-control','placeholder'=>'Documento'])}}
                                             </div>
                                         </div>
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 {{Form::label('cuil', 'CUIL')}}
-                                                {{Form::text('cuil', '', ['class' => 'form-control','placeholder'=>'XX-XXXXXXXX-X'])}}
+                                                {{Form::text('cuil', $prefill['dni'] ?? '', ['class' => 'form-control','placeholder'=>'XX-XXXXXXXX-X'])}}
                                             </div>
                                         </div>
                                     </div>
@@ -95,7 +95,7 @@
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 {{Form::label('nacimiento', 'Nacimiento')}}
-                                                {{Form::date('nacimiento', '', ['class' => 'form-control'])}}
+                                                {{Form::date('nacimiento', ($prefill['nacimiento'])?date('Y-m-d', strtotime($prefill['nacimiento'])):'', ['class' => 'form-control'])}}
                                             </div>
                                         </div>
                                         <div class="col-md-2">
@@ -843,6 +843,65 @@
             }
             return ['']; // Opción por defecto
         }
+
+        $(document).ready(function () {
+
+            let cargo = "{{ request('cargo') }}";
+            let facultad = "{{ request('facultad') }}";
+            let deddoc = "{{ request('deddoc') }}";
+
+            if (cargo) {
+
+                let tr = `
+        <tr>
+            <td>
+                <select name="cargos[]" class="form-control">
+                    @foreach($cargos as $id => $nombre)
+                <option value="{{ $id }}" ${cargo == "{{ $id }}" ? 'selected' : ''}>
+                            {{ $nombre }}
+                </option>
+@endforeach
+                </select>
+            </td>
+
+            <td>
+                <select name="deddocs[]" class="form-control">
+                    <option value="">--</option>
+                    <option value="Exclusiva" ${deddoc == 'Exclusiva' ? 'selected' : ''}>Exclusiva</option>
+                    <option value="Semi Exclusiva" ${deddoc == 'Semi Exclusiva' ? 'selected' : ''}>Semi Exclusiva</option>
+                    <option value="Simple" ${deddoc == 'Simple' ? 'selected' : ''}>Simple</option>
+                </select>
+            </td>
+
+            <td><input type="date" name="ingresos[]" class="form-control"></td>
+
+            <td>
+                <select name="facultads[]" class="form-control">
+                    @foreach($facultades as $id => $nombre)
+                <option value="{{ $id }}" ${facultad == "{{ $id }}" ? 'selected' : ''}>
+                            {{ $nombre }}
+                </option>
+@endforeach
+                </select>
+            </td>
+
+            <td>
+                <select name="universidads[]" class="form-control">
+                    @foreach($universidades as $id => $nombre)
+                <option value="{{ $id }}">{{ $nombre }}</option>
+                    @endforeach
+                </select>
+            </td>
+
+            <td><input type="checkbox" name="activos[]" value="1" checked></td>
+            <td></td>
+        </tr>
+        `;
+
+                $('#cuerpoCargos').html(tr);
+            }
+
+        });
 
 
     </script>
