@@ -145,9 +145,12 @@ class DetectarInvestigadoresSimilares extends Command
                 ->where('investigador_id', $eliminar)
                 ->update(['investigador_id' => $mantener]);
 
-            DB::table('investigador_becas')
-                ->where('investigador_id', $eliminar)
-                ->update(['investigador_id' => $mantener]);
+            $this->mergePivot(
+                'investigador_becas',
+                $mantener,
+                $eliminar,
+                ['institucion', 'beca', 'desde', 'hasta']
+            );
 
 
 
