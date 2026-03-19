@@ -202,6 +202,27 @@ class RepararTitulos extends Command
             $texto = end($partes);
         }
 
+        // 🔥 normalización inteligente
+        $map = [
+            'abogacia' => 'abog',
+            'abogado' => 'abog',
+            'abogada' => 'abog',
+
+            'contador' => 'conta',
+            'contadora' => 'conta',
+            'contaduria' => 'conta',
+
+            'psicologia' => 'psico',
+            'psicologo' => 'psico',
+            'psicologa' => 'psico',
+        ];
+
+        foreach ($map as $k => $v) {
+            if (strpos($texto, $k) !== false) {
+                $texto = $v;
+            }
+        }
+
         return trim($texto);
     }
 }
