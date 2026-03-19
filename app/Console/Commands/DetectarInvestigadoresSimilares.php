@@ -40,7 +40,7 @@ class DetectarInvestigadoresSimilares extends Command
     {
         $investigadores = DB::table('investigadors as i')
             ->join('personas as p', 'p.id', '=', 'i.persona_id')
-            ->select('i.id','p.apellido','p.nombre','')
+            ->select('i.id','p.apellido','p.nombre','p.documento')
             ->orderBy('p.apellido')
             ->get();
 
@@ -73,10 +73,10 @@ class DetectarInvestigadoresSimilares extends Command
 
                 $this->warn("\nPosibles duplicados:");
 
-                $this->line("{$inv1->id} - {$inv1->apellido}, {$inv1->nombre}");
+                $this->line("{$inv1->id} - {$inv1->apellido}, {$inv1->nombre} - DNI: {$inv1->documento}");
 
                 foreach ($similares as $s) {
-                    $this->line("{$s->id} - {$s->apellido}, {$s->nombre}");
+                    $this->line("{$s->id} - {$s->apellido}, {$s->nombre} - DNI: {$s->documento}");
                 }
 
                 if ($this->confirm('¿Querés fusionarlos?')) {
@@ -119,14 +119,10 @@ class DetectarInvestigadoresSimilares extends Command
         $nom1 = strtolower($a->nombre);
         $nom2 = strtolower($b->nombre);
 
-        return (
-                str_contains($ape1, $ape2) ||
-                str_contains($ape2, $ape1)
-            ) &&
-            (
-                str_contains($nom1, $nom2) ||
-                str_contains($nom2, $nom1)
-            );
+        similar_text($ape1, $ape2, $simApe);
+        similar_text($nom1, $nom2, $simNom);
+
+        return $simApe > 85 && $simNom > 85;
     }
 
     private function fusionarInvestigadores($mantener, $eliminar)
