@@ -85,7 +85,7 @@ class RepararTitulos extends Command
                 continue;
             }
 
-            DB::transaction(function () use ($id, $accion, $nombreViejo) {
+            DB::transaction(function () use ($id, $accion, $tituloViejo) {
 
                 $nuevoId = null;
 
@@ -95,7 +95,7 @@ class RepararTitulos extends Command
 
                 if ($accion === 'crear') {
                     $nuevoId = DB::table('titulos')->insertGetId([
-                        'nombre' => $nombreViejo
+                        'nombre' => $tituloViejo
                     ]);
 
                     $this->info("Creado nuevo título ID {$nuevoId}");
