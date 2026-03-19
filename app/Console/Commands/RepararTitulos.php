@@ -41,23 +41,28 @@ class RepararTitulos extends Command
             $this->warn("ID huérfano: {$id}");
 
             // 3. Buscar nombre en DB externa
-            $nombreViejo = DB::connection('mysql_testing')
-                ->table('titulos')
-                ->where('id', $id)
-                ->value('nombre');
+            $tituloViejo = DB::connection('mysql_testing')
+                ->table('titulos as t')
+                ->join('universidades as u', 'u.id', '=', 't.universidad_id')
+                ->where('t.id', $id)
+                ->select('t.nombre as titulo', 'u.nombre as universidad', 't.universidad_id')
+                ->first();
 
-            if (!$nombreViejo) {
+            if (!$tituloViejo) {
                 $this->error("No existe en DB externa ⚠️");
-                $nombreViejo = '(desconocido)';
-            } else {
-                $this->info("Nombre original: {$nombreViejo}");
+                continue;
             }
+
+            $this->info("Título: {$tituloViejo->titulo}");
+            $this->info("Universidad: {$tituloViejo->universidad}");
 
             // 4. Buscar similares
             $similares = DB::table('titulos')
-                ->where('nombre', 'LIKE', "%{$nombreViejo}%")
-                ->orWhere('nombre', 'LIKE', "%" . substr($nombreViejo, 0, 5) . "%")
-                ->limit(10)
+                ->where('universidad_id', $tituloViejo->universidad_id)
+                ->where(function ($q) use ($tituloViejo) {
+                    $q->where('nombre', 'LIKE', "%{$tituloViejo->titulo}%")
+                        ->orWhere('nombre', 'LIKE', "%" . substr($tituloViejo->titulo, 0, 5) . "%");
+                })
                 ->get();
 
             if ($similares->isNotEmpty()) {
