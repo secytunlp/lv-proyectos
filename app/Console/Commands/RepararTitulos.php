@@ -53,9 +53,18 @@ class RepararTitulos extends Command
                 $this->error("No existe en DB externa ⚠️");
 
                 // 🔥 investigadores afectados
-                $investigadores = DB::table('investigadors')
-                    ->where('titulo_id', $id)
-                    ->orWhere('titulopost_id', $id)
+                $investigadores = DB::table('investigadors as i')
+                    ->join('personas as p', 'p.id', '=', 'i.persona_id')
+                    ->where(function ($q) use ($id) {
+                        $q->where('i.titulo_id', $id)
+                            ->orWhere('i.titulopost_id', $id);
+                    })
+                    ->select(
+                        'i.id',
+                        'p.documento',
+                        'p.nombre',
+                        'p.apellido'
+                    )
                     ->get();
 
                 if ($investigadores->isNotEmpty()) {
@@ -63,8 +72,9 @@ class RepararTitulos extends Command
                     $this->info("Investigadores afectados:");
 
                     foreach ($investigadores as $inv) {
-                        $this->line("ID: {$inv->id} - DNI: {$inv->documento}");
+                        $this->line("ID: {$inv->id} - {$inv->apellido}, {$inv->nombre} - DNI: {$inv->documento}");
                     }
+
                 } else {
                     $this->warn("No hay investigadores asociados");
                 }
