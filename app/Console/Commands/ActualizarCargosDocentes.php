@@ -79,6 +79,7 @@ class ActualizarCargosDocentes extends Command
                         ]);
 
                     $this->line($url);
+                    $this->confirm('¿Ya lo creaste?');
                     continue;
                 }
 
