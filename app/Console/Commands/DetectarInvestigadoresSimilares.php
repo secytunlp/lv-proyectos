@@ -150,17 +150,6 @@ class DetectarInvestigadoresSimilares extends Command
                 ->update(['investigador_id' => $mantener]);
 
 
-            // =========================
-            // TITULO GRADO FK
-            // =========================
-
-            DB::table('investigadors')
-                ->where('titulo_id', $eliminar)
-                ->update(['titulo_id' => $mantener]);
-
-            DB::table('investigadors')
-                ->where('titulopost_id', $eliminar)
-                ->update(['titulopost_id' => $mantener]);
 
 
             // =========================
