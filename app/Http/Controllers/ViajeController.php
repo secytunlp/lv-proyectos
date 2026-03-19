@@ -1275,7 +1275,7 @@ class ViajeController extends Controller
                     ->orWhere('baja', '0000-00-00');
             })
             ->whereHas('proyecto', function ($query) use ($fechaCorte) {
-                $query->where('estado', 'Acreditado')
+                $query->whereIn('estado', ['Acreditado', 'En evaluación']) // 👈 acá el cambio
                     ->where('fin', '>', $fechaCorte); // Proyectos vigentes
             })
             ->get();
