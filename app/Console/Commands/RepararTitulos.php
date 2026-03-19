@@ -92,27 +92,37 @@ class RepararTitulos extends Command
             }
 
             if (empty($matches)) {
-                $this->warn("No se encontraron similares");
-                continue;
+
+                $this->warn("No se encontraron similares en esta universidad ⚠️");
+
+                // 👇 igual seguimos, pero sin opción "fusionar"
+                $accion = $this->choice(
+                    '¿Qué hacer?',
+                    ['fusionar manual', 'crear', 'null'],
+                    0
+                );
+
+            } else {
+
+
+                // ordenar por mejor match
+                usort($matches, function ($a, $b) {
+                    return $b['score'] <=> $a['score'];
+                });
+
+                $this->info("Posibles matches:");
+
+                foreach ($matches as $m) {
+                    $this->line("[{$m['id']}] {$m['nombre']} ({$m['score']}%)");
+                }
+
+                // acción
+                $accion = $this->choice(
+                    '¿Qué hacer?',
+                    ['fusionar', 'fusionar manual', 'crear', 'null', 'skip'],
+                    0
+                );
             }
-
-            // ordenar por mejor match
-            usort($matches, function ($a, $b) {
-                return $b['score'] <=> $a['score'];
-            });
-
-            $this->info("Posibles matches:");
-
-            foreach ($matches as $m) {
-                $this->line("[{$m['id']}] {$m['nombre']} ({$m['score']}%)");
-            }
-
-            // acción
-            $accion = $this->choice(
-                '¿Qué hacer?',
-                ['fusionar', 'fusionar manual', 'crear', 'null', 'skip'],
-                0
-            );
 
             if ($accion === 'skip') {
                 continue;
