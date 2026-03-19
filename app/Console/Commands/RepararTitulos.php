@@ -196,24 +196,39 @@ class RepararTitulos extends Command
     {
         $texto = strtolower($texto);
 
-        // 🔥 quitar acentos
+        // quitar acentos
         $texto = iconv('UTF-8', 'ASCII//TRANSLIT', $texto);
 
-        // caracteres raros
-        $texto = str_replace(['/', '.', ','], ' ', $texto);
+        // reemplazos importantes
+        $texto = str_replace('/', ' ', $texto);
+        $texto = str_replace(['.', ',', '-'], ' ', $texto);
 
-        // eliminar palabras comunes
-        $basura = [
-            'licenciado', 'licenciada', 'lic',
-            'profesor', 'profesora', 'prof',
-            'tecnico', 'tecnica', 'tecnicatura',
-            'magister', 'doctor', 'doctora',
-            'especialista', 'en', 'y'
-        ];
+        // 🔥 normalizar variantes de licenciado
+        $texto = str_replace([
+            'licenciatura',
+            'licenciado',
+            'licenciada',
+            'lic'
+        ], '', $texto);
 
-        foreach ($basura as $b) {
-            $texto = str_replace($b, '', $texto);
-        }
+        // otros títulos
+        $texto = str_replace([
+            'profesor',
+            'profesora',
+            'prof',
+            'doctor',
+            'doctora',
+            'magister',
+            'ingenieria',
+            'ingeniero',
+            'ingeniera',
+            'tecnicatura',
+            'tecnico',
+            'tecnica'
+        ], '', $texto);
+
+        // palabras basura
+        $texto = str_replace([' en ', ' y ', ' de '], ' ', $texto);
 
         // espacios múltiples
         $texto = preg_replace('/\s+/', ' ', $texto);
