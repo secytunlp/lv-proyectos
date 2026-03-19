@@ -68,13 +68,13 @@
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 {{Form::label('documento', 'Documento')}}
-                                                {{Form::number('documento', $prefill['dni'] ?? '', ['class' => 'form-control','placeholder'=>'Documento'])}}
+                                                {{Form::number('documento', $prefill['documento'] ?? '', ['class' => 'form-control','placeholder'=>'Documento'])}}
                                             </div>
                                         </div>
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 {{Form::label('cuil', 'CUIL')}}
-                                                {{Form::text('cuil', $prefill['dni'] ?? '', ['class' => 'form-control','placeholder'=>'XX-XXXXXXXX-X'])}}
+                                                {{Form::text('cuil', $prefill['documento'] ?? '', ['class' => 'form-control','placeholder'=>'XX-XXXXXXXX-X'])}}
                                             </div>
                                         </div>
                                     </div>

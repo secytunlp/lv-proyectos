@@ -39,7 +39,10 @@ class ActualizarCargosDocentes extends Command
                 ->get()
                 ->groupBy('dni');
 
+            $ruta = storage_path('app/faltantes_investigadores.txt');
 
+// limpiar archivo al inicio
+            file_put_contents($ruta, '');
             foreach ($cargos as $dni => $lista) {
 
                 $investigador = Investigador::whereHas('persona', function($q) use ($dni){
@@ -53,8 +56,8 @@ class ActualizarCargosDocentes extends Command
                     $nombreCompleto = trim($docente->investigador);
 
                     $partes = explode(' ', $nombreCompleto);
-
-                    $apellido = $partes[0] ?? '';
+                    
+                    $apellido = str_replace(',', '', $partes[0] ?? '');
                     $nombre = implode(' ', array_slice($partes, 1));
                     $dni = trim($docente->dni);
                     $cargo = (int) $docente->cd_cargo;
@@ -78,8 +81,8 @@ class ActualizarCargosDocentes extends Command
                             'deddoc' => $deddoc,
                         ]);
 
-                    $this->line($url);
-                    $this->confirm('¿Ya lo creaste?');
+                    // guardar en archivo
+                    file_put_contents($ruta, $url . PHP_EOL, FILE_APPEND);
                     continue;
                 }
 
