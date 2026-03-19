@@ -856,7 +856,7 @@
                 let tr = `
         <tr>
             <td>
-                <select name="cargos[]" class="form-control">
+                <select name="cargos[]" class="form-control" style="width: 200px">
                     @foreach($cargos as $id => $nombre)
                 <option value="{{ $id }}" ${cargo == "{{ $id }}" ? 'selected' : ''}>
                             {{ $nombre }}
@@ -866,7 +866,7 @@
             </td>
 
             <td>
-                <select name="deddocs[]" class="form-control">
+                <select name="deddocs[]" class="form-control" style="width: 120px">
                     <option value="">--</option>
                     <option value="Exclusiva" ${deddoc == 'Exclusiva' ? 'selected' : ''}>Exclusiva</option>
                     <option value="Semi Exclusiva" ${deddoc == 'Semi Exclusiva' ? 'selected' : ''}>Semi Exclusiva</option>
@@ -874,10 +874,10 @@
                 </select>
             </td>
 
-            <td><input type="date" name="ingresos[]" class="form-control" value="${ingreso ?? ''}"></td>
+            <td><input type="date" name="ingresos[]" class="form-control" value="${ingreso ?? ''}" style="width: 150px"></td>
 
             <td>
-                <select name="facultads[]" class="form-control">
+                <select name="facultads[]" class="form-control" style="width: 300px">
                     @foreach($facultades as $id => $nombre)
                 <option value="{{ $id }}" ${facultad == "{{ $id }}" ? 'selected' : ''}>
                             {{ $nombre }}
@@ -887,7 +887,7 @@
             </td>
 
             <td>
-                <select name="universidads[]" class="form-control">
+                <select name="universidads[]" class="form-control" style="width: 300px">
                     @foreach($universidades as $id => $nombre)
                 <option value="{{ $id }}" {{ $id == 11 ? 'selected' : '' }}>{{ $nombre }}</option>
                     @endforeach
