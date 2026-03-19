@@ -593,15 +593,19 @@ class ViajeController extends Controller
 
         $currentPeriodo = Constants::YEAR_VIAJES;
 
-        // Obtener los años en los que el investigador tuvo solicitudes otorgadas en los últimos dos años
-        $noRendidas = Viaje::where('investigador_id', $investigador->id)
+// TODOS los períodos anteriores que se deben controlar
+        $periodosEsperados = collect(range(2009, $currentPeriodo - 1));
+
+
+// Períodos rendidos (Otorgada)
+        $periodosRendidos = Viaje::where('investigador_id', $investigador->id)
             ->where('estado', 'Otorgada')
             ->join('periodos', 'viajes.periodo_id', '=', 'periodos.id')
-            ->whereIn('periodos.nombre', [$currentPeriodo - 1, $currentPeriodo - 2])
             ->pluck('periodos.nombre')
-            ->unique()
-            ->sort()
-            ->values();
+            ->unique();
+
+// Detectar TODOS los que faltan
+        $noRendidas = $periodosEsperados->diff($periodosRendidos);
 
         if ($noRendidas->isNotEmpty()) {
             // Crear un mensaje con los años en los que ya tiene solicitudes otorgadas
