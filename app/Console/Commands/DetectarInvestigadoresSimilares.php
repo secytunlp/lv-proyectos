@@ -156,74 +156,38 @@ class DetectarInvestigadoresSimilares extends Command
             // PIVOT TITULOS
             // =========================
 
-            $pivots = DB::table('investigador_titulos')
-                ->where('investigador_id', $eliminar)
-                ->get();
-
-            foreach ($pivots as $pivot) {
-
-                $exists = DB::table('investigador_titulos')
-                    ->where('investigador_id', $mantener)
-                    ->where('titulo_id', $pivot->titulo_id)
-                    ->exists();
-
-                if ($exists) {
-
-                    DB::table('investigador_titulos')
-                        ->where('investigador_id', $eliminar)
-                        ->where('titulo_id', $pivot->titulo_id)
-                        ->delete();
-
-                } else {
-
-                    DB::table('investigador_titulos')
-                        ->where('investigador_id', $eliminar)
-                        ->where('titulo_id', $pivot->titulo_id)
-                        ->update(['investigador_id' => $mantener]);
-                }
-            }
+            $this->mergePivot('investigador_titulos', $mantener, $eliminar, ['titulo_id']);
 
 
             // =========================
             // PIVOT TITULOPOST
             // =========================
 
-            DB::table('investigador_tituloposts')
-                ->where('investigador_id', $eliminar)
-                ->update(['investigador_id' => $mantener]);
-
+            $this->mergePivot('investigador_tituloposts', $mantener, $eliminar, ['titulopost_id']);
 
             // =========================
             // CARGOS
             // =========================
 
-            DB::table('investigador_cargos')
-                ->where('investigador_id', $eliminar)
-                ->update(['investigador_id' => $mantener]);
+            $this->mergePivot('investigador_cargos', $mantener, $eliminar, ['cargo_id']);
 
             // =========================
             // CARRERA INVESTIGADOR
             // =========================
 
-            DB::table('investigador_carreras')
-                ->where('investigador_id', $eliminar)
-                ->update(['investigador_id' => $mantener]);
+            $this->mergePivot('investigador_carreras', $mantener, $eliminar, ['carrera_id']);
 
             // =========================
             // CATEGORIAS
             // =========================
 
-            DB::table('investigador_categorias')
-                ->where('investigador_id', $eliminar)
-                ->update(['investigador_id' => $mantener]);
+            $this->mergePivot('investigador_categorias', $mantener, $eliminar, ['categoria_id', 'year']);
 
             // =========================
             // SICADI
             // =========================
 
-            DB::table('investigador_sicadis')
-                ->where('investigador_id', $eliminar)
-                ->update(['investigador_id' => $mantener]);
+            $this->mergePivot('investigador_sicadis', $mantener, $eliminar, ['sicadi_id']);
 
 
             // =========================
@@ -262,5 +226,39 @@ class DetectarInvestigadoresSimilares extends Command
             }
 
         });
+    }
+
+    private function mergePivot($table, $mantener, $eliminar, $keys)
+    {
+        $rows = DB::table($table)
+            ->where('investigador_id', $eliminar)
+            ->get();
+
+        foreach ($rows as $row) {
+
+            $query = DB::table($table)
+                ->where('investigador_id', $mantener);
+
+            foreach ($keys as $key) {
+                $query->where($key, $row->$key);
+            }
+
+            $exists = $query->exists();
+
+            $deleteQuery = DB::table($table)
+                ->where('investigador_id', $eliminar);
+
+            foreach ($keys as $key) {
+                $deleteQuery->where($key, $row->$key);
+            }
+
+            if ($exists) {
+                // ya existe → eliminar duplicado
+                $deleteQuery->delete();
+            } else {
+                // no existe → mover
+                $deleteQuery->update(['investigador_id' => $mantener]);
+            }
+        }
     }
 }
