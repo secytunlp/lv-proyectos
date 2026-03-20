@@ -175,7 +175,7 @@ class DetectarInvestigadoresSimilares extends Command
             // PIVOT TITULOPOST
             // =========================
 
-            $this->mergePivot('investigador_tituloposts', $mantener, $eliminar, ['titulopost_id']);
+            $this->mergePivot('investigador_tituloposts', $mantener, $eliminar, ['titulo_id']);
 
             // =========================
             // CARGOS
