@@ -163,7 +163,7 @@ class IntegranteController extends Controller
     {
 
         $proyectoId = $request->input('proyecto_id');
-        $columnas = ['personas.nombre','proyectos.codigo','integrantes.tipo', 'personas.apellido', 'cuil', 'categorias.nombre', 'sicadis.nombre', 'cargos.nombre','integrantes.deddoc','integrantes.beca','integrantes.institucion', 'carrerainvs.nombre', 'organismos.codigo','alta','baja','horas', 'facultads.nombre', 'integrantes.estado']; // Define las columnas disponibles
+        $columnas = ['personas.nombre','proyectos.codigo','integrantes.tipo', 'personas.apellido', 'cuil','alta','baja','horas', 'facultads.nombre', 'integrantes.estado']; // Define las columnas disponibles
         $columnaOrden = $columnas[$request->input('order.0.column')];
         $orden = $request->input('order.0.dir');
 
@@ -173,15 +173,12 @@ class IntegranteController extends Controller
 
 
         // Consulta base
-        $query = Integrante::select('integrantes.id as id', 'personas.nombre as persona_nombre','proyectos.codigo as codigo','integrantes.tipo as tipo', DB::raw("CONCAT(personas.apellido, ', ', personas.nombre) as persona_apellido"), 'cuil', 'categorias.nombre as categoria_nombre', 'sicadis.nombre as sicadi_nombre', 'cargos.nombre as cargo_nombre','integrantes.deddoc', DB::raw("CONCAT(integrantes.beca, ' ', integrantes.institucion) as beca"),'integrantes.institucion', DB::raw("CONCAT(carrerainvs.nombre, ' ', organismos.codigo) as carrerainv_nombre"), 'organismos.codigo as organismo_nombre','integrantes.alta as alta','integrantes.baja as baja', 'integrantes.horas as horas', 'facultads.nombre as facultad_nombre', 'integrantes.estado as estado')
-            ->leftJoin('categorias', 'integrantes.categoria_id', '=', 'categorias.id')
+        $query = Integrante::select('integrantes.id as id', 'personas.nombre as persona_nombre','proyectos.codigo as codigo','integrantes.tipo as tipo', DB::raw("CONCAT(personas.apellido, ', ', personas.nombre) as persona_apellido"), 'cuil','integrantes.baja as baja', 'integrantes.horas as horas', 'facultads.nombre as facultad_nombre', 'integrantes.estado as estado')
+
             ->leftJoin('investigadors', 'integrantes.investigador_id', '=', 'investigadors.id')
             ->leftJoin('proyectos', 'integrantes.proyecto_id', '=', 'proyectos.id')
             ->leftJoin('personas', 'investigadors.persona_id', '=', 'personas.id')
-            ->leftJoin('sicadis', 'integrantes.sicadi_id', '=', 'sicadis.id')
-            ->leftJoin('cargos', 'integrantes.cargo_id', '=', 'cargos.id')
-            ->leftJoin('carrerainvs', 'integrantes.carrerainv_id', '=', 'carrerainvs.id')
-            ->leftJoin('organismos', 'integrantes.organismo_id', '=', 'organismos.id')
+
             ->leftJoin('facultads', 'integrantes.facultad_id', '=', 'facultads.id');
 
 
