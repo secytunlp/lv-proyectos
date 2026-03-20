@@ -163,7 +163,7 @@ class IntegranteController extends Controller
     {
 
         $proyectoId = $request->input('proyecto_id');
-        $columnas = ['personas.nombre','proyectos.codigo','integrantes.tipo', 'personas.apellido', 'cuil','alta','baja','horas', 'facultads.nombre', 'integrantes.estado']; // Define las columnas disponibles
+        $columnas = ['personas.nombre','proyectos.codigo','integrantes.tipo', 'personas.apellido', 'cuil','alta','baja', 'facultads.nombre','horas', 'integrantes.estado']; // Define las columnas disponibles
         $columnaOrden = $columnas[$request->input('order.0.column')];
         $orden = $request->input('order.0.dir');
 
@@ -173,7 +173,7 @@ class IntegranteController extends Controller
 
 
         // Consulta base
-        $query = Integrante::select('integrantes.id as id', 'personas.nombre as persona_nombre','proyectos.codigo as codigo','integrantes.tipo as tipo', DB::raw("CONCAT(personas.apellido, ', ', personas.nombre) as persona_apellido"), 'cuil','integrantes.baja as baja', 'integrantes.horas as horas', 'facultads.nombre as facultad_nombre', 'integrantes.estado as estado')
+        $query = Integrante::select('integrantes.id as id', 'personas.nombre as persona_nombre','proyectos.codigo as codigo','integrantes.tipo as tipo', DB::raw("CONCAT(personas.apellido, ', ', personas.nombre) as persona_apellido"), 'cuil','integrantes.alta as alta','integrantes.baja as baja', 'facultads.nombre as facultad_nombre', 'integrantes.horas as horas', 'integrantes.estado as estado')
 
             ->leftJoin('investigadors', 'integrantes.investigador_id', '=', 'investigadors.id')
             ->leftJoin('proyectos', 'integrantes.proyecto_id', '=', 'proyectos.id')
