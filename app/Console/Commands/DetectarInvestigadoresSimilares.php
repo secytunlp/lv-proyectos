@@ -12,7 +12,7 @@ class DetectarInvestigadoresSimilares extends Command
      *
      * @var string
      */
-    protected $signature = 'detect:investigadores-similares';
+    protected $signature = 'detect:investigadores-similares {--desde= : Letra desde la que empezar}';
 
     /**
      * The console command description.
