@@ -8,6 +8,7 @@ use App\Models\Proyecto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Unidad;
+use PDF;
 
 class ProyectoController extends Controller
 {
@@ -230,5 +231,50 @@ class ProyectoController extends Controller
     public function destroy(Proyecto $proyecto)
     {
         //
+    }
+
+    public function reporteAcreditacion($year)
+    {
+        ini_set('memory_limit', '-1'); // sin límite (solo para pruebas)
+        try {
+
+            $proyectos = Proyecto::with([
+
+                'integrantes' => function ($q) {
+                    $q->orderByRaw("
+            CASE tipo
+                WHEN 'Director' THEN 1
+                WHEN 'Codirector' THEN 2
+                WHEN 'Investigador Formado' THEN 3
+                WHEN 'Investigador En Formación' THEN 4
+                WHEN 'Becario, Tesista' THEN 5
+                WHEN 'Colaborador' THEN 6
+                ELSE 7
+            END
+        ");
+                },
+                'integrantes.investigador.persona',
+                'integrantes.categoria',
+                'integrantes.sicadi',
+                'integrantes.cargo'
+            ])
+                ->whereYear('inicio', $year)
+                ->orderBy('facultad_id')
+                ->orderBy('codigo')
+                ->get()
+                ->groupBy('facultad_id');
+           // dd($proyectos);
+            //return view('reportes.acreditacion', compact('proyectos', 'year'));
+            $pdf = PDF::loadView('reportes.acreditacion', compact('proyectos'));
+            $pdfPath = 'Acreditacion_' . $year . '.pdf';
+
+
+
+                return $pdf->download($pdfPath);
+
+
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
     }
 }
