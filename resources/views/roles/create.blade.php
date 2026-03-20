@@ -34,7 +34,7 @@
                         </div>
                         <!-- /.box-header -->
                         <!-- form start -->
-                        <form role="form" action="{{ route('roles.store') }}" method="post" >
+                        <form role="form" action="{{ route('roles.store') }}" method="post" style="margin: 0% 2%">
                             {{ csrf_field() }}
                             <div class="box-body">
 
@@ -48,17 +48,25 @@
                                     </div>
                                 </div>
 
-            <div class="form-group">
-                <strong>Permisos:</strong>
-                <div class="row">
-                @foreach($permission as $value)
-                        <div class="col-md-3">
-                        <label>{{ Form::checkbox('permission[]', $value->id, false, array('class' => 'name')) }}
-                        {{ $value->name }}</label>
-                        </div>
-                @endforeach
-                </div>
-            </div>
+                                <div class="mb-3">
+                                    <strong>Permisos:</strong>
+                                    <div class="row">
+                                        @foreach($permissions as $group => $perms)
+                                            <h6 class="mt-3"><strong>{{ ucfirst($group) }}</strong></h6>
+                                            <div class="row">
+                                                @foreach($perms as $value)
+                                                    <div class="col-md-4">
+                                                        <div class="form-check">
+                                                            <label>
+                                                                <input type="checkbox" name="permission[]" value="{{ $value->id }}" class="name">
+                                                                {{ ucfirst(str_replace('-', ' ', $value->name)) }}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @endforeach
+                                    </div>
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-primary">Guardar</button>
                                         <a href='{{ route('roles.index') }}' class="btn btn-warning">Volver</a>
