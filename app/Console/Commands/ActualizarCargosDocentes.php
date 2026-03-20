@@ -19,7 +19,11 @@ class ActualizarCargosDocentes extends Command
         DB::beginTransaction();
 
         try {
-
+            $deddocMap = [
+                1 => 'Exclusiva',
+                2 => 'Semi Exclusiva',
+                3 => 'Simple'
+            ];
             $cargos = DB::table('cargos_alfabetico')
                 ->where('escalafon','Docente')
                 ->whereIn('cd_deddoc', array(1,2,3))
@@ -64,11 +68,7 @@ class ActualizarCargosDocentes extends Command
                     $facultad = (int) $docente->cd_facultad;
                     $nacimiento = $docente->nacimiento ?? '';
                     $ingreso = $docente->dt_fecha ?? '';
-                    $deddocMap = [
-                        1 => 'Exclusiva',
-                        2 => 'Semi Exclusiva',
-                        3 => 'Simple'
-                    ];
+
 
                     $deddoc = $deddocMap[(int)$docente->cd_deddoc] ?? '';
                     $url = 'https://sicadi.presi.unlp.edu.ar/investigadors/create?' . http_build_query([
@@ -95,11 +95,7 @@ class ActualizarCargosDocentes extends Command
                 // 🟢 INSERTAR / ACTIVAR
                 foreach ($lista as $c) {
                     $ingreso = date('Y-m-d H:i:s', strtotime($c->dt_fecha));
-                    $deddocMap = [
-                        1 => 'Exclusiva',
-                        2 => 'Semi Exclusiva',
-                        3 => 'Simple'
-                    ];
+
 
                     $deddocEnum = $deddocMap[$c->cd_deddoc] ?? null;
                     $data = [
@@ -156,21 +152,52 @@ class ActualizarCargosDocentes extends Command
                             'i.facultad_id' => $principal->facultad_id
                         ));
 
-                    DB::table('integrante_estados as ie')
+                    $estados = DB::table('integrante_estados as ie')
                         ->join('integrantes as i','i.id','=','ie.integrante_id')
                         ->join('proyectos as p','p.id','=','i.proyecto_id')
-                        ->where('i.investigador_id',$investigador->id)
-                        ->where('i.estado',1)
+                        ->where('i.investigador_id', $investigador->id)
+                        ->where('i.estado', 1)
                         ->whereNull('ie.hasta')
                         ->where(function($q){
                             $q->whereNull('p.fin')
                                 ->orWhere('p.fin','>=', now());
                         })
-                        ->update(array(
-                            'ie.cargo_id'    => $principal->cargo_id,
-                            'ie.deddoc'      => $principal->deddoc,
-                            'ie.facultad_id' => $principal->facultad_id
-                        ));
+                        ->select(
+                            'ie.id',
+                            'ie.cargo_id',
+                            'ie.deddoc',
+                            'ie.facultad_id',
+                            'ie.comentarios',
+                            'ie.integrante_id'
+                        )
+                        ->get();
+
+                    foreach ($estados as $estado) {
+
+                        $huboCambio =
+                            $estado->cargo_id != $principal->cargo_id ||
+                            $estado->deddoc != $principal->deddoc ||
+                            $estado->facultad_id != $principal->facultad_id;
+
+                        if ($huboCambio) {
+                            $fechaCambio = now();
+
+                            // 1️⃣ Cerrar el registro actual
+                            $estado->hasta = $fechaCambio;
+                            $estado->save();
+
+                            // 2️⃣ Crear nuevo registro duplicando todo excepto los campos que cambian
+                            $nuevoEstado = $estado->replicate(); // duplica todos los campos EXCEPTO la PK
+                            $nuevoEstado->cargo_id = $principal->cargo_id;
+                            $nuevoEstado->deddoc = $principal->deddoc;
+                            $nuevoEstado->facultad_id = $principal->facultad_id;
+                            $nuevoEstado->desde = $fechaCambio;
+                            $nuevoEstado->hasta = null;
+                            $nuevoEstado->comentarios = 'Cargo, dedicación y/o facultad actualizados';
+
+                            $nuevoEstado->save();
+                        }
+                    }
                 }
                 else {
                     // Obtener el DNI y nombre (o apellido y nombre) de la persona relacionada
