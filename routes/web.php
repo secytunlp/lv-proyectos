@@ -22,6 +22,8 @@ use App\Http\Controllers\ViajeController;
 use App\Http\Controllers\ViajeEstadoController;
 use App\Http\Controllers\ViajeEvaluacionController;
 use App\Http\Controllers\ViajeEvaluacionEstadoController;
+use App\Http\Controllers\UnidadInvestigacionController;
+use App\Http\Controllers\UnidadInvestigacionEstadoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -205,4 +207,12 @@ Route::group(['middleware' => ['auth', 'CheckSelectedRolePermissions']], functio
     Route::resource('viaje_evaluacion_estados', ViajeEvaluacionEstadoController::class);
     Route::post('viaje_evaluacion_estado-datatable', [ViajeEvaluacionEstadoController::class, 'dataTable'])->name('viaje_evaluacion_estados.dataTable');
 
+    Route::resource('unidad_investigacions', UnidadInvestigacionController::class);
+    Route::post('unidad_investigacions-datatable', [UnidadInvestigacionController::class, 'dataTable'])->name('unidad_investigacions.dataTable');
+
+    Route::resource('unidad_estados', UnidadInvestigacionEstadoController::class);
+    Route::post('unidad_estado-datatable', [UnidadInvestigacionEstadoController::class, 'dataTable'])->name('unidad_estados.dataTable');
+
+
+    Route::get('/reporte-acreditacion/{year}', [ProyectoController::class, 'reporteAcreditacion'])->name('reportes.acreditacion');
 });
