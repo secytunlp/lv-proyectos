@@ -181,7 +181,7 @@ class DetectarInvestigadoresSimilares extends Command
             // CARRERA INVESTIGADOR
             // =========================
 
-            $this->mergePivot('investigador_carreras', $mantener, $eliminar, ['carrera_id']);
+            $this->mergePivot('investigador_carreras', $mantener, $eliminar, ['carrerainv_id']);
 
             // =========================
             // CATEGORIAS
