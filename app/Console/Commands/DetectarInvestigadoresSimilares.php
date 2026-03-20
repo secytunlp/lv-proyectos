@@ -38,11 +38,17 @@ class DetectarInvestigadoresSimilares extends Command
      */
     public function handle()
     {
+        $letra = $this->option('desde');
+
         $investigadores = DB::table('investigadors as i')
             ->join('personas as p', 'p.id', '=', 'i.persona_id')
-            ->select('i.id','p.apellido','p.nombre','p.documento')
-            ->orderBy('p.apellido')
-            ->get();
+            ->select('i.id', 'p.apellido', 'p.nombre', 'p.documento');
+
+        if ($letra) {
+            $investigadores->where('p.apellido', 'LIKE', "$letra%");
+        }
+
+        $investigadores = $investigadores->orderBy('p.apellido')->get();
 
         $usados = [];
 
