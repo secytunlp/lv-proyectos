@@ -265,7 +265,7 @@ class ProyectoController extends Controller
                 ->groupBy('facultad_id');
            // dd($proyectos);
             //return view('reportes.acreditacion', compact('proyectos', 'year'));
-            $pdf = PDF::loadView('reportes.acreditacion', compact('proyectos'));
+            $pdf = PDF::loadView('reportes.acreditacion', compact('proyectos', 'year'));
             $pdfPath = 'Acreditacion_' . $year . '.pdf';
 
 
