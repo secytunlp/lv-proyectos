@@ -6,14 +6,15 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use App\Models\Investigador;
 use App\Models\Integrante;
-
+use App\Models\IntegranteEstado;
 class ActualizarCargosDocentes extends Command
 {
-    protected $signature = 'cargos:actualizar';
+    protected $signature = 'cargos:actualizar {dni?}';
     protected $description = 'Actualiza cargos docentes desde cargos_alfabetico';
 
     public function handle()
     {
+        $dniFiltro = $this->argument('dni');
         $this->info('Sincronizando cargos investigadores...');
 
         DB::beginTransaction();
@@ -36,6 +37,9 @@ class ActualizarCargosDocentes extends Command
                     165,167,168,169,170,171,172,173,174,
                     175,176,177,179,180,181,187,1220
                 ))
+                ->when($dniFiltro, function($q) use ($dniFiltro){
+                    $q->where('dni', $dniFiltro);
+                })
                 ->distinct()
                 ->orderBy('dni')
                 ->orderBy('cd_deddoc')
@@ -127,7 +131,8 @@ class ActualizarCargosDocentes extends Command
                     ->first();
 
                 if ($principal) {
-
+                    $this->line("Principal encontrado:");
+                    $this->line(json_encode($principal));
                     DB::table('investigadors')
                         ->where('id',$investigador->id)
                         ->update(array(
@@ -137,7 +142,7 @@ class ActualizarCargosDocentes extends Command
                         ));
 
 
-
+                    $this->warn("Actualizando integrantes del investigador {$investigador->id}");
                     DB::table('integrantes as i')
                         ->join('proyectos as p','p.id','=','i.proyecto_id')
                         ->where('i.investigador_id',$investigador->id)
@@ -172,8 +177,10 @@ class ActualizarCargosDocentes extends Command
                         )
                         ->get();
 
-                    foreach ($estados as $estado) {
+                    foreach ($estados as $estadoRow) {
 
+                        $estado = IntegranteEstado::find($estadoRow->id);
+                        $this->line("Estado ID: {$estado->id}");
                         $huboCambio =
                             $estado->cargo_id != $principal->cargo_id ||
                             $estado->deddoc != $principal->deddoc ||
