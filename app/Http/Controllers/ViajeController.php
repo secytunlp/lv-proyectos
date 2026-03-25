@@ -989,7 +989,7 @@ class ViajeController extends Controller
         $input = $this->sanitizeInput($request->all());
         // Asegurarse de que los checkbox tienen valor 0 si no se enviaron
 
-        $input['nacional'] = ($request->nacional_id='Nacional') ? 1 : 2;
+        $input['nacional'] = ($request->nacional_id=='Nacional') ? 1 : 2;
         $input['notificacion'] = isset($request->notificacion) ? 1 : 0;
         $input['congreso'] = 1; //NO hay conferencias
 
@@ -1612,7 +1612,7 @@ class ViajeController extends Controller
         $input = $this->sanitizeInput($request->all());
         //dd($input);
         // Asegurarse de que los checkbox tienen valor 0 si no se enviaron
-        $input['nacional'] = ($request->nacional_id='Nacional') ? 1 : 0;
+        $input['nacional'] = ($request->nacional_id=='Nacional') ? 1 : 0;
         $input['notificacion'] = isset($request->notificacion) ? 1 : 0;
 
         $input['fecha']=Carbon::now();
