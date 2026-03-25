@@ -238,21 +238,17 @@ class ProyectoController extends Controller
         ini_set('memory_limit', '-1'); // sin límite (solo para pruebas)
         try {
 
-            $proyectos = Proyecto::with([
+            $ordenTipos = [
+                'Director' => 1,
+                'Codirector' => 2,
+                'Investigador Formado' => 3,
+                'Investigador En Formación' => 4,
+                'Becario, Tesista' => 5,
+                'Colaborador' => 6,
+            ];
 
-                'integrantes' => function ($q) {
-                    $q->orderByRaw("
-            CASE tipo
-                WHEN 'Director' THEN 1
-                WHEN 'Codirector' THEN 2
-                WHEN 'Investigador Formado' THEN 3
-                WHEN 'Investigador En Formación' THEN 4
-                WHEN 'Becario, Tesista' THEN 5
-                WHEN 'Colaborador' THEN 6
-                ELSE 7
-            END
-        ");
-                },
+            $proyectos = Proyecto::with([
+                'integrantes',
                 'integrantes.investigador.persona',
                 'integrantes.categoria',
                 'integrantes.sicadi',
@@ -262,6 +258,23 @@ class ProyectoController extends Controller
                 ->orderBy('facultad_id')
                 ->orderBy('codigo')
                 ->get()
+                ->each(function ($proyecto) use ($ordenTipos) {
+
+                    $proyecto->integrantes = $proyecto->integrantes
+                        ->sortBy(function ($i) use ($ordenTipos) {
+
+                            $tipoOrden = isset($ordenTipos[$i->tipo]) ? $ordenTipos[$i->tipo] : 99;
+
+                            $apellido = '';
+                            if ($i->investigador && $i->investigador->persona) {
+                                $apellido = $i->investigador->persona->apellido;
+                            }
+
+                            return $tipoOrden . '_' . $apellido;
+
+                        })
+                        ->values();
+                })
                 ->groupBy('facultad_id');
            // dd($proyectos);
             //return view('reportes.acreditacion', compact('proyectos', 'year'));
