@@ -88,8 +88,12 @@
                                             <div class="col-md-2">
                                                 <div class="form-group">
                                                     <input type="hidden" name="integrante_id" value="{{ $integrante->id ?? '' }}">
+                                                    @php
+                                                        $integranteTipos = config('integranteTipos');
+
+                                                    @endphp
                                                     {{Form::label('tipo', 'Tipo')}}
-                                                    {{ Form::select('tipo',[''=>'','Director'=>'Director','Codirector'=>'Codirector','Investigador Formado'=>'Investigador Formado','Investigador En Formación'=>'Investigador En Formación','Becario, Tesista'=>'Becario, Tesista','Colaborador'=>'Colaborador'], $integrante->tipo,['class' => 'form-control']) }}
+                                                    {{ Form::select('tipo',$integranteTipos, $integrante->tipo,['class' => 'form-control']) }}
                                                 </div>
                                             </div>
                                             <div class="col-md-2">

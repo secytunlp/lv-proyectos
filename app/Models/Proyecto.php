@@ -16,6 +16,17 @@ class Proyecto extends Model
         return $this->hasMany(Integrante::class);
     }
 
+    public function unidad() {
+        return $this->belongsTo('App\Models\Unidad');
+    }
+
+    public function getFacultadNombreAttribute()
+    {
+        return DB::table('facultads')
+            ->where('id', $this->facultad_id)
+            ->value('nombre');
+    }
+
     public function disciplina() {
         // Consulta directa a la tabla de disciplinaes
         return DB::table('disciplinas')->where('id', $this->disciplina_id)->first();

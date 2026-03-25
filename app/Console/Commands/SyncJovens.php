@@ -272,8 +272,8 @@ class SyncJovens extends Command
                         ];
                         $totalOmitidas += count($data); // Omitimos todo el batch que falló
                     } else {
-                        // si es otro error, relanzarlo
-                        throw $e;
+                        dump($e->errorInfo);
+                        dd($e->errorInfo[2] ?? $e->getMessage());
                     }
                 }
             });

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use DB;
 
 class Integrante extends Model
 {
@@ -19,6 +20,29 @@ class Integrante extends Model
     public function proyecto()
     {
         return $this->belongsTo(Proyecto::class);
+    }
+
+    public function categoria() {
+        return $this->belongsTo('App\Models\Categoria');
+    }
+
+    public function sicadi() {
+        return $this->belongsTo('App\Models\Sicadi');
+    }
+
+    public function cargo() {
+        return $this->belongsTo('App\Models\Cargo');
+    }
+
+    public function carrerainv() {
+        return $this->belongsTo('App\Models\Carrerainv');
+    }
+
+    public function getOrganismoCodigoAttribute()
+    {
+        return DB::table('organismos')
+            ->where('id', $this->organismo_id)
+            ->value('codigo');
     }
 
     public function estados()

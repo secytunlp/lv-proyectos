@@ -124,7 +124,7 @@ class InvestigadorController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
         $provincias = DB::table('provincias')->OrderBy('nombre')->pluck('nombre', 'id'); // Obtener todas las provincias
         $titulos=Titulo::where('nivel', 'Grado')->orderBy('nombre','ASC')->get();
@@ -148,7 +148,21 @@ class InvestigadorController extends Controller
         $categorias = Categoria::orderBy('id')->pluck('nombre', 'id')->prepend('', '');
 
         $sicadis = Sicadi::orderBy('id')->pluck('nombre', 'id')->prepend('', '');
-        return view('investigadors.create',compact('provincias','titulos','tituloposts','facultades','cargos','universidades','unidads','carrerainvs','sicadis','years','organismos','categorias','sicadis'));
+
+        // 👇 NUEVO: datos desde URL
+        $prefill = [
+            'apellido' => $request->apellido,
+            'nombre' => $request->nombre,
+            'documento' => $request->dni,
+            'nacimiento' => $request->nacimiento,
+            'cargo' => $request->cargo,
+            'facultad' => $request->facultad,
+            'deddoc' => $request->deddoc,
+            'ingreso' => $request->ingreso,
+        ];
+
+
+        return view('investigadors.create',compact('provincias','titulos','tituloposts','facultades','cargos','universidades','unidads','carrerainvs','sicadis','years','organismos','categorias','sicadis','prefill'));
     }
 
     /**

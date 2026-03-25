@@ -39,7 +39,7 @@
         <section class="content-header">
             <h1>
                 <i class="fa fa-user-friends" aria-hidden="true"></i>Integrante
-                <small>Rechazar Cambio de dedicación horaria</small>
+                <small>Rechazar Alta</small>
             </h1>
             <ol class="breadcrumb">
                 <li><a href="{{ route('home') }}"><i class="fa fa-dashboard"></i> Home</a></li>
@@ -60,7 +60,7 @@
 
                         <!-- /.box-header -->
                         <!-- form start -->
-                        <form role="form" action="{{ route('integrantes.saveDenyCambioHS',$integrante->id) }}" method="post" enctype="multipart/form-data">
+                        <form role="form" action="{{ route('integrantes.saveDeny',$integrante->id) }}" method="post" enctype="multipart/form-data">
                             {{ csrf_field() }}
                             {{ method_field('PUT') }}
                             <div class="box-body">
@@ -74,7 +74,7 @@
                                                     <input type="hidden" name="proyecto_id" value="{{ $proyecto->id ?? '' }}">
                                                     <input type="hidden" name="alta" value="{{ ($integrante->alta)?date('Y-m-d', strtotime($integrante->alta)):'' }}">
                                                     {{Form::label('tipo', 'Tipo')}}
-                                                    {{ Form::select('tipo',config('integranteTipos'), $integrante->tipo,['class' => 'form-control','disabled']) }}
+                                                    {{ Form::select('tipo',[''=>'','Investigador Formado'=>'Investigador Formado','Investigador En Formación'=>'Investigador En Formación','Becario, Tesista'=>'Becario, Tesista','Colaborador'=>'Colaborador'], $integrante->tipo,['class' => 'form-control','disabled']) }}
                                                 </div>
                                             </div>
                                             <div class="col-md-2">

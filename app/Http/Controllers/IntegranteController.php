@@ -163,7 +163,7 @@ class IntegranteController extends Controller
     {
 
         $proyectoId = $request->input('proyecto_id');
-        $columnas = ['personas.nombre','proyectos.codigo','integrantes.tipo', 'personas.apellido', 'cuil', 'categorias.nombre', 'sicadis.nombre', 'cargos.nombre','integrantes.deddoc','integrantes.beca','integrantes.institucion', 'carrerainvs.nombre', 'organismos.codigo','alta','baja','horas', 'facultads.nombre', 'integrantes.estado']; // Define las columnas disponibles
+        $columnas = ['personas.nombre','proyectos.codigo','integrantes.tipo', 'personas.apellido', 'cuil','alta','baja', 'facultads.nombre','horas', 'integrantes.estado']; // Define las columnas disponibles
         $columnaOrden = $columnas[$request->input('order.0.column')];
         $orden = $request->input('order.0.dir');
 
@@ -173,15 +173,12 @@ class IntegranteController extends Controller
 
 
         // Consulta base
-        $query = Integrante::select('integrantes.id as id', 'personas.nombre as persona_nombre','proyectos.codigo as codigo','integrantes.tipo as tipo', DB::raw("CONCAT(personas.apellido, ', ', personas.nombre) as persona_apellido"), 'cuil', 'categorias.nombre as categoria_nombre', 'sicadis.nombre as sicadi_nombre', 'cargos.nombre as cargo_nombre','integrantes.deddoc', DB::raw("CONCAT(integrantes.beca, ' ', integrantes.institucion) as beca"),'integrantes.institucion', DB::raw("CONCAT(carrerainvs.nombre, ' ', organismos.codigo) as carrerainv_nombre"), 'organismos.codigo as organismo_nombre','integrantes.alta as alta','integrantes.baja as baja', 'integrantes.horas as horas', 'facultads.nombre as facultad_nombre', 'integrantes.estado as estado')
-            ->leftJoin('categorias', 'integrantes.categoria_id', '=', 'categorias.id')
+        $query = Integrante::select('integrantes.id as id', 'personas.nombre as persona_nombre','proyectos.codigo as codigo','integrantes.tipo as tipo', DB::raw("CONCAT(personas.apellido, ', ', personas.nombre) as persona_apellido"), 'cuil','integrantes.alta as alta','integrantes.baja as baja', 'facultads.nombre as facultad_nombre', 'integrantes.horas as horas', 'integrantes.estado as estado')
+
             ->leftJoin('investigadors', 'integrantes.investigador_id', '=', 'investigadors.id')
             ->leftJoin('proyectos', 'integrantes.proyecto_id', '=', 'proyectos.id')
             ->leftJoin('personas', 'investigadors.persona_id', '=', 'personas.id')
-            ->leftJoin('sicadis', 'integrantes.sicadi_id', '=', 'sicadis.id')
-            ->leftJoin('cargos', 'integrantes.cargo_id', '=', 'cargos.id')
-            ->leftJoin('carrerainvs', 'integrantes.carrerainv_id', '=', 'carrerainvs.id')
-            ->leftJoin('organismos', 'integrantes.organismo_id', '=', 'organismos.id')
+
             ->leftJoin('facultads', 'integrantes.facultad_id', '=', 'facultads.id');
 
 
@@ -1411,7 +1408,15 @@ class IntegranteController extends Controller
         } catch (QueryException $ex) {
             // Manejar la excepción de la base de datos
             DB::rollback();
+
             if ($ex->errorInfo[1] == 1062) {
+                Log::error('Error 1062 - Integrante duplicado', [
+                    'integrante_id' => $id,
+                    'proyecto_id' => $proyecto_id,
+                    'mensaje' => $ex->getMessage(),
+                    'sql' => $ex->getSql(),
+                    'bindings' => $ex->getBindings()
+                ]);
                 $respuestaID = 'error';
                 $respuestaMSJ = 'El/la integrante ya forma parte del proyecto.';
             } else {
@@ -3108,144 +3113,95 @@ class IntegranteController extends Controller
 
     public function actualizarInvestigador($integrante, $investigador)
     {
-        if ($investigador) {
-            $investigador->categoria_id = $integrante->categoria_id;
-            $investigador->sicadi_id = $integrante->sicadi_id;
-            $investigador->carrerainv_id = $integrante->carrerainv_id;
-            $investigador->organismo_id = $integrante->organismo_id;
-            $investigador->facultad_id = $integrante->facultad_id;
-            $investigador->cargo_id = $integrante->cargo_id;
-            $investigador->deddoc = $integrante->deddoc;
-            $investigador->universidad_id = $integrante->universidad_id;
-            $investigador->titulo_id = $integrante->titulo_id;
-            $investigador->titulopost_id = $integrante->titulopost_id;
-            $investigador->unidad_id = $integrante->unidad_id;
-            $investigador->institucion = ($integrante->institucion)?$integrante->institucion:null;
-            $investigador->beca = ($integrante->beca)?$integrante->beca:null;
-            $investigador->materias = $integrante->materias;
-            $investigador->total = $integrante->total;
-            $investigador->carrera = $integrante->carrera;
-
-            $investigador->save();
+        if (!$investigador) {
+            return;
         }
-        $persona = $investigador->persona;  // Obtener la persona asociada
 
-        // Actualizar los datos de la persona aquí
-        if ($persona) {
-            /*$persona->apellido = $integrante->apellido; // Cambia esto a los datos que quieras actualizar
-            $persona->nombre = $integrante->nombre;
-            $persona->cuil = $integrante->cuil;*/
-            $persona->email = $integrante->email;
-            $persona->nacimiento = $integrante->nacimiento;
-            $persona->save();
+        /* =========================
+           DATOS PRINCIPALES
+        ==========================*/
+        $investigador->categoria_id = $integrante->categoria_id;
+        $investigador->sicadi_id = $integrante->sicadi_id;
+        $investigador->carrerainv_id = $integrante->carrerainv_id;
+        $investigador->organismo_id = $integrante->organismo_id;
+        $investigador->facultad_id = $integrante->facultad_id;
+        $investigador->cargo_id = $integrante->cargo_id;
+        $investigador->deddoc = $integrante->deddoc;
+        $investigador->universidad_id = $integrante->universidad_id;
+        $investigador->titulo_id = $integrante->titulo_id;
+        $investigador->titulopost_id = $integrante->titulopost_id;
+        $investigador->unidad_id = $integrante->unidad_id;
+        $investigador->institucion = $integrante->institucion ?: null;
+        $investigador->beca = $integrante->beca ?: null;
+        $investigador->materias = $integrante->materias;
+        $investigador->total = $integrante->total;
+        $investigador->carrera = $integrante->carrera;
+        $investigador->save();
+
+        /* =========================
+           PERSONA
+        ==========================*/
+        if ($investigador->persona) {
+            $investigador->persona->email = $integrante->email;
+            $investigador->persona->nacimiento = $integrante->nacimiento;
+            $investigador->persona->save();
         }
-        if (!empty($integrante->titulo_id)) {
 
+        /* =========================
+           TITULO GRADO
+        ==========================*/
+        if ($integrante->titulo_id) {
 
-            // Verificar si el título ya está asociado
-            $tituloId = $integrante->titulo_id;
-            $egresoGrado = $integrante->egresogrado;
-
-            // Comprobar si el título ya está asociado con el investigador
-            $existingTitulo = $investigador->titulos->first(function ($titulo) use ($tituloId) {
-                return $titulo->id == $tituloId;
-            });
-
-            if ($existingTitulo) {
-                // Si el título ya está asociado, actualizar la relación si el egreso es diferente
-                if ($existingTitulo->pivot->egreso != $egresoGrado) {
-                    $investigador->titulos()->updateExistingPivot($tituloId, [
-                        'egreso' => $egresoGrado,
-                        'updated_at' => now(),
-                    ]);
-
-                    Log::info("Título actualizado: " . $tituloId . " - Egreso: " . $egresoGrado);
-                } else {
-                    Log::info("Título ya está asociado con el mismo egreso: " . $tituloId);
-                }
-            } else {
-                // Si el título no está asociado, adjuntarlo
-                $investigador->titulos()->attach($tituloId, [
-                    'egreso' => $egresoGrado,
-                    'created_at' => now(),
+            DB::table('investigador_titulos')->updateOrInsert(
+                [
+                    'investigador_id' => $investigador->id,
+                    'titulo_id' => $integrante->titulo_id,
+                ],
+                [
+                    'egreso' => $integrante->egresogrado,
                     'updated_at' => now(),
-                ]);
-
-                Log::info("Nuevo título asociado: " . $tituloId . " - Egreso: " . $egresoGrado);
-            }
-        }
-
-
-        // Guardar el primer título pasado en $request->titulopost en la columna titulopost_id del investigador
-        if (!empty($integrante->titulopost_id)) {
-
-            // Verificar si el título ya está asociado
-            $tituloId = $integrante->titulopost_id;
-            $egresoPosgrado = $integrante->egresoposgrado;
-
-            // Comprobar si el título ya está asociado con el investigador
-            $existingTituloPosgrado = $investigador->tituloposts->first(function ($titulo) use ($tituloId) {
-                return $titulo->id == $tituloId;
-            });
-
-            if ($existingTituloPosgrado) {
-                // Si el título ya está asociado, actualizar la relación si el egreso es diferente
-                if ($existingTituloPosgrado->pivot->egreso != $egresoPosgrado) {
-                    $investigador->tituloposts()->updateExistingPivot($tituloId, [
-                        'egreso' => $egresoPosgrado,
-                        'updated_at' => now(),
-                    ]);
-
-                    Log::info("Título posgrado actualizado: " . $tituloId . " - Egreso: " . $egresoPosgrado);
-                } else {
-                    Log::info("Título posgrado ya está asociado con el mismo egreso: " . $tituloId);
-                }
-            } else {
-                // Si el título no está asociado, adjuntarlo
-                $investigador->tituloposts()->attach($tituloId, [
-                    'egreso' => $egresoPosgrado,
                     'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+                ]
+            );
 
-                Log::info("Nuevo título posgrado asociado: " . $tituloId . " - Egreso: " . $egresoGrado);
-            }
-
-
-
-
+            Log::info("SYNC titulo grado ".$integrante->titulo_id);
         }
 
+        /* =========================
+           TITULO POSGRADO
+        ==========================*/
+        if ($integrante->titulopost_id) {
 
+            DB::table('investigador_tituloposts')->updateOrInsert(
+                [
+                    'investigador_id' => $investigador->id,
+                    'titulopost_id' => $integrante->titulopost_id,
+                ],
+                [
+                    'egreso' => $integrante->egresoposgrado,
+                    'updated_at' => now(),
+                    'created_at' => now(),
+                ]
+            );
 
+            Log::info("SYNC titulo posgrado ".$integrante->titulopost_id);
+        }
 
-        if (!empty($integrante->cargo_id)) {
+        /* =========================
+           CARGO
+        ==========================*/
+        if ($integrante->cargo_id) {
 
-            $existingCargos = $investigador->cargos->map(function ($cargo) {
-                return [
-                    'cargo_id' => $cargo->id, // Ajusta según el nombre de la columna en tu tabla 'cargos'
-                    'deddoc' => $cargo->pivot->deddoc,
-                    'ingreso' => $cargo->pivot->ingreso,
-                    'facultad_id' => $cargo->pivot->facultad_id,
-                    'universidad_id' => $cargo->pivot->universidad_id,
-                ];
-            })->toArray();
+            $existe = DB::table('investigador_cargos')
+                ->where('investigador_id', $investigador->id)
+                ->where('cargo_id', $integrante->cargo_id)
+                ->where('deddoc', $integrante->deddoc)
+                ->where('facultad_id', $integrante->facultad_id)
+                ->where('universidad_id', $integrante->universidad_id)
+                ->exists();
 
-            //Log::info('Existing Cargos: ' . json_encode($existingCargos));
+            if (!$existe) {
 
-            // Verificar si el nuevo cargo ya existe en las cargos del investigador
-            $existingCargo = collect($existingCargos)->first(function ($existingCargo) use ($integrante) {
-                return $existingCargo['cargo_id'] == $integrante->cargo_id && $existingCargo['deddoc'] == $integrante->deddoc &&  $existingCargo['facultad_id'] == $integrante->facultad_id && $existingCargo['universidad_id'] == $integrante->universidad_id;
-            });
-
-            //Log::info("Datos del Integrante: " . json_encode($integrante));
-            //Log::info("Datos del Cargo Existente: " . json_encode($existingCargo));
-
-
-            if ($existingCargo) {
-                Log::info("El cargo ya está asociado con los mismos datos: " . json_encode($existingCargo));
-            } else {
-                // Si el cargo no existe, insertarlo en la tabla 'investigador_cargos'
                 DB::table('investigador_cargos')->insert([
                     'investigador_id' => $investigador->id,
                     'cargo_id' => $integrante->cargo_id,
@@ -3258,164 +3214,93 @@ class IntegranteController extends Controller
                     'updated_at' => now(),
                 ]);
 
-                Log::info("Nuevo Cargo Insertado: " . $integrante->cargo_id . " - Dedicación: " . $integrante->deddoc);
+                Log::info("INSERT cargo ".$integrante->cargo_id);
             }
         }
 
+        /* =========================
+           CARRERA INVESTIGADOR
+        ==========================*/
+        if ($integrante->carrerainv_id) {
 
-        if (!empty($integrante->carrerainv_id)) {
-
-            // Datos de la nueva carrera
-            $nuevaCarrera = [
-                'carrerainv_id' => $integrante->carrerainv_id,
-                'organismo_id' => $integrante->organismo_id,
-                'ingreso' => $integrante->ingreso_carrerainv,
-            ];
-
-            // Buscar si la carrera ya está asociada con el investigador
-            $existingCarrera = $investigador->carrerainvs->first(function ($carrerainv) use ($nuevaCarrera) {
-                return $carrerainv->id == $nuevaCarrera['carrerainv_id'];
-            });
-
-            if ($existingCarrera) {
-                // Si la carrera ya está asociada, verificar si los datos son diferentes
-                if ($existingCarrera->pivot->organismo_id != $nuevaCarrera['organismo_id'] ||
-                    $existingCarrera->pivot->ingreso != $nuevaCarrera['ingreso']) {
-
-                    // Actualizar el registro en la tabla intermedia
-                    $investigador->carrerainvs()->updateExistingPivot($nuevaCarrera['carrerainv_id'], [
-                        'organismo_id' => $nuevaCarrera['organismo_id'],
-                        'ingreso' => $nuevaCarrera['ingreso'],
-                        'updated_at' => now(),
-                    ]);
-
-                    Log::info("Carrera actualizada: " . $nuevaCarrera['carrerainv_id']);
-                } else {
-                    Log::info("La carrera ya está asociada con los mismos datos: " . $nuevaCarrera['carrerainv_id']);
-                }
-            } else {
-                // Si la carrera no está asociada, agregarla
-                $investigador->carrerainvs()->attach($nuevaCarrera['carrerainv_id'], array_merge($nuevaCarrera, [
-                    'actual' => 1,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]));
-
-                Log::info("Nueva carrera asociada: " . $nuevaCarrera['carrerainv_id']);
-            }
-        }
-        if (!empty($integrante->categoria_id)) {
-
-            // Datos de la nueva categoría
-            $nuevaCategoria = [
-                'categoria_id' => $integrante->categoria_id,
-            ];
-
-            // Buscar si la categoría ya está asociada con el investigador
-            $existingCategoria = $investigador->categorias->first(function ($categoria) use ($nuevaCategoria) {
-                return $categoria->id == $nuevaCategoria['categoria_id'];
-            });
-
-            if ($existingCategoria) {
-                // Si la categoría ya está asociada, no es necesario hacer nada ya que es la misma categoría
-                Log::info("La categoría ya está asociada: " . $nuevaCategoria['categoria_id']);
-            } else {
-                // Si la categoría no está asociada, agregarla
-                DB::table('investigador_categorias')->insert([
+            DB::table('investigador_carrerainvs')->updateOrInsert(
+                [
                     'investigador_id' => $investigador->id,
-                    'categoria_id' => $nuevaCategoria['categoria_id'],
+                    'carrerainv_id' => $integrante->carrerainv_id,
+                ],
+                [
+                    'organismo_id' => $integrante->organismo_id,
+                    'ingreso' => $integrante->ingreso_carrerainv,
                     'actual' => 1,
-                    'created_at' => now(),
                     'updated_at' => now(),
-                ]);
+                    'created_at' => now(),
+                ]
+            );
 
-                Log::info("Nueva categoría asociada: " . $nuevaCategoria['categoria_id']);
-            }
+            Log::info("SYNC carrera ".$integrante->carrerainv_id);
         }
 
-        if (!empty($integrante->sicadi_id)) {
+        /* =========================
+           CATEGORIA
+        ==========================*/
+        if ($integrante->categoria_id) {
 
-            // Datos del nuevo SICADI
-            $nuevoSicadi = [
-                'sicadi_id' => $integrante->sicadi_id,
-            ];
-
-            // Buscar si el SICADI ya está asociado con el investigador
-            $existingSicadi = $investigador->sicadis->first(function ($sicadi) use ($nuevoSicadi) {
-                return $sicadi->id == $nuevoSicadi['sicadi_id'];
-            });
-
-            if ($existingSicadi) {
-                // Si el SICADI ya está asociado, no es necesario hacer nada ya que es el mismo SICADI
-                Log::info("El SICADI ya está asociado: " . $nuevoSicadi['sicadi_id']);
-            } else {
-                // Si el SICADI no está asociado, agregarlo
-                DB::table('investigador_sicadis')->insert([
+            DB::table('investigador_categorias')->updateOrInsert(
+                [
                     'investigador_id' => $investigador->id,
-                    'sicadi_id' => $nuevoSicadi['sicadi_id'],
+                    'categoria_id' => $integrante->categoria_id,
+                ],
+                [
                     'actual' => 1,
-                    'created_at' => now(),
                     'updated_at' => now(),
-                ]);
+                    'created_at' => now(),
+                ]
+            );
 
-                Log::info("Nuevo SICADI asociado: " . $nuevoSicadi['sicadi_id']);
-            }
+            Log::info("SYNC categoria ".$integrante->categoria_id);
         }
 
+        /* =========================
+           SICADI
+        ==========================*/
+        if ($integrante->sicadi_id) {
 
-        if (!empty($integrante->beca)) {
+            DB::table('investigador_sicadis')->updateOrInsert(
+                [
+                    'investigador_id' => $investigador->id,
+                    'sicadi_id' => $integrante->sicadi_id,
+                ],
+                [
+                    'actual' => 1,
+                    'updated_at' => now(),
+                    'created_at' => now(),
+                ]
+            );
 
+            Log::info("SYNC sicadi ".$integrante->sicadi_id);
+        }
 
-            // Obtener los IDs e instituciones de las becas existentes del investigador
-            $existingBecas = $investigador->becas->map(function($beca) {
-                return [
-                    'beca' => $beca->beca,
-                    'institucion' => $beca->institucion,
-                    'desde' => $beca->desde,
-                    'hasta' => $beca->hasta,
-                ];
-            })->toArray();
+        /* =========================
+           BECA
+        ==========================*/
+        if ($integrante->beca) {
 
-// Verificar si la nueva beca ya existe en las becas del investigador
-            $existingBeca = collect($existingBecas)->first(function ($existingBeca) use ($integrante) {
-                return $existingBeca['beca'] == $integrante->beca && $existingBeca['institucion'] == $integrante->institucion;
-            });
-
-            if ($existingBeca) {
-                // Si la beca existe, verificar si las fechas 'desde' y 'hasta' son distintas
-                if ($existingBeca['desde'] != $integrante->alta_beca || $existingBeca['hasta'] != $integrante->baja_beca) {
-                    // Actualizar las fechas en la beca existente
-                    DB::table('investigador_becas')
-                        ->where('investigador_id', $investigador->id)
-                        ->where('beca', $integrante->beca)
-                        ->where('institucion', $integrante->institucion)
-                        ->update([
-                            'desde' => $integrante->alta_beca,
-                            'hasta' => $integrante->baja_beca,
-                            'updated_at' => now(),
-                        ]);
-
-                    Log::info("Fechas de Beca Actualizadas: " . $integrante->beca . " - Institución: " . $integrante->institucion);
-                } else {
-                    Log::info("La beca ya existe y las fechas son las mismas: " . $integrante->beca . " - Institución: " . $integrante->institucion);
-                }
-            } else {
-                // Si la beca no existe, insertarla en la tabla 'investigador_becas'
-                DB::table('investigador_becas')->insert([
+            DB::table('investigador_becas')->updateOrInsert(
+                [
                     'investigador_id' => $investigador->id,
                     'beca' => $integrante->beca,
                     'institucion' => $integrante->institucion,
+                ],
+                [
                     'desde' => $integrante->alta_beca,
                     'hasta' => $integrante->baja_beca,
                     'unlp' => 0,
-                    'created_at' => now(),
                     'updated_at' => now(),
-                ]);
+                    'created_at' => now(),
+                ]
+            );
 
-                Log::info("Nueva Beca Insertada: " . $integrante->beca . " - Institución: " . $integrante->institucion);
-            }
-
-
+            Log::info("SYNC beca ".$integrante->beca);
         }
     }
 

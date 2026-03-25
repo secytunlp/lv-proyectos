@@ -14,4 +14,15 @@ class PreventRequestsDuringMaintenance extends Middleware
     protected $except = [
         //
     ];
+
+    public function handle($request, \Closure $next)
+    {
+        $ip = $request->ip();
+
+        if (strpos($ip, '163.10.35.') === 0) {
+            return $next($request);
+        }
+
+        return parent::handle($request, $next);
+    }
 }

@@ -8,6 +8,7 @@ use App\Models\Proyecto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Unidad;
+use PDF;
 
 class ProyectoController extends Controller
 {
@@ -230,5 +231,63 @@ class ProyectoController extends Controller
     public function destroy(Proyecto $proyecto)
     {
         //
+    }
+
+    public function reporteAcreditacion($year)
+    {
+        ini_set('memory_limit', '-1'); // sin límite (solo para pruebas)
+        try {
+
+            $ordenTipos = [
+                'Director' => 1,
+                'Codirector' => 2,
+                'Investigador Formado' => 3,
+                'Investigador En Formación' => 4,
+                'Becario, Tesista' => 5,
+                'Colaborador' => 6,
+            ];
+
+            $proyectos = Proyecto::with([
+                'integrantes',
+                'integrantes.investigador.persona',
+                'integrantes.categoria',
+                'integrantes.sicadi',
+                'integrantes.cargo'
+            ])
+                ->whereYear('inicio', $year)
+                ->orderBy('facultad_id')
+                ->orderBy('codigo')
+                ->get()
+                ->each(function ($proyecto) use ($ordenTipos) {
+
+                    $proyecto->integrantes = $proyecto->integrantes
+                        ->sortBy(function ($i) use ($ordenTipos) {
+
+                            $tipoOrden = isset($ordenTipos[$i->tipo]) ? $ordenTipos[$i->tipo] : 99;
+
+                            $apellido = '';
+                            if ($i->investigador && $i->investigador->persona) {
+                                $apellido = $i->investigador->persona->apellido;
+                            }
+
+                            return $tipoOrden . '_' . $apellido;
+
+                        })
+                        ->values();
+                })
+                ->groupBy('facultad_id');
+           // dd($proyectos);
+            //return view('reportes.acreditacion', compact('proyectos', 'year'));
+            $pdf = PDF::loadView('reportes.acreditacion', compact('proyectos', 'year'));
+            $pdfPath = 'Acreditacion_' . $year . '.pdf';
+
+
+
+                return $pdf->download($pdfPath);
+
+
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
     }
 }

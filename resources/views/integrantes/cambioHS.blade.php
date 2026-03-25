@@ -84,8 +84,13 @@
                                                     <input type="hidden" name="alta" value="{{ ($integrante->alta)?date('Y-m-d', strtotime($integrante->alta)):'' }}">
                                                     <input type="hidden" name="cambio" value="{{ ($integrante->cambio)?date('Y-m-d', strtotime($integrante->cambio)):'' }}">
                                                     <input type="hidden" name="horas_anteriores" value="{{ ($integrante->horas_anteriores)?$integrante->horas_anteriores:$integrante->horas }}">
+                                                    @php
+                                                        $integranteTipos = config('integranteTipos');
+
+                                                        unset($integranteTipos['Colaborador']);
+                                                    @endphp
                                                     {{Form::label('tipo', 'Tipo')}}
-                                                    {{ Form::select('tipo',[''=>'','Director'=>'Director','Codirector'=>'Codirector','Investigador Formado'=>'Investigador Formado','Investigador En Formación'=>'Investigador En Formación','Becario, Tesista'=>'Becario, Tesista'], $integrante->tipo,['class' => 'form-control','disabled']) }}
+                                                    {{ Form::select('tipo',$integranteTipos, $integrante->tipo,['class' => 'form-control','disabled']) }}
                                                 </div>
                                             </div>
                                             <div class="col-md-2">

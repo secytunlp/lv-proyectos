@@ -593,21 +593,18 @@ class ViajeController extends Controller
 
         $currentPeriodo = Constants::YEAR_VIAJES;
 
-        // Obtener los años en los que el investigador tuvo solicitudes otorgadas en los últimos dos años
         $noRendidas = Viaje::where('investigador_id', $investigador->id)
-            ->where('estado', 'Otorgada')
+            ->where('estado', 'Otorgada-No-Rendida')
             ->join('periodos', 'viajes.periodo_id', '=', 'periodos.id')
-            ->whereIn('periodos.nombre', [$currentPeriodo - 1, $currentPeriodo - 2])
+            ->where('periodos.nombre', '<', $currentPeriodo) // opcional pero recomendado
             ->pluck('periodos.nombre')
             ->unique()
             ->sort()
             ->values();
 
         if ($noRendidas->isNotEmpty()) {
-            // Crear un mensaje con los años en los que ya tiene solicitudes otorgadas
             $years = $noRendidas->join(', ', ' y ');
-            //return redirect()->back()->with('error', "El investigador ya tiene solicitudes otorgadas en los años $years.");
-            $errores[] = 'Ud. no ha rendido la solicitud del año ' . $years;
+            $errores[] = 'Ud. no ha rendido la solicitud de los años ' . $years;
         }
 
 
@@ -627,16 +624,16 @@ class ViajeController extends Controller
             ->where(function ($query) {
                 $query->where('estado', '!=', 'Baja Creada')
                     ->where('estado', '!=', 'Baja Recibida')
-                    ->orWhereNull('estado'); // Incluye estado = null
+                    ->orWhereNull('estado');
             })
             ->where(function ($q) use ($fechaCorte) {
-                $q->where('baja', '>', $fechaCorte) // Asegurarse que la baja sea futura
-                ->orWhereNull('baja')
+                $q->where('baja', '>', $fechaCorte)
+                    ->orWhereNull('baja')
                     ->orWhere('baja', '0000-00-00');
             })
             ->whereHas('proyecto', function ($query) use ($fechaCorte) {
-                $query->where('estado', 'Acreditado')
-                    ->where('fin', '>', $fechaCorte); // Proyectos vigentes
+                $query->whereIn('estado', ['Acreditado', 'En evaluación']) // 👈 acá el cambio
+                ->where('fin', '>', $fechaCorte);
             })
             ->get();
 
@@ -1275,7 +1272,7 @@ class ViajeController extends Controller
                     ->orWhere('baja', '0000-00-00');
             })
             ->whereHas('proyecto', function ($query) use ($fechaCorte) {
-                $query->where('estado', 'Acreditado')
+                $query->whereIn('estado', ['Acreditado', 'En evaluación']) // 👈 acá el cambio
                     ->where('fin', '>', $fechaCorte); // Proyectos vigentes
             })
             ->get();
@@ -2619,7 +2616,7 @@ class ViajeController extends Controller
         Mail::to($user->email)->send(new ViajeEnviada($datosCorreo,$viaje, $adjuntarArchivos, $adjuntarPlanilla));
 
         // Enviar correo electrónico a tu servidor (ejemplo)
-        Mail::to('marcosp@presi.unlp.edu.ar')->send(new ViajeEnviada($datosCorreo,$viaje, $adjuntarArchivos, $adjuntarPlanilla));
+        Mail::to(Constants::MAIL_VIAJES)->send(new ViajeEnviada($datosCorreo,$viaje, $adjuntarArchivos, $adjuntarPlanilla));
 
         // Obtener el nombre del rol correspondiente al id 4
         $roleName = Role::find(Constants::ID_ADMIN_FACULTAD_PROYECTOS)->name;

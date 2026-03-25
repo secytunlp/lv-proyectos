@@ -19,12 +19,18 @@ class Investigador extends Model
         return $this->belongsTo('App\Models\Universidad');
     }
 
+
+
     public function titulo() {
         return $this->belongsTo('App\Models\Titulo', 'titulo_id');
     }
 
     public function titulopost() {
         return $this->belongsTo('App\Models\Titulo', 'titulopost_id');
+    }
+
+    public function unidad() {
+        return $this->belongsTo('App\Models\Unidad');
     }
 
     public function titulos() {

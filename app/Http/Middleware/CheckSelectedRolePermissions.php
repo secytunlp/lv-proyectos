@@ -235,6 +235,22 @@ class CheckSelectedRolePermissions
             'viaje_evaluacion_estados.create' => ['joven_evaluacion_estado-crear'],
             'viaje_evaluacion_estados.store' => ['joven_evaluacion_estado-crear'],
 
+            'unidad_investigacions.index' => ['unidad-listar'],
+            'unidad_investigacions.dataTable' => ['unidad-listar'],
+            'unidad_investigacions.show' => ['unidad-listar'],
+            'unidad_investigacions.create' => ['unidad-crear'],
+            'unidad_investigacions.store' => ['unidad-crear'],
+            'unidad_investigacions.edit' => ['unidad-editar'],
+            'unidad_investigacions.update' => ['unidad-editar'],
+            'unidad_investigacions.destroy' => ['unidad-eliminar'],
+
+            'unidad_estados.index' => ['unidad_estado-listar'],
+            'unidad_estados.dataTable' => ['unidad_estado-listar'],
+            'unidad_estados.create' => ['unidad_estado-crear'],
+            'unidad_estados.store' => ['unidad_estado-crear'],
+
+            'reportes.acreditacion' => ['proyecto-listar'],
+
 
         ];
         $user = Auth::user();
