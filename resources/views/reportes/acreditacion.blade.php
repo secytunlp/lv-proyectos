@@ -85,7 +85,8 @@
             <strong>Proyecto:</strong> {{ $proyecto->codigo ?? '' }} |
             <strong>Tipo:</strong> {{ $proyecto->tipo ?? '' }} |
             <strong>Inicio:</strong> {{ \Carbon\Carbon::parse($proyecto->inicio)->format('d/m/Y') }} |
-            <strong>Fin:</strong> {{ \Carbon\Carbon::parse($proyecto->fin)->format('d/m/Y') }}
+            <strong>Fin:</strong> {{ \Carbon\Carbon::parse($proyecto->fin)->format('d/m/Y') }} |
+            <strong>Estado:</strong> {{ $proyecto->estado ?? '' }}
         </div>
 
         <div class="small">
