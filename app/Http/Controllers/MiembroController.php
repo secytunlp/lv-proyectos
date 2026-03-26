@@ -422,7 +422,7 @@ class MiembroController extends Controller
 
 
 
-
+        \Log::info('Request data:', $request->all());
 
         if ($request->cargos[0]) {
             //log::info('Lo carga');
