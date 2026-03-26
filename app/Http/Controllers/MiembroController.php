@@ -270,7 +270,7 @@ class MiembroController extends Controller
         if ($input['tipo'] == 'Director') {
             $existeDirector = Miembro::where('unidad_id', $input['unidad_id'])
                 ->where('tipo', 'Director')
-                ->where('estado', 'Activo')
+                ->where('activo', 1) // <--- acá revisamos si está activo
                 ->exists();
 
             if ($existeDirector) {
@@ -284,7 +284,7 @@ class MiembroController extends Controller
         if ($input['tipo'] == 'Codirector') {
             $existeCodirector = Miembro::where('unidad_id', $input['unidad_id'])
                 ->where('tipo', 'Codirector')
-                ->where('estado', 'Activo')
+                ->where('activo', 1) // <--- acá también
                 ->exists();
 
             if ($existeCodirector) {
@@ -294,16 +294,18 @@ class MiembroController extends Controller
             }
         }
 
+
+
 // Validar que la persona esté activa en una sola unidad
         $activoOtraUnidad = Miembro::where('cuil', $input['cuil'])
-            ->where('estado', 'Activo')
+            ->where('activo', 1)
             ->where('unidad_id', '!=', $input['unidad_id'])
             ->exists();
 
         if ($activoOtraUnidad) {
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'La persona ya se encuentra activa en otra unidad.');
+                ->with('error', 'El/la investigador/a es miembro en otra unidad.');
         }
 
         $unidad_id=$input['unidad_id'];
@@ -644,16 +646,57 @@ class MiembroController extends Controller
 
         $input = $this->sanitizeInput($request->all());
 
+
+
+
         $unidad_id=$input['unidad_id'];
-
-
-
-
 
 
         $miembro = Miembro::find($id);
 
 
+        // Validar Director único por unidad al actualizar
+        if ($input['tipo'] == 'Director') {
+            $existeDirector = Miembro::where('unidad_id', $input['unidad_id'])
+                ->where('tipo', 'Director')
+                ->where('activo', 1) // <--- solo activos
+                ->where('id', '!=', $miembro->id) // <--- excluir el miembro que estamos editando
+                ->exists();
+
+            if ($existeDirector) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Ya existe un Director activo en esta unidad.');
+            }
+        }
+
+// Validar Codirector único por unidad al actualizar
+        if ($input['tipo'] == 'Codirector') {
+            $existeCodirector = Miembro::where('unidad_id', $input['unidad_id'])
+                ->where('tipo', 'Codirector')
+                ->where('activo', 1)
+                ->where('id', '!=', $miembro->id)
+                ->exists();
+
+            if ($existeCodirector) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Ya existe un Codirector activo en esta unidad.');
+            }
+        }
+
+// Validar que la persona esté activa en una sola unidad al actualizar
+        $activoOtraUnidad = Miembro::where('cuil', $input['cuil'])
+            ->where('activo', 1)
+            ->where('unidad_id', '!=', $input['unidad_id'])
+            ->where('id', '!=', $miembro->id) // <--- excluir el miembro que estamos editando
+            ->exists();
+
+        if ($activoOtraUnidad) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'El/la investigador/a es miembro en otra unidad.');
+        }
 
         DB::beginTransaction();
         $ok = 1;
