@@ -16,7 +16,7 @@ class UnidadInvestigacion extends Model
 
     public function facultads()
     {
-        return $this->hasMany(Unidadfacultad::class, 'unidad_id');
+        return $this->hasMany(UnidadFacultad::class, 'unidad_id');
     }
 
     public function estados()
