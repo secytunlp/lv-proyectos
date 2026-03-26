@@ -16,7 +16,6 @@ use App\Models\Unidad;
 use App\Models\UnidadInvestigacion;
 use App\Models\Universidad;
 use App\Traits\SanitizesInput;
-use App\Traits\BuscaInvestigador;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -28,7 +27,7 @@ use Illuminate\Support\Str;
 
 class MiembroController extends Controller
 {
-    use SanitizesInput, BuscaInvestigador;
+    use SanitizesInput;
     function __construct()
     {
         $this->middleware('permission:miembro-listar|miembro-crear|miembro-editar|miembro-eliminar', ['only' => ['index','store','dataTable','admitir']]);
@@ -37,14 +36,6 @@ class MiembroController extends Controller
         $this->middleware('permission:miembro-eliminar', ['only' => ['destroy']]);
         //dd(session()->all());
     }
-
-    public function buscarInvestigador(Request $request)
-    {
-        return response()->json(
-            $this->buscarInvestigador($request->term)
-        );
-    }
-
 
 
     /**
