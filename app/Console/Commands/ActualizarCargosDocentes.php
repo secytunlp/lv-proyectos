@@ -218,6 +218,7 @@ class ActualizarCargosDocentes extends Command
 // FIX
                             $nuevoEstado->institucion = $estado->institucion ?: null;
                             $nuevoEstado->beca = $estado->beca ?: null;
+                            $nuevoEstado->user_id = 2;
                             $nuevoEstado->save();
                         }
                     }
