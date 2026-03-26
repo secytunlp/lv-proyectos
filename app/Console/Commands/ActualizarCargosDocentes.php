@@ -143,7 +143,20 @@ class ActualizarCargosDocentes extends Command
 
 
                     $this->warn("Actualizando integrantes del investigador {$investigador->id}");
-                    DB::table('integrantes as i')
+
+                    $debug = DB::table('integrantes as i')
+                        ->join('proyectos as p','p.id','=','i.proyecto_id')
+                        ->where('i.investigador_id',$investigador->id)
+                        ->select(
+                            'i.id',
+                            'i.estado',
+                            'p.fin'
+                        )
+                        ->get();
+
+                    dd($debug);
+
+                    $updated = DB::table('integrantes as i')
                         ->join('proyectos as p','p.id','=','i.proyecto_id')
                         ->where('i.investigador_id',$investigador->id)
                         ->where('i.estado',1)
@@ -151,11 +164,13 @@ class ActualizarCargosDocentes extends Command
                             $q->whereNull('p.fin')
                                 ->orWhere('p.fin','>=', now());
                         })
-                        ->update(array(
+                        ->update([
                             'i.cargo_id'    => $principal->cargo_id,
                             'i.deddoc'      => $principal->deddoc,
                             'i.facultad_id' => $principal->facultad_id
-                        ));
+                        ]);
+
+                    $this->error("Filas actualizadas: ".$updated);
 
                     $estados = DB::table('integrante_estados as ie')
                         ->join('integrantes as i','i.id','=','ie.integrante_id')
