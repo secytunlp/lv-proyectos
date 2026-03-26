@@ -301,7 +301,11 @@
                                                     <tr>
 
                                                         <td>{{ Form::select('cargos[]',$cargos, '',['class' => 'form-control', 'style' => 'width: 200px']) }}</td>
-                                                        <td>{{ Form::select('deddocs[]',[''=>'','Exclusiva'=>'Exclusiva','Semi Exclusiva'=>'Semi Exclusiva','Simple'=>'Simple'], '',['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
+                                                        @php
+                                                            $dedicaciones = config('dedicaciones');
+                                                            unset($dedicaciones['Sin Dedicación']);
+                                                        @endphp
+                                                        <td>{{ Form::select('deddocs[]',['' => ''] + $dedicaciones, '',['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
                                                         <td>{{Form::date('ingresos[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
                                                         <!--<td>{{ Form::select('facultads[]',$facultades, '',['class' => 'form-control', 'style' => 'width: 300px']) }}</td>
                                                         <td>{{ Form::select('universidads[]',$universidades, '',['class' => 'form-control js-example-basic-single', 'style' => 'width: 300px']) }}</td>-->

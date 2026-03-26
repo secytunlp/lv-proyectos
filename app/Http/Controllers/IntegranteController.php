@@ -28,6 +28,7 @@ use ZipArchive;
 
 use PDF;
 use App\Traits\SanitizesInput;
+use App\Traits\BuscaInvestigador;
 use Illuminate\Support\Facades\Mail;
 use App\Models\User;
 use Spatie\Permission\Models\Role; // Importa la clase Role
@@ -36,7 +37,7 @@ use App\Mail\SolicitudEnviada;
 
 class IntegranteController extends Controller
 {
-    use SanitizesInput;
+    use SanitizesInput, BuscaInvestigador;
     function __construct()
     {
         $this->middleware('permission:integrante-listar|integrante-crear|integrante-editar|integrante-eliminar', ['only' => ['index','store','dataTable','admitir']]);
@@ -46,95 +47,12 @@ class IntegranteController extends Controller
         //dd(session()->all());
     }
 
-    // Función en tu controlador
     public function buscarInvestigador(Request $request)
     {
-        $term = $request->input('term');
-
-        $resultados = Investigador::whereHas('persona', function($query) use ($term) {
-            $query->where('apellido', 'like', '%' . $term . '%')
-                ->orWhere('cuil', 'like', '%' . $term . '%');
-        })
-            ->with(['persona:id,apellido,nombre,cuil,email,nacimiento', 'titulos:id,nombre', 'tituloposts:id,nombre', 'cargos:id,nombre', 'carrerainvs:id,nombre', 'categorias:id,nombre', 'sicadis:id,nombre','becas:id,institucion,beca,desde,hasta'])
-    ->get();
-
-    // Mapear los resultados para incluir los campos necesarios en la respuesta JSON
-    $resultados = $resultados->map(function($investigador) {
-        $titulo = $investigador->titulos->first(); // Tomar solo el primer título
-        $titulopost = $investigador->tituloposts->first(); // Tomar solo el primer título
-        $cargo = $investigador->cargos()->where('activo', true)->orderBy('deddoc', 'asc')->orderBy('orden', 'asc')->first(); // Obtener el cargo activo con mayor dedicación
-
-        $carrerainv = $investigador->carrerainvs()->where('actual', true)->first();
-        $sicadi = $investigador->sicadis()->where('actual', true)->first();
-        $categoria = $investigador->categorias()->where('actual', true)->first();
-        $hoy = Carbon::today(); //Aquí se obtiene la fecha de hoy
-        $beca = $investigador->becas()->where('desde', '<=',$hoy)->where('hasta', '>=',$hoy)->first();
-        return [
-            'id' => $investigador->id,
-            'apellido' => $investigador->persona->apellido,
-            'nombre' => $investigador->persona->nombre,
-            'cuil' => $investigador->persona->cuil,
-            'email' => $investigador->persona->email,
-            'nacimiento' => $investigador->persona->nacimiento,
-            'titulo' => $titulo ? [
-                'id' => $titulo->id,
-                'nombre' => $titulo->nombre,
-                'pivot' => [
-                    'egreso' => $titulo->pivot->egreso
-                ]
-            ] : null,
-            'titulopost' => $titulopost ? [
-                'id' => $titulopost->id,
-                'nombre' => $titulopost->nombre,
-                'pivot' => [
-                    'egreso' => $titulopost->pivot->egreso
-                ]
-            ] : null,
-            'cargo' => $cargo ? [
-                'id' => $cargo->id,
-                'nombre' => $cargo->nombre,
-                'pivot' => [
-                    'deddoc' => $cargo->pivot->deddoc,
-                    'ingreso' => $cargo->pivot->ingreso,
-                    'facultad_id' => $cargo->pivot->facultad_id,
-                    'activo' => $cargo->pivot->activo,
-                    'universidad_id' => $cargo->pivot->universidad_id,
-                ]
-            ] : null,
-            'unidad_id' => $investigador->unidad_id,
-            'carrerainv' => $carrerainv ? [
-                'id' => $carrerainv->id,
-                'nombre' => $carrerainv->nombre,
-                'pivot' => [
-                    'ingreso' => $carrerainv->pivot->ingreso,
-                    'organismo_id' => $carrerainv->pivot->organismo_id,
-
-                ]
-            ] : null,
-            'categoria' => $categoria ? [
-                'id' => $categoria->id,
-                'nombre' => $categoria->nombre,
-
-            ] : null,
-            'sicadi' => $sicadi ? [
-                'id' => $sicadi->id,
-                'nombre' => $sicadi->nombre,
-
-            ] : null,
-            'beca' => $beca ? [
-                'id' => $beca->id,
-                'beca' => $beca->beca,
-                'institucion' => $beca->institucion,
-                'desde' => $beca->desde,
-                'hasta' => $beca->hasta,
-
-            ] : null,
-        ];
-    });
-
-    return response()->json($resultados);
+        return response()->json(
+            $this->buscarInvestigador($request->term)
+        );
     }
-
 
 
     /**

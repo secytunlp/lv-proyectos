@@ -10,7 +10,7 @@ class Persona extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nombre', 'apellido','email','telefono','calle','nro','piso','depto','localidad','cp','observaciones','tipoDocumento','documento','cuil','nacimiento','cuil','genero','foto','fallecimiento'];
+    protected $fillable = ['nombre', 'apellido','email','telefono','calle','nro','piso','depto','localidad','cp','observaciones','tipoDocumento','documento','cuil','nacimiento','genero','foto','fallecimiento'];
 
 
 

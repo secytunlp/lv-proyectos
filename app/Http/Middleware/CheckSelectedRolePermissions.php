@@ -249,6 +249,21 @@ class CheckSelectedRolePermissions
             'unidad_estados.create' => ['unidad_estado-crear'],
             'unidad_estados.store' => ['unidad_estado-crear'],
 
+            'miembros.index' => ['miembro-listar'],
+            'miembros.dataTable' => ['miembro-listar'],
+            'miembros.create' => ['miembro-crear'],
+            'miembros.store' => ['miembro-editar'],
+            'miembros.edit' => ['miembro-editar'],
+            'miembros.update' => ['miembro-editar'],
+            'miembros.destroy' => ['miembro-eliminar'],
+            'miembros.show' => ['miembro-listar'],
+
+
+            'miembro_estados.index' => ['miembro_estado-listar'],
+            'miembro_estados.dataTable' => ['miembro_estado-listar'],
+            'miembro_estados.create' => ['miembro_estado-crear'],
+            'miembro_estados.store' => ['miembro_estado-crear'],
+
             'reportes.acreditacion' => ['proyecto-listar'],
 
 

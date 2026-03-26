@@ -38,12 +38,12 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                <i class="fa fa-user-friends" aria-hidden="true"></i>Integrante
-                <small>Cambio de COLABORADOR a INTEGRANTE</small>
+                <i class="fa fa-user-friends" aria-hidden="true"></i>Miembro
+                <small>Alta de miembro</small>
             </h1>
             <ol class="breadcrumb">
                 <li><a href="{{ route('home') }}"><i class="fa fa-dashboard"></i> Home</a></li>
-                <li><a href="{{ route('integrantes.index') }}">Integrantes</a></li>
+                <li><a href="{{ route('miembros.index') }}">Miembros</a></li>
             </ol>
         </section>
 
@@ -54,20 +54,19 @@
                     <!-- general form elements -->
                     <div class="box box-primary">
                         <div class="box-header with-border">
-                            <h3 class="box-title">@if($proyecto) {{ $proyecto->codigo }} {{ $proyecto->titulo }}@endif</h3>
+                            <h3 class="box-title">@if($unidad) {{ $unidad->denominacion }} {{ $unidad->sigla }}@endif</h3>
                         </div>
 
 
                         <!-- /.box-header -->
                         <!-- form start -->
-                        <form role="form" action="{{ route('integrantes.cambiar',$integrante->id) }}" method="post" enctype="multipart/form-data">
+                        <form role="form" action="{{ route('miembros.store') }}" method="post" enctype="multipart/form-data">
                             {{ csrf_field() }}
-                            {{ method_field('PUT') }}
                             <div class="box-body">
                                 @include('includes.messages')
                                 <!-- Nav tabs -->
                                 <ul class="nav nav-tabs" role="tablist">
-                                    <li role="presentation" class="active"><a href="#datos_proyecto" aria-controls="datos_proyecto" role="tab" data-toggle="tab">Proyecto</a></li>
+                                    <li role="presentation" class="active"><a href="#datos_unidad" aria-controls="datos_unidad" role="tab" data-toggle="tab">Unidad</a></li>
                                     <li role="presentation"><a href="#datos_personales" aria-controls="datos_personales" role="tab" data-toggle="tab">Datos Personales</a></li>
                                     <li role="presentation"><a href="#universidad" aria-controls="universidad" role="tab" data-toggle="tab">Universidad</a></li>
                                     <li role="presentation"><a href="#investigacion" aria-controls="investigacion" role="tab" data-toggle="tab">Investigación</a></li>
@@ -76,58 +75,63 @@
                                     <!-- Agrega más pestañas según sea necesario -->
                                 </ul>
                                 <div class="tab-content" style="margin: 1%;">
-                                    <div role="tabpanel" class="tab-pane active" id="datos_proyecto">
+                                    <div role="tabpanel" class="tab-pane active" id="datos_unidad">
                                         <div class="row">
                                             <div class="col-md-3">
                                                 <div class="form-group">
-                                                    <input type="hidden" name="proyecto_id" value="{{ $proyecto->id ?? '' }}">
-                                                    <input type="hidden" name="alta" value="{{ ($integrante->alta)?date('Y-m-d', strtotime($integrante->alta)):'' }}">
+                                                    <input type="hidden" name="unidad_id" value="{{ $unidad->id ?? '' }}">
                                                     @php
-                                                        $integranteTipos = config('integranteTipos');
-                                                        unset($integranteTipos['Director']);
-                                                        unset($integranteTipos['Codirector']);
-                                                        unset($integranteTipos['Colaborador']);
+                                                        $miembroTiposConfig = config('miembrosTipos');
+
+                                                        $miembroTipos = collect($miembroTiposConfig)
+                                                            ->flatten(1)
+                                                            ->pluck('nombre','nombre')
+                                                            ->unique()
+                                                            ->toArray();
+
                                                     @endphp
+
                                                     {{Form::label('tipo', 'Tipo')}}
-                                                    {{ Form::select('tipo',$integranteTipos, $integrante->tipo,['class' => 'form-control']) }}
+                                                    {{ Form::select('tipo',[''=>'']+$miembroTipos, '',['class' => 'form-control']) }}
                                                 </div>
                                             </div>
                                             <div class="col-md-2">
                                                 <div class="form-group">
                                                     {{Form::label('horas', 'Horas')}}
-                                                    {{Form::number('horas', $integrante->horas, ['class' => 'form-control','placeholder'=>'Horas'])}}
+                                                    {{Form::number('horas', '', ['class' => 'form-control','placeholder'=>'Horas'])}}
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="row">
+                                            <div class="col-md-1">
+                                                <div class="form-group">
+                                                    {{Form::label('activo', 'Activo')}}
+                                                    {{Form::checkbox('activo', 1,true)}}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+
+                                                <div class="form-group">
+                                                    {{Form::label('observaciones', 'Observaciones')}}
+                                                    {{Form::textarea('observaciones', '', ['class' => 'form-control'])}}
+
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!--<div class="row">
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     <label for="curriculum">Curriculum</label>
                                                     <input type="file" name="curriculum" class="form-control" placeholder="">
-                                                    @if(!empty($integrante->curriculum))
-                                                        <a href="{{ url($integrante->curriculum) }}" target="_blank">Descargar Curriculum</a>
-                                                        <div class="checkbox">
-                                                            <label>
-                                                                <input type="checkbox" name="delete_cv" value="1">
-                                                                Eliminar Curriculum actual
-                                                            </label>
-                                                        </div>
-                                                    @endif
+
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     <label for="actividades">Plan de trabajo</label>
                                                     <input type="file" name="actividades" class="form-control" placeholder="">
-                                                    @if(!empty($integrante->actividades))
-                                                        <a href="{{ url($integrante->actividades) }}" target="_blank">Descargar Plan</a>
-                                                        <div class="checkbox">
-                                                            <label>
-                                                                <input type="checkbox" name="delete_actividades" value="1">
-                                                                Eliminar Plan actual
-                                                            </label>
-                                                        </div>
-                                                    @endif
+
                                                 </div>
                                             </div>
                                         </div>
@@ -141,7 +145,7 @@
                                                 </div>
                                             </div>
 
-                                        </div>
+                                        </div>-->
                                     </div>
                                     <div role="tabpanel" class="tab-pane" id="datos_personales">
 
@@ -149,13 +153,13 @@
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 {{Form::label('apellido', 'Apellido')}}
-                                                {{Form::text('apellido', $integrante->investigador->persona->apellido, ['class' => 'form-control','placeholder'=>'Apellido','disabled'])}}
+                                                {{Form::text('apellido', '', ['class' => 'form-control','placeholder'=>'Apellido'])}}
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 {{Form::label('nombre', 'Nombre')}}
-                                                {{Form::text('nombre', $integrante->investigador->persona->nombre, ['class' => 'form-control','placeholder'=>'Nombre','disabled'])}}
+                                                {{Form::text('nombre', '', ['class' => 'form-control','placeholder'=>'Nombre'])}}
                                             </div>
                                         </div>
 
@@ -165,19 +169,19 @@
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 {{Form::label('cuil', 'CUIL')}}
-                                                {{Form::text('cuil', $integrante->investigador->persona->cuil, ['class' => 'form-control','placeholder'=>'XX-XXXXXXXX-X','disabled'])}}
+                                                {{Form::text('cuil', '', ['class' => 'form-control','placeholder'=>'XX-XXXXXXXX-X'])}}
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 {{Form::label('email', 'Email')}}
-                                                {{Form::email('email', $integrante->email, ['class' => 'form-control','placeholder'=>'Email'])}}
+                                                {{Form::email('email', '', ['class' => 'form-control','placeholder'=>'Email'])}}
                                             </div>
                                         </div>
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 {{Form::label('nacimiento', 'Nacimiento')}}
-                                                {{Form::date('nacimiento', ($integrante->nacimiento)?date('Y-m-d', strtotime($integrante->nacimiento)):'', ['class' => 'form-control'])}}
+                                                {{Form::date('nacimiento', '', ['class' => 'form-control'])}}
                                             </div>
                                         </div>
                                     </div>
@@ -186,117 +190,28 @@
                                     <div role="tabpanel" class="tab-pane" id="universidad">
                                         <div class="row">
 
-                                            <div class="col-md-3">
+                                            <div class="col-md-6">
                                                 <div class="form-group">
                                                     {{Form::label('facultad', 'U. Académica')}}
-                                                    {{Form::select('facultad_id',  $facultades,$integrante->facultad_id, ['class' => 'form-control js-example-basic-single', 'style' => 'width: 100%','id'=>'facultad_id'])}}
-
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-3">
-                                                <div class="form-group">
-                                                    {{Form::label('universidad', 'Universidad')}}
-                                                    {{Form::select('universidad_id',  $universidades,$integrante->universidad_id, ['class' => 'form-control js-example-basic-single', 'style' => 'width: 100%','id'=>'universidad_id'])}}
+                                                    {{Form::select('facultad_id',  $facultades,'', ['class' => 'form-control js-example-basic-single', 'style' => 'width: 100%','id'=>'facultad_id'])}}
 
                                                 </div>
                                             </div>
 
 
+
+
                                         </div>
-                                        <fieldset style="border: 1px solid #ccc; padding: 10px;">
-                                            <legend style="border-bottom: none; margin-bottom: -10px; display: inline-block;width: auto;">Título de Grado</legend>
-
-                                            <div class="form-group col-md-12">
-
-                                                <div class="table-responsive">
-                                            <table class="table" style="width: 50%">
-                                                <thead>
-
-                                                <th>Título</th>
-                                                <th>Egreso</th>
-                                                <!--<th><a href="#" class="addRow"><i class="glyphicon glyphicon-plus"></i></a></th>-->
-
-                                                </thead>
-
-                                                <tbody id="cuerpoTitulo">
-                                                <tr>
-
-                                                    <td>{{ Form::select('titulos[]',$titulos, $integrante->titulo_id,['class' => 'form-control js-example-basic-single', 'style' => 'width: 400px']) }}</td>
-                                                    <td>{{Form::date('egresos[]', ($integrante->egresogrado)?date('Y-m-d', strtotime($integrante->egresogrado)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
-
-                                                    <!--<td><a href="#" class="btn btn-danger remove"><i class="glyphicon glyphicon-remove"></i></a></td>-->
-                                                </tr>
-
-                                                </tbody>
-
-
-
-
-                                            </table>
-                                                </div>
-                                        </div>
-
-                                        </fieldset>
-
-                                        <fieldset style="border: 1px solid #ccc; padding: 10px;" id="divMaterias">
-                                            <legend style="border-bottom: none; margin-bottom: -10px; display: inline-block;width: auto;">Estudiante</legend>
                                         <div class="row">
-                                            <div class="col-md-5">
-                                                <div class="form-group">
-                                                    {{Form::label('carrera', 'Carrera')}}
-                                                    {{Form::text('carrera', $integrante->carrera, ['class' => 'form-control','placeholder'=>'Carrera'])}}
-                                                </div>
+                                        <div class="col-md-1">
+                                            <div class="form-group">
+                                                {{Form::label('estudiante', 'Estudiante')}}
+                                                {{Form::checkbox('estudiante', 1,false)}}
                                             </div>
-                                            <div class="col-md-2">
-                                                <div class="form-group">
-                                                    {{Form::label('total', 'Total De Materias')}}
-                                                    {{Form::number('total', $integrante->total, ['class' => 'form-control','placeholder'=>'Total De Materias'])}}
-
-                                                </div>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <div class="form-group">
-                                                    {{Form::label('materias', 'Aprobadas')}}
-                                                    {{Form::number('materias', $integrante->materias, ['class' => 'form-control','placeholder'=>'Aprobadas'])}}
-                                                </div>
-                                            </div>
-
                                         </div>
-                                        </fieldset>
-                                        <fieldset style="border: 1px solid #ccc; padding: 10px;">
-                                            <legend style="border-bottom: none; margin-bottom: -10px; display: inline-block;width: auto;">Título de Posgrado</legend>
-
-                                            <div class="form-group col-md-12">
-                                                <div class="table-responsive">
-
-                                                <table class="table" style="width: 50%">
-                                                    <thead>
-
-                                                    <th>Título</th>
-                                                    <th>Egreso</th>
-                                                    <!--<th><a href="#" class="addRowPost"><i class="glyphicon glyphicon-plus"></i></a></th>-->
-
-                                                    </thead>
-
-                                                    <tbody id="cuerpoPosgrado">
-                                                    <tr>
-
-                                                        <td>{{ Form::select('tituloposts[]',$tituloposts, $integrante->titulopost_id,['class' => 'form-control js-example-basic-single', 'style' => 'width: 400px']) }}</td>
-                                                        <td>{{Form::date('egresoposts[]', ($integrante->egresoposgrado)?date('Y-m-d', strtotime($integrante->egresoposgrado)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
-
-                                                        <!--<td><a href="#" class="btn btn-danger removePost"><i class="glyphicon glyphicon-remove"></i></a></td>-->
-                                                    </tr>
-
-                                                    </tbody>
+                                        </div>
 
 
-
-
-                                                </table>
-                                                </div>
-                                            </div>
-                                        </fieldset>
                                         <fieldset style="border: 1px solid #ccc; padding: 10px;">
                                             <legend style="border-bottom: none; margin-bottom: -10px; display: inline-block;width: auto;">Cargo Docente</legend>
 
@@ -319,17 +234,14 @@
                                                     <tbody id="cuerpoCargos">
                                                     <tr>
 
-                                                        <td>{{ Form::select('cargos[]',$cargos, $integrante->cargo_id,['class' => 'form-control', 'style' => 'width: 200px']) }}</td>
+                                                        <td>{{ Form::select('cargos[]',$cargos, '',['class' => 'form-control', 'style' => 'width: 200px']) }}</td>
                                                         @php
                                                             $dedicaciones = config('dedicaciones');
                                                             unset($dedicaciones['Sin Dedicación']);
                                                         @endphp
-                                                        <td>{{ Form::select('deddocs[]',['' => ''] + $dedicaciones, $integrante->deddoc,['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
-                                                        <td>{{Form::date('ingresos[]', ($integrante->alta_cargo)?date('Y-m-d', strtotime($integrante->alta_cargo)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
-                                                        <!--<td>{{ Form::select('facultads[]',$facultades, $integrante->facultad_id,['class' => 'form-control', 'style' => 'width: 300px']) }}</td>
-                                                        <td>{{ Form::select('universidads[]',$universidades, $integrante->universidad_id,['class' => 'form-control js-example-basic-single', 'style' => 'width: 300px']) }}</td>-->
-                                                        <!--<td>{{Form::checkbox('activos[]', 1,true)}}</td>
-                                                        <td><a href="#" class="btn btn-danger removeCargo"><i class="glyphicon glyphicon-remove"></i></a></td>-->
+                                                        <td>{{ Form::select('deddocs[]',['' => ''] + $dedicaciones, '',['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
+                                                        <td>{{Form::date('ingresos[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
+
                                                     </tr>
 
                                                     </tbody>
@@ -343,18 +255,7 @@
                                         </fieldset>
                                     </div>
                                     <div role="tabpanel" class="tab-pane" id="investigacion">
-                                        <div class="row">
 
-                                            <div class="col-md-8">
-                                                <div class="form-group">
-                                                    {{Form::label('unidad', 'Lugar de Trabajo')}}
-                                                    {{Form::select('unidad_id',  $unidads,$integrante->unidad_id, ['class' => 'form-control js-example-basic-single', 'style' => 'width: 100%','id'=>'unidad_id'])}}
-
-                                                </div>
-                                            </div>
-
-
-                                        </div>
                                         <fieldset style="border: 1px solid #ccc; padding: 10px;">
                                             <legend style="border-bottom: none; margin-bottom: -10px; display: inline-block;width: auto;">Carrera de Investigación</legend>
 
@@ -376,9 +277,9 @@
                                                     <tbody id="cuerpoCarrerainvs">
                                                     <tr>
 
-                                                        <td>{{ Form::select('carrerainvs[]',$carrerainvs, $integrante->carrerainv_id,['class' => 'form-control', 'style' => 'width: 200px']) }}</td>
-                                                        <td>{{ Form::select('organismos[]',$organismos, $integrante->organismo_id,['class' => 'form-control', 'style' => 'width: 150px']) }}</td>
-                                                        <td>{{Form::date('carringresos[]', ($integrante->ingreso_carrera)?date('Y-m-d', strtotime($integrante->ingreso_carrera)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
+                                                        <td>{{ Form::select('carrerainvs[]',$carrerainvs, '',['class' => 'form-control', 'style' => 'width: 200px']) }}</td>
+                                                        <td>{{ Form::select('organismos[]',$organismos, '',['class' => 'form-control', 'style' => 'width: 150px']) }}</td>
+                                                        <td>{{Form::date('carringresos[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
 
 
                                                         <!--<td>{{ Form::radio('actual', 1, true,['id' => 'actual_1']) }}</td>
@@ -418,13 +319,8 @@
                                                     <tbody id="cuerpoCategorias">
                                                     <tr>
 
-                                                        <td>{{ Form::select('categorias[]',$categorias, $integrante->categoria_id,['class' => 'form-control', 'style' => 'width: 60px']) }}</td>
-                                                        <!--<td>{{ Form::select('catyears[]',$years, '',['class' => 'form-control', 'style' => 'width: 60px']) }}</td>
-                                                        <td>{{Form::date('catnotificacions[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
-                                                        <td>{{ Form::select('catuniversidads[]',$universidades, '',['class' => 'form-control js-example-basic-single', 'style' => 'width: 300px']) }}</td>
+                                                        <td>{{ Form::select('categorias[]',$categorias, '',['class' => 'form-control', 'style' => 'width: 60px']) }}</td>
 
-                                                        <td>{{ Form::radio('catactual', 1, true,['id' => 'catactual_1']) }}</td>
-                                                        <td><a href="#" class="btn btn-danger removeCategoria"><i class="glyphicon glyphicon-remove"></i></a></td>-->
                                                     </tr>
 
                                                     </tbody>
@@ -457,13 +353,8 @@
                                                     <tbody id="cuerpoSicadis">
                                                     <tr>
 
-                                                        <td>{{ Form::select('sicadis[]',$sicadis, $integrante->sicadi_id,['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
-                                                        <!--<td>{{ Form::select('sicadiyears[]',$years, '',['class' => 'form-control', 'style' => 'width: 60px']) }}</td>
-                                                        <td>{{Form::date('sicadinotificacions[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
+                                                        <td>{{ Form::select('sicadis[]',$sicadis, '',['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
 
-
-                                                        <td>{{ Form::radio('sicadiactual', 1, true,['id' => 'sicadiactual_1']) }}</td>
-                                                        <td><a href="#" class="btn btn-danger removeSicadi"><i class="glyphicon glyphicon-remove"></i></a></td>-->
                                                     </tr>
 
                                                     </tbody>
@@ -505,12 +396,12 @@
                                                     @endphp
                                                     <tr>
 
-                                                        <td>{{ Form::select('institucions[]',[''=>'']+$instituciones, $integrante->institucion,['class' => 'form-control institucion_select', 'style' => 'width: 150px']) }}</td>
-                                                        <td>{{ Form::select('becas[]',\App\Helpers\BecaHelper::obtenerOpcionesBecaPorInstitucion(old('institucions.0', $integrante->institucion)), $integrante->beca,['class' => 'form-control beca_select', 'style' => 'width: 150px']) }}</td>
+                                                        <td>{{ Form::select('institucions[]',[''=>'']+$instituciones, '',['class' => 'form-control institucion_select', 'style' => 'width: 150px']) }}</td>
+                                                        <td>{{ Form::select('becas[]',[''=>''], '',['class' => 'form-control beca_select', 'style' => 'width: 150px']) }}</td>
 
-                                                        <td>{{Form::date('becadesdes[]', ($integrante->alta_beca)?date('Y-m-d', strtotime($integrante->alta_beca)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
+                                                        <td>{{Form::date('becadesdes[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
 
-                                                        <td>{{Form::date('becahastas[]',  ($integrante->baja_beca)?date('Y-m-d', strtotime($integrante->baja_beca)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
+                                                        <td>{{Form::date('becahastas[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
                                                         <!--<td>{{Form::checkbox('becaunlps[]', 1,false)}}</td>
                                                         <td><a href="#" class="btn btn-danger removeCategoria"><i class="glyphicon glyphicon-remove"></i></a></td>-->
                                                     </tr>
@@ -524,29 +415,12 @@
                                                 </div>
                                             </div>
                                         </fieldset>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label for="resolucion">Resolución Beca ó Certificado de alumno de Doctorado/Maestría</label>
-                                                    <input type="file" name="resolucion" class="form-control" placeholder="">
-                                                    @if(!empty($integrante->resolucion))
-                                                        <a href="{{ url($integrante->resolucion) }}" target="_blank">Descargar Resolución</a>
-                                                        <div class="checkbox">
-                                                            <label>
-                                                                <input type="checkbox" name="delete_resolucion" value="1">
-                                                                Eliminar Resolución actual
-                                                            </label>
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                            </div>
 
-                                        </div>
                                     </div>
                                 </div>
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-primary">Guardar</button>
-                                        <a href="{{ route('integrantes.index') }}?proyecto_id={{ $proyecto->id }}" class="btn btn-warning">Volver</a>
+                                        <a href="{{ route('miembros.index') }}?unidad_id={{ $unidad->id }}" class="btn btn-warning">Volver</a>
 
                                     </div>
 
@@ -595,11 +469,185 @@
             $('select[name=country]').attr("disabled", "disabled");
             $('#cuerpoCategorias select[name="categorias[]"]').attr("disabled", "disabled");
             $('#cuerpoSicadis select[name="sicadis[]"]').attr("disabled", "disabled");
+            $('#apellido').autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        url: '{{ route("integrantes.buscarInvestigador") }}', // Asegúrate de que la ruta es correcta
+                        dataType: 'json',
+                        data: {
+                            term: request.term
+                        },
+                        success: function(data) {
+                            response($.map(data, function(item) {
+                                return {
+                                    label: item.apellido + ', ' + item.nombre + ' (' + item.cuil + ')',
+                                    value: item.apellido,
+                                    id: item.id,
+                                    apellido: item.apellido,
+                                    nombre: item.nombre,
+                                    cuil: item.cuil,
+                                    email: item.email,
+                                    nacimiento: item.nacimiento,
+                                    titulo: item.titulo,
+                                    titulopost: item.titulopost,
+                                    cargo: item.cargo,
+                                    unidad_id: item.unidad_id,
+                                    carrerainv: item.carrerainv,
+                                    sicadi: item.sicadi,
+                                    categoria: item.categoria,
+                                    beca: item.beca
+                                };
+                            }));
+                        }
+                    });
+                },
+                minLength: 2,
+                select: function(event, ui) {
+                    $('#apellido').val(ui.item.apellido);
+                    $('#nombre').val(ui.item.nombre);
+                    $('#cuil').val(ui.item.cuil);
+                    $('#email').val(ui.item.email);
+                    let nacimiento = ui.item.nacimiento;
+                    if(nacimiento){
+                        // Actualizar la fecha de egreso
+                        let formattedEgreso = new Date(nacimiento).toISOString().split('T')[0];
+                        $('#nacimiento').val(formattedEgreso);
+                    }
+
+
+
+
+                    //vacío los campos
+                    $('#cuerpoTitulo select[name="titulos[]"]').val('').trigger('change');
+                    $('#cuerpoTitulo input[name="egresos[]"]').val('');
+                    $('#cuerpoPosgrado select[name="tituloposts[]"]').val('').trigger('change');
+                    $('#cuerpoPosgrado input[name="egresoposts[]"]').val('');
+                    $('#cuerpoCargos select[name="cargos[]"]').val('').trigger('change');
+                    $('#cuerpoCargos select[name="deddocs[]"]').val('').trigger('change');
+
+                    $('#cuerpoCargos input[name="ingresos[]"]').val('');
+                    $('#unidad_id').val('').trigger('change');
+                    $('#facultad_id').val('').trigger('change');
+
+                    $('#cuerpoCarrerainvs select[name="carrerainvs[]"]').val('').trigger('change');
+                    $('#cuerpoCarrerainvs input[name="carringresos[]"]').val('');
+                    $('#cuerpoCarrerainvs select[name="organismos[]"]').val('').trigger('change');
+                    $('#cuerpoCategorias select[name="categorias[]"]').val('').trigger('change');
+                    $('#cuerpoSicadis select[name="sicadis[]"]').val('').trigger('change');
+                    $('#cuerpoBecas select[name="institucions[]"]').val('').trigger('change');
+                    $('#cuerpoBecas select[name="becas[]"]').val('').trigger('change');
+                    $('#cuerpoBecas input[name="becadesdes[]"]').val('');
+                    $('#cuerpoBecas input[name="becahastas[]"]').val('');
+                    // Completa el título y egreso
+                    if (ui.item.titulo) {
+                        let tituloId = ui.item.titulo.id;
+                        let tituloNombre = ui.item.titulo.nombre;
+                        let egreso = ui.item.titulo.pivot.egreso;
+
+                        // Actualizar el select con el título del investigador seleccionado
+                        $('#cuerpoTitulo select[name="titulos[]"]').val(tituloId).trigger('change');
+
+                        if(egreso){
+                            // Actualizar la fecha de egreso
+                            let formattedEgreso = new Date(egreso).toISOString().split('T')[0];
+                            $('#cuerpoTitulo input[name="egresos[]"]').val(formattedEgreso);
+                        }
+
+                    }
+                    if (ui.item.titulopost) {
+                        let titulopostId = ui.item.titulopost.id;
+                        let titulopostNombre = ui.item.titulopost.nombre;
+                        let egreso = ui.item.titulopost.pivot.egreso;
+
+                        // Actualizar el select con el título del investigador seleccionado
+                        $('#cuerpoPosgrado select[name="tituloposts[]"]').val(titulopostId).trigger('change');
+
+                        if(egreso) {
+                            // Actualizar la fecha de egreso
+                            let formattedEgreso = new Date(egreso).toISOString().split('T')[0];
+                            $('#cuerpoPosgrado input[name="egresoposts[]"]').val(formattedEgreso);
+                        }
+                    }
+                    if (ui.item.cargo) {
+                        let cargoId = ui.item.cargo.id;
+                        let cargoNombre = ui.item.cargo.nombre;
+                        let deddoc = ui.item.cargo.pivot.deddoc;
+                        let ingreso = ui.item.cargo.pivot.ingreso;
+                        let facultadId = ui.item.cargo.pivot.facultad_id;
+
+
+                        $('#cuerpoCargos select[name="cargos[]"]').val(cargoId).trigger('change');
+                        $('#cuerpoCargos select[name="deddocs[]"]').val(deddoc).trigger('change');
+
+                        $('#facultad_id').val(facultadId).trigger('change');
+
+                        if(ingreso) {
+                            // Suponiendo que 'ingreso' es una fecha en formato 'Y-m-d
+                            let formattedIngreso = new Date(ingreso).toISOString().split('T')[0];
+                            // Asignar la fecha formateada al campo de entrada
+                            $('#cuerpoCargos input[name="ingresos[]"]').val(formattedIngreso);
+                        }
+
+
+                    }
+                    //console.log(ui.item.unidad_id);
+                    $('#unidad_id').val(ui.item.unidad_id).trigger('change');
+                    if (ui.item.carrerainv) {
+                        let carrerainvId = ui.item.carrerainv.id;
+                        let carrerainvNombre = ui.item.carrerainv.nombre;
+
+                        let ingreso = ui.item.carrerainv.pivot.ingreso;
+                        let organismoId = ui.item.carrerainv.pivot.organismo_id;
+
+
+                        $('#cuerpoCarrerainvs select[name="carrerainvs[]"]').val(carrerainvId).trigger('change');
+
+                        $('#cuerpoCarrerainvs select[name="organismos[]"]').val(organismoId).trigger('change');
+
+
+                        if(ingreso) {
+                            // Suponiendo que 'ingreso' es una fecha en formato 'Y-m-d
+                            let formattedIngreso = new Date(ingreso).toISOString().split('T')[0];
+                            // Asignar la fecha formateada al campo de entrada
+                            $('#cuerpoCarrerainvs input[name="carringresos[]"]').val(formattedIngreso);
+                        }
+
+
+                    }
+                    if (ui.item.categoria) {
+                        let categoriaId = ui.item.categoria.id;
+                        let categoriaNombre = ui.item.categoria.nombre;
+                        $('#cuerpoCategorias select[name="categorias[]"]').val(categoriaId).trigger('change');
+                    }
+                    if (ui.item.sicadi) {
+                        let sicadiId = ui.item.sicadi.id;
+                        let sicadiNombre = ui.item.sicadi.nombre;
+                        $('#cuerpoSicadis select[name="sicadis[]"]').val(sicadiId).trigger('change');
+                    }
+                    if (ui.item.beca) {
+                        let institucion = ui.item.beca.institucion;
+                        let beca = ui.item.beca.beca;
+                        let desde = ui.item.beca.desde;
+                        let hasta = ui.item.beca.hasta;
+                        $('#cuerpoBecas select[name="institucions[]"]').val(institucion).trigger('change');
+                        $('#cuerpoBecas select[name="becas[]"]').val(beca).trigger('change');
+                        if(desde) {
+                            // Suponiendo que 'ingreso' es una fecha en formato 'Y-m-d
+                            let formattedDesde = new Date(desde).toISOString().split('T')[0];
+                            // Asignar la fecha formateada al campo de entrada
+                            $('#cuerpoBecas input[name="becadesdes[]"]').val(formattedDesde);
+                        }
+                        if(hasta) {
+                            // Suponiendo que 'ingreso' es una fecha en formato 'Y-m-d
+                            let formattedHasta = new Date(hasta).toISOString().split('T')[0];
+                            // Asignar la fecha formateada al campo de entrada
+                            $('#cuerpoBecas input[name="becahastas[]"]').val(formattedHasta);
+                        }
+                    }
+                }
+            });
 
 // Ocultar divMaterias por defecto
-            @if($integrante->titulo_id)
-                $('#divMaterias').hide();
-            @endif
             //$('#divMaterias').hide();
 
             // Mostrar u ocultar divMaterias según la selección del select
@@ -638,6 +686,7 @@
         });
 
         // Función para obtener opciones de beca según la institución seleccionada
+
         function obtenerOpcionesBecaPorInstitucion(institucionSeleccionada) {
             //console.log(institucionSeleccionada)
             var opciones = @json(config('becas'));
@@ -650,7 +699,6 @@
             }
             return ['']; // Opción por defecto
         }
-        // Disparar el evento change manualmente al cargar la página
 
     </script>
 

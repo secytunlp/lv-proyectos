@@ -604,7 +604,6 @@ class IntegranteEstadoController extends Controller
                     'unidad_id' => ($integrante->unidad_id)?$integrante->unidad_id:null,
                     'carrerainv_id' => ($integrante->carrerainv_id)?$integrante->carrerainv_id:null,
                     'organismo_id' => ($integrante->organismo_id)?$integrante->organismo_id:null,
-                    'unidad_id' => $integrante->unidad_id,
                     'institucion' => ($integrante->institucion)?$integrante->institucion:null,
                     'beca' => ($integrante->beca)?$integrante->beca:null,
                     'desde' => Carbon::now(), // Establecer 'desde' como la fecha actual
