@@ -658,54 +658,37 @@ class MiembroController extends Controller
 
 
         DB::beginTransaction();
-        $ok = 1;
+        try {
+            \Log::info('Antes de update miembro:', $miembro->toArray());
 
+            $miembro->update($input);
+            \Log::info('Después de update miembro');
 
+            $this->guardarMiembro($request,$miembro);
+            \Log::info('Después de guardarMiembro');
 
+            $this->cambiarEstado($miembro,'Modificación de alta');
+            \Log::info('Después de cambiarEstado');
 
+            DB::commit();
+            \Log::info('Transacción commit exitosa');
 
-
-        if ($ok){
-            try {
-                $input['categoria_id']= $miembro->categoria_id;
-                $input['sicadi_id']= $miembro->sicadi_id;
-
-                //
-                $miembro->update($input);
-
-
-                $this->guardarMiembro($request,$miembro);
-
-
-                $this->cambiarEstado($miembro,'Modificación de alta');
-
-
-
-                DB::commit();
-                $respuestaID = 'success';
-                $respuestaMSJ = 'Alta modificada con éxito';
-
-            } catch (QueryException $ex) {
-                // Manejar la excepción de la base de datos
-                DB::rollback();
-                if ($ex->errorInfo[1] == 1062) {
-                    $respuestaID = 'error';
-                    $respuestaMSJ = 'El/la miembro ya forma parte del proyecto.';
-                } else {
-                    $respuestaID = 'error';
-                    $respuestaMSJ = $ex->getMessage();
-                }
-            } catch (\Exception $ex) {
-                // Manejar cualquier otra excepción
-                DB::rollback();
-                $respuestaID = 'error';
-                $respuestaMSJ = $ex->getMessage(); // Obtener el mensaje de error de la excepción
-            }
-        }
-        else{
+        } catch (QueryException $ex) {
             DB::rollback();
-            $respuestaID='error';
-            $respuestaMSJ=$error;
+            \Log::error('QueryException en update miembro', [
+                'errorInfo' => $ex->errorInfo,
+                'message' => $ex->getMessage(),
+                'trace' => $ex->getTraceAsString()
+            ]);
+            return redirect()->back()->with('error', $ex->getMessage());
+
+        } catch (\Exception $ex) {
+            DB::rollback();
+            \Log::error('Exception en update miembro', [
+                'message' => $ex->getMessage(),
+                'trace' => $ex->getTraceAsString()
+            ]);
+            return redirect()->back()->with('error', $ex->getMessage());
         }
 
         return redirect()->route('miembros.index', array('unidad_id' => $unidad_id))->with($respuestaID, $respuestaMSJ);
