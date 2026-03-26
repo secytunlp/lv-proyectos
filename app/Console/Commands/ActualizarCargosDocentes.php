@@ -219,6 +219,10 @@ class ActualizarCargosDocentes extends Command
                             $nuevoEstado->institucion = $estado->institucion ?: null;
                             $nuevoEstado->beca = $estado->beca ?: null;
                             $nuevoEstado->user_id = 2;
+                            if ($nuevoEstado->organismo_id &&
+                                !DB::table('organismos')->where('id', $nuevoEstado->organismo_id)->exists()) {
+                                $nuevoEstado->organismo_id = null;
+                            }
                             $nuevoEstado->save();
                         }
                     }
