@@ -173,4 +173,9 @@
 @endforeach
 
 </body>
+<script type="text/php">
+    if (isset($pdf)) {
+        $pdf->page_text(270, 820, "Página {PAGE_NUM} de {PAGE_COUNT}", null, 8);
+    }
+</script>
 </html>
