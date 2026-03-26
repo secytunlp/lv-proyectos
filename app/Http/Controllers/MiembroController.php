@@ -422,7 +422,7 @@ class MiembroController extends Controller
 
 
 
-        \Log::info('Request data:', $request->all());
+
 
         if ($request->cargos[0]) {
             //log::info('Lo carga');
@@ -467,35 +467,33 @@ class MiembroController extends Controller
         else {
             $miembro->beca = null;
         }
-        if ($request->institucions[0]) {
-            $miembro->beca .= ' - '.$this->safeRequest($request, 'institucions');
-        }
-
-        if ($request->becadesdes[0]) {
-            $alta_beca = $this->safeRequest($request, 'becadesdes');
-
-            if ($alta_beca){
-                // Verificar si $miembro->alta_beca es una cadena y convertirla a Carbon si es necesario
-                if (is_string($alta_beca)) {
-                    $miembro->beca .= ' ('.$miembro->alta_beca;
-                }
-
-
-
+        // Instituciones
+        if (!empty($request->institucions) && !empty($request->institucions[0])) {
+            $instituciones = $this->safeRequest($request, 'institucions');
+            if ($instituciones) {
+                $miembro->beca .= ' - ' . $instituciones;
             }
         }
 
-        if ($request->becahastas[0]) {
-            $baja_beca = $this->safeRequest($request, 'becahastas');
-
-            if ($baja_beca){
-                // Verificar si $miembro->baja_beca es una cadena y convertirla a Carbon si es necesario
-                if (is_string($baja_beca)) {
-                    $miembro->beca .= ' - '.$miembro->baja_beca.')';
+// Fecha de alta de la beca
+        if (!empty($request->becadesdes) && !empty($request->becadesdes[0])) {
+            $alta_beca = $this->safeRequest($request, 'becadesdes');
+            if ($alta_beca) {
+                // Si $miembro->alta_beca es string
+                if (is_string($alta_beca)) {
+                    $miembro->beca .= ' (' . $alta_beca;
                 }
+            }
+        }
 
-
-
+// Fecha de baja de la beca
+        if (!empty($request->becahastas) && !empty($request->becahastas[0])) {
+            $baja_beca = $this->safeRequest($request, 'becahastas');
+            if ($baja_beca) {
+                // Si $miembro->baja_beca es string
+                if (is_string($baja_beca)) {
+                    $miembro->beca .= ' - ' . $baja_beca . ')';
+                }
             }
         }
 
@@ -670,21 +668,18 @@ class MiembroController extends Controller
                 $input['categoria_id']= $miembro->categoria_id;
                 $input['sicadi_id']= $miembro->sicadi_id;
 
-                \Log::info('Antes de update miembro:', $miembro->toArray());
-
+                //
                 $miembro->update($input);
-                \Log::info('Después de update miembro');
+
 
                 $this->guardarMiembro($request,$miembro);
-                \Log::info('Después de guardarMiembro');
+
 
                 $this->cambiarEstado($miembro,'Modificación de alta');
-                \Log::info('Después de cambiarEstado');
+
+
 
                 DB::commit();
-                \Log::info('Transacción commit exitosa');
-
-
                 $respuestaID = 'success';
                 $respuestaMSJ = 'Alta modificada con éxito';
 
