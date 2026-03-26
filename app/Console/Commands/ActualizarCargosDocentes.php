@@ -144,7 +144,7 @@ class ActualizarCargosDocentes extends Command
 
                     $this->warn("Actualizando integrantes del investigador {$investigador->id}");
 
-                    $debug = DB::table('integrantes as i')
+                    /*$debug = DB::table('integrantes as i')
                         ->join('proyectos as p','p.id','=','i.proyecto_id')
                         ->where('i.investigador_id',$investigador->id)
                         ->select(
@@ -154,12 +154,11 @@ class ActualizarCargosDocentes extends Command
                         )
                         ->get();
 
-                    dd($debug);
+                    dd($debug);*/
 
                     $updated = DB::table('integrantes as i')
                         ->join('proyectos as p','p.id','=','i.proyecto_id')
                         ->where('i.investigador_id',$investigador->id)
-                        ->where('i.estado',1)
                         ->where(function($q){
                             $q->whereNull('p.fin')
                                 ->orWhere('p.fin','>=', now());
@@ -167,7 +166,8 @@ class ActualizarCargosDocentes extends Command
                         ->update([
                             'i.cargo_id'    => $principal->cargo_id,
                             'i.deddoc'      => $principal->deddoc,
-                            'i.facultad_id' => $principal->facultad_id
+                            'i.facultad_id' => $principal->facultad_id,
+                            'i.alta_cargo'  => $principal->ingreso
                         ]);
 
                     $this->error("Filas actualizadas: ".$updated);
@@ -176,7 +176,6 @@ class ActualizarCargosDocentes extends Command
                         ->join('integrantes as i','i.id','=','ie.integrante_id')
                         ->join('proyectos as p','p.id','=','i.proyecto_id')
                         ->where('i.investigador_id', $investigador->id)
-                        ->where('i.estado', 1)
                         ->whereNull('ie.hasta')
                         ->where(function($q){
                             $q->whereNull('p.fin')
