@@ -215,7 +215,9 @@ class ActualizarCargosDocentes extends Command
                             $nuevoEstado->desde = $fechaCambio;
                             $nuevoEstado->hasta = null;
                             $nuevoEstado->comentarios = 'Cargo, dedicación y/o facultad actualizados';
-
+// FIX
+                            $nuevoEstado->institucion = $estado->institucion ?: null;
+                            $nuevoEstado->beca = $estado->beca ?: null;
                             $nuevoEstado->save();
                         }
                     }
