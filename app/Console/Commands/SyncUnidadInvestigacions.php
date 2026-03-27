@@ -54,6 +54,7 @@ class SyncUnidadInvestigacions extends Command
                 $totalFilas += count($rows);
                 $data = collect($rows)->map(function ($row) use (&$skippedRows, &$totalOmitidas) {
 
+                try {
 
 
                     // 🧹 LIMPIEZA DE FECHA
@@ -115,25 +116,47 @@ class SyncUnidadInvestigacions extends Command
                         'created_at' => now(),
                         'updated_at' => now(),
                     ];
+                    } catch (\Throwable $e) {
+
+                    Log::error('Error procesando fila unidad', [
+                        'error' => $e->getMessage(),
+                        'row' => (array) $row
+                    ]);
+
+                    return null;
+                }
                 })->filter()->toArray();
 
                 if (!empty($data)) {
-                    DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=0');
+                    try{
+                        DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=0');
 
-                DB::connection('mysql')
-                    ->table('unidad_investigacions')
-                    ->upsert(
-                        $data,
-                        ['id'],
-                        [
-                            'tipo','estado','sigla','denominacion','fecha_disposicion','lineas','especialidad',
-                            'objetivos','justificacion','funciones','produccion','proyectos','rrhh',
-                            'reglamento','infraestructura','equipamiento','observaciones','disposicion','updated_at'
-                        ]
-                    );
-                    DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=1');
-                    $totalInsertadas += count($data);
+                        DB::connection('mysql')
+                            ->table('unidad_investigacions')
+                            ->upsert(
+                                $data,
+                                ['id'],
+                                [
+                                    'tipo','estado','sigla','denominacion','fecha_disposicion','lineas','especialidad',
+                                    'objetivos','justificacion','funciones','produccion','proyectos','rrhh',
+                                    'reglamento','infraestructura','equipamiento','observaciones','disposicion','updated_at'
+                                ]
+                            );
+                        DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=1');
+                        $totalInsertadas += count($data);
+                    } catch (\Throwable $e) {
+
+                        Log::error('Error en UPSERT unidadinvestigacions', [
+                            'error' => $e->getMessage(),
+                            'primer_registro' => $data[0] ?? null,
+                            'cantidad_registros' => count($data)
+                        ]);
+
+                        $this->error('Error en upsert: ' . $e->getMessage());
+                    }
+
                 }
+
             });
 
         $this->info('Sincronización finalizada ✔');
