@@ -74,7 +74,7 @@ class ProyectoController extends Controller
 
 
         // Consulta base
-        $query = Proyecto::select('proyectos.id as id', 'proyectos.tipo as proyecto_tipo','proyectos.codigo',  'proyectos.titulo', DB::raw("CONCAT(personas.apellido, ', ', personas.nombre) as director"), 'proyectos.inicio', 'proyectos.fin', 'facultads.nombre as facultad_nombre','proyectos.estado')
+        $query = Proyecto::select('proyectos.id as id', 'proyectos.tipo as proyecto_tipo','proyectos.codigo',  'proyectos.titulo', DB::raw("CONCAT(personas.apellido, ', ', personas.nombre) as director"), 'proyectos.inicio', 'proyectos.fin', 'facultads.nombre as facultad','proyectos.estado')
 
             ->leftJoin('facultads', 'proyectos.facultad_id', '=', 'facultads.id')
         ->leftJoin('integrantes', function ($join) {
@@ -84,7 +84,7 @@ class ProyectoController extends Controller
         ->leftJoin('investigadors', 'integrantes.investigador_id', '=', 'investigadors.id')
         ->leftJoin('personas', 'investigadors.persona_id', '=', 'personas.id');
 
-
+        //\Log::info($query->toSql(), $query->getBindings());
 
         // Aplicar la búsqueda
         if (!empty($busqueda)) {
@@ -134,7 +134,7 @@ class ProyectoController extends Controller
 
         // Obtener la cantidad total de registros sin filtrar
         $recordsTotal = Proyecto::count();
-
+        //\Log::info(print_r($datos,true));
         return response()->json([
             'data' => $datos,
             'recordsTotal' => $recordsTotal,

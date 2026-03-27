@@ -168,8 +168,8 @@
 
 
                     {
-                        data: 'facultad_nombre', // Acceder al nombre de la facultad a través de la relación
-                        name: 'facultad_nombre',
+                        data: 'facultad', // Acceder al nombre de la facultad a través de la relación
+                        name: 'facultad',
                         orderable: true,
                         searchable: true
                     },

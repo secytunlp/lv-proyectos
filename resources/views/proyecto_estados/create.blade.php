@@ -81,7 +81,7 @@
                                                 <div class="form-group">
 
                                                     {{Form::label('tipo', 'Tipo')}}
-                                                    {{ Form::select('tipo',['I+D'=>'I+D','PPID'=>'PPID','PIIT-AP'=>'PIIT-AP','PIO'=>'PIO'], $proyecto->estado,['class' => 'form-control']) }}
+                                                    {{ Form::select('tipo',['I+D'=>'I+D','PPID'=>'PPID','PIIT-AP'=>'PIIT-AP','PIO'=>'PIO'], $proyecto->tipo,['class' => 'form-control']) }}
 
                                                 </div>
                                             </div>
