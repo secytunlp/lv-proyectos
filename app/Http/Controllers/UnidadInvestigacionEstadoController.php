@@ -181,7 +181,7 @@ class UnidadInvestigacionEstadoController extends Controller
         if ($ok){
             try {
 
-
+                //dd($input);
                 $unidad->update($input);
 
                 // Actualizar el registro de estado existente donde 'hasta' es null

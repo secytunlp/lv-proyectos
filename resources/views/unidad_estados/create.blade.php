@@ -38,7 +38,7 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                <i class="fa fa-tasks" aria-hidden="true"></i> Estados de la solicitud
+                <i class="fa fa-tasks" aria-hidden="true"></i> Estados de la unidad
                 <small>Cambiar</small>
             </h1>
             <ol class="breadcrumb">
@@ -70,7 +70,10 @@
                                         <div class="row">
                                             <div class="col-md-2">
                                                 <div class="form-group">
-
+                                                    @php
+                                                        $estados = config('estados');
+                                                        unset($estados['Sin Dedicación']);
+                                                    @endphp
                                                     {{Form::label('estado', 'Estado')}}
                                                     {{ Form::select('estado',['Creada'=>'Creada','Recibida'=>'Recibida','Admitida'=>'Admitida','No Admitida'=>'No Admitida','Rectificada'=>'Rectificada','Aprobada'=>'Aprobada'], $unidad->estado,['class' => 'form-control']) }}
                                                 </div>

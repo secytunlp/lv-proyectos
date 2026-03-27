@@ -66,6 +66,11 @@ class CheckSelectedRolePermissions
             'proyectos.update' => ['proyecto-editar'],
             'proyectos.destroy' => ['proyecto-eliminar'],
 
+            'proyecto_estados.index' => ['proyecto_estado-listar'],
+            'proyecto_estados.dataTable' => ['proyecto_estado-listar'],
+            'proyecto_estados.create' => ['proyecto_estado-crear'],
+            'proyecto_estados.store' => ['proyecto_estado-crear'],
+
 
             'integrantes.index' => ['integrante-listar'],
 

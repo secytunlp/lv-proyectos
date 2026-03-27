@@ -70,9 +70,12 @@
                                         <div class="row">
                                             <div class="col-md-2">
                                                 <div class="form-group">
+                                                    @php
+                                                        $estados = config('estados');
 
+                                                    @endphp
                                                     {{Form::label('estado', 'Estado')}}
-                                                    {{ Form::select('estado',['Creada'=>'Creada','Recibida'=>'Recibida','Admitida'=>'Admitida','No Admitida'=>'No Admitida','Otorgada'=>'Otorgada','En evaluación'=>'En evaluación','No otorgada'=>'No otorgada','Evaluada'=>'Evaluada'], $solicitud_sicadi->estado,['class' => 'form-control']) }}
+                                                    {{ Form::select('estado',$estados, $solicitud_sicadi->estado,['class' => 'form-control']) }}
                                                 </div>
                                             </div>
                                             <div class="col-md-2">

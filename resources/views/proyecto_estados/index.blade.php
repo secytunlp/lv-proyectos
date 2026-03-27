@@ -16,12 +16,13 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                <i class="fa fa-cogs" aria-hidden="true"></i>Proyectos
-                <!--<small>Create, Read, Update, Delete</small>-->
+                <i class="fa fa-tasks" aria-hidden="true"></i> Estados
+
             </h1>
             <ol class="breadcrumb">
                 <li><a href="{{ route('home') }}"><i class="fa fa-dashboard"></i> Home</a></li>
                 <li><a href="{{ route('proyectos.index') }}">Proyectos</a></li>
+                <li><a href="{{ route('proyecto_estados.index') }}">Estados</a></li>
                 <!--<li class="active">Data tables</li>-->
             </ol>
         </section>
@@ -32,8 +33,8 @@
                 <div class="col-xs-12">
                     <div class="box">
                         <div class="box-header with-border">
-
-                            <!--<a class='pull-right btn btn-success' href="{{ route('proyectos.create') }}">Nuevo</a>-->
+                            <h3 class="box-title">Estados de @if($proyecto) {{ $proyecto->codigo }} {{ $proyecto->titulo }}@endif</h3>
+                            @if($proyecto)<a class='pull-right btn btn-success' href="{{ route('proyecto_estados.create', ['proyecto_id' => $proyecto->id]) }}">Cambiar</a>@endif
                         </div>
                         @include('includes.messages')
 
@@ -53,7 +54,12 @@
 
                                     <th>U. Académica</th>
                                     <th>Estado</th>
-                                    <th>Acciones</th>
+
+                                    <th>Desde</th>
+                                    <th>Hasta</th>
+                                    <th>Comentarios</th>
+                                    <th>Usuario</th>
+
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -71,7 +77,12 @@
 
                                     <th>U. Académica</th>
                                     <th>Estado</th>
-                                    <th>Acciones</th>
+
+                                    <th>Desde</th>
+                                    <th>Hasta</th>
+                                    <th>Comentarios</th>
+                                    <th>Usuario</th>
+
                                 </tr>
                                 </tfoot>
                             </table>
@@ -109,19 +120,20 @@
     <!-- page script -->
     <script>
         $(document).ready(function() {
-            var table = $('#example1').DataTable({
+            $('#example1').DataTable({
                 "processing": true, // Activar la indicación de procesamiento
                 "serverSide": true, // Habilitar el procesamiento del lado del servidor
                 "autoWidth": false, // Desactiva el ajuste automático del anchos
                 responsive: true,
                 scrollX: true,
                 paging : true,
-                "order": [[ 2, "asc" ]], // Ordenar por el tercer campo (apellido) de forma ascendente
+                "order": [[ 9, "desc" ]], // Ordenar por el tercer campo (apellido) de forma ascendente
                 "ajax": {
-                    "url": "{{ route('proyectos.dataTable') }}",
+                    "url": "{{ route('proyecto_estados.dataTable') }}",
                     "type": "POST",
                     "data": function (d) {
                         d._token = '{{ csrf_token() }}'; // Agrega el token CSRF si estás usando Laravel
+                        d.proyecto_id = '{{ $proyecto ? $proyecto->id : '' }}'; // Enviar el ID del proyecto como filtro
                         // Agrega otros parámetros si es necesario
                         // d.otroParametro = valor;
                     },
@@ -174,6 +186,41 @@
                         searchable: true
                     },
                     {data: 'estado', name: 'estado'},
+
+
+                    {
+                        data: 'desde',
+                        name: 'desde',
+                        render: function(data) {
+                            // Verificar si la fecha es null
+                            if (data === null || data === '0000-00-00') {
+                                return '';
+                            }
+                            // Formatear la fecha de 'desde' en DD/MM/YYYY HH:mm
+                            return moment(data).format('DD/MM/YYYY HH:mm');
+                        }
+                    },
+                    {
+                        data: 'hasta',
+                        name: 'hasta',
+                        render: function(data) {
+                            // Verificar si la fecha es null
+                            if (data === null || data === '0000-00-00') {
+                                return '';
+                            }
+                            // Formatear la fecha de 'hasta' en DD/MM/YYYY HH:mm
+                            return moment(data).format('DD/MM/YYYY HH:mm');
+                        }
+                    },
+
+                    {data: 'comentarios', name: 'comentarios'},
+                    {
+                        data: 'name', // Acceder al nombre de la usuario a través de la relación
+                        name: 'name',
+                        orderable: true,
+                        searchable: true
+                    },
+
                     {
                         "data": "id",
                         "orderable": false,
@@ -181,16 +228,7 @@
                         "render": function(data, type, row) {
                             // Construir HTML para las acciones
                             var actionsHtml = '';
-                            @can('proyecto-listar')
-                                actionsHtml += '<a href="{{ route("proyectos.show", ":id") }}" alt="Ver proyecto" title="Ver proyecto" style="margin-right: 5px;"><span class="glyphicon glyphicon-eye-open"></span></a>'.replace(':id', row.id);
-                            @endcan
-                                @can('proyecto_estado-listar')
-                                actionsHtml += '<a href="{{ route("proyecto_estados.index") }}?proyecto_id=' + row.id + '" alt="Estados" title="Estados" style="margin-right: 5px;"><i class="fa fa-tasks"></i></a>';
-                            @endcan
-// Agregar enlace de edición si el usuario tiene permiso
-                            @can('integrante-listar')
-                                actionsHtml += '<a href="{{ route("integrantes.index") }}?proyecto_id=' + row.id + '" alt="Integrantes" title="Integrantes"><i class="fa fa-user-friends"></i></a>';
-                            @endcan
+
 
 
                         return actionsHtml;
@@ -201,10 +239,7 @@
                 "language": {
                     "url": "{{ asset('bower_components/datatables.net/lang/es-AR.json') }}"
                 },
-                stateSave: true,
-                "initComplete": function() {
-
-                }
+                stateSave: true
             });
         });
 

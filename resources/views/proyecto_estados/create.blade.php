@@ -38,12 +38,13 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                <i class="fa fa-user-friends" aria-hidden="true"></i>Proyecto
-                <small>Ver</small>
+                <i class="fa fa-tasks" aria-hidden="true"></i> Estados del proyecto
+                <small>Cambiar</small>
             </h1>
             <ol class="breadcrumb">
                 <li><a href="{{ route('home') }}"><i class="fa fa-dashboard"></i> Home</a></li>
                 <li><a href="{{ route('proyectos.index') }}">Proyectos</a></li>
+                <li><a href="{{ route('proyecto_estados.index') }}">Estados</a></li>
             </ol>
         </section>
 
@@ -53,14 +54,15 @@
                 <div class="col-md-12">
                     <!-- general form elements -->
                     <div class="box box-primary">
-
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Estados de @if($proyecto) {{ $proyecto->codigo }} {{ $proyecto->titulo }}@endif</h3>
+                        </div>
 
 
                         <!-- /.box-header -->
                         <!-- form start -->
-                        <form role="form" action="{{ route('integrantes.update',$proyecto->id) }}" method="post" enctype="multipart/form-data">
+                        <form role="form" action="{{ route('proyecto_estados.store') }}" method="post" enctype="multipart/form-data">
                             {{ csrf_field() }}
-                            {{ method_field('PUT') }}
                             <div class="box-body">
                                 @include('includes.messages')
                                 <!-- Nav tabs -->
@@ -79,20 +81,21 @@
                                                 <div class="form-group">
 
                                                     {{Form::label('tipo', 'Tipo')}}
-                                                    {{Form::text('tipo', $proyecto->tipo, ['class' => 'form-control','disabled'])}}
+                                                    {{ Form::select('tipo',['I+D'=>'I+D','PPID'=>'PPID','PIIT-AP'=>'PIIT-AP','PIO'=>'PIO'], $proyecto->estado,['class' => 'form-control']) }}
+
                                                 </div>
                                             </div>
                                             <div class="col-md-2">
                                                 <div class="form-group">
-
+                                                    <input type="hidden" name="proyecto_id" value="{{ $proyecto->id ?? '' }}">
                                                     {{Form::label('codigo', 'Código')}}
-                                                    {{Form::text('codigo', $proyecto->codigo, ['class' => 'form-control','disabled'])}}
+                                                    {{Form::text('codigo', $proyecto->codigo, ['class' => 'form-control'])}}
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     {{Form::label('sigeva', 'Código SIGEVA')}}
-                                                    {{Form::text('sigeva', $proyecto->sigeva, ['class' => 'form-control','disabled'])}}
+                                                    {{Form::text('sigeva', $proyecto->sigeva, ['class' => 'form-control'])}}
                                                 </div>
                                             </div>
                                         </div>
@@ -102,7 +105,7 @@
 
                                                 <div class="form-group">
                                                     {{Form::label('titulo', 'Título')}}
-                                                    {{Form::textarea('titulo', $proyecto->titulo, ['class' => 'form-control','disabled', 'rows' => 3])}}
+                                                    {{Form::textarea('titulo', $proyecto->titulo, ['class' => 'form-control', 'rows' => 3])}}
 
                                                 </div>
                                             </div>
@@ -110,22 +113,14 @@
 
 
                                         </div>
-                                        <div class="row">
 
-                                            <div class="col-md-4">
-                                                <div class="form-group">
-                                                    {{Form::label('director', 'Director')}}
-                                                    {{Form::text('director', $director->director_apellido, ['class' => 'form-control','disabled'])}}
-                                                </div>
-                                            </div>
-                                        </div>
                                         <div class="row">
 
                                             <div class="col-md-2">
 
                                                 <div class="form-group">
                                                     {{Form::label('inicio', 'Fecha de inicio')}}
-                                                    {{Form::date('inicio', ($proyecto->inicio)?date('Y-m-d', strtotime($proyecto->inicio)):'', ['class' => 'form-control','disabled'])}}
+                                                    {{Form::date('inicio', ($proyecto->inicio)?date('Y-m-d', strtotime($proyecto->inicio)):'', ['class' => 'form-control'])}}
 
                                                 </div>
                                             </div>
@@ -133,7 +128,7 @@
 
                                                 <div class="form-group">
                                                     {{Form::label('fin', 'Fecha de fin')}}
-                                                    {{Form::date('fin', ($proyecto->fin)?date('Y-m-d', strtotime($proyecto->fin)):'', ['class' => 'form-control','disabled'])}}
+                                                    {{Form::date('fin', ($proyecto->fin)?date('Y-m-d', strtotime($proyecto->fin)):'', ['class' => 'form-control'])}}
 
                                                 </div>
                                             </div>
@@ -141,12 +136,25 @@
                                             <div class="col-md-2">
 
                                                 <div class="form-group">
+
                                                     {{Form::label('estado', 'Estado')}}
-                                                    {{Form::text('estado', $proyecto->estado, ['class' => 'form-control','disabled'])}}
+                                                    {{ Form::select('estado',['Creado'=>'Creado','Recibido'=>'Recibido','Admitido'=>'Admitido','No Admitido'=>'No Admitido','Acreditado'=>'Acreditado','En evaluación'=>'En evaluación','No acreditado'=>'No acreditado','Retirado'=>'Retirado'], $proyecto->estado,['class' => 'form-control']) }}
 
                                                 </div>
                                             </div>
 
+                                        </div>
+
+                                        <div class="row">
+
+                                            <div class="col-md-8">
+
+                                                <div class="form-group">
+                                                    {{Form::label('comentarios', 'Comentarios')}}
+                                                    {{Form::textarea('comentarios', '', ['class' => 'form-control'])}}
+
+                                                </div>
+                                            </div>
                                         </div>
 
                                     </div>
@@ -156,7 +164,7 @@
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     {{Form::label('facultad', 'U. Académica')}}
-                                                    {{Form::select('facultad_id',  $facultades,$proyecto->facultad_id, ['class' => 'form-control js-example-basic-single', 'style' => 'width: 100%','id'=>'facultad_id','disabled'])}}
+                                                    {{Form::select('facultad_id',  $facultades,$proyecto->facultad_id, ['class' => 'form-control js-example-basic-single', 'style' => 'width: 100%','id'=>'facultad_id'])}}
 
                                                 </div>
                                             </div>
@@ -165,8 +173,8 @@
 
                                             <div class="col-md-8">
                                                 <div class="form-group">
-                                                    {{Form::label('unidad', 'Unidad de investigación')}}
-                                                    {{Form::select('unidad_id',  $unidads,$proyecto->unidad_id, ['class' => 'form-control js-example-basic-single', 'style' => 'width: 100%','id'=>'unidad_id','disabled'])}}
+                                                    {{Form::label('proyecto', 'Unidad de investigación')}}
+                                                    {{Form::select('unidad_id',  $unidads,$proyecto->unidad_id, ['class' => 'form-control js-example-basic-single', 'style' => 'width: 100%','id'=>'unidad_id'])}}
 
                                                 </div>
                                             </div>
@@ -174,24 +182,29 @@
 
                                         </div>
                                         <div class="row">
-                                            <div class="col-md-3">
+                                            <div class="col-md-2">
                                                 <div class="form-group">
-                                                    @php
-                                                    $especialidad = $proyecto->disciplina()->nombre;
-                                                    if ($proyecto->especialidad()){
-                                                        $especialidad .= ' - '.$proyecto->especialidad()->nombre;
-                                                    }
-                                                    @endphp
+
+                                                    {{Form::label('disciplina', 'Disciplina')}}
+
+                                                    {{Form::select('disciplina_id',  $disciplinas,$proyecto->disciplina_id, ['class' => 'form-control js-example-basic-single', 'style' => 'width: 100%','id'=>'disciplina_id'])}}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group">
+
                                                     {{Form::label('especialidad', 'Especialidad')}}
 
-                                                    {{Form::text('especialidad', $especialidad, ['class' => 'form-control','disabled'])}}
+                                                    {{Form::select('especialidad_id',  $especialidades,$proyecto->especialidad_id, ['class' => 'form-control js-example-basic-single', 'style' => 'width: 100%','id'=>'especialidad_id'])}}
                                                 </div>
                                             </div>
 
-                                            <div class="col-md-3">
+                                            <div class="col-md-2">
                                                 <div class="form-group">
                                                     {{Form::label('tipoinv', 'Tipo de investigación')}}
-                                                    {{Form::text('tipoinv', $proyecto->investigacion, ['class' => 'form-control','disabled'])}}
+
+                                                    {{ Form::select('tipoinv',['Aplicada'=>'Aplicada','Básica'=>'Básica','Desarrollo'=>'Desarrollo','Creación'=>'Creación'], $proyecto->investigacion,['class' => 'form-control']) }}
+
                                                 </div>
                                             </div>
                                         </div>
@@ -201,13 +214,13 @@
 
                                                     {{Form::label('campo', 'Campo de aplicación')}}
 
-                                                    {{Form::select('campo_id',  $campos,$proyecto->campo_id, ['class' => 'form-control js-example-basic-single', 'style' => 'width: 100%','id'=>'campo_id','disabled'])}}
+                                                    {{Form::select('campo_id',  $campos,$proyecto->campo_id, ['class' => 'form-control js-example-basic-single', 'style' => 'width: 100%','id'=>'campo_id'])}}
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     {{Form::label('linea', 'Línea de investigación')}}
-                                                    {{Form::text('linea', $proyecto->linea, ['class' => 'form-control','disabled'])}}
+                                                    {{Form::text('linea', $proyecto->linea, ['class' => 'form-control'])}}
                                                 </div>
                                             </div>
                                         </div>
@@ -220,7 +233,7 @@
 
                                                 <div class="form-group">
                                                     {{Form::label('abstract', 'Resumen')}}
-                                                    {{Form::textarea('abstract', $proyecto->resumen, ['class' => 'form-control','disabled'])}}
+                                                    {{Form::textarea('abstract', $proyecto->resumen, ['class' => 'form-control'])}}
 
                                                 </div>
                                             </div>
@@ -230,38 +243,128 @@
                                         </div>
                                         <div class="row">
 
-                                            <div class="col-md-8">
 
-                                                <div class="form-group">
-                                                    {{Form::label('claves', 'Palabras claves')}}
 
-                                                    {{Form::text('claves', $proyecto->clave1.' - '.$proyecto->clave2.' - '.$proyecto->clave3.' - '.$proyecto->clave4.' - '.$proyecto->clave5.' - '.$proyecto->clave6, ['class' => 'form-control','disabled'])}}
+                                            <fieldset style="border: 1px solid #ccc; padding: 10px;">
+                                                <legend style="border-bottom: none; margin-bottom: -10px; display: inline-block;width: auto;">Palabras claves</legend>
+                                                <div class="col-md-2">
+
+                                                    <div class="form-group">
+
+
+                                                        {{Form::text('clave1', $proyecto->clave1, ['class' => 'form-control'])}}
+                                                    </div>
                                                 </div>
-                                            </div>
+                                                <div class="col-md-2">
+
+                                                    <div class="form-group">
 
 
+                                                        {{Form::text('clave2', $proyecto->clave2, ['class' => 'form-control'])}}
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+
+                                                    <div class="form-group">
+
+
+                                                        {{Form::text('clave3', $proyecto->clave3, ['class' => 'form-control'])}}
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+
+                                                    <div class="form-group">
+
+
+                                                        {{Form::text('clave4', $proyecto->clave4, ['class' => 'form-control'])}}
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+
+                                                    <div class="form-group">
+
+
+                                                        {{Form::text('clave5', $proyecto->clave5, ['class' => 'form-control'])}}
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+
+                                                    <div class="form-group">
+
+
+                                                        {{Form::text('clave6', $proyecto->clave6, ['class' => 'form-control'])}}
+                                                    </div>
+                                                </div>
+
+                                            </fieldset>
 
                                         </div>
                                         <div class="row">
 
-                                            <div class="col-md-8">
 
-                                                <div class="form-group">
-                                                    {{Form::label('keys', 'Palabras claves en inglés')}}
 
-                                                    {{Form::text('keys', $proyecto->key1.' - '.$proyecto->key2.' - '.$proyecto->key3.' - '.$proyecto->key4.' - '.$proyecto->key5.' - '.$proyecto->key6, ['class' => 'form-control','disabled'])}}
+                                            <fieldset style="border: 1px solid #ccc; padding: 10px;">
+                                                <legend style="border-bottom: none; margin-bottom: -10px; display: inline-block;width: auto;">Palabras claves en inglés</legend>
+                                                <div class="col-md-2">
+
+                                                    <div class="form-group">
+
+
+                                                        {{Form::text('key1', $proyecto->key1, ['class' => 'form-control'])}}
+                                                    </div>
                                                 </div>
-                                            </div>
+                                                <div class="col-md-2">
+
+                                                    <div class="form-group">
 
 
+                                                        {{Form::text('key2', $proyecto->key2, ['class' => 'form-control'])}}
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+
+                                                    <div class="form-group">
+
+
+                                                        {{Form::text('key3', $proyecto->key3, ['class' => 'form-control'])}}
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+
+                                                    <div class="form-group">
+
+
+                                                        {{Form::text('key4', $proyecto->key4, ['class' => 'form-control'])}}
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+
+                                                    <div class="form-group">
+
+
+                                                        {{Form::text('key5', $proyecto->key5, ['class' => 'form-control'])}}
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+
+                                                    <div class="form-group">
+
+
+                                                        {{Form::text('key6', $proyecto->key6, ['class' => 'form-control'])}}
+                                                    </div>
+                                                </div>
+
+                                            </fieldset>
 
                                         </div>
+
 
                                     </div>
                                 </div>
+
                                     <div class="form-group">
-                                        <!--<button type="submit" class="btn btn-primary">Guardar</button>-->
-                                        <a href="{{ route('proyectos.index') }}" class="btn btn-warning">Volver</a>
+                                        <button type="submit" class="btn btn-primary">Guardar</button>
+                                        <a href="{{ route('proyecto_estados.index') }}?proyecto_id={{ $proyecto->id }}" class="btn btn-warning">Volver</a>
 
                                     </div>
 
@@ -300,9 +403,18 @@
     <script src="{{ asset('dist/js/demo.js') }}"></script>
     <!-- jQuery UI -->
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <script src="{{ asset('dist/js/confirm-exit.js') }}"></script>
     <!-- page script -->
+    <script>
+        $(document).ready(function () {
+            $('#cuil').inputmask('99-99999999-9', { placeholder: 'XX-XXXXXXXX-X' });
+            $('.js-example-basic-single').select2();
+
+        });
 
 
 
+    </script>
 
 @endsection
