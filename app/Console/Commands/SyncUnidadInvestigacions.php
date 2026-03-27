@@ -119,7 +119,12 @@ class SyncUnidadInvestigacions extends Command
                     ];
                     } catch (\Throwable $e) {
 
-                    $this->error($e->getMessage());
+                    $mensaje = $e->getMessage();
+
+                    // cortar antes de " (SQL:"
+                    $mensaje = explode(' (SQL:', $mensaje)[0];
+
+                    $this->error($mensaje);
 
                     return null;
                 }
@@ -144,7 +149,12 @@ class SyncUnidadInvestigacions extends Command
                         $totalInsertadas += count($data);
                     } catch (\Throwable $e) {
 
-                        $this->error($e->getMessage());
+                        $mensaje = $e->getMessage();
+
+                        // cortar antes de " (SQL:"
+                        $mensaje = explode(' (SQL:', $mensaje)[0];
+
+                        $this->error($mensaje);
 
                     }
 
