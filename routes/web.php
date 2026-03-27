@@ -10,6 +10,7 @@ use App\Http\Controllers\UniversidadController;
 use App\Http\Controllers\TituloController;
 use App\Http\Controllers\InvestigadorController;
 use App\Http\Controllers\ProyectoController;
+use App\Http\Controllers\ProyectoEstadoController;
 use App\Http\Controllers\IntegranteController;
 use App\Http\Controllers\IntegranteEstadoController;
 use App\Http\Controllers\SolicitudSicadiController;
@@ -100,6 +101,10 @@ Route::group(['middleware' => ['auth', 'CheckSelectedRolePermissions']], functio
 
     Route::resource('proyectos', ProyectoController::class);
     Route::post('proyecto-datatable', [ProyectoController::class, 'dataTable'])->name('proyectos.dataTable');
+
+    Route::resource('proyecto_estados', ProyectoEstadoController::class);
+    Route::post('proyecto_estado-datatable', [ProyectoEstadoController::class, 'dataTable'])->name('proyecto_estados.dataTable');
+
 
 
     Route::get('integrantes/{integrante}/rechazar', [IntegranteController::class, 'rechazar'])->name('integrantes.rechazar');
