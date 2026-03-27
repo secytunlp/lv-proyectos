@@ -9,7 +9,7 @@ class UnidadInvestigacion extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['tipo', 'denominacion','sigla','especialidad','objetivos','lineas','justificacion','funciones','produccion','proyectos','rrhh','memorias','reglamento','insfraestructura','equipamiento','observaciones','fecha_disposicion','disposicion','estado'];
+    protected $fillable = ['tipo', 'denominacion','sigla','especialidad','objetivos','lineas','justificacion','funciones','produccion','proyectos','rrhh','memorias','reglamento','infraestructura','equipamiento','observaciones','fecha_disposicion','disposicion','estado'];
 
 
 

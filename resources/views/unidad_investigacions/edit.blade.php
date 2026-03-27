@@ -247,8 +247,8 @@
                                             <div class="col-md-5">
 
                                                 <div class="form-group">
-                                                    {{ Form::label('insfraestructura', 'Infraestructura (lugar físico, biblioteca, recurso económicos-financieros, convenios)') }}
-                                                    {{ Form::textarea('insfraestructura', $unidad->insfraestructura, ['class' => 'form-control', 'id' => 'insfraestructura']) }}
+                                                    {{ Form::label('infraestructura', 'Infraestructura (lugar físico, biblioteca, recurso económicos-financieros, convenios)') }}
+                                                    {{ Form::textarea('infraestructura', $unidad->infraestructura, ['class' => 'form-control', 'id' => 'infraestructura']) }}
                                                 </div>
 
                                             </div>
@@ -381,7 +381,7 @@
             ClassicEditor.create(document.querySelector('#proyectos'));
             ClassicEditor.create(document.querySelector('#rrhh'));
             ClassicEditor.create(document.querySelector('#funciones-id'));
-            ClassicEditor.create(document.querySelector('#insfraestructura'));
+            ClassicEditor.create(document.querySelector('#infraestructura'));
             ClassicEditor.create(document.querySelector('#equipamiento'));
         });
         $(document).ready(function () {

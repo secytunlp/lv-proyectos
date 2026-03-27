@@ -242,8 +242,8 @@
                                             <div class="col-md-5">
 
                                                 <div class="form-group">
-                                                    {{ Form::label('insfraestructura', 'Infraestructura (lugar físico, biblioteca, recurso económicos-financieros, convenios)') }}
-                                                    {{ Form::textarea('insfraestructura', $unidad->insfraestructura, ['class' => 'form-control', 'id' => 'insfraestructura']) }}
+                                                    {{ Form::label('infraestructura', 'Infraestructura (lugar físico, biblioteca, recurso económicos-financieros, convenios)') }}
+                                                    {{ Form::textarea('infraestructura', $unidad->infraestructura, ['class' => 'form-control', 'id' => 'infraestructura']) }}
                                                 </div>
 
                                             </div>
@@ -422,7 +422,7 @@
                     console.error(error);
                 });
             ClassicEditor
-                .create(document.querySelector('#insfraestructura'))
+                .create(document.querySelector('#infraestructura'))
                 .then(editor => {
                     editor.enableReadOnlyMode('readonly');
                 })

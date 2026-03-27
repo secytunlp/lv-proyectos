@@ -48,7 +48,7 @@ class SyncUnidadInvestigacions extends Command
             ->leftJoin('cyt_tipo_unidad', 'cyt_unidad.tipoUnidad_oid', '=', 'cyt_tipo_unidad.oid')
 
             ->selectRaw("
-                cyt_unidad.oid as id, cyt_tipo_unidad.nombre as tipo, cyt_unidad.denominacion, cyt_unidad.sigla, cyt_unidad.especialidad, cyt_unidad.objetivos, cyt_unidad.lineas, cyt_unidad.justificacion, cyt_unidad.funciones, cyt_unidad.produccion, cyt_unidad.proyectos, cyt_unidad.rrhh, cyt_unidad.reglamento, cyt_unidad.insfraestructura, cyt_unidad.equipamiento, cyt_unidad.observaciones, cyt_unidad.ds_disposicion as fecha_disposicion, cyt_unidad.nu_disposicion as disposicion")
+                cyt_unidad.oid as id, cyt_tipo_unidad.nombre as tipo, cyt_unidad.denominacion, cyt_unidad.sigla, cyt_unidad.especialidad, cyt_unidad.objetivos, cyt_unidad.lineas, cyt_unidad.justificacion, cyt_unidad.funciones, cyt_unidad.produccion, cyt_unidad.proyectos, cyt_unidad.rrhh, cyt_unidad.reglamento, cyt_unidad.infraestructura, cyt_unidad.equipamiento, cyt_unidad.observaciones, cyt_unidad.ds_disposicion as fecha_disposicion, cyt_unidad.nu_disposicion as disposicion")
             ->orderBy('cyt_unidad.oid')
             ->chunk(1000, function ($rows) use (&$totalFilas, &$totalInsertadas, &$totalOmitidas, &$skippedRows){
                 $totalFilas += count($rows);
@@ -107,7 +107,7 @@ class SyncUnidadInvestigacions extends Command
                         'proyectos' => trim($row->proyectos),
                         'rrhh' => trim($row->rrhh),
                         'reglamento' => trim($row->reglamento),
-                        'insfraestructura' => trim($row->insfraestructura),
+                        'infraestructura' => trim($row->infraestructura),
                         'equipamiento' => trim($row->equipamiento),
                         'observaciones' => trim($row->observaciones),
                         'fecha_disposicion' => $fecha_disposicion,
@@ -128,7 +128,7 @@ class SyncUnidadInvestigacions extends Command
                         [
                             'tipo','estado','sigla','denominacion','fecha_disposicion','lineas','especialidad',
                             'objetivos','justificacion','funciones','produccion','proyectos','rrhh',
-                            'reglamento','insfraestructura','equipamiento','observaciones','disposicion','updated_at'
+                            'reglamento','infraestructura','equipamiento','observaciones','disposicion','updated_at'
                         ]
                     );
                     DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=1');
