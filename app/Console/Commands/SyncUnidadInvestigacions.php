@@ -119,10 +119,7 @@ class SyncUnidadInvestigacions extends Command
                     ];
                     } catch (\Throwable $e) {
 
-                    Log::error('Error procesando fila unidad', [
-                        'error' => $e->getMessage(),
-                        'row' => (array) $row
-                    ]);
+                    $this->error($e->getMessage());
 
                     return null;
                 }
@@ -147,13 +144,8 @@ class SyncUnidadInvestigacions extends Command
                         $totalInsertadas += count($data);
                     } catch (\Throwable $e) {
 
-                        Log::error('Error en UPSERT unidadinvestigacions', [
-                            'error' => $e->getMessage(),
-                            'primer_registro' => $data[0] ?? null,
-                            'cantidad_registros' => count($data)
-                        ]);
+                        $this->error($e->getMessage());
 
-                        $this->error('Error en upsert: ' . $e->getMessage());
                     }
 
                 }
