@@ -179,9 +179,16 @@ class SyncMiembroEstados extends Command
                         $hasta = null;
                     }
 
-                    $key = $row->unidad_id . '|' . trim($row->cuil);
+                    $cuil = preg_replace('/\D/', '', (string)$row->cuil);
+
+                    if (empty($cuil)) {
+                        $cuil = 'ID' . $row->id; // fallback único
+                    }
+
+                    $key = $row->unidad_id . '|' . $cuil;
 
                     if (!isset($miembrosMap[$key])) {
+                        $this->line("Nuevo miembro: {$key} -> {$miembroSeq}");
                         $miembrosMap[$key] = $miembroSeq++;
                     }
 
