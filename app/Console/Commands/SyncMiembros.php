@@ -43,7 +43,7 @@ class SyncMiembros extends Command
         $totalFilas = 0;
         $totalInsertadas = 0;
         $totalOmitidas = 0;
-        DB::connection('cyt_unidad_integrante')
+        DB::connection('mysql_origen')
             ->table('cyt_unidad_integrante')
             ->leftJoin('cyt_unidad', 'cyt_unidad_integrante.unidad_oid', '=', 'cyt_unidad.oid')
 
