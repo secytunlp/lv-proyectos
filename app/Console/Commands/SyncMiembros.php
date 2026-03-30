@@ -75,7 +75,7 @@ class SyncMiembros extends Command
            WHEN '7' THEN null
            else cyt_tipo_integrante.organismo_oid END as organismo_id,
 
-     cyt_tipo_integrante.beca, cyt_tipo_integrante.horas, cyt_tipo_integrante.observaciones, cyt_tipo_integrante.activo , cyt_tipo_integrante.estudiante,
+     cyt_tipo_integrante.beca, cyt_tipo_integrante.horas, cyt_tipo_integrante.observaciones, cyt_tipo_integrante.activo , cyt_tipo_integrante.estudiante
 
 
        ")
