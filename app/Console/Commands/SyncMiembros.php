@@ -105,7 +105,7 @@ class SyncMiembros extends Command
 
 
                     $tiposValidos = [
-                        'Director','Sub-Director','Consejo directivo','Consejo aesor','Responsable','Miembro'
+                        'Director','Sub-Director','Consejo directivo','Consejo asesor','Responsable','Miembro'
                     ];
 
 
