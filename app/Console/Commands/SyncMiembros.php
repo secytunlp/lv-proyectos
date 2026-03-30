@@ -189,7 +189,7 @@ class SyncMiembros extends Command
                             ['id'],
                             [
                                 'unidad_id','tipo','horas','estado',
-                                'nombre','apellido','cuil','motivos','cyt','reduccion','email',
+                                'nombre','apellido','cuil',
                                 'categoria_id','sicadi_id','deddoc','cargo_id','alta_cargo','facultad_id','carrerainv_id','organismo_id',
                                 'beca','activo','estudiante','updated_at'
                             ]
