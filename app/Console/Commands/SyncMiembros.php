@@ -80,7 +80,7 @@ class SyncMiembros extends Command
 
        ")
             ->whereNull('fechaHasta')
-            ->orderBy('oid')
+            ->orderBy('cyt_unidad_integrante.oid')
             ->chunk(1000, function ($rows) use (&$totalFilas, &$totalInsertadas, &$totalOmitidas, &$skippedRows){
                 $totalFilas += count($rows);
                 $data = collect($rows)->map(function ($row) use (&$skippedRows, &$totalOmitidas) {
