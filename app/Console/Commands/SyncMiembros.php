@@ -54,28 +54,28 @@ class SyncMiembros extends Command
                 cyt_unidad_integrante.oid as id,cyt_unidad_integrante.unidad_oid as unidad_id,cyt_tipo_integrante.nombre as tipo,
 
         cyt_unidad_integrante.nombre, cyt_unidad_integrante.apellido,cyt_unidad_integrante.cuil,
-    cyt_tipo_integrante.categoria_oid as categoria_id, cyt_tipo_integrante.categoriasicadi_oid as sicadi_id,
+    cyt_unidad_integrante.categoria_oid as categoria_id, cyt_unidad_integrante.categoriasicadi_oid as sicadi_id,
     CASE `ds_deddoc`
            WHEN 's/d' THEN null
            WHEN 'SI-1' THEN 'Simple'
            WHEN 'SE-1' THEN 'Semi Exclusiva'
            ELSE ds_deddoc END as deddoc,
-    CASE cyt_tipo_integrante.cargo_oid
+    CASE cyt_unidad_integrante.cargo_oid
            WHEN '6' THEN null
-           ELSE cyt_tipo_integrante.cargo_oid END as cargo_id,
+           ELSE cyt_unidad_integrante.cargo_oid END as cargo_id,
 
-    CASE cyt_tipo_integrante.facultad_oid
+    CASE cyt_unidad_integrante.facultad_oid
            WHEN '574' THEN null
-           ELSE cyt_tipo_integrante.facultad_oid END as facultad_id,
-    CASE cyt_tipo_integrante.carrerainv_oid
+           ELSE cyt_unidad_integrante.facultad_oid END as facultad_id,
+    CASE cyt_unidad_integrante.carrerainv_oid
            WHEN '11' THEN null
            WHEN '10' THEN null
-           ELSE cyt_tipo_integrante.carrerainv_oid END as carrerainv_id,
-    CASE cyt_tipo_integrante.organismo_oid
+           ELSE cyt_unidad_integrante.carrerainv_oid END as carrerainv_id,
+    CASE cyt_unidad_integrante.organismo_oid
            WHEN '7' THEN null
-           else cyt_tipo_integrante.organismo_oid END as organismo_id,
+           else cyt_unidad_integrante.organismo_oid END as organismo_id,
 
-     cyt_tipo_integrante.beca, cyt_tipo_integrante.horas, cyt_tipo_integrante.observaciones, cyt_tipo_integrante.activo , cyt_tipo_integrante.estudiante
+     cyt_unidad_integrante.beca, cyt_unidad_integrante.horas, cyt_unidad_integrante.observaciones, cyt_unidad_integrante.activo , cyt_unidad_integrante.estudiante
 
 
        ")
