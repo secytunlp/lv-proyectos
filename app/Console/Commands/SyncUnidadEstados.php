@@ -54,7 +54,7 @@ class SyncUnidadEstados extends Command
            WHEN 1 THEN '2'
            ELSE NULL END as user_id, cdt_user.ds_name as user_name,
 
-       CASE cyt_unidad_tipo_estado.estado_oid
+       CASE cyt_unidad_tipo_estado.tipoEstado_oid
            WHEN 1 THEN 'Creada'
            WHEN 2 THEN 'Recibida'
            WHEN 3 THEN 'Admitida'
