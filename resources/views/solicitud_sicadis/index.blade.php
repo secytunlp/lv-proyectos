@@ -50,82 +50,85 @@
                             $currentYear = date('Y');
                         @endphp
                         <div class="box-body">
-                            <div class="row">
-                                <div class="col-md-1">
-                                    <div class="form-group">
-                                        <label for="filtroYear">Año:</label>
-                                        <select id="filtroYear" class="form-control" style="width: 100%">
-                                            <option value="-1">Todos</option>
-                                            @for ($year = 2024; $year <= $currentYear; $year++)
-                                                <option value="{{ $year }}"
-                                                    {{ $year == $currentAnio ? 'selected' : '' }}>
-                                                    {{ $year }}
-                                                </option>
-                                            @endfor
-                                        </select>
+                            <fieldset class="scheduler-border">
+                                <legend class="scheduler-border">Filtros de búsqueda</legend>
+                                <div class="row">
+                                    <div class="col-md-1">
+                                        <div class="form-group">
+                                            <label for="filtroYear">Año:</label>
+                                            <select id="filtroYear" class="form-control" style="width: 100%">
+                                                <option value="-1">Todos</option>
+                                                @for ($year = 2024; $year <= $currentYear; $year++)
+                                                    <option value="{{ $year }}"
+                                                        {{ $year == $currentAnio ? 'selected' : '' }}>
+                                                        {{ $year }}
+                                                    </option>
+                                                @endfor
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <div class="form-group">
+                                            {{Form::label('tipo', 'Convocatoria')}}
+                                            {{ Form::select('tipo',['-1'=>'Todas']+ config('convocatorias'), '',['class' => 'form-control']) }}
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            {{Form::label('mecanismo', 'Mecanismo')}}
+                                            {{ Form::select('mecanismo',['-1'=>'Todos']+ config('mecanismos'), '',['class' => 'form-control']) }}
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <div class="form-group">
+                                            {{Form::label('solicitada', 'Solicitada')}}
+                                            {{ Form::select('solicitada',['-1'=>'Todas']+ config('categorias'), '',['class' => 'form-control']) }}
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <div class="form-group">
+                                            {{Form::label('estado', 'Estado')}}
+                                            {{ Form::select('estado',['-1'=>'Todos']+ config('estados'), '',['class' => 'form-control']) }}
+
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            {{Form::label('presentacion_ua', 'UA')}}
+                                            {{ Form::select('presentacion_ua',['-1'=>'Todas']+ config('facultades'), '',['class' => 'form-control js-example-basic-single', 'style' => 'width: 100%']) }}
+
+
+
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-1">
+                                        <div class="form-group">
+                                            {{Form::label('asignada', 'Asignada')}}
+                                            {{ Form::select('asignada',['-1'=>'Todas']+ config('categorias'), '',['class' => 'form-control']) }}
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <div class="form-group">
+                                            {{Form::label('otorgadas', 'Otorgadas')}}<br>
+                                            {{Form::checkbox('otorgadas', 1,false)}}
+
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <x-select-areas
+                                            :areas="$areas"
+                                            :subareas="$subareas"
+                                        />
                                     </div>
                                 </div>
-                                <div class="col-md-1">
-                                    <div class="form-group">
-                                        {{Form::label('tipo', 'Convocatoria')}}
-                                        {{ Form::select('tipo',['-1'=>'Todas']+ config('convocatorias'), '',['class' => 'form-control']) }}
-
-                                    </div>
-                                </div>
-                                <div class="col-md-2">
-                                    <div class="form-group">
-                                        {{Form::label('mecanismo', 'Mecanismo')}}
-                                        {{ Form::select('mecanismo',['-1'=>'Todos']+ config('mecanismos'), '',['class' => 'form-control']) }}
-
-                                    </div>
-                                </div>
-                                <div class="col-md-1">
-                                    <div class="form-group">
-                                        {{Form::label('solicitada', 'Solicitada')}}
-                                        {{ Form::select('solicitada',['-1'=>'Todas']+ config('categorias'), '',['class' => 'form-control']) }}
-
-                                    </div>
-                                </div>
-                                <div class="col-md-1">
-                                    <div class="form-group">
-                                        {{Form::label('estado', 'Estado')}}
-                                        {{ Form::select('estado',['-1'=>'Todos']+ config('estados'), '',['class' => 'form-control']) }}
-
-                                    </div>
-                                </div>
-
-                                <div class="col-md-2">
-                                    <div class="form-group">
-                                        {{Form::label('presentacion_ua', 'UA')}}
-                                        {{ Form::select('presentacion_ua',['-1'=>'Todas']+ config('facultades'), '',['class' => 'form-control js-example-basic-single', 'style' => 'width: 100%']) }}
-
-
-
-                                    </div>
-                                </div>
-
-                                <div class="col-md-1">
-                                    <div class="form-group">
-                                        {{Form::label('asignada', 'Asignada')}}
-                                        {{ Form::select('asignada',['-1'=>'Todas']+ config('categorias'), '',['class' => 'form-control']) }}
-
-                                    </div>
-                                </div>
-                                <div class="col-md-1">
-                                    <div class="form-group">
-                                        {{Form::label('otorgadas', 'Otorgadas')}}<br>
-                                        {{Form::checkbox('otorgadas', 1,false)}}
-
-
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <x-select-areas
-                                        :areas="$areas"
-                                        :subareas="$subareas"
-                                    />
-                                </div>
-                            </div>
+                            </fieldset>
                             <!-- /.form-group -->
                         </div>                    <!-- /.box-header -->
                         <div class="box-body">

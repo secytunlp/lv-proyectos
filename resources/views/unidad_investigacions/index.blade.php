@@ -36,8 +36,10 @@
                             <a class='pull-right btn btn-success' href="{{ route('unidad_investigacions.create') }}">Nueva</a>
                         </div>
                         @include('includes.messages')
-                        <!-- Filtro de Período -->
+
                         <div class="box-body">
+                            <fieldset class="scheduler-border">
+                                <legend class="scheduler-border">Filtros de búsqueda</legend>
                             <div class="row">
                                 <div class="col-md-1">
                                     <div class="form-group">
@@ -62,6 +64,8 @@
                                     </div>
                                 </div>
                             </div>
+                            </fieldset>
+
 
                     <!-- /.box-header -->
                         <div class="box-body">

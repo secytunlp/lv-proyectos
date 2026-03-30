@@ -42,61 +42,64 @@
                         </div>
                         @include('includes.messages')
 
-                        <!-- Filtro de Período -->
+
                         <div class="box-body">
-                            <div class="row">
-                                <div class="col-md-1">
-                                    <div class="form-group">
-                                        <label for="filtroPeriodo">Período:</label>
-                                        <select id="filtroPeriodo" class="form-control">
-                                            <option value="-1">Todos</option>
-                                            @foreach($periodos as $periodo)
-                                                <option value="{{ $periodo->id }}"
-                                                    {{ $periodo->id == $currentPeriod ? 'selected' : '' }}>
-                                                    {{ $periodo->nombre }}
-                                                </option>
-                                            @endforeach
-                                        </select>
+                            <fieldset class="scheduler-border">
+                                <legend class="scheduler-border">Filtros de búsqueda</legend>
+                                <div class="row">
+                                    <div class="col-md-1">
+                                        <div class="form-group">
+                                            <label for="filtroPeriodo">Período:</label>
+                                            <select id="filtroPeriodo" class="form-control">
+                                                <option value="-1">Todos</option>
+                                                @foreach($periodos as $periodo)
+                                                    <option value="{{ $periodo->id }}"
+                                                        {{ $periodo->id == $currentPeriod ? 'selected' : '' }}>
+                                                        {{ $periodo->nombre }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <div class="form-group">
+                                            {{Form::label('estado', 'Estado')}}
+                                                {{ Form::select('estado',['-1'=>'Todos','Creada'=>'Creada','Recibida'=>'Recibida','Admitida'=>'Admitida','No Admitida'=>'No Admitida','Otorgada-No-Rendida'=>'Otorgada-No-Rendida','En evaluación'=>'En evaluación','No otorgada'=>'No otorgada','Evaluada'=>'Evaluada','Otorgada-Rendida'=>'Otorgada-Rendida','Otorgada-Renunciada'=>'Otorgada-Renunciada','Retirada'=>'Retirada','Otorgada-Devuelta'=>'Otorgada-Devuelta'], '',['class' => 'form-control']) }}
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <div class="form-group">
+                                            {{Form::label('area', 'Área')}}
+                                            {{ Form::select('area',['-1'=>'Todas','Exactas'=>'Exactas','Naturales'=>'Naturales','Sociales'=>'Sociales'], '',['class' => 'form-control']) }}
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            {{Form::label('facultadplanilla', 'U. Académica')}}
+                                            {{Form::select('facultadplanilla_id',  $facultades,'', ['class' => 'form-control js-example-basic-single', 'style' => 'width: 100%','id'=>'facultadplanilla_id'])}}
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <div class="form-group">
+                                            {{Form::label('motivo', 'Motivo')}}
+                                            {{ Form::select('motivo',['-1'=>'Todos','A) Reuniones Científicas'=>'A','B) Estadía de trabajo para investigar en ámbitos académicos externos a la UNLP'=>'B','C) Estadía de Trabajo en la UNLP para un Investigador Invitado'=>'C'], '',['class' => 'form-control']) }}
+
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <div class="form-group">
+                                            {{Form::label('otorgadas', 'Otorgadas')}}<br>
+                                            {{Form::checkbox('otorgadas', 1,false)}}
+
+
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-md-1">
-                                    <div class="form-group">
-                                        {{Form::label('estado', 'Estado')}}
-                                            {{ Form::select('estado',['-1'=>'Todos','Creada'=>'Creada','Recibida'=>'Recibida','Admitida'=>'Admitida','No Admitida'=>'No Admitida','Otorgada-No-Rendida'=>'Otorgada-No-Rendida','En evaluación'=>'En evaluación','No otorgada'=>'No otorgada','Evaluada'=>'Evaluada','Otorgada-Rendida'=>'Otorgada-Rendida','Otorgada-Renunciada'=>'Otorgada-Renunciada','Retirada'=>'Retirada','Otorgada-Devuelta'=>'Otorgada-Devuelta'], '',['class' => 'form-control']) }}
-
-                                    </div>
-                                </div>
-                                <div class="col-md-1">
-                                    <div class="form-group">
-                                        {{Form::label('area', 'Área')}}
-                                        {{ Form::select('area',['-1'=>'Todas','Exactas'=>'Exactas','Naturales'=>'Naturales','Sociales'=>'Sociales'], '',['class' => 'form-control']) }}
-
-                                    </div>
-                                </div>
-                                <div class="col-md-2">
-                                    <div class="form-group">
-                                        {{Form::label('facultadplanilla', 'U. Académica')}}
-                                        {{Form::select('facultadplanilla_id',  $facultades,'', ['class' => 'form-control js-example-basic-single', 'style' => 'width: 100%','id'=>'facultadplanilla_id'])}}
-
-                                    </div>
-                                </div>
-                                <div class="col-md-1">
-                                    <div class="form-group">
-                                        {{Form::label('motivo', 'Motivo')}}
-                                        {{ Form::select('motivo',['-1'=>'Todos','A) Reuniones Científicas'=>'A','B) Estadía de trabajo para investigar en ámbitos académicos externos a la UNLP'=>'B','C) Estadía de Trabajo en la UNLP para un Investigador Invitado'=>'C'], '',['class' => 'form-control']) }}
-
-
-                                    </div>
-                                </div>
-                                <div class="col-md-1">
-                                    <div class="form-group">
-                                        {{Form::label('otorgadas', 'Otorgadas')}}<br>
-                                        {{Form::checkbox('otorgadas', 1,false)}}
-
-
-                                    </div>
-                                </div>
-                            </div>
+                            </fieldset>
                             <!-- /.form-group -->
                         </div>
                         <!-- /.box-body -->

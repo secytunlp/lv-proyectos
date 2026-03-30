@@ -61,6 +61,22 @@
     img {
         border: 0;
     }
+    fieldset.scheduler-border {
+        border: 1px solid #ddd !important;
+        padding: 0 10px 10px 10px;
+
+        border-radius: 4px;
+    }
+
+    legend.scheduler-border {
+        font-size: 14px !important;
+        font-weight: bold !important;
+        text-align: left !important;
+        width: auto;
+        padding: 0 10px;
+        border-bottom: none;
+        margin-bottom: 5px;
+    }
 </style>
 <div class="load">
     <div class="in"><img width="20%" src="{{ url('/images/hourglass.svg') }}"></div>

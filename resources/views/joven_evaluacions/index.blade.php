@@ -46,34 +46,37 @@
                         </div>
                         @include('includes.messages')
                         @if(!$joven)
-                        <!-- Filtro de Período -->
+
                         <div class="box-body">
-                            <div class="row">
-                                <div class="col-md-1">
-                                    <div class="form-group">
-                                        <label for="filtroPeriodo">Período:</label>
-                                        <select id="filtroPeriodo" class="form-control">
-                                            <option value="">Todos</option>
-                                            @foreach($periodos as $periodo)
-                                                <option value="{{ $periodo->id }}"
-                                                    {{ $periodo->nombre == $currentPeriod ? 'selected' : '' }}>
-                                                    {{ $periodo->nombre }}
-                                                </option>
-                                            @endforeach
-                                        </select>
+                            <fieldset class="scheduler-border">
+                                <legend class="scheduler-border">Filtros de búsqueda</legend>
+                                <div class="row">
+                                    <div class="col-md-1">
+                                        <div class="form-group">
+                                            <label for="filtroPeriodo">Período:</label>
+                                            <select id="filtroPeriodo" class="form-control">
+                                                <option value="">Todos</option>
+                                                @foreach($periodos as $periodo)
+                                                    <option value="{{ $periodo->id }}"
+                                                        {{ $periodo->nombre == $currentPeriod ? 'selected' : '' }}>
+                                                        {{ $periodo->nombre }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label for="filtroPredefinido">Predefinidos:</label>
+                                            <select id="filtroPredefinido" class="form-control">
+                                                <option value="">Seleccionar...</option>
+                                                <option value="2">Faltan evaluadores</option>
+                                                <option value="3">Sin actualizar puntaje</option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-md-2">
-                                    <div class="form-group">
-                                        <label for="filtroPredefinido">Predefinidos:</label>
-                                        <select id="filtroPredefinido" class="form-control">
-                                            <option value="">Seleccionar...</option>
-                                            <option value="2">Faltan evaluadores</option>
-                                            <option value="3">Sin actualizar puntaje</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
+                            </fieldset>
                             <!-- /.form-group -->
                         </div>
 
