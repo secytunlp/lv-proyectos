@@ -86,10 +86,10 @@ class SyncMiembros extends Command
                 $data = collect($rows)->map(function ($row) use (&$skippedRows, &$totalOmitidas) {
 
                     // Validación de proyecto
-                    if (empty($row->proyecto_id)) {
+                    if (empty($row->unidad_id)) {
                         $skippedRows[] = [
                             'id' => $row->id,
-                            'motivo' => 'Sin proyecto_id',
+                            'motivo' => 'Sin unidad_id',
                             'estado' => null,
                             'tipo' => null,
                             'deddoc' => null,
