@@ -122,7 +122,7 @@ class SyncUnidadEstados extends Command
                     return [
                         'id' => $row->id,
                         'unidad_id' => $row->unidad_id ?: null,
-                        'user_id' => $row->user_id ?: 0,
+                        'user_id' => $row->cd_user ?: 0,
                         'user_name' => trim($row->user_name),
 
                         'estado' => $estadoFinal,
