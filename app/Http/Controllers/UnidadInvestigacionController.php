@@ -118,8 +118,11 @@ class UnidadInvestigacionController extends Controller
 
         // Obtener cantidad filtrada correctamente
         $queryFiltered = clone $query;
-        $recordsFiltered = $queryFiltered->count(DB::raw('DISTINCT unidad_investigacions.id'));
+        $queryFiltered = clone $query;
 
+        $recordsFiltered = DB::table(DB::raw("({$queryFiltered->toSql()}) as sub"))
+            ->mergeBindings($queryFiltered->getQuery())
+            ->count();
         // Protección contra consumo excesivo de recursos
         $length = intval($request->input('length', 10));
         $length = ($length > 0 && $length <= 100) ? $length : 10;
