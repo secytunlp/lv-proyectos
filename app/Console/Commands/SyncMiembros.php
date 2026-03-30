@@ -100,27 +100,7 @@ class SyncMiembros extends Command
                     }
 
 
-                    $estadosValidos = [
-                        'Alta Creada','Alta Recibida','','Baja Creada','Baja Recibida','Cambio Creado','Cambio Recibido','Cambio Hs. Creado','Cambio Hs. Recibido','Cambio Tipo Creado','Cambio Tipo Recibido'
-                    ];
 
-                    $estadoRow = trim((string)$row->estado);
-
-                    if (!empty($estadoRow) && !in_array($estadoRow, $estadosValidos)) {
-                        // Solo omitimos si tiene valor y no está en la lista
-                        $skippedRows[] = [
-                            'id' => $row->id,
-                            'motivo' => 'Estado inválida',
-                            'estado' => $row->estado,
-                            'tipo' => null,
-                            'deddoc' => null,
-
-                        ];
-                        $totalOmitidas++;
-                        return null; // omite la fila
-                    }
-
-                    $estadoFinal = empty($estadoRow) ? null : $estadoRow;
 
 
 
