@@ -127,7 +127,6 @@ class SyncMiembros extends Command
 
                     $tipoFinal = empty($tipoRow) ? null : $tipoRow;
 
-                    $email = filter_var($row->email, FILTER_VALIDATE_EMAIL) ? $row->email : null;
 
                     $valoresValidos = ['Exclusiva','Semi Exclusiva','Simple'];
                     $deddocRow = trim((string)$row->deddoc);
