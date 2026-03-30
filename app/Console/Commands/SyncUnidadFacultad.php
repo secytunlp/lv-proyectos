@@ -29,7 +29,7 @@ class SyncUnidadFacultad extends Command
 
                     ->selectRaw("cyt_unidad_facultad.oid as id, cyt_unidad_facultad.unidad_oid as unidad_id, cyt_unidad_facultad.facultad_oid as facultad_id")
 
-            ->orderBy('cyt_solicitud_proyecto.oid')
+            ->orderBy('cyt_unidad_facultad')
 
             ->chunk(1000, function ($rows) use (&$totalFilas, &$totalInsertadas, &$totalOmitidas, &$skippedRows) {
 
