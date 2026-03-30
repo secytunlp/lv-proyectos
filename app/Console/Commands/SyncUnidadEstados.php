@@ -45,14 +45,14 @@ class SyncUnidadEstados extends Command
         $totalOmitidas = 0;
         DB::connection('mysql_origen')
             ->table('cyt_unidad_tipo_estado')
-            ->leftJoin('cdt_user', 'cyt_unidad_tipo_estado.user_oid', '=', 'cdt_user.oid')
+            ->leftJoin('cdt_user', 'cyt_unidad_tipo_estado.user_oid', '=', 'cdt_user.cd_user')
 
 
             ->selectRaw("
                 cyt_unidad_tipo_estado.oid as id,cyt_unidad_tipo_estado.unidad_oid as unidad_id,
        CASE cyt_unidad_tipo_estado.user_oid
            WHEN 1 THEN '2'
-           ELSE NULL END as user_id, cdt_user.ds_name as user_name,
+           ELSE NULL END as cd_user, cdt_user.ds_name as user_name,
 
        CASE cyt_unidad_tipo_estado.tipoEstado_oid
            WHEN 1 THEN 'Creada'
