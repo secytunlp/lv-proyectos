@@ -43,10 +43,7 @@ class SyncMiembroEstados extends Command
         $totalFilas = 0;
         $totalInsertadas = 0;
         $totalOmitidas = 0;
-        $miembrosMap = [];
-        $miembroSeq = (DB::connection('mysql')
-                ->table('miembro_estados')
-                ->max('miembro_id') ?? 0) + 1;
+
         DB::connection('mysql_origen')
             ->table('cyt_unidad_integrante')
             ->leftJoin('cyt_unidad', 'cyt_unidad_integrante.unidad_oid', '=', 'cyt_unidad.oid')
@@ -90,12 +87,9 @@ class SyncMiembroEstados extends Command
             ->orderBy('cyt_unidad_integrante.unidad_oid')
             ->orderBy('cyt_unidad_integrante.cuil')
             ->orderBy('cyt_unidad_integrante.fechaDesde')
-            ->chunk(1000, function ($rows) use (&$totalFilas, &$totalInsertadas, &$totalOmitidas, &$skippedRows,&$miembrosMap,
-    &$miembroSeq){
+            ->chunk(1000, function ($rows) use (&$totalFilas, &$totalInsertadas, &$totalOmitidas, &$skippedRows){
                 $totalFilas += count($rows);
-                $data = collect($rows)->map(function ($row) use (&$skippedRows, &$totalOmitidas,
-                    &$miembrosMap,
-                    &$miembroSeq) {
+                $data = collect($rows)->map(function ($row) use (&$skippedRows, &$totalOmitidas) {
 
                     // Validación de proyecto
                     if (empty($row->unidad_id)) {
@@ -181,18 +175,25 @@ class SyncMiembroEstados extends Command
 
                     $cuil = preg_replace('/\D/', '', (string)$row->cuil);
 
-                    if (empty($cuil)) {
-                        $cuil = 'ID' . $row->id; // fallback único
+                    $miembro = DB::connection('mysql')
+                        ->table('miembros')
+                        ->where('unidad_id', $row->unidad_id)
+                        ->whereRaw("REPLACE(REPLACE(REPLACE(cuil,'-',''),' ',''),'.','') = ?", [$cuil])
+                        ->first();
+
+                    if (!$miembro) {
+                        $skippedRows[] = [
+                            'id' => $row->id,
+                            'motivo' => 'Miembro no encontrado',
+                            'estado' => null,
+                            'tipo' => $row->tipo,
+                            'deddoc' => $row->deddoc,
+                        ];
+                        $totalOmitidas++;
+                        return null;
                     }
 
-                    $key = $row->unidad_id . '|' . $cuil;
-
-                    if (!isset($miembrosMap[$key])) {
-                        $this->line("Nuevo miembro: {$key} -> {$miembroSeq}");
-                        $miembrosMap[$key] = $miembroSeq++;
-                    }
-
-                    $miembroId = $miembrosMap[$key];
+                    $miembroId = $miembro->id;
 
                     return [
 
