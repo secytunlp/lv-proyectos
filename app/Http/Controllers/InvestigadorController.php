@@ -760,7 +760,16 @@ class InvestigadorController extends Controller
 
             if (!empty($request->tituloposts)) {
                 foreach ($request->tituloposts as $item => $v) {
-                    $investigador->tituloposts()->attach($request->tituloposts[$item], ['egreso'=> $request->egresoposts[$item], 'created_at' => now(), 'updated_at' => now()]);
+                    //$investigador->tituloposts()->attach($request->tituloposts[$item], ['egreso'=> $request->egresoposts[$item], 'created_at' => now(), 'updated_at' => now()]);
+                    $investigador->tituloposts()->attach(
+                        $v,
+                        [
+                            'egreso'=> $request->egresoposts[$item] ?? null,
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ]
+                    );
+
                 }
             }
             $mayorCargo = null;
