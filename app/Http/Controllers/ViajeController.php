@@ -812,9 +812,9 @@ class ViajeController extends Controller
         }
 
         if ($esSimple){
-            if ((empty($request->carrerainvs[0]))&&(!$request->institucion)) {
+            /*if ((empty($request->carrerainvs[0]))&&(!$request->institucion)) {
                 $errores[] = "Si tiene dedicación simple, debe ser becario o tener un cargo en la carrera de investigación";
-            }
+            }*/
 
 
 
