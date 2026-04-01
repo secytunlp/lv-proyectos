@@ -300,15 +300,16 @@
                                                     </thead>
 
                                                     <tbody id="cuerpoCargos">
+                                                    @php
+                                                        $dedicaciones = config('dedicaciones');
+                                                        unset($dedicaciones['Sin Dedicación']);
+                                                    @endphp
                                                     @foreach ($investigador->cargos as $cargo)
 
                                                     <tr>
 
                                                         <td>{{ Form::select('cargos[]',$cargos, $cargo->pivot->cargo_id,['class' => 'form-control', 'style' => 'width: 200px']) }}</td>
-                                                        @php
-                                                            $dedicaciones = config('dedicaciones');
-                                                            unset($dedicaciones['Sin Dedicación']);
-                                                        @endphp
+
                                                         <td>{{ Form::select('deddocs[]',['' => ''] + $dedicaciones, $cargo->pivot->deddoc,['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
                                                         <td>{{Form::date('ingresos[]', ($cargo->pivot->ingreso)?date('Y-m-d', strtotime($cargo->pivot->ingreso)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
                                                         <td>{{ Form::select('facultads[]',$facultades, $cargo->pivot->facultad_id,['class' => 'form-control', 'style' => 'width: 300px']) }}</td>
