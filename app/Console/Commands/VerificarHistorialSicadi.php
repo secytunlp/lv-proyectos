@@ -19,7 +19,7 @@ class VerificarHistorialSicadi extends Command
         $data = DB::table('investigadors as i')
             ->join('personas as p', 'p.id', '=', 'i.persona_id')
             ->join('sicadis as s', 's.id', '=', 'i.sicadi_id')
-            ->join('facultads as f', 'f.id', '=', 'i.facultad_id')
+            ->lefJoin('facultads as f', 'f.id', '=', 'i.facultad_id')
             ->leftJoin('solicitud_sicadis as ss', function ($join) {
                 $join->on('ss.cuil', '=', 'p.cuil')
                     ->whereRaw('UPPER(TRIM(ss.categoria_asignada)) = UPPER(TRIM(s.nombre))');
