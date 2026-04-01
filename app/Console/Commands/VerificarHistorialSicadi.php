@@ -19,6 +19,7 @@ class VerificarHistorialSicadi extends Command
         $data = DB::table('investigadors as i')
             ->join('personas as p', 'p.id', '=', 'i.persona_id')
             ->join('sicadis as s', 's.id', '=', 'i.sicadi_id')
+            ->join('facultads as f', 'f.id', '=', 'i.facultad_id')
             ->leftJoin('solicitud_sicadis as ss', function ($join) {
                 $join->on('ss.cuil', '=', 'p.cuil')
                     ->whereRaw('UPPER(TRIM(ss.categoria_asignada)) = UPPER(TRIM(s.nombre))');
@@ -30,6 +31,7 @@ class VerificarHistorialSicadi extends Command
                 'p.cuil',
                 'p.apellido',
                 'p.nombre',
+                'f.nombre as facultad',
                 's.nombre as categoria'
             )
             ->get();
@@ -48,7 +50,8 @@ class VerificarHistorialSicadi extends Command
         $sheet->setCellValue('B1', 'Apellido');
         $sheet->setCellValue('C1', 'Nombre');
         $sheet->setCellValue('D1', 'CUIL');
-        $sheet->setCellValue('E1', 'Categoria');
+        $sheet->setCellValue('E1', 'Facultad');
+        $sheet->setCellValue('F1', 'Categoria');
 
         // Datos
         $row = 2;
@@ -57,7 +60,8 @@ class VerificarHistorialSicadi extends Command
             $sheet->setCellValue("B{$row}", $item->apellido);
             $sheet->setCellValue("C{$row}", $item->nombre);
             $sheet->setCellValue("D{$row}", $item->cuil);
-            $sheet->setCellValue("E{$row}", $item->categoria);
+            $sheet->setCellValue("E{$row}", $item->facultad);
+            $sheet->setCellValue("F{$row}", $item->categoria);
             $row++;
         }
 
