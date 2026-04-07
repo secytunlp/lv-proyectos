@@ -428,7 +428,7 @@ switch ($motivo) {
                 </div>
 
                 <div class="content">
-                    <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $proyectoActual['resumen'] ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $proyectoActual['resumen'])) !!}</span>
+                    <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $proyectoActual['resumen'] ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $proyectoActual['resumen'])) !!}</span>
                 </div>
 
         @endforeach
@@ -477,7 +477,7 @@ switch ($motivo) {
             <div>Si el motivo de la solicitud es A)Reuniones Científicas deberá aclarar si realiza otra actividad además de presentar su trabajo (por ej. coordinador/a, comentarista de ponencias, panelista, presentador/a de libros o alguna otra actividad)</div>
         </div>
         <div class="content">
-            <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $objetivo ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $objetivo)) !!}</span>
+            <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $objetivo ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $objetivo)) !!}</span>
         </div>
     @endif
 @else
@@ -486,7 +486,7 @@ switch ($motivo) {
     </div>
 
     <div class="content">
-        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $objetivo ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $objetivo)) !!}</span>
+        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $objetivo ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $objetivo)) !!}</span>
     </div>
 @endif
 <div class="content">
@@ -530,7 +530,7 @@ switch ($motivo) {
             </div>
         @endif
         <div class="content">
-            <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $objetivo ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $objetivo)) !!}</span>
+            <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $objetivo ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $objetivo)) !!}</span>
         </div>
         @if(intval($year)>2016)
             <div class="content">
@@ -543,7 +543,7 @@ switch ($motivo) {
                     </ul>
             </div>
             <div class="content">
-                <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $relevanciaA)) !!}</span>
+                <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $relevanciaA)) !!}</span>
             </div>
         @endif
     @endif
@@ -641,7 +641,7 @@ switch ($motivo) {
                 <div>Relevancia del evento</div>
             </div>
             <div class="content">
-                <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $relevancia)) !!}</span>
+                <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $relevancia)) !!}</span>
             </div>
         @endif
     @else
@@ -687,7 +687,7 @@ switch ($motivo) {
             <div>Relevancia del evento</div>
         </div>
         <div class="content">
-            <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $relevancia)) !!}</span>
+            <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $relevancia)) !!}</span>
         </div>
         <div class="content">
             <div class="content" style="margin-top: 10px;">
@@ -722,7 +722,7 @@ switch ($motivo) {
         <div>Resumen {{$labelResumen}}</div>
     </div>
     <div class="content">
-        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $resumen)) !!}</span>
+        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br( $resumen) !!}</span>
     </div>
     @if(intval($year)>2016)
         <div class="content">
@@ -764,7 +764,7 @@ switch ($motivo) {
         <div>Autor - Título - Editor - Edición(Nacional/Internacional) - ISBN - Lugar de Publicación - Año</div>
     </div>
     <div class="content">
-        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $libros)) !!}</span>
+        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $libros)) !!}</span>
     </div>
     <div class="content">
         <div>LIBROS (COMPILACIONES)</div>
@@ -773,7 +773,7 @@ switch ($motivo) {
         <div>Compilador - Título - Editor - Edición(Nacional/Internacional) - ISBN - Lugar de Publicación - Año</div>
     </div>
     <div class="content">
-        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $compilados)) !!}</span>
+        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $compilados)) !!}</span>
     </div>
     <div class="content">
         <div>CAPITULOS DE LIBROS</div>
@@ -782,7 +782,7 @@ switch ($motivo) {
         <div>Autores - Capítulo/s - Título del Libro - Editor - Edición(Nacional/Internacional) - ISBN - Lugar de Publicación - Año</div>
     </div>
     <div class="content">
-        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $capitulos)) !!}</span>
+        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $capitulos)) !!}</span>
     </div>
     @php
     $referato = (($tipo == 'Investigador Formado')&&($motivoLetra=='A'))?'con o sin referato':'solo con referato';
@@ -795,7 +795,7 @@ switch ($motivo) {
         <div>Autor/es - Título - Revista - ISSN - Volumen - Nro. - Páginas - Año {{$ponerReferato}} - Nacional o Internacional</div>
     </div>
     <div class="content">
-        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $articulos)) !!}</span>
+        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $articulos)) !!}</span>
     </div>
     <div class="content">
         <div>CONGRESOS (TRABAJOS COMPLETOS PUBLICADOS EN ACTAS CON REFERATO)</div>
@@ -804,7 +804,7 @@ switch ($motivo) {
         <div>Autor/es - Título trabajo - Congreso - Lugar - Volumen - Nro. - Páginas - Año - Fecha - Carácter(Nacional/Internacional)</div>
     </div>
     <div class="content">
-        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $congresos)) !!}</span>
+        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $congresos)) !!}</span>
     </div>
     <div class="content">
         <div>PATENTES</div>
@@ -813,7 +813,7 @@ switch ($motivo) {
         <div>Autor/es - Título - Código de Patente - Año</div>
     </div>
     <div class="content">
-        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $patentes)) !!}</span>
+        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $patentes)) !!}</span>
     </div>
     <div class="content">
         <div>REGISTROS DE PROPIEDAD INTELECTUAL</div>
@@ -822,7 +822,7 @@ switch ($motivo) {
         <div>Tipo - Título - Titular/es - Registro Nro. - País - Autor/es</div>
     </div>
     <div class="content">
-        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $intelectuales)) !!}</span>
+        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $intelectuales)) !!}</span>
     </div>
     <div class="content">
         <div>INFORMES TECNICOS</div>
@@ -831,7 +831,7 @@ switch ($motivo) {
         <div>Autor/es - Título - Año - Institución</div>
     </div>
     <div class="content">
-        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $informes)) !!}</span>
+        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $informes)) !!}</span>
     </div>
     <div class="content">
         <div style="font-weight: bold">Formación de Recursos Humanos realizada durante toda su carrera como docente-investigador.</div>
@@ -843,7 +843,7 @@ switch ($motivo) {
         <div>Año - Apellido y Nombre - Tema - Universidad - Calificación - (Dir./Codir.) - (Doctorado/Maestría)</div>
     </div>
     <div class="content">
-        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $tesis)) !!}</span>
+        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $tesis)) !!}</span>
     </div>
     <div class="content">
         <div>DIR./CODIR. BECAS DE POSGRADO / DIR./CODIR. TESIS DE POSGRADO EN REALIZACION</div>
@@ -852,7 +852,7 @@ switch ($motivo) {
         <div>Año - Apellido y Nombre - Tema - Universidad - (Dir./Codir.) - Si es Tesis (Doctorado/Maestría) - Si es Beca (Tipo de Beca)</div>
     </div>
     <div class="content">
-        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $becas)) !!}</span>
+        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $becas)) !!}</span>
     </div>
     <div class="content">
         <div>DIR./CODIR. TESINAS DE GRADO / DIR./CODIR. BECAS DE ENTRENAMIENTO</div>
@@ -861,7 +861,7 @@ switch ($motivo) {
         <div>Año - Apellido y Nombre - Tema - Universidad - (Dir./Codir.) - (Tesina de Grado/Beca de Entrenamiento)</div>
     </div>
     <div class="content">
-        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $tesinas)) !!}</span>
+        <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $tesinas)) !!}</span>
     </div>
 @endif
 @if(intval($year)>2012)
@@ -873,13 +873,13 @@ switch ($motivo) {
             <div>1. Objetivo general de la estadía</div>
         </div>
         <div class="content">
-            <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $generalB)) !!}</span>
+            <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $generalB)) !!}</span>
         </div>
         <div class="content">
             <div>2. Objetivos específicos de la estadía</div>
         </div>
         <div class="content">
-            <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $especificoB)) !!}</span>
+            <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $especificoB)) !!}</span>
         </div>
         @if(intval($year)>2016)
             <div class="content">
@@ -891,20 +891,20 @@ switch ($motivo) {
             </div>
         @endif
         <div class="content">
-            <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $actividadesB)) !!}</span>
+            <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $actividadesB)) !!}</span>
         </div>
         <div class="content">
             <div>4.- Cronograma</div>
         </div>
         <div class="content">
-            <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $cronogramaB)) !!}</span>
+            <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $cronogramaB)) !!}</span>
         </div>
         @if(intval($year)>2017)
             <div class="content">
                 <div>5.- Justificación de la realización de la estadía y relación con el proyecto de investigación en el que participa</div>
             </div>
             <div class="content">
-                <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $justificacionB)) !!}</span>
+                <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $justificacionB)) !!}</span>
             </div>
         @endif
         @if(intval($year)>2016)
@@ -929,7 +929,7 @@ switch ($motivo) {
             </div>
         @endif
         <div class="content">
-            <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $aportesB)) !!}</span>
+            <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $aportesB)) !!}</span>
         </div>
         @if(intval($year)>2016)
             @if(intval($year)>2017)
@@ -942,7 +942,7 @@ switch ($motivo) {
                 </div>
             @endif
             <div class="content">
-                <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $relevanciaB)) !!}</span>
+                <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $relevanciaB)) !!}</span>
             </div>
         @endif
     @endif
@@ -954,7 +954,7 @@ switch ($motivo) {
             <div>1. Objetivo general de la estadía</div>
         </div>
         <div class="content">
-            <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $objetivosC)) !!}</span>
+            <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $objetivosC)) !!}</span>
         </div>
         @if(intval($year)>2016)
             <div class="content">
@@ -966,21 +966,21 @@ switch ($motivo) {
             </div>
         @endif
         <div class="content">
-            <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $planC)) !!}</span>
+            <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $planC)) !!}</span>
         </div>
         @if(intval($year)>2016)
             <div class="content">
                 <div>3. Relación del plan de trabajo del investigador invitado con el proyecto de investigación acreditado del grupo receptor</div>
             </div>
             <div class="content">
-                <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $relacionProyectoC)) !!}</span>
+                <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $relacionProyectoC)) !!}</span>
             </div>
         @else
             <div class="content">
                 <div>3. Aportes del desarrollo del plan de trabajo al grupo de investigación, Unidad de Investigación y/o Unidad Académica</div>
             </div>
             <div class="content">
-                <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $aportesC)) !!}</span>
+                <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $aportesC)) !!}</span>
             </div>
         @endif
         @if(intval($year)>2016)
@@ -988,14 +988,14 @@ switch ($motivo) {
                 <div>4. Aportes del desarrollo del plan de trabajo al grupo de investigación, Unidad de Investigación y/o Unidad Académica</div>
             </div>
             <div class="content">
-                <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $aportesC)) !!}</span>
+                <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $aportesC)) !!}</span>
             </div>
         @else
             <div class="content">
                 <div>4. Otras actividades (ejemplo: dictado de cursos, seminarios, participación en eventos científicos, etc.</div>
             </div>
             <div class="content">
-                <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $actividadesC)) !!}</span>
+                <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $actividadesC)) !!}</span>
             </div>
         @endif
         @if(intval($year)>2016)
@@ -1003,7 +1003,7 @@ switch ($motivo) {
                 <div>5. Otras actividades</div>
             </div>
             <div class="content">
-                <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(e( $actividadesC)) !!}</span>
+                <span style="display: inline-block; border: 1px solid #ccc;width: 700px; padding-top: {{ $relevanciaA ? '0' : '15px' }}; background-color: #e1e1e1; white-space: pre-wrap;">{!! nl2br(( $actividadesC)) !!}</span>
             </div>
         @endif
     @endif
