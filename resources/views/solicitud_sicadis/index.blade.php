@@ -334,17 +334,17 @@
                                 @endcan
                             }
                             if (row.estado == 'Recibida') {
-                                @can('solicitud-admitir')
+                                @can('solicitud_sicadi-admitir')
                                     actionsHtml += '<form id="admit-form-' + row.id + '" method="post" action="{{ route('solicitud_sicadis.admitir', '') }}/' + row.id + '" style="display: none">';
                                 actionsHtml += '{{ csrf_field() }}';
 
                                 actionsHtml += '</form>';
                                 actionsHtml += '<a href="" onclick="if(confirm(\'Está seguro?\')) {event.preventDefault(); document.getElementById(\'admit-form-' + row.id + '\').submit();} else {event.preventDefault();}" alt="Admitir" title="Admitir" style="margin-right: 5px;"><i class="fa fa-check-circle"></i></a>';
                                 @endcan
-                                    @can('solicitud-rechazar')
+                                    @can('solicitud_sicadi-rechazar')
                                     actionsHtml += '<a href="{{ route("solicitud_sicadis.rectificar", ":id") }}" alt="Rectificar" title="Rectificar" style="margin-right: 5px;"><i class="fa fa-pencil-alt"></i></a>'.replace(':id', row.id);
                                 @endcan
-                                    @can('solicitud-rechazar')
+                                    @can('solicitud_sicadi-rechazar')
                                     actionsHtml += '<a href="{{ route("solicitud_sicadis.rechazar", ":id") }}" alt="Rechazar" title="Rechazar" style="margin-right: 5px;"><i class="fa fa-times-circle"></i></a>'.replace(':id', row.id);
                                 @endcan
                             }
