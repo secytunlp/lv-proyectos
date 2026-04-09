@@ -81,7 +81,7 @@ class CheckSelectedRolePermissions
             'integrantes.edit' => ['integrante-editar'],
             'integrantes.update' => ['integrante-editar'],
             'integrantes.destroy' => ['integrante-eliminar'],
-            'integrantes.buscarInvestigador' => ['integrante-crear'],
+            'integrantes.buscarInvestigador' => ['integrante-crear','miembro-crear'],
             'integrantes.alta-pdf' => ['integrante-listar'],
             'integrantes.archivos' => ['integrante-listar'],
             'integrantes.enviar' => ['integrante-editar'],

@@ -89,14 +89,14 @@ class MiembroController extends Controller
         }
         $user = auth()->user();
         $selectedRoleId = session('selected_rol');
-        if ($selectedRoleId != 1) {
+        /*if ($selectedRoleId != 1) {
             $query->where(function ($query) {
                 $query->whereColumn('miembros.alta', '!=', 'miembros.baja')
                     ->orWhereNull('miembros.alta')
                     ->orWhereNull('miembros.baja');
             });
 
-        }
+        }*/
 
         // Aplicar la búsqueda
         if (!empty($busqueda)) {
