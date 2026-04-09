@@ -82,7 +82,7 @@ class RegisterController extends Controller
                 'string',
                 'min:8',
                 'confirmed',
-                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&.,;:])[A-Za-z\d@$!%*#?&.,;:]{8,}$/'
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).+$/'
             ],
             'cuil' => 'nullable|regex:/^\d{2}-\d{8}-\d{1}$/',
             'facultad_id' => 'nullable|exists:facultads,id',
