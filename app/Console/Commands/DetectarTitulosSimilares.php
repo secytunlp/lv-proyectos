@@ -33,6 +33,11 @@ class DetectarTitulosSimilares extends Command
                         continue;
                     }
 
+                    // NUEVO: evitar comparar niveles distintos
+                    if ($t1->nivel !== $t2->nivel) {
+                        continue;
+                    }
+
                     $nombre1 = $this->limpiarTitulo($t1->nombre);
                     $nombre2 = $this->limpiarTitulo($t2->nombre);
 
