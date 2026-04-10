@@ -7,12 +7,17 @@ use Illuminate\Support\Facades\DB;
 
 class DetectarTitulosSimilares extends Command
 {
-    protected $signature = 'detect:titulos-similares';
+    protected $signature = 'detect:titulos-similares {universidad_id?}';
     protected $description = 'Detecta títulos similares por porcentaje';
 
     public function handle()
     {
+        $universidadFiltro = $this->argument('universidad_id');
+
         $universidades = DB::table('titulos')
+            ->when($universidadFiltro, function ($q) use ($universidadFiltro) {
+                $q->where('universidad_id', $universidadFiltro);
+            })
             ->select('universidad_id')
             ->distinct()
             ->pluck('universidad_id');
