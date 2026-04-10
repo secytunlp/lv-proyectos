@@ -3172,7 +3172,7 @@ class IntegranteController extends Controller
             DB::table('investigador_tituloposts')->updateOrInsert(
                 [
                     'investigador_id' => $investigador->id,
-                    'titulopost_id' => $integrante->titulopost_id,
+                    'titulo_id' => $integrante->titulopost_id,
                 ],
                 [
                     'egreso' => $integrante->egresoposgrado,
