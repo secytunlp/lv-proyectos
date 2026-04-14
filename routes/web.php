@@ -152,6 +152,7 @@ Route::group(['middleware' => ['auth', 'CheckSelectedRolePermissions']], functio
 
     Route::resource('integrante_estados', IntegranteEstadoController::class);
     Route::post('integrante_estado-datatable', [IntegranteEstadoController::class, 'dataTable'])->name('integrante_estados.dataTable');
+    Route::get('integrante_estados-exportar', [IntegranteEstadoController::class, 'exportar'])->name('integrante_estados.exportar');
 
     Route::resource('jovens', JovenController::class);
     Route::post('joven-datatable', [JovenController::class, 'dataTable'])->name('jovens.dataTable');

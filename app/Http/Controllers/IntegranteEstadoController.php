@@ -23,6 +23,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator; // Importar la fachada Validator
 use Illuminate\Support\Facades\Auth; // Asegúrate de importar esta línea
 use App\Traits\SanitizesInput;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class IntegranteEstadoController extends Controller
 {
     use SanitizesInput;
@@ -697,5 +699,137 @@ class IntegranteEstadoController extends Controller
     public function destroy(Proyecto $proyecto)
     {
         //
+    }
+
+    public function exportar()
+    {
+        $data = IntegranteEstado::select(
+            'integrante_estados.id',
+            'integrante_estados.estado',
+            'integrante_estados.tipo',
+            'integrante_estados.desde',
+            'integrante_estados.hasta',
+            'integrante_estados.alta',
+            'integrante_estados.baja',
+            'integrante_estados.cambio',
+            'integrante_estados.horas',
+            'integrante_estados.motivos',
+            'integrante_estados.comentarios',
+            DB::raw("CONCAT(personas.apellido, ', ', personas.nombre) as integrante"),
+            'personas.cuil',
+            'categorias.nombre as categoria',
+            'sicadis.nombre as sicadi',
+            'proyectos.codigo as proyecto_codigo'
+        )
+            ->leftJoin('integrantes', 'integrante_estados.integrante_id', '=', 'integrantes.id')
+            ->leftJoin('investigadors', 'integrantes.investigador_id', '=', 'investigadors.id')
+            ->leftJoin('personas', 'investigadors.persona_id', '=', 'personas.id')
+            ->leftJoin('proyectos', 'integrantes.proyecto_id', '=', 'proyectos.id')
+            ->leftJoin('categorias', 'investigadors.categoria_id', '=', 'categorias.id')
+            ->leftJoin('sicadis', 'investigadors.sicadi_id', '=', 'sicadis.id')
+            ->whereNull('integrante_estados.hasta')
+            ->whereNotNull('integrante_estados.estado')
+            ->where('integrante_estados.estado', '!=', '')
+            ->orderBy('proyectos.codigo')
+            ->orderBy('personas.apellido')
+            ->orderBy('personas.nombre')
+            ->get();
+
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $fechaHora = Carbon::now()->format('d/m/Y H:i:s');
+
+        // Título principal
+        $sheet->setCellValue('A1', 'Integrantes con estado pendiente al ' . $fechaHora);
+
+// Ajustar cantidad de columnas (A hasta K = 11 columnas)
+        $sheet->mergeCells('A1:K1');
+
+// Estilo opcional
+        $sheet->getStyle('A1')->getFont()->setBold(true);
+        $sheet->getStyle('A1')->getAlignment()
+            ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        // encabezados
+        $sheet->setCellValue('A2', 'Proyecto');
+        $sheet->setCellValue('B2', 'Tipo');
+        $sheet->setCellValue('C2', 'Integrante');
+        $sheet->setCellValue('D2', 'CUIL');
+        $sheet->setCellValue('E2', 'Estado');
+        $sheet->setCellValue('F2', 'SPU');
+        $sheet->setCellValue('G2', 'SICADI');
+        $sheet->setCellValue('H2', 'Alta');
+        $sheet->setCellValue('I2', 'Baja');
+        $sheet->setCellValue('J2', 'Cambio');
+        $sheet->setCellValue('K2', 'Fecha');
+        $sheet->getStyle('A2')->getFont()->setBold(true);
+        $sheet->getStyle('A2')->getAlignment()
+            ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('B2')->getFont()->setBold(true);
+        $sheet->getStyle('B2')->getAlignment()
+            ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('C2')->getFont()->setBold(true);
+        $sheet->getStyle('C2')->getAlignment()
+            ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('D2')->getFont()->setBold(true);
+        $sheet->getStyle('D2')->getAlignment()
+            ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('E2')->getFont()->setBold(true);
+        $sheet->getStyle('E2')->getAlignment()
+            ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('F2')->getFont()->setBold(true);
+        $sheet->getStyle('F2')->getAlignment()
+            ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('G2')->getFont()->setBold(true);
+        $sheet->getStyle('G2')->getAlignment()
+            ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('H2')->getFont()->setBold(true);
+        $sheet->getStyle('H2')->getAlignment()
+            ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('I2')->getFont()->setBold(true);
+        $sheet->getStyle('I2')->getAlignment()
+            ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('J2')->getFont()->setBold(true);
+        $sheet->getStyle('J2')->getAlignment()
+            ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('K2')->getFont()->setBold(true);
+        $sheet->getStyle('K2')->getAlignment()
+            ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+
+        $row = 3;
+
+        foreach ($data as $item) {
+
+            $desde = $item->desde ? \Carbon\Carbon::parse($item->desde)->format('d/m/Y H:i') : '';
+            $alta = $item->alta ? \Carbon\Carbon::parse($item->alta)->format('d/m/Y') : '';
+            $baja = $item->baja ? \Carbon\Carbon::parse($item->baja)->format('d/m/Y') : '';
+            $cambio = $item->cambio ? \Carbon\Carbon::parse($item->cambio)->format('d/m/Y') : '';
+
+            $sheet->setCellValue('A'.$row, $item->proyecto_codigo);
+            $sheet->setCellValue('B'.$row, $item->tipo);
+            $sheet->setCellValue('C'.$row, $item->integrante);
+            $sheet->setCellValue('D'.$row, $item->cuil);
+            $sheet->setCellValue('E'.$row, $item->estado);
+            $sheet->setCellValue('F'.$row, $item->categoria);
+            $sheet->setCellValue('G'.$row, $item->sicadi);
+            $sheet->setCellValue('H'.$row, $alta);
+            $sheet->setCellValue('I'.$row, $baja);
+            $sheet->setCellValue('J'.$row, $cambio);
+            $sheet->setCellValue('K'.$row, $desde);
+            $row++;
+        }
+
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'integrantes_pendientes_'.date('YmdHis').'.xlsx';
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="'.$filename.'"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+        exit;
     }
 }

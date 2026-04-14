@@ -34,7 +34,12 @@
                     <div class="box">
                         <div class="box-header with-border">
                             <h3 class="box-title">Estados @if($integrante) - {{ $integrante->investigador->persona->apellido }} {{ $integrante->investigador->persona->nombre }} en el Proyecto {{ $integrante->proyecto->codigo }}@endif</h3>
-                            @if($integrante)<a class='pull-right btn btn-success' href="{{ route('integrante_estados.create', ['integrante_id' => $integrante->id]) }}">Cambiar</a>@endif
+                            @if($integrante)<a class='pull-right btn btn-success' href="{{ route('integrante_estados.create', ['integrante_id' => $integrante->id]) }}">Cambiar</a>
+                        @else
+                            @can('integrante_estado-listar')
+                                <a class='pull-right btn btn-info' style="margin-left: 5px;" id="exportar-datos" href="#">Exportar</a>
+                            @endcan
+                            @endif
                         </div>
                         @include('includes.messages')
 
@@ -305,6 +310,12 @@
                 },
                 stateSave: true
 
+            });
+            $('#exportar-datos').click(function () {
+
+
+                // Realiza una solicitud GET para exportar los datos
+                window.location.href = '{{ route('integrante_estados.exportar') }}';
             });
         });
 

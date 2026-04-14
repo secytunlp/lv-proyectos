@@ -125,7 +125,7 @@ class CheckSelectedRolePermissions
             'integrante_estados.dataTable' => ['integrante_estado-listar'],
             'integrante_estados.create' => ['integrante_estado-crear'],
             'integrante_estados.store' => ['integrante_estado-crear'],
-
+            'integrante_estados.exportar' => ['integrante_estado-listar'],
 
             'solicitud_sicadis.index' => ['solicitud_sicadi-listar'],
             'solicitud_sicadis.dataTable' => ['solicitud_sicadi-listar'],
