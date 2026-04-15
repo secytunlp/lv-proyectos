@@ -143,14 +143,25 @@ class IntegranteController extends Controller
     {
         $proyectoId = $request->query('proyecto_id');
         $proyecto = null;
+        $mostrarMensajePendientes = false;
 
         // Si se proporciona un ID de proyecto, buscalo en la base de datos
         if ($proyectoId) {
             $proyecto = Proyecto::findOrFail($proyectoId);
+            $user = auth()->user();
+            $selectedRoleId = session('selected_rol');
+            if ($selectedRoleId == 2) {
+                $hayPendientes = Integrante::where('proyecto_id', $proyectoId)
+                    ->whereNotNull('estado')
+                    ->where('estado', '!=', '')
+                    ->exists();
+
+                $mostrarMensajePendientes = $hayPendientes;
+            }
         }
 
         // Pasar el proyecto (si existe) a la vista
-        return view('integrantes.index', compact('proyecto'));
+        return view('integrantes.index', compact('proyecto','mostrarMensajePendientes'));
     }
 
 
@@ -166,7 +177,7 @@ class IntegranteController extends Controller
 
 
         $busqueda = $request->input('search.value');
-
+        $pendientes = $request->input('pendientes');
 
 
         // Consulta base
@@ -192,6 +203,10 @@ class IntegranteController extends Controller
                     ->orWhereNull('integrantes.baja');
             });
 
+        }
+
+        if ($pendientes) {
+            $query->where('integrantes.estado', '!=', ' ');
         }
 
         // Aplicar la búsqueda

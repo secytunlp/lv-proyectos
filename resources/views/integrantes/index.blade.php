@@ -37,7 +37,36 @@
                         </div>
                         @include('includes.messages')
 
+                        @if(!empty($mostrarMensajePendientes))
+                            <div class="alert alert-warning">
+                                <i class="fa fa-exclamation-triangle"></i>
+                                Tiene integrantes y/o colaboradores con estado pendiente
+                                (Alta creada, Alta Recibida, Baja Creada, Baja Recibida,
+                                Cambio Creado, Cambio Recibido, Cambio Hs. Creado,
+                                Cambio Hs. Recibido, Cambio Tipo Creado y/o Cambio Tipo Recibido),
+                                para que estos cambios puedan hacerse efectivos debe
+                                <strong>"Enviarlos"</strong> desde la acción <strong>"Enviar"</strong>,
+                                imprimir la planilla de solicitud y presentarla firmada
+                                en la Unidad Académica.
+                            </div>
+                        @endif
+                        <div class="box-body">
+                            <fieldset class="scheduler-border">
+                                <legend class="scheduler-border">Filtros de búsqueda</legend>
+                                <div class="row">
 
+                                    <div class="col-md-1">
+                                        <div class="form-group">
+                                            {{Form::label('pendientes', 'Pendientes')}}<br>
+                                            {{Form::checkbox('pendientes', 1,false)}}
+
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <!-- /.form-group -->
+                        </div>
                     <!-- /.box-header -->
                         <div class="box-body">
                             <table id="example1" class="table table-bordered table-striped table-hover">
@@ -145,6 +174,7 @@
                     "data": function (d) {
                         d._token = '{{ csrf_token() }}'; // Agrega el token CSRF si estás usando Laravel
                         d.proyecto_id = '{{ $proyecto ? $proyecto->id : '' }}'; // Enviar el ID del proyecto como filtro
+                        d.pendientes = $('#pendientes').is(':checked') ? 1 : 0;
                         // Agrega otros parámetros si es necesario
                         // d.otroParametro = valor;
                     },
@@ -512,10 +542,24 @@
                     "url": "{{ asset('bower_components/datatables.net/lang/es-AR.json') }}"
                 },
                 stateSave: true,
+                stateSaveParams: function (settings, data) {
 
+                    data.pendientes = $('#pendientes').val();
+                },
+                stateLoadParams: function (settings, data) {
+
+                    if (data.pendientes) {
+                        $('#pendientes').val(data.pendientes).trigger('change');
+                    }
+
+                },
                 "initComplete": function() {
 
                 }
+            });
+
+            $('#pendientes').click(function() {
+                table.ajax.reload(); // Recargar la tabla cuando cambie el filtro de período
             });
         });
 
