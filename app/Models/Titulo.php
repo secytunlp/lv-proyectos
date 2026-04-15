@@ -26,6 +26,10 @@ class Titulo extends Model
 
     public function getFullNameAttribute()
     {
-        return $this->nombre . ' (' . $this->universidad->nombre.')';
+        if (!$this->universidad) {
+            return $this->nombre;
+        }
+
+        return $this->nombre . ' (' . $this->universidad->nombre . ')';
     }
 }
