@@ -3235,7 +3235,7 @@ class IntegranteController extends Controller
         ==========================*/
         if ($integrante->carrerainv_id) {
 
-            DB::table('investigador_carrerainvs')->updateOrInsert(
+            DB::table('investigador_carreras')->updateOrInsert(
                 [
                     'investigador_id' => $investigador->id,
                     'carrerainv_id' => $integrante->carrerainv_id,
