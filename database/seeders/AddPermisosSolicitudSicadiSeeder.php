@@ -15,10 +15,8 @@ class AddPermisosSolicitudSicadiSeeder extends Seeder
     public function run()
     {
         $permissions = [
-            'solicitud_sicadi-listar',
-            'solicitud_sicadi-crear',
-            'solicitud_sicadi-editar',
-            'solicitud_sicadi-eliminar',
+            'solicitud_sicadi-admitir',
+            'solicitud_sicadi-rechazar',
 
         ];
 
