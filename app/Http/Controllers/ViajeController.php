@@ -2188,6 +2188,7 @@ class ViajeController extends Controller
             'aval' => $viaje->aval,
             'convenioB' => $viaje->convenioB,
             'convenioC' => $viaje->convenioC,
+            'cvProfesor' => $viaje->cvprofesor,
             // Agrega aquí otros archivos que necesites
         ];
 
