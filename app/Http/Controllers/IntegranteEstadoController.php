@@ -244,6 +244,11 @@ class IntegranteEstadoController extends Controller
                     $integrante->carrera = null;
                     $integrante->total = null;
                     $integrante->materias = null;
+
+                    $investigador->titulo_id = $this->safeRequest($request, 'titulos');
+                    $investigador->carrera = null;
+                    $investigador->total = null;
+                    $investigador->materias = null;
                     // Verificar si el título ya está asociado
                     $tituloId = $integrante->titulo_id;
                     $egresoGrado = $integrante->egresogrado;
@@ -280,6 +285,8 @@ class IntegranteEstadoController extends Controller
                     // 👇 SI LO BORRÓ, LIMPIAR
                     $integrante->titulo_id = null;
                     $integrante->egresogrado = null;
+
+                    $investigador->titulo_id = null;
                 }
 
 
@@ -290,6 +297,8 @@ class IntegranteEstadoController extends Controller
                 if ($tituloposts->isNotEmpty()) {
                     $integrante->titulopost_id = $this->safeRequest($request, 'tituloposts');
                     $integrante->egresoposgrado = $this->safeRequest($request, 'egresoposts');
+
+                    $investigador->titulopost_id = $this->safeRequest($request, 'tituloposts');
 // Verificar si el título ya está asociado
                     $tituloId = $integrante->titulopost_id;
                     $egresoPosgrado = $integrante->egresoposgrado;
@@ -326,6 +335,8 @@ class IntegranteEstadoController extends Controller
                     // 👇 SI LO BORRÓ, LIMPIAR
                     $integrante->titulopost_id = null;
                     $integrante->egresoposgrado = null;
+
+                    $investigador->titulopost_id = null;
                 }
 
 
@@ -338,6 +349,12 @@ class IntegranteEstadoController extends Controller
                     $integrante->facultad_id = $request->facultads[0];
                     $integrante->universidad_id = $request->universidads[0];
                     $integrante->alta_cargo = $request->ingresos[0];
+
+                    $investigador->cargo_id = $request->cargos[0];
+                    $investigador->deddoc = $request->deddocs[0];
+                    $investigador->facultad_id = $request->facultads[0];
+                    $investigador->universidad_id = $request->universidads[0];
+
 
                     //$integrante->save();
 
@@ -387,6 +404,11 @@ class IntegranteEstadoController extends Controller
                     $integrante->facultad_id = null;
                     $integrante->universidad_id = null;
                     $integrante->alta_cargo = null;
+
+                    $investigador->cargo_id = null;
+                    $investigador->deddoc = null;
+                    $investigador->facultad_id = null;
+                    $investigador->universidad_id = null;
                 }
 
 
@@ -396,6 +418,9 @@ class IntegranteEstadoController extends Controller
                     $integrante->carrerainv_id = $request->carrerainvs[0];
                     $integrante->organismo_id = $request->organismos[0];
                     $integrante->ingreso_carrerainv = $request->carringresos[0];
+
+                    $investigador->carrerainv_id = $request->carrerainvs[0];
+                    $investigador->organismo_id = $request->organismos[0];
                     //$integrante->save();
                     // Datos de la nueva carrera
                     $nuevaCarrera = [
@@ -440,10 +465,14 @@ class IntegranteEstadoController extends Controller
                     $integrante->carrerainv_id = null;
                     $integrante->organismo_id = null;
                     $integrante->ingreso_carrerainv = null;
+
+                    $investigador->carrerainv_id = null;
+                    $investigador->organismo_id = null;
                 }
                 if ($request->categorias[0]) {
                     $integrante->categoria_id = $request->categorias[0];
 
+                    $investigador->categoria_id = $request->categorias[0];
                     //$integrante->save();
                     // Datos de la nueva categoría
                     $nuevaCategoria = [
@@ -473,10 +502,14 @@ class IntegranteEstadoController extends Controller
                 }
                 else{
                     $integrante->categoria_id = null;
+
+                    $investigador->categoria_id = null;
                 }
 
                 if ($request->sicadis[0]) {
                     $integrante->sicadi_id = $request->sicadis[0];
+
+                    $investigador->sicadi_id = $request->sicadis[0];
 
                     //$integrante->save();
                     // Datos del nuevo SICADI
@@ -507,6 +540,7 @@ class IntegranteEstadoController extends Controller
                 }
                 else{
                     $integrante->sicadi_id = null;
+                    $investigador->sicadi_id = null;
                 }
 
 
@@ -515,6 +549,9 @@ class IntegranteEstadoController extends Controller
                     $integrante->institucion = $request->institucions[0];
                     $integrante->alta_beca = $request->becadesdes[0];
                     $integrante->baja_beca = $request->becahastas[0];
+
+                    $investigador->beca = $request->becas[0];;
+                    $investigador->institucion = $request->institucions[0];
                     /*if ($integrante->alta_beca){
                         if ($integrante->alta_beca->gt(Carbon::parse($input['alta']))) {
                             // Actualizar la fecha de alta en $input['alta'] con la fecha de alta del cargo
@@ -579,8 +616,12 @@ class IntegranteEstadoController extends Controller
                     $integrante->institucion = null;
                     $integrante->alta_beca = null;
                     $integrante->baja_beca = null;
+
+                    $investigador->beca = null;
+                    $investigador->institucion = null;
                 }
                 $integrante->save();
+                $investigador->save();
                 // Actualizar el registro de estado existente donde 'hasta' es null
                 IntegranteEstado::where('integrante_id', $integrante->id)
                     ->whereNull('hasta')
