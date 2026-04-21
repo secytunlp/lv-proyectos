@@ -367,14 +367,17 @@ class IntegranteController extends Controller
         // Crear el validador con las reglas y mensajes
         $validator = Validator::make($request->all(), $rules, $messages);
 
-        // Añadir la validación personalizada para la fecha de cierre
-        $validator->after(function ($validator) {
-            $today = now();
-            $cierreDate = \Carbon\Carbon::parse(Constants::CIERRE);
-            if ($today->gt($cierreDate)) {
-                $validator->errors()->add('convocatoria', 'La convocatoria no está vigente.');
-            }
-        });
+        $selectedRoleId = session('selected_rol');
+        if ($selectedRoleId==2) {
+            // Añadir la validación personalizada para la fecha de cierre
+            $validator->after(function ($validator) {
+                $today = now();
+                $cierreDate = \Carbon\Carbon::parse(Constants::CIERRE);
+                if ($today->gt($cierreDate)) {
+                    $validator->errors()->add('convocatoria', 'La convocatoria no está vigente.');
+                }
+            });
+        }
 
         // Validar y verificar si hay errores
         if ($validator->fails()) {
@@ -676,15 +679,17 @@ class IntegranteController extends Controller
 
         // Crear el validador con las reglas y mensajes
         $validator = Validator::make($request->all(), $rules, $messages);
-
-        // Añadir la validación personalizada para la fecha de cierre
-        $validator->after(function ($validator) {
-            $today = now();
-            $cierreDate = \Carbon\Carbon::parse(Constants::CIERRE);
-            if ($today->gt($cierreDate)) {
-                $validator->errors()->add('convocatoria', 'La convocatoria no está vigente.');
-            }
-        });
+        $selectedRoleId = session('selected_rol');
+        if ($selectedRoleId==2) {
+            // Añadir la validación personalizada para la fecha de cierre
+            $validator->after(function ($validator) {
+                $today = now();
+                $cierreDate = \Carbon\Carbon::parse(Constants::CIERRE);
+                if ($today->gt($cierreDate)) {
+                    $validator->errors()->add('convocatoria', 'La convocatoria no está vigente.');
+                }
+            });
+        }
 
         // Validar y verificar si hay errores
         if ($validator->fails()) {
@@ -1959,14 +1964,17 @@ class IntegranteController extends Controller
         // Crear el validador con las reglas y mensajes
         $validator = Validator::make($request->all(), $rules, $messages);
 
-        // Añadir la validación personalizada para la fecha de cierre
-        $validator->after(function ($validator) {
-            $today = now();
-            $cierreDate = \Carbon\Carbon::parse(Constants::CIERRE);
-            if ($today->gt($cierreDate)) {
-                $validator->errors()->add('convocatoria', 'La convocatoria no está vigente.');
-            }
-        });
+        $selectedRoleId = session('selected_rol');
+        if ($selectedRoleId==2) {
+            // Añadir la validación personalizada para la fecha de cierre
+            $validator->after(function ($validator) {
+                $today = now();
+                $cierreDate = \Carbon\Carbon::parse(Constants::CIERRE);
+                if ($today->gt($cierreDate)) {
+                    $validator->errors()->add('convocatoria', 'La convocatoria no está vigente.');
+                }
+            });
+        }
 
         // Validar y verificar si hay errores
         if ($validator->fails()) {
