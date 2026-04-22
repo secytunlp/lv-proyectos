@@ -435,9 +435,13 @@
 
                                                     <tbody id="cuerpoBecas">
                                                     <tr>
-
-                                                        <td>{{ Form::select('institucions[]',[''=>'','ANPCyT'=>'ANPCyT','CIC'=>'CIC','CONICET'=>'CONICET','UNLP'=>'UNLP','CIN'=>'CIN','OTRA'=>'OTRA'], $integrante->institucion,['class' => 'form-control institucion_select', 'style' => 'width: 150px']) }}</td>
-                                                        <td>{{ Form::select('becas[]',[''=>'','Beca inicial'=>'Beca inicial','Beca superior'=>'Beca superior','Beca de entrenamiento'=>'Beca de entrenamiento','Beca doctoral'=>'Beca doctoral','Beca posdoctoral'=>'Beca posdoctoral','Beca finalización del doctorado'=>'Beca finalización del doctorado','Beca maestría'=>'Beca maestría','Formación Superior'=>'Formación Superior','Iniciación'=>'Iniciación','TIPO I'=>'TIPO I','TIPO II'=>'TIPO II','TIPO A'=>'TIPO A','Tipo A - Maestría'=>'Tipo A - Maestría','Tipo A - Doctorado'=>'Tipo A - Doctorado','Beca Cofinanciada (UNLP-CIC)'=>'Beca Cofinanciada (UNLP-CIC)','Especial de Maestría'=>'Especial de Maestría','TIPO B'=>'TIPO B','TIPO B (DOCTORADO)'=>'TIPO B (DOCTORADO)','TIPO B (MAESTRÍA)'=>'TIPO B (MAESTRÍA)','BECA DE PERFECCIONAMIENTO'=>'BECA DE PERFECCIONAMIENTO','CONICET 2'=>'CONICET 2','RETENCION DE POSTGRADUADO'=>'RETENCION DE POSTGRADUADO','EVC'=>'EVC'], $integrante->beca,['class' => 'form-control beca_select', 'style' => 'width: 150px']) }}</td>
+                                                        @php
+                                                            $instituciones = config('becaEntidades');
+                                                            unset($instituciones['Otra']);
+                                                            $instituciones['CIN'] = 'CIN';
+                                                        @endphp
+                                                        <td>{{ Form::select('institucions[]',[''=>'']+$instituciones, $integrante->institucion,['class' => 'form-control institucion_select', 'style' => 'width: 150px']) }}</td>
+                                                        <td>{{ Form::select('becas[]',\App\Helpers\BecaHelper::obtenerOpcionesBecaPorInstitucion(old('institucions.0', $integrante->institucion)), $integrante->beca,['class' => 'form-control beca_select', 'style' => 'width: 150px']) }}</td>
 
                                                         <td>{{Form::date('becadesdes[]', ($integrante->alta_beca)?date('Y-m-d', strtotime($integrante->alta_beca)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
 
