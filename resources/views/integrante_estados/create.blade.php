@@ -482,25 +482,6 @@
 
     </div>
     <!-- /.content-wrapper -->
-    {{-- Confirmation modal --}}
-    <div class="modal fade" id="modalConfirmarInvestigador" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-                    <h4 class="modal-title">Actualizar datos del investigador</h4>
-                </div>
-                <div class="modal-body">
-                    <p>¿Desea también actualizar los datos del investigador (títulos, cargos, carrera, categoría, beca)?</p>
-                    <p class="text-muted"><small>Si este es un integrante de un proyecto anterior, es posible que sus datos actuales sean diferentes.</small></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" id="btnNoActualizar">No, solo guardar el estado</button>
-                    <button type="button" class="btn btn-primary" id="btnSiActualizar">Sí, actualizar investigador</button>
-                </div>
-            </div>
-        </div>
-    </div>
 @endsection
 @section('footerSection')
 
@@ -544,24 +525,14 @@
                 }
             });
 
-            // Open modal on save click
+            // Replace modal approach with native confirm
             $('#btnGuardar').on('click', function () {
-                $('#modalConfirmarInvestigador').modal('show');
-            });
+                var actualizar = confirm('¿Desea también actualizar los datos del investigador (títulos, cargos, carrera, categoría, beca)?\n\nSi este es un integrante de un proyecto anterior, sus datos actuales pueden ser diferentes.');
 
-// Submit without updating investigador
-            $('#btnNoActualizar').on('click', function () {
-                $('#actualizar_investigador').val('0');
+                $('#actualizar_investigador').val(actualizar ? '1' : '0');
                 window.cambiosRealizados = false;
                 $('form').submit();
             });
-
-            $('#btnSiActualizar').on('click', function () {
-                $('#actualizar_investigador').val('1');
-                window.cambiosRealizados = false;
-                $('form').submit();
-            });
-
 
         });
 
