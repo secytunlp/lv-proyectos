@@ -552,12 +552,13 @@
 // Submit without updating investigador
             $('#btnNoActualizar').on('click', function () {
                 $('#actualizar_investigador').val('0');
+                window.cambiosRealizados = false;
                 $('form').submit();
             });
 
-// Submit with investigador update
             $('#btnSiActualizar').on('click', function () {
                 $('#actualizar_investigador').val('1');
+                window.cambiosRealizados = false;
                 $('form').submit();
             });
 
