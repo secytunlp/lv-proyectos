@@ -965,12 +965,29 @@ class InvestigadorController extends Controller
                     ]);
                 }
             }
+            // After
             if (!empty($request->becas)) {
-                if ($esRangoActual) {
-                    $investigador->beca = $becaSeleccionada;
-                    $investigador->institucion = $institucionSeleccionad;
-                    $investigador->save();
+                // Check active beca from pivot table (hasta IS NULL or hasta >= today)
+                $becaVigente = DB::table('investigador_becas')
+                    ->where('investigador_id', $investigador->id)
+                    ->where(function ($q) {
+                        $q->whereNull('hasta')->orWhereDate('hasta', '>=', now());
+                    })
+                    ->first();
+
+                if ($becaVigente) {
+                    $investigador->beca = $becaVigente->beca;
+                    $investigador->institucion = $becaVigente->institucion;
+                } else {
+                    $investigador->beca = null;
+                    $investigador->institucion = null;
                 }
+                $investigador->save();
+            } else {
+                // No becas submitted at all, clear the fields
+                $investigador->beca = null;
+                $investigador->institucion = null;
+                $investigador->save();
             }
 
             DB::commit();

@@ -641,6 +641,21 @@ class IntegranteEstadoController extends Controller
                 }
                 $integrante->save();
                 if ($actualizarInvestigador) {
+                    // Check if investigador has any currently active beca (hasta IS NULL or hasta >= today)
+                    $becaVigente = DB::table('investigador_becas')
+                        ->where('investigador_id', $investigador->id)
+                        ->where(function ($q) {
+                            $q->whereNull('hasta')->orWhereDate('hasta', '>=', now());
+                        })
+                        ->first();
+
+                    if ($becaVigente) {
+                        $investigador->beca = $becaVigente->beca;
+                        $investigador->institucion = $becaVigente->institucion;
+                    } else {
+                        $investigador->beca = null;
+                        $investigador->institucion = null;
+                    }
                     $investigador->save();
                 }
                 // Actualizar el registro de estado existente donde 'hasta' es null
