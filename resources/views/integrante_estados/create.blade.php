@@ -90,7 +90,7 @@
                                                     <input type="hidden" name="integrante_id" value="{{ $integrante->id ?? '' }}">
                                                     @php
                                                         $integranteTipos = config('integranteTipos');
-
+                                                        //dd($integrante);
                                                     @endphp
                                                     {{Form::label('tipo', 'Tipo')}}
                                                     {{ Form::select('tipo',$integranteTipos, $integrante->tipo,['class' => 'form-control']) }}
@@ -312,7 +312,7 @@
                                                     <tbody id="cuerpoCarrerainvs">
                                                     <tr>
 
-                                                        <td>{{ Form::select('carrerainvs[]',$carrerainvs, $integrante->carrrerainv_id,['class' => 'form-control', 'style' => 'width: 200px']) }}</td>
+                                                        <td>{{ Form::select('carrerainvs[]',$carrerainvs, $integrante->carrerainv_id,['class' => 'form-control', 'style' => 'width: 200px']) }}</td>
                                                         <td>{{ Form::select('organismos[]',$organismos, $integrante->organismo_id,['class' => 'form-control', 'style' => 'width: 150px']) }}</td>
                                                         <td>{{Form::date('carringresos[]', ($integrante->ingreso_carrerainv)?date('Y-m-d', strtotime($integrante->ingreso_carrerainv)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
 
