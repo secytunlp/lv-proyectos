@@ -459,7 +459,11 @@
                                     </div>
                                 </div>
                                     <div class="form-group">
-                                        <button type="submit" class="btn btn-primary">Guardar</button>
+                                        {{-- Hidden field to control whether to update the investigador --}}
+                                        <input type="hidden" name="actualizar_investigador" id="actualizar_investigador" value="0">
+
+                                        {{-- Submit button opens modal instead of submitting directly --}}
+                                        <button type="button" class="btn btn-primary" id="btnGuardar">Guardar</button>
                                         <a href="{{ route('integrante_estados.index') }}?integrante_id={{ $integrante->id }}" class="btn btn-warning">Volver</a>
 
                                     </div>
@@ -478,6 +482,25 @@
 
     </div>
     <!-- /.content-wrapper -->
+    {{-- Confirmation modal --}}
+    <div class="modal fade" id="modalConfirmarInvestigador" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                    <h4 class="modal-title">Actualizar datos del investigador</h4>
+                </div>
+                <div class="modal-body">
+                    <p>¿Desea también actualizar los datos del investigador (títulos, cargos, carrera, categoría, beca)?</p>
+                    <p class="text-muted"><small>Si este es un integrante de un proyecto anterior, es posible que sus datos actuales sean diferentes.</small></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" id="btnNoActualizar">No, solo guardar el estado</button>
+                    <button type="button" class="btn btn-primary" id="btnSiActualizar">Sí, actualizar investigador</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 @section('footerSection')
 
@@ -519,6 +542,23 @@
                 } else {
                     $('#divMaterias').show(); // Mostrar divMaterias si se selecciona vacío
                 }
+            });
+
+            // Open modal on save click
+            $('#btnGuardar').on('click', function () {
+                $('#modalConfirmarInvestigador').modal('show');
+            });
+
+// Submit without updating investigador
+            $('#btnNoActualizar').on('click', function () {
+                $('#actualizar_investigador').val('0');
+                $('form').submit();
+            });
+
+// Submit with investigador update
+            $('#btnSiActualizar').on('click', function () {
+                $('#actualizar_investigador').val('1');
+                $('form').submit();
             });
 
 
