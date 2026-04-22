@@ -175,8 +175,8 @@ class UnidadInvestigacionController extends Controller
     public function create(Request $request)
     {
 
-        $facultades = DB::table('facultads')->pluck('nombre', 'id')->prepend('','');
-        return view('unidad_investigacions.create',compact('facultades'));
+        //$facultades = DB::table('facultads')->pluck('nombre', 'id')->prepend('','');
+        return view('unidad_investigacions.create');
     }
 
     private function safeRequest($request, $key, $default = null)

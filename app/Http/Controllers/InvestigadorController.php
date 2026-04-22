@@ -817,9 +817,14 @@ class InvestigadorController extends Controller
                 $investigador->deddoc = $mayorDeddoc;
                 $investigador->facultad_id = $mayorFacultad;
                 $investigador->universidad_id = $mayorUniversidad;
-                $investigador->save();
-            }
 
+            }
+            else{
+                $investigador->cargo_id = null;
+                $investigador->deddoc = null;
+                $investigador->facultad_id = null;
+            }
+            $investigador->save();
             if (!empty($request->carrerainvs)) {
                 $esActual=0;
                 foreach ($request->carrerainvs as $item => $v) {
