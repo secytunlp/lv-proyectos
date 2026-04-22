@@ -41,7 +41,12 @@ use App\Http\Controllers\MiembroEstadoController;
 Route::get('/', function () {
     return redirect(route('login'));
 });
-
+// routes/web.php
+Route::get('/session-refresh', function () {
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+    return redirect()->route('login');
+})->name('session.refresh');
 Route::get('/error-403', function () {
     return view('errors.403');
 })->name('error-403');

@@ -32,7 +32,7 @@
                         <div class="form-group">
                         <a href="{{ url()->previous() }}" class="btn btn-warning">Volver</a>
 
-                        <a href="{{ route('login') }}" class="btn btn-primary">Ingresar</a>
+                            <a href="{{ route('session.refresh') }}" class="btn btn-primary">Ingresar</a>
                         </div>
                     </div>
                     <!-- /.box -->
