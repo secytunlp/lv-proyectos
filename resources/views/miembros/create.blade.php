@@ -82,17 +82,15 @@
                                                     <input type="hidden" name="unidad_id" value="{{ $unidad->id ?? '' }}">
                                                     @php
                                                         $miembroTiposConfig = config('miembrosTipos');
+                                                        $tipoUnidad = $unidad->tipo ?? 'Centro'; // o como se llame el campo
 
-                                                        $miembroTipos = collect($miembroTiposConfig)
-                                                            ->flatten(1)
-                                                            ->pluck('nombre','nombre')
-                                                            ->unique()
+                                                        $miembroTipos = collect($miembroTiposConfig[$tipoUnidad] ?? [])
+                                                            ->pluck('nombre', 'nombre')
                                                             ->toArray();
-
                                                     @endphp
 
                                                     {{Form::label('tipo', 'Tipo')}}
-                                                    {{ Form::select('tipo',[''=>'']+$miembroTipos, '',['class' => 'form-control']) }}
+                                                    {{ Form::select('tipo',[''=>'']+$miembroTipos, '',['class' => 'form-control', 'id' => 'tipo']) }}
                                                 </div>
                                             </div>
                                             <div class="col-md-2">
@@ -101,14 +99,30 @@
                                                     {{Form::number('horas', '', ['class' => 'form-control','placeholder'=>'Horas'])}}
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="row">
                                             <div class="col-md-1">
                                                 <div class="form-group">
                                                     {{Form::label('activo', 'Activo')}}
                                                     {{Form::checkbox('activo', 1,true)}}
                                                 </div>
                                             </div>
+                                        </div>
+                                        <div class="row">
+                                            {{-- Campos para Investigador correspondiente --}}
+                                            <div class="col-md-3" id="divLugarTrabajo" style="display:none;">
+                                                <div class="form-group">
+                                                    {{Form::label('lugar_trabajo', 'Lugar de trabajo permanente (Institución de referencia)')}}
+                                                    {{Form::text('lugar_trabajo', '', ['class' => 'form-control', 'placeholder' => 'Lugar de trabajo'])}}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2" id="divHsLugar" style="display:none;">
+                                                <div class="form-group">
+                                                    {{Form::label('hs_lugar', 'Horas dedicadas')}}
+                                                    {{Form::number('hs_lugar', '', ['class' => 'form-control', 'placeholder' => 'Horas'])}}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+
                                             <div class="col-md-4">
 
                                                 <div class="form-group">
@@ -660,7 +674,16 @@
             });
 
 
-
+// Show/hide campos Investigador correspondiente
+            $('#tipo').on('change', function() {
+                if ($(this).val() === 'Investigador correspondiente') {
+                    $('#divLugarTrabajo, #divHsLugar').show();
+                } else {
+                    $('#divLugarTrabajo, #divHsLugar').hide();
+                    $('input[name="lugar_trabajo"]').val('');
+                    $('input[name="hs_lugar"]').val('');
+                }
+            });
 
 
         });

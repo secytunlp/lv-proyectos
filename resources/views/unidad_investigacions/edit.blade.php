@@ -134,7 +134,7 @@
                                             <div class="col-md-5">
 
                                                 <div class="form-group">
-                                                    {{Form::label('observaciones', 'Observaciones')}}
+                                                    {{Form::label('observaciones', 'Antecedentes')}}
                                                     {{Form::textarea('observaciones', $unidad->observaciones, ['class' => 'form-control'])}}
 
                                                 </div>
@@ -295,7 +295,7 @@
                                                     <table class="table" style="width: 50%">
                                                         <thead>
 
-                                                        <th>U. Académica</th>
+                                                        <th>Unidades Académicas</th>
 
                                                         <th><a href="#" class="addRowFacultad"><i class="glyphicon glyphicon-plus"></i></a></th>
                                                         </thead>
@@ -310,6 +310,70 @@
                                                                 <td>{{ Form::select('facultads[]',$facultades, $facultad->facultad_id ?? old("facultads.$index"), ['class' => 'form-control', 'style' => 'width: 600px']) }}</td>
 
                                                                 <td><a href="#" class="btn btn-danger removeFacultad"><i class="glyphicon glyphicon-remove"></i></a></td>
+                                                            </tr>
+                                                        @endforeach
+
+                                                        </tbody>
+
+
+
+
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-md-12">
+
+                                                <div class="table-responsive">
+                                                    <table class="table" style="width: 50%">
+                                                        <thead>
+
+                                                        <th>Establecimientos de los niveles educativos obligatorios</th>
+
+                                                        <th><a href="#" class="addRowColegio"><i class="glyphicon glyphicon-plus"></i></a></th>
+                                                        </thead>
+
+                                                        <tbody id="cuerpoColegio">
+                                                        @foreach($unidad->colegios as $index => $colegio)
+                                                            @php
+
+                                                                @endphp
+                                                            <tr>
+                                                                {{-- Usar el valor de ambito['institucion'] o el correspondiente --}}
+                                                                <td>{{ Form::select('colegios[]',['' => '']+config('colegios'), $colegio->nombre ?? old("colegios.$index"), ['class' => 'form-control', 'style' => 'width: 600px']) }}</td>
+
+                                                                <td><a href="#" class="btn btn-danger removeColegio"><i class="glyphicon glyphicon-remove"></i></a></td>
+                                                            </tr>
+                                                        @endforeach
+
+                                                        </tbody>
+
+
+
+
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-md-12">
+
+                                                <div class="table-responsive">
+                                                    <table class="table" style="width: 50%">
+                                                        <thead>
+
+                                                        <th>Unidades Externas</th>
+
+                                                        <th><a href="#" class="addRowExterno"><i class="glyphicon glyphicon-plus"></i></a></th>
+                                                        </thead>
+
+                                                        <tbody id="cuerpoExterno">
+                                                        @foreach($unidad->externos as $index => $externo)
+                                                            @php
+
+                                                                @endphp
+                                                            <tr>
+                                                                {{-- Usar el valor de ambito['institucion'] o el correspondiente --}}
+                                                                <td>{{ Form::select('externos[]',['' => '']+config('carreraEmpleadores'), $externo->nombre ?? old("externos.$index"), ['class' => 'form-control', 'style' => 'width: 400px']) }}</td>
+
+                                                                <td><a href="#" class="btn btn-danger removeExterno"><i class="glyphicon glyphicon-remove"></i></a></td>
                                                             </tr>
                                                         @endforeach
 
@@ -417,6 +481,70 @@
         };
 
         $('body').on('click', '.removeFacultad', function(e){
+
+            e.preventDefault();
+            var confirmDelete = confirm('¿Estás seguro?');
+
+            if (confirmDelete) {
+                $(this).parent().parent().remove();
+            }
+
+
+        });
+
+        $('.addRowColegio').on('click',function(e){
+
+            e.preventDefault();
+            addRowColegio();
+        });
+        function addRowColegio()
+        {
+
+            var tr='<tr>'+
+                '<td>'+'{{ Form::select('colegios[]',['' => '']+config('colegios'), '',['class' => 'form-control', 'style' => 'width: 600px']) }}'+'</td>'+
+
+
+                '<td><a href="#" class="btn btn-danger removeColegio"><i class="glyphicon glyphicon-remove"></i></a></td>'+
+                '</tr>';
+            $('#cuerpoColegio').append(tr);
+
+
+
+        };
+
+        $('body').on('click', '.removeColegio', function(e){
+
+            e.preventDefault();
+            var confirmDelete = confirm('¿Estás seguro?');
+
+            if (confirmDelete) {
+                $(this).parent().parent().remove();
+            }
+
+
+        });
+
+        $('.addRowExterno').on('click',function(e){
+
+            e.preventDefault();
+            addRowExterno();
+        });
+        function addRowExterno()
+        {
+
+            var tr='<tr>'+
+                '<td>'+'{{ Form::select('externos[]',['' => '']+config('carreraEmpleadores'), '',['class' => 'form-control', 'style' => 'width: 400px']) }}'+'</td>'+
+
+
+                '<td><a href="#" class="btn btn-danger removeExterno"><i class="glyphicon glyphicon-remove"></i></a></td>'+
+                '</tr>';
+            $('#cuerpoExterno').append(tr);
+
+
+
+        };
+
+        $('body').on('click', '.removeExterno', function(e){
 
             e.preventDefault();
             var confirmDelete = confirm('¿Estás seguro?');

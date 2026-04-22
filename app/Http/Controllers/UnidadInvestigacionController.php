@@ -57,9 +57,25 @@ class UnidadInvestigacionController extends Controller
 
 
         // Consulta base
-        $query = UnidadInvestigacion::select('unidad_investigacions.id as id', 'unidad_investigacions.tipo','unidad_investigacions.denominacion','unidad_investigacions.sigla',  'unidad_investigacions.especialidad', DB::raw("GROUP_CONCAT(DISTINCT facultads.nombre ORDER BY facultads.nombre SEPARATOR ' / ') as facultads"), 'unidad_investigacions.fecha_disposicion', 'unidad_investigacions.disposicion','unidad_investigacions.estado')
+        $query = UnidadInvestigacion::select(
+            'unidad_investigacions.id as id',
+            'unidad_investigacions.tipo',
+            'unidad_investigacions.denominacion',
+            'unidad_investigacions.sigla',
+            'unidad_investigacions.especialidad',
+            DB::raw("TRIM(BOTH ' / ' FROM CONCAT_WS(' / ',
+    NULLIF(GROUP_CONCAT(DISTINCT facultads.nombre ORDER BY facultads.nombre SEPARATOR ' / '), ''),
+    NULLIF(GROUP_CONCAT(DISTINCT unidad_colegios.nombre ORDER BY unidad_colegios.nombre SEPARATOR ' / '), ''),
+    NULLIF(GROUP_CONCAT(DISTINCT unidad_externos.nombre ORDER BY unidad_externos.nombre SEPARATOR ' / '), '')
+)) as facultads"),
+            'unidad_investigacions.fecha_disposicion',
+            'unidad_investigacions.disposicion',
+            'unidad_investigacions.estado'
+        )
             ->leftJoin('unidad_facultads', 'unidad_investigacions.id', '=', 'unidad_facultads.unidad_id')
             ->leftJoin('facultads', 'unidad_facultads.facultad_id', '=', 'facultads.id')
+            ->leftJoin('unidad_colegios', 'unidad_investigacions.id', '=', 'unidad_colegios.unidad_id')
+            ->leftJoin('unidad_externos', 'unidad_investigacions.id', '=', 'unidad_externos.unidad_id')
             ->groupBy(
                 'unidad_investigacions.id',
                 'unidad_investigacions.tipo',
@@ -82,7 +98,11 @@ class UnidadInvestigacionController extends Controller
 
 
         if (!empty($facultad) && $facultad != '-1') {
-            $query->where('facultads.id', $facultad);
+            $query->where(function($q) use ($facultad) {
+                $q->where('facultads.nombre', 'like', "%$facultad%")
+                    ->orWhere('unidad_colegios.nombre', 'like', "%$facultad%")
+                    ->orWhere('unidad_externos.nombre', 'like', "%$facultad%");
+            });
         }
 
         // Aplicar la búsqueda
@@ -481,6 +501,38 @@ class UnidadInvestigacionController extends Controller
             }
         }
 
+        $unidad->colegios()->delete();
+        if (!empty($request->colegios)) {
+
+            foreach ($request->colegios as $item => $v) {
+                // Inserta el registro en la tabla intermedia 'investigador_cargos'
+                DB::table('unidad_colegios')->insert([
+                    'unidad_id' => $unidad->id, // Supongo que tienes un objeto $investigador disponible
+
+                    'nombre' => $request->colegios[$item],
+
+                    'created_at' => now(), // Establece la fecha y hora de creación
+                    'updated_at' => now(), // Establece la fecha y hora de actualización
+                ]);
+            }
+        }
+
+        $unidad->externos()->delete();
+        if (!empty($request->externos)) {
+
+            foreach ($request->externos as $item => $v) {
+                // Inserta el registro en la tabla intermedia 'investigador_cargos'
+                DB::table('unidad_externos')->insert([
+                    'unidad_id' => $unidad->id, // Supongo que tienes un objeto $investigador disponible
+
+                    'nombre' => $request->externos[$item],
+
+                    'created_at' => now(), // Establece la fecha y hora de creación
+                    'updated_at' => now(), // Establece la fecha y hora de actualización
+                ]);
+            }
+        }
+
 
     }
 
@@ -518,6 +570,8 @@ class UnidadInvestigacionController extends Controller
 
         // Elimina las relaciones
         $unidad->facultads()->delete();
+        $unidad->colegios()->delete();
+        $unidad->externos()->delete();
 
         $unidad->estados()->delete();
 

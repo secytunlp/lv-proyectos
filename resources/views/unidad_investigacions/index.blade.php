@@ -58,11 +58,11 @@
 
                                 <div class="col-md-2">
                                     <div class="form-group">
-                                        {{Form::label('facultad', 'U. Académica')}}
-                                        {{Form::select('facultad_id',  $facultades,'', ['class' => 'form-control js-example-basic-single', 'style' => 'width: 100%','id'=>'facultad_id'])}}
-
+                                        {{ Form::label('facultad_id', 'D. Académicas') }}
+                                        {{ Form::text('facultad_id', '', ['class' => 'form-control', 'id' => 'facultad_id', 'placeholder' => 'Buscar...']) }}
                                     </div>
                                 </div>
+
                             </div>
                             </fieldset>
 
@@ -269,8 +269,8 @@
                 table.ajax.reload(); // Recargar la tabla cuando cambie el filtro de período
             });
 
-            $('#facultad_id').change(function() {
-                table.ajax.reload(); // Recargar la tabla cuando cambie el filtro de período
+            $('#facultad_id').on('keyup', function() {
+                table.ajax.reload();
             });
 
 

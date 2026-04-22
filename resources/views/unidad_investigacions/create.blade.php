@@ -88,12 +88,29 @@
                                                     {{ Form::select('tipo',[''=>'']+config('unidadTipos'), '',['class' => 'form-control']) }}
                                                 </div>
                                             </div>
+                                            <div class="col-md-1">
+                                                <div class="form-group">
+
+                                                    {{Form::label('tipificacion', 'Tipificación')}}
+                                                    {{ Form::select('tipificacion',[''=>'']+config('tipificaciones'), '',['class' => 'form-control']) }}
+                                                </div>
+                                            </div>
                                             <div class="col-md-2">
                                                 <div class="form-group">
                                                     {{Form::label('sigla', 'Sigla')}}
                                                     {{Form::text('sigla', '', ['class' => 'form-control','placeholder'=>'Sigla'])}}
                                                 </div>
                                             </div>
+                                        </div>
+                                        <div class="row">
+
+                                            <div class="col-md-5">
+                                                <div class="form-group">
+                                                    {{Form::label('anidada', 'Anidada')}}
+                                                    {{Form::text('anidada', '', ['class' => 'form-control','placeholder'=>'Anidada'])}}
+                                                </div>
+                                            </div>
+
                                         </div>
 
                                         <div class="row">
@@ -104,6 +121,7 @@
                                                     {{Form::text('denominacion', '', ['class' => 'form-control','placeholder'=>'Denominación'])}}
                                                 </div>
                                             </div>
+
                                         </div>
                                         <div class="row">
 
@@ -133,7 +151,7 @@
                                             <div class="col-md-5">
 
                                                 <div class="form-group">
-                                                    {{Form::label('observaciones', 'Observaciones')}}
+                                                    {{Form::label('observaciones', 'Antecedentes')}}
                                                     {{Form::textarea('observaciones', '', ['class' => 'form-control'])}}
 
                                                 </div>
@@ -278,7 +296,7 @@
                                                 <table class="table" style="width: 50%">
                                                     <thead>
 
-                                                    <th>U. Académica</th>
+                                                    <th>Unidades Académicas</th>
 
                                                     <th><a href="#" class="addRowFacultad"><i class="glyphicon glyphicon-plus"></i></a></th>
                                                     </thead>
@@ -297,6 +315,50 @@
 
 
                                                 </table>
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-md-12">
+
+                                                <div class="table-responsive">
+                                                    <table class="table" style="width: 50%">
+                                                        <thead>
+
+                                                        <th>Establecimientos de los niveles educativos obligatorios</th>
+
+                                                        <th><a href="#" class="addRowColegio"><i class="glyphicon glyphicon-plus"></i></a></th>
+                                                        </thead>
+
+                                                        <tbody id="cuerpoColegio">
+
+
+                                                        </tbody>
+
+
+
+
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-md-12">
+
+                                                <div class="table-responsive">
+                                                    <table class="table" style="width: 50%">
+                                                        <thead>
+
+                                                        <th>Unidades Externas</th>
+
+                                                        <th><a href="#" class="addRowExterno"><i class="glyphicon glyphicon-plus"></i></a></th>
+                                                        </thead>
+
+                                                        <tbody id="cuerpoExterno">
+
+
+                                                        </tbody>
+
+
+
+
+                                                    </table>
                                                 </div>
                                             </div>
                                         </fieldset>
@@ -397,6 +459,70 @@
         };
 
         $('body').on('click', '.removeFacultad', function(e){
+
+            e.preventDefault();
+            var confirmDelete = confirm('¿Estás seguro?');
+
+            if (confirmDelete) {
+                $(this).parent().parent().remove();
+            }
+
+
+        });
+
+        $('.addRowColegio').on('click',function(e){
+
+            e.preventDefault();
+            addRowColegio();
+        });
+        function addRowColegio()
+        {
+
+            var tr='<tr>'+
+                '<td>'+'{{ Form::select('colegios[]',['' => '']+config('colegios'), '',['class' => 'form-control', 'style' => 'width: 600px']) }}'+'</td>'+
+
+
+                '<td><a href="#" class="btn btn-danger removeColegio"><i class="glyphicon glyphicon-remove"></i></a></td>'+
+                '</tr>';
+            $('#cuerpoColegio').append(tr);
+
+
+
+        };
+
+        $('body').on('click', '.removeColegio', function(e){
+
+            e.preventDefault();
+            var confirmDelete = confirm('¿Estás seguro?');
+
+            if (confirmDelete) {
+                $(this).parent().parent().remove();
+            }
+
+
+        });
+
+        $('.addRowExterno').on('click',function(e){
+
+            e.preventDefault();
+            addRowExterno();
+        });
+        function addRowExterno()
+        {
+
+            var tr='<tr>'+
+                '<td>'+'{{ Form::select('externos[]',['' => '']+config('carreraEmpleadores'), '',['class' => 'form-control', 'style' => 'width: 400px']) }}'+'</td>'+
+
+
+                '<td><a href="#" class="btn btn-danger removeExterno"><i class="glyphicon glyphicon-remove"></i></a></td>'+
+                '</tr>';
+            $('#cuerpoExterno').append(tr);
+
+
+
+        };
+
+        $('body').on('click', '.removeExterno', function(e){
 
             e.preventDefault();
             var confirmDelete = confirm('¿Estás seguro?');

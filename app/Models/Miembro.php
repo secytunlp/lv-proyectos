@@ -9,7 +9,7 @@ class Miembro extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['unidad_id', 'tipo', 'nombre', 'apellido', 'cuil', 'horas','estado', 'categoria_id', 'sicadi_id','deddoc','cargo_id','facultad_id','carrerainv_id','organismo_id','beca','activo','estudiante','observaciones','email','nacimiento'];
+    protected $fillable = ['unidad_id', 'tipo', 'nombre', 'apellido', 'cuil', 'horas','estado', 'categoria_id', 'sicadi_id','deddoc','cargo_id','facultad_id','carrerainv_id','organismo_id','beca','activo','estudiante','observaciones','email','nacimiento','lugar_trabajo','hs_lugar'];
 
 
 
