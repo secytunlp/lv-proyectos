@@ -274,7 +274,7 @@ class InvestigadorController extends Controller
                 $investigador->carrera = null;
                 $investigador->total = null;
                 $investigador->materias = null;
-                $investigador->save();
+
             }
 
             // Guardar el primer título pasado en $request->titulopost en la columna titulopost_id del investigador
@@ -742,13 +742,13 @@ class InvestigadorController extends Controller
                 $investigador->carrera = null;
                 $investigador->total = null;
                 $investigador->materias = null;
-                $investigador->save();
+
             }
 
             // Guardar el primer título pasado en $request->titulopost en la columna titulopost_id del investigador
             if (!empty($request->tituloposts)) {
                 $investigador->titulopost_id = $request->tituloposts[0];
-                $investigador->save();
+
             }
 
             // Guardar los títulos en las relaciones
@@ -824,7 +824,7 @@ class InvestigadorController extends Controller
                 $investigador->deddoc = null;
                 $investigador->facultad_id = null;
             }
-            $investigador->save();
+
             if (!empty($request->carrerainvs)) {
                 $esActual=0;
                 foreach ($request->carrerainvs as $item => $v) {
@@ -860,7 +860,11 @@ class InvestigadorController extends Controller
             if (!empty($request->carrerainvs)) {
                 $investigador->carrerainv_id = $carrerainv_id;
                 $investigador->organismo_id = $organismo_id;
-                $investigador->save();
+
+            }
+            else{
+                $investigador->carrerainv_id = null;
+                $investigador->organismo_id = null;
             }
 
             if (!empty($request->categorias)) {
@@ -893,7 +897,7 @@ class InvestigadorController extends Controller
             if (!empty($request->categorias)) {
                 $investigador->categoria_id = $categoria_id;
 
-                $investigador->save();
+
             }
 
             if (!empty($request->sicadis)) {
@@ -926,7 +930,7 @@ class InvestigadorController extends Controller
             if (!empty($request->sicadis)) {
                 $investigador->sicadi_id = $sicadi_id;
 
-                $investigador->save();
+
             }
             //dd($request->institucions);
             if (!empty($request->becas)) {
@@ -982,14 +986,14 @@ class InvestigadorController extends Controller
                     $investigador->beca = null;
                     $investigador->institucion = null;
                 }
-                $investigador->save();
+
             } else {
                 // No becas submitted at all, clear the fields
                 $investigador->beca = null;
                 $investigador->institucion = null;
-                $investigador->save();
-            }
 
+            }
+            $investigador->save();
             DB::commit();
             $respuestaID = 'success';
             $respuestaMSJ = 'Investigador modificado con éxito';

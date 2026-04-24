@@ -368,7 +368,7 @@
                                                         <td>{{Form::date('carringresos[]',  ($carrerainv->pivot->ingreso)?date('Y-m-d', strtotime($carrerainv->pivot->ingreso)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
 
 
-                                                        <td>{{ Form::radio('actual', 1, ($carrerainv->pivot->actual)?true:false,['id' => 'actual_1']) }}</td> <!-- Usamos un nombre único con el índice 1 -->
+                                                        <td>{{ Form::radio('actual', $index + 1, ($carrerainv->pivot->actual) ? true : false, ['id' => 'actual_' . ($index + 1)]) }}</td>
                                                         <td><a href="#" class="btn btn-danger removeCarrerainv"><i class="glyphicon glyphicon-remove"></i></a></td>
                                                     </tr>
                                                     @endforeach
