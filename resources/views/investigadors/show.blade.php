@@ -573,23 +573,7 @@
                 }
             });
 
-            // Limpiar el estado del radio button por defecto
-            $('input[name="actual"]').prop('checked', false);
 
-            // Seleccionar el radio button por defecto
-            $('#actual_1').prop('checked', true);
-
-            // Limpiar el estado del radio button por defecto
-            $('input[name="catactual"]').prop('checked', false);
-
-            // Seleccionar el radio button por defecto
-            $('#catactual_1').prop('checked', true);
-
-            // Limpiar el estado del radio button por defecto
-            $('input[name="sicadiactual"]').prop('checked', false);
-
-            // Seleccionar el radio button por defecto
-            $('#sicadiactual_1').prop('checked', true);
 
 
 
