@@ -691,15 +691,18 @@
         };
 
         $('body').on('click', '.removeCarrerainv', function(e){
-
             e.preventDefault();
             var confirmDelete = confirm('¿Estás seguro?');
 
             if (confirmDelete) {
                 $(this).parent().parent().remove();
+                // Renumber radios after removal
+                $('#cuerpoCarrerainvs tr').each(function(i){
+                    $(this).find('input[type="radio"][name="actual"]')
+                        .attr('id', 'actual_' + (i + 1))
+                        .attr('value', i + 1);
+                });
             }
-
-
         });
 
         $('.addRowCategoria').on('click',function(e){
