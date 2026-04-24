@@ -475,8 +475,12 @@
 
                                                     <tbody id="cuerpoBecas">
                                                     <tr>
-
-                                                        <td>{{ Form::select('institucions[]',[''=>'','ANPCyT'=>'ANPCyT','CIC'=>'CIC','CONICET'=>'CONICET','UNLP'=>'UNLP','CIN'=>'CIN','OTRA'=>'OTRA'], '',['class' => 'form-control institucion_select', 'style' => 'width: 150px']) }}</td>
+                                                        @php
+                                                            $instituciones = config('becaEntidades');
+                                                            unset($instituciones['Otra']);
+                                                            $instituciones['CIN'] = 'CIN';
+                                                        @endphp
+                                                        <td>{{ Form::select('institucions[]',[''=>'']+$instituciones, '',['class' => 'form-control institucion_select', 'style' => 'width: 150px']) }}</td>
                                                         <td>{{ Form::select('becas[]',[''=>''], '',['class' => 'form-control beca_select', 'style' => 'width: 150px']) }}</td>
 
                                                         <td>{{Form::date('becadesdes[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
@@ -783,7 +787,7 @@
         function addRowBeca()
         {
             var tr='<tr>'+
-                '<td>'+'{{ Form::select('institucions[]',[''=>'','ANPCyT'=>'ANPCyT','CIC'=>'CIC','CONICET'=>'CONICET','UNLP'=>'UNLP','CIN'=>'CIN','OTRA'=>'OTRA'], '',['class' => 'form-control institucion_select', 'style' => 'width: 150px']) }}'+'</td>'+
+                '<td>'+'{{ Form::select('institucions[]',['' => ''] + $dedicaciones, '',['class' => 'form-control institucion_select', 'style' => 'width: 150px']) }}'+'</td>'+
                 '<td>'+'{{ Form::select('becas[]',[''], '',['class' => 'form-control beca_select', 'style' => 'width: 150px']) }}'+'</td>'+
                 '<td>'+'{{Form::date('becadesdes[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
                 '<td>'+'{{Form::date('becahastas[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+

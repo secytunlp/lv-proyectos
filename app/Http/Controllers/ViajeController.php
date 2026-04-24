@@ -2351,6 +2351,10 @@ class ViajeController extends Controller
             $errores[] = 'El total de la pestaña presupuesto debe ser igual al monto declarado en la pestaña Montos.';
         }*/
 
+        $presupuestos = $solicitud->presupuestos()->get();
+        if ($presupuestos->count()==0) {
+            $errores[] = 'Falta cargar el presupuesto';
+        }
 
         if (empty($solicitud->curriculum)) {
             $errores[] = 'Falta subir el Curriculum';
