@@ -360,7 +360,7 @@
                                                     </thead>
 
                                                     <tbody id="cuerpoCarrerainvs">
-                                                    @foreach ($investigador->carrerainvs as $carrerainv)
+                                                    @foreach ($investigador->carrerainvs as $index => $carrerainv)
                                                     <tr>
 
                                                         <td>{{ Form::select('carrerainvs[]',$carrerainvs, $carrerainv->pivot->carrerainv_id,['class' => 'form-control', 'style' => 'width: 200px']) }}</td>
@@ -368,7 +368,7 @@
                                                         <td>{{Form::date('carringresos[]',  ($carrerainv->pivot->ingreso)?date('Y-m-d', strtotime($carrerainv->pivot->ingreso)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
 
 
-                                                        <td>{{ Form::radio('actual', $index + 1, ($carrerainv->pivot->actual) ? true : false, ['id' => 'actual_' . ($index + 1)]) }}</td>
+                                                        <td>{{ Form::radio('actual', $index + 1, ($carrerainv->pivot->actual)?true:false, ['id' => 'actual_' . ($index + 1)]) }}</td>
                                                         <td><a href="#" class="btn btn-danger removeCarrerainv"><i class="glyphicon glyphicon-remove"></i></a></td>
                                                     </tr>
                                                     @endforeach
