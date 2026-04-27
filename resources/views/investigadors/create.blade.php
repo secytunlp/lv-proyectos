@@ -475,13 +475,9 @@
 
                                                     <tbody id="cuerpoBecas">
                                                     <tr>
-                                                        @php
-                                                            $instituciones = config('becaEntidades');
-                                                            unset($instituciones['Otra']);
-                                                            $instituciones['CIN'] = 'CIN';
-                                                        @endphp
-                                                        <td>{{ Form::select('institucions[]',[''=>'']+$instituciones, '',['class' => 'form-control institucion_select', 'style' => 'width: 150px']) }}</td>
-                                                        <td>{{ Form::select('becas[]',[''=>''], '',['class' => 'form-control beca_select', 'style' => 'width: 150px']) }}</td>
+
+                                                        <td>{{ Form::select('institucions[]',[''=>'','ANPCyT'=>'ANPCyT','AGENCIA i+D+i'=>'AGENCIA i+D+i','CIC PBA'=>'CIC PBA','CIC'=>'CIC','CONICET'=>'CONICET','UNLP'=>'UNLP','CIN'=>'CIN','OTRA'=>'OTRA'], '',['class' => 'form-control institucion_select', 'style' => 'width: 150px']) }}</td>
+                                                        <td>{{ Form::select('becas[]',[''=>'','Beca inicial'=>'Beca inicial','Beca superior'=>'Beca superior','Beca de entrenamiento'=>'Beca de entrenamiento','Beca doctoral'=>'Beca doctoral','Beca posdoctoral'=>'Beca posdoctoral','Beca finalización del doctorado'=>'Beca finalización del doctorado','Beca maestría'=>'Beca maestría','Formación Superior'=>'Formación Superior','Iniciación'=>'Iniciación','TIPO I'=>'TIPO I','TIPO II'=>'TIPO II','TIPO A'=>'TIPO A','Tipo A - Maestría'=>'Tipo A - Maestría','Tipo A - Doctorado'=>'Tipo A - Doctorado','Beca Cofinanciada (UNLP-CIC)'=>'Beca Cofinanciada (UNLP-CIC)','Especial de Maestría'=>'Especial de Maestría','TIPO B'=>'TIPO B','TIPO B (DOCTORADO)'=>'TIPO B (DOCTORADO)','TIPO B (MAESTRÍA)'=>'TIPO B (MAESTRÍA)','BECA DE PERFECCIONAMIENTO'=>'BECA DE PERFECCIONAMIENTO','CONICET 2'=>'CONICET 2','RETENCION DE POSTGRADUADO'=>'RETENCION DE POSTGRADUADO','EVC'=>'EVC'], '',['class' => 'form-control beca_select', 'style' => 'width: 150px']) }}</td>
 
                                                         <td>{{Form::date('becadesdes[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
 
@@ -787,8 +783,8 @@
         function addRowBeca()
         {
             var tr='<tr>'+
-                '<td>'+'{{ Form::select('institucions[]',['' => ''] + $dedicaciones, '',['class' => 'form-control institucion_select', 'style' => 'width: 150px']) }}'+'</td>'+
-                '<td>'+'{{ Form::select('becas[]',[''], '',['class' => 'form-control beca_select', 'style' => 'width: 150px']) }}'+'</td>'+
+                '<td>'+'{{ Form::select('institucions[]',[''=>'','ANPCyT'=>'ANPCyT','AGENCIA i+D+i'=>'AGENCIA i+D+i','CIC PBA'=>'CIC PBA','CIC'=>'CIC','CONICET'=>'CONICET','UNLP'=>'UNLP','CIN'=>'CIN','OTRA'=>'OTRA'], '',['class' => 'form-control institucion_select', 'style' => 'width: 150px']) }}'+'</td>'+
+                '<td>'+'{{ Form::select('becas[]',[''=>'','Beca inicial'=>'Beca inicial','Beca superior'=>'Beca superior','Beca de entrenamiento'=>'Beca de entrenamiento','Beca doctoral'=>'Beca doctoral','Beca posdoctoral'=>'Beca posdoctoral','Beca finalización del doctorado'=>'Beca finalización del doctorado','Beca maestría'=>'Beca maestría','Formación Superior'=>'Formación Superior','Iniciación'=>'Iniciación','TIPO I'=>'TIPO I','TIPO II'=>'TIPO II','TIPO A'=>'TIPO A','Tipo A - Maestría'=>'Tipo A - Maestría','Tipo A - Doctorado'=>'Tipo A - Doctorado','Beca Cofinanciada (UNLP-CIC)'=>'Beca Cofinanciada (UNLP-CIC)','Especial de Maestría'=>'Especial de Maestría','TIPO B'=>'TIPO B','TIPO B (DOCTORADO)'=>'TIPO B (DOCTORADO)','TIPO B (MAESTRÍA)'=>'TIPO B (MAESTRÍA)','BECA DE PERFECCIONAMIENTO'=>'BECA DE PERFECCIONAMIENTO','CONICET 2'=>'CONICET 2','RETENCION DE POSTGRADUADO'=>'RETENCION DE POSTGRADUADO','EVC'=>'EVC'], '',['class' => 'form-control beca_select', 'style' => 'width: 150px']) }}'+'</td>'+
                 '<td>'+'{{Form::date('becadesdes[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
                 '<td>'+'{{Form::date('becahastas[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
 
@@ -820,7 +816,7 @@
 
 
         // Al cambiar cualquier select de instituciones
-        $(document).on('change', 'select.institucion_select', function() {
+        /*$(document).on('change', 'select.institucion_select', function() {
             var rowIndex = $(this).closest('tr').index(); // Obtener el índice de la fila actual
             var institucionSeleccionada = $(this).val(); // Obtener la institución seleccionada
 
@@ -850,7 +846,7 @@
                 return opciones[institucionSeleccionada];
             }
             return ['']; // Opción por defecto
-        }
+        }*/
 
         $(document).ready(function () {
 
