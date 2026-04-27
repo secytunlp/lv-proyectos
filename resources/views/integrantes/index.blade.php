@@ -545,9 +545,13 @@
                 stateSaveParams: function (settings, data) {
 
                     data.pendientes = $('#pendientes').val();
+                    data.proyecto_id = '{{ $proyecto ? $proyecto->id : "" }}';
                 },
                 stateLoadParams: function (settings, data) {
-
+                    // Reset pagination if project changed
+                    if (data.proyecto_id !== '{{ $proyecto ? $proyecto->id : "" }}') {
+                        data.start = 0;
+                    }
                     if (data.pendientes) {
                         $('#pendientes').val(data.pendientes).trigger('change');
                     }
