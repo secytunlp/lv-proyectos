@@ -135,6 +135,7 @@ class AcreditarProyectos extends Command
                         'comentarios'  => 'Codificado',
                         'desde'        => $today,
                         'hasta'        => null,
+                        'user_id'      => 2,
                         'created_at'   => now(),
                         'updated_at'   => now(),
                     ]));
