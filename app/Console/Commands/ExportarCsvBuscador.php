@@ -6,7 +6,6 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use App\Models\Proyecto;
 use App\Models\Integrante;
-use App\Models\IntegranteEstado;
 
 class ExportarCsvBuscador extends Command
 {
@@ -186,6 +185,7 @@ class ExportarCsvBuscador extends Command
 
         $rows = Integrante::with('investigador.persona')
             ->whereIn('proyecto_id', $proyectoIds)
+            ->whereIn('estado', self::ESTADOS_INTEGRANTE_VALIDOS)
             ->get()
             ->map(function (Integrante $i) {
                 $investigador = $i->investigador;
@@ -219,28 +219,16 @@ class ExportarCsvBuscador extends Command
     // participations.csv
     // Columns: code, document_number, cd_tipoinvestigador, alta, baja
     //
-    // Rules (mirroring the original WHERE clause):
-    //   - IntegranteEstado with hasta IS NULL  → current active estado record
-    //   - integrante.estado IN ESTADOS_INTEGRANTE_VALIDOS (legacy ids 3,4,5,8,9)
+    // Filters by integrante.estado directly — it already holds the current state.
     // -------------------------------------------------------------------------
 
     private function exportParticipations($proyectoIds, string $outDir): void
     {
         $this->info('  → participations.csv');
 
-        // Load integrantes that have a current estado (hasta IS NULL)
-        $integrantes = Integrante::with([
-            'proyecto',
-            'investigador.persona',
-            'estados' => function ($q) {
-                $q->whereNull('hasta');
-            },
-        ])
+        $integrantes = Integrante::with(['proyecto', 'investigador.persona'])
             ->whereIn('proyecto_id', $proyectoIds)
             ->whereIn('estado', self::ESTADOS_INTEGRANTE_VALIDOS)
-            ->whereHas('estados', function ($q) {
-                $q->whereNull('hasta');
-            })
             ->get();
 
         $rows = $integrantes->map(function (Integrante $i) {
