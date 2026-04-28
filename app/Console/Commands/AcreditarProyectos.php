@@ -15,7 +15,7 @@ class AcreditarProyectos extends Command
      *   php artisan proyectos:acreditar
      *   php artisan proyectos:acreditar --dry-run
      *
-     * Replace storage/app/proyectos/codigos_proyectos.csv each year before running.
+     * Replace storage/app/public/proyectos/codigos_proyectos.csv each year before running.
      * CSV format (no header, semicolon-delimited): codigo ; tipo ; sigeva
      */
     protected $signature = 'proyectos:acreditar
@@ -37,6 +37,18 @@ class AcreditarProyectos extends Command
         'disciplina_id', 'especialidad_id', 'investigacion', 'linea',
         'resumen', 'clave1', 'clave2', 'clave3', 'clave4', 'clave5', 'clave6',
         'key1', 'key2', 'key3', 'key4', 'key5', 'key6',
+    ];
+
+    /**
+     * FK fields to validate before inserting the snapshot.
+     * Format: field => table
+     */
+    private const FK_CHECKS = [
+        'facultad_id'     => 'facultads',
+        'unidad_id'       => 'unidads',
+        'campo_id'        => 'campos',
+        'disciplina_id'   => 'disciplinas',
+        'especialidad_id' => 'especialidads',
     ];
 
     public function handle(): int
@@ -66,7 +78,7 @@ class AcreditarProyectos extends Command
         }
 
         // ── 3. Process inside a single transaction ────────────────────────────
-        $today     = now()->toDateString(); // YYYY-MM-DD
+        $today    = now()->toDateString(); // YYYY-MM-DD
         $processed = 0;
         $skipped   = 0;
         $warnings  = [];
@@ -117,7 +129,17 @@ class AcreditarProyectos extends Command
                         $snapshot[$field] = $proyecto->{$field} ?? null;
                     }
 
-                    // 3c. Update proyectos: new codigo and estado = Acreditado
+                    // 3c. Nullify FK fields whose referenced record no longer exists
+                    foreach (self::FK_CHECKS as $field => $table) {
+                        if (!empty($snapshot[$field]) &&
+                            !DB::table($table)->where('id', $snapshot[$field])->exists()
+                        ) {
+                            $warnings[] = "sigeva '{$sigeva}': {$field} = {$snapshot[$field]} not found in {$table} — set to null in snapshot.";
+                            $snapshot[$field] = null;
+                        }
+                    }
+
+                    // 3d. Update proyectos: new codigo and estado = Acreditado
                     DB::table('proyectos')
                         ->where('id', $proyecto->id)
                         ->update([
@@ -126,18 +148,18 @@ class AcreditarProyectos extends Command
                             'updated_at' => now(),
                         ]);
 
-                    // 3d. Insert new ProyectoEstado with full snapshot
+                    // 3e. Insert new ProyectoEstado with full snapshot
                     // Override snapshot fields that change with this accreditation
                     DB::table('proyecto_estados')->insert(array_merge($snapshot, [
-                        'proyecto_id'  => $proyecto->id,
-                        'codigo'       => $codigo,       // new codigo from CSV
-                        'estado'       => 'Acreditado',  // override snapshot estado
-                        'comentarios'  => 'Codificado',
-                        'desde'        => $today,
-                        'hasta'        => null,
-                        'user_id'      => 2,
-                        'created_at'   => now(),
-                        'updated_at'   => now(),
+                        'proyecto_id' => $proyecto->id,
+                        'codigo'      => $codigo,
+                        'estado'      => 'Acreditado',
+                        'comentarios' => 'Codificado',
+                        'desde'       => $today,
+                        'hasta'       => null,
+                        'user_id'     => 2,
+                        'created_at'  => now(),
+                        'updated_at'  => now(),
                     ]));
                 }
 
