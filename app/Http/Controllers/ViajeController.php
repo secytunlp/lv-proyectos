@@ -881,7 +881,21 @@ class ViajeController extends Controller
 
 
 
+        // Validate that researchers in CATEGORIAS_FORMADOS cannot submit as "En formación"
+        $user = auth()->user();
+        $investigador = Investigador::whereHas('persona', function ($query) use ($user) {
+            $query->where('cuil', '=', $user->cuil);
+        })->first();
 
+        if ($investigador) {
+            $categoriasFormados = explode(",", Constants::CATEGORIAS_FORMADOS);
+            $esFormado = in_array($investigador->categoria_id, $categoriasFormados)
+                || in_array($investigador->sicadi_id, $categoriasFormados);
+
+            if ($esFormado && $request->input('tipo') === 'Investigador En Formación') {
+                $errores[] = 'Su categoría no permite presentarse como Investigador En Formación.';
+            }
+        }
 
 
 
@@ -2327,6 +2341,18 @@ class ViajeController extends Controller
 
         if (empty($solicitud->facultadplanilla_id) || empty($solicitud->tipo) ) {
             $errores[] = 'Complete todos los campos de la pestaña Tipo';
+        }
+
+        // Add this block right after:
+        $investigador = Investigador::find($solicitud->investigador_id);
+        if ($investigador) {
+            $categoriasFormados = explode(",", Constants::CATEGORIAS_FORMADOS);
+            $esFormado = in_array($investigador->categoria_id, $categoriasFormados)
+                || in_array($investigador->sicadi_id, $categoriasFormados);
+
+            if ($esFormado && $solicitud->tipo === 'Investigador En Formación') {
+                $errores[] = 'Su categoría no permite presentarse como Investigador En Formación.';
+            }
         }
 
         if (empty($solicitud->motivo) ) {
