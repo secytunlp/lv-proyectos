@@ -119,7 +119,7 @@ class AcreditarProyectos extends Command
                         ->where('proyecto_id', $proyecto->id)
                         ->whereNull('hasta')
                         ->update([
-                            'hasta'      => $today,
+                            'hasta'      => now(),
                             'updated_at' => now(),
                         ]);
 
@@ -155,7 +155,7 @@ class AcreditarProyectos extends Command
                         'codigo'      => $codigo,
                         'estado'      => 'Acreditado',
                         'comentarios' => 'Codificado',
-                        'desde'       => $today,
+                        'desde'       => now(),
                         'hasta'       => null,
                         'user_id'     => 2,
                         'created_at'  => now(),
