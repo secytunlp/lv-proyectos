@@ -98,7 +98,8 @@ class LimpiarArchivos extends Command
                     'integrantes',
                     $this->columnasIntegrantes,
                     'public/files',
-                    $dryRun
+                    $dryRun,
+                    ['public/files/viajes', 'public/files/sicadi', 'public/files/jovenes']
                 );
             }
         }
@@ -109,29 +110,49 @@ class LimpiarArchivos extends Command
         return 0;
     }
 
-    protected function limpiarModulo(string $label, string $tabla, array $columnas, string $carpeta, bool $dryRun): void
-    {
+    protected function limpiarModulo(
+        string $label,
+        string $tabla,
+        array $columnas,
+        string $carpeta,
+        bool $dryRun,
+        array $excluirCarpetas = []
+    ): void {
         $this->info("--- Buscando archivos huérfanos en $carpeta/ [$label] ---");
 
-        // Obtener todas las rutas registradas en la DB
+        // Obtener todas las rutas registradas en la DB usando foreach en lugar de closure
         $rutasEnDb = collect();
         foreach ($columnas as $columna) {
-            DB::table($tabla)
+            $urls = DB::table($tabla)
                 ->whereNotNull($columna)
                 ->where($columna, '!=', '')
-                ->pluck($columna)
-                ->each(function ($url) use (&$rutasEnDb) {
-                    $rutaStorage = $this->urlToStoragePath($url);
-                    if ($rutaStorage) {
-                        $rutasEnDb->push($rutaStorage);
-                    }
-                });
+                ->pluck($columna);
+
+            foreach ($urls as $url) {
+                $ruta = $this->urlToStoragePath($url);
+                if ($ruta) {
+                    $rutasEnDb->push($ruta);
+                }
+            }
         }
 
         $this->line("  Archivos registrados en DB: {$rutasEnDb->count()}");
 
         // Listar archivos físicos en la carpeta
         $archivosEnDisco = Storage::allFiles($carpeta);
+
+        // Excluir subcarpetas de otros módulos (usado en integrantes)
+        if (!empty($excluirCarpetas)) {
+            $archivosEnDisco = array_filter($archivosEnDisco, function ($archivo) use ($excluirCarpetas) {
+                foreach ($excluirCarpetas as $excluir) {
+                    if (str_starts_with($archivo, $excluir . '/')) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+        }
+
         $this->line("  Archivos en disco: " . count($archivosEnDisco));
 
         $huerfanos = collect($archivosEnDisco)->filter(function ($archivo) use ($rutasEnDb) {
