@@ -2597,16 +2597,16 @@ class ViajeController extends Controller
 
 
                 // Generar el PDF y obtener la ruta
-                /*$pdfPath = $this->generatePDF(new Request(['viaje_id' => $solicitud->id]), true);
+                $pdfPath = $this->generatePDF(new Request(['viaje_id' => $solicitud->id]), true);
 
-                $this->enviarCorreosAlUsuario($datosCorreo,$solicitud,$userId,true,$pdfPath);*/
+                $this->enviarCorreosAlUsuario($datosCorreo,$solicitud,$userId,true,$pdfPath);
 
 
                 DB::commit();
                 // Eliminar el archivo PDF temporal
-                /*if (file_exists($pdfPath)) {
+                if (file_exists($pdfPath)) {
                     unlink($pdfPath);
-                }*/
+                }
                 $respuestaID = 'success';
                 $respuestaMSJ = 'Solicitud enviada con éxito';
 
