@@ -2590,10 +2590,10 @@ class IntegranteController extends Controller
         $user = User::find($userId); // Obtener el usuario por su ID
 
         // Enviar correo electrónico al usuario
-        //Mail::to($user->email)->send(new SolicitudEnviada($datosCorreo,$integrante, $adjuntarArchivos, $adjuntarPlanilla));
+        Mail::to($user->email)->send(new SolicitudEnviada($datosCorreo,$integrante, $adjuntarArchivos, $adjuntarPlanilla));
 
         // Enviar correo electrónico a tu servidor (ejemplo)
-        //Mail::to('marcosp@presi.unlp.edu.ar')->send(new SolicitudEnviada($datosCorreo,$integrante, $adjuntarArchivos, $adjuntarPlanilla));
+        Mail::to(Constants::MAIL_PROYECTOS)->send(new SolicitudEnviada($datosCorreo,$integrante, $adjuntarArchivos, $adjuntarPlanilla));
 
         // Obtener el nombre del rol correspondiente al id 4
         $roleName = Role::find(Constants::ID_ADMIN_FACULTAD_PROYECTOS)->name;
@@ -2605,7 +2605,7 @@ class IntegranteController extends Controller
 
         // Enviar correo electrónico a cada usuario
         foreach ($usuarios as $usuario) {
-            //Mail::to($usuario->email)->send(new SolicitudEnviada($datosCorreo, $integrante, $adjuntarArchivos, $adjuntarPlanilla));
+            Mail::to($usuario->email)->send(new SolicitudEnviada($datosCorreo, $integrante, $adjuntarArchivos, $adjuntarPlanilla));
         }
     }
 
