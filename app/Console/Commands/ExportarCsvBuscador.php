@@ -104,9 +104,11 @@ class ExportarCsvBuscador extends Command
             $query->where('inicio', $fechaInicio);
         } else {
             // Default: active projects not yet finished
-            $query->where('fin', '>', now()->toDateString())
-                ->where('estado', self::ESTADO_PROYECTO_ACTIVO);
+            $query->where('fin', '>', now()->toDateString());
         }
+
+        // Always export only "Acreditado" projects, regardless of mode
+        $query->where('estado', self::ESTADO_PROYECTO_ACTIVO);
 
         return $query->pluck('id');
     }
