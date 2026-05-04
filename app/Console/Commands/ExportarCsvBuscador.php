@@ -47,8 +47,8 @@ class ExportarCsvBuscador extends Command
         'DIRECTOR'                  => 1,
         'CODIRECTOR'                => 2,
         'INVESTIGADOR FORMADO'      => 3,
-        'INVESTIGADOR EN FORMACION' => 4,
-        'TESISTA, BECARIO'          => 5,
+        'INVESTIGADOR EN FORMACIÓN' => 4,  // ← con tilde, igual que la base
+        'BECARIO, TESISTA'          => 5,
         'COLABORADOR'               => 6,
     ];
 
