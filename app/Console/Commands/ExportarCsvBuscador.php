@@ -140,7 +140,7 @@ class ExportarCsvBuscador extends Command
                     'start_date'         => $this->formatDate($p->inicio),
                     'end_date'           => $this->formatDate($p->fin),
                     'research_line'      => $this->sanitize($p->linea),
-                    'research_type'      => $p->tipo,
+                    'research_type'      => $this->firstLetter($p->investigacion),
                     'abstract'           => $this->sanitize($p->resumen),
                     'agreement_type_id'  => 1219,
                     'discipline_id'      => $p->disciplina_id,
@@ -206,12 +206,12 @@ class ExportarCsvBuscador extends Command
                 }
 
                 return [
-                    'document_number'  => $persona->documento,
                     'first_name'       => $persona->nombre,
                     'last_name'        => $persona->apellido,
                     'gender'           => $persona->genero,
                     'birth_date'       => $this->formatDate($persona->nacimiento),
                     'document_type_id' => 'DNI',
+                    'document_number'  => $persona->documento,
                     'cuil'             => $persona->cuil,
                 ];
             })
