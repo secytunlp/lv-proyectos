@@ -137,8 +137,8 @@ class ExportarCsvBuscador extends Command
                 return [
                     'code'               => $p->codigo,
                     'title'              => $this->sanitize($p->titulo),
-                    'start_date'         => $p->inicio,
-                    'end_date'           => $p->fin,
+                    'start_date'         => $this->formatDate($p->inicio),
+                    'end_date'           => $this->formatDate($p->fin),
                     'research_line'      => $this->sanitize($p->linea),
                     'research_type'      => $p->tipo,
                     'abstract'           => $this->sanitize($p->resumen),
@@ -210,7 +210,7 @@ class ExportarCsvBuscador extends Command
                     'first_name'       => $persona->nombre,
                     'last_name'        => $persona->apellido,
                     'gender'           => $persona->genero,
-                    'birth_date'       => $persona->nacimiento,
+                    'birth_date'       => $this->formatDate($persona->nacimiento),
                     'document_type_id' => 'DNI',
                     'cuil'             => $persona->cuil,
                 ];
@@ -259,8 +259,8 @@ class ExportarCsvBuscador extends Command
                 'code'                => $i->proyecto ? $i->proyecto->codigo : '',
                 'document_number'     => $persona->documento,
                 'cd_tipoinvestigador' => $i->tipo,
-                'alta'                => $alta,
-                'baja'                => $baja,
+                'alta'                => $this->formatDate($alta),
+                'baja'                => $this->formatDate($baja),
             ];
         })->filter()->values();
 
@@ -280,6 +280,25 @@ class ExportarCsvBuscador extends Command
             return '';
         }
         return str_replace(["\r\n", "\r", "\n"], ' ', $value);
+    }
+
+    /**
+     * Returns a date as 'Y-m-d', regardless of whether the model casts it
+     * as Carbon/DateTime or returns it as a raw string with time.
+     * Empty / null / '0000-00-00' values become ''.
+     */
+    private function formatDate($value): string
+    {
+        if ($value === null || $value === '' || $value === '0000-00-00' || $value === '0000-00-00 00:00:00') {
+            return '';
+        }
+
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format('Y-m-d');
+        }
+
+        // String case: take the date portion before any space
+        return substr((string) $value, 0, 10);
     }
 
     /**
