@@ -298,14 +298,25 @@ class ExportarCsvBuscador extends Command
         // UTF-8 BOM so Excel opens it correctly
         fwrite($handle, "\xEF\xBB\xBF");
 
-        // Header
-        fputcsv($handle, array_keys($rows[0]), '|');
-
         foreach ($rows as $row) {
-            fputcsv($handle, array_values($row), '|');
+            fwrite($handle, $this->formatRow(array_values($row)) . "\n");
         }
 
         fclose($handle);
         $this->line("    Written: {$path} (" . count($rows) . ' rows)');
+    }
+
+    /**
+     * Formats a row with every field wrapped in double quotes,
+     * separated by '|'. Embedded quotes are escaped by doubling them ("").
+     */
+    private function formatRow(array $values): string
+    {
+        $escaped = array_map(function ($v) {
+            $v = (string) ($v ?? '');
+            return '"' . str_replace('"', '""', $v) . '"';
+        }, $values);
+
+        return implode('|', $escaped);
     }
 }
