@@ -299,10 +299,10 @@ class ExportarCsvBuscador extends Command
         fwrite($handle, "\xEF\xBB\xBF");
 
         // Header
-        fputcsv($handle, array_keys($rows[0]));
+        fputcsv($handle, array_keys($rows[0]), '|');
 
         foreach ($rows as $row) {
-            fputcsv($handle, array_values($row));
+            fputcsv($handle, array_values($row), '|');
         }
 
         fclose($handle);
