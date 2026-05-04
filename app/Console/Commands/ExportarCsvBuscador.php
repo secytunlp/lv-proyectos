@@ -272,6 +272,20 @@ class ExportarCsvBuscador extends Command
     // -------------------------------------------------------------------------
 
     /**
+     * Returns the first letter of a string, uppercased.
+     * Used for fields that store the full word (e.g. "Aplicada")
+     * but must be exported as a single-letter code (e.g. "A").
+     */
+    private function firstLetter(?string $value): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+        return mb_strtoupper(mb_substr(trim($value), 0, 1));
+    }
+
+
+    /**
      * Strips \r\n sequences from a string (mirrors SQL REPLACE(field,'\r\n',' ')).
      */
     private function sanitize(?string $value): string
