@@ -314,8 +314,6 @@ class ExportarCsvBuscador extends Command
         }
 
         $handle = fopen($path, 'w');
-        // UTF-8 BOM so Excel opens it correctly
-        fwrite($handle, "\xEF\xBB\xBF");
 
         foreach ($rows as $row) {
             fwrite($handle, $this->formatRow(array_values($row)) . "\n");
