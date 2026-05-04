@@ -2566,7 +2566,7 @@ class IntegranteController extends Controller
             $user = User::where('cuil', $director->cuil)->first();
             if ($user) {
                 // Enviar correo electrónico al usuario del director
-                //Mail::to($user->email)->send(new SolicitudEnviada($datosCorreo, $integrante));
+                Mail::to($user->email)->send(new SolicitudEnviada($datosCorreo, $integrante));
             }
         }
 
@@ -2580,7 +2580,7 @@ class IntegranteController extends Controller
 
         // Enviar correo electrónico a cada usuario
         foreach ($usuarios as $usuario) {
-            //Mail::to($usuario->email)->send(new SolicitudEnviada($datosCorreo, $integrante));
+            Mail::to($usuario->email)->send(new SolicitudEnviada($datosCorreo, $integrante));
         }
     }
 
