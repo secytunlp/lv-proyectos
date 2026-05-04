@@ -41,6 +41,17 @@ class ExportarCsvBuscador extends Command
         'Cambio Hs. Recibido', // 9
     ];
 
+    // Maps integrante.tipo (string) to the legacy cd_tipoinvestigador integer
+// expected by the Buscador import.
+    private const TIPO_INVESTIGADOR_MAP = [
+        'DIRECTOR'                  => 1,
+        'CODIRECTOR'                => 2,
+        'INVESTIGADOR FORMADO'      => 3,
+        'INVESTIGADOR EN FORMACION' => 4,
+        'TESISTA, BECARIO'          => 5,
+        'COLABORADOR'               => 6,
+    ];
+
     public function handle(): int
     {
         $modo   = $this->option('modo');
@@ -258,7 +269,7 @@ class ExportarCsvBuscador extends Command
             return [
                 'code'                => $i->proyecto ? $i->proyecto->codigo : '',
                 'document_number'     => $persona->documento,
-                'cd_tipoinvestigador' => $i->tipo,
+                'cd_tipoinvestigador' => $this->mapTipoInvestigador($i->tipo),
                 'alta'                => $this->formatDate($alta),
                 'baja'                => $this->formatDate($baja),
             ];
@@ -349,5 +360,18 @@ class ExportarCsvBuscador extends Command
         }, $values);
 
         return implode('|', $escaped);
+    }
+
+    /**
+     * Maps a tipo investigador string (e.g. "DIRECTOR") to its
+     * legacy integer code (e.g. 1). Returns '' if not mapped.
+     */
+    private function mapTipoInvestigador(?string $value): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+        $key = mb_strtoupper(trim($value));
+        return (string) (self::TIPO_INVESTIGADOR_MAP[$key] ?? '');
     }
 }
