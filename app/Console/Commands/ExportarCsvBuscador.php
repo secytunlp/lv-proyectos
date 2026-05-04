@@ -16,9 +16,10 @@ class ExportarCsvBuscador extends Command
      *   php artisan exportar:csv-buscador --modo=particulares --codigos="11/H1050,11/H1053,PPID/J007"
      */
     protected $signature = 'exportar:csv-buscador
-                            {--modo=activos : "activos" (fin > today, estado=Acreditado) or "particulares" (specific codes)}
-                            {--codigos= : Comma-separated project codes for modo=particulares}
-                            {--dir= : Output directory (default: storage/app/buscador)}';
+                        {--modo=activos : "activos", "particulares" o "por_inicio"}
+                        {--codigos= : Comma-separated project codes for modo=particulares}
+                        {--fecha-inicio= : Start date (Y-m-d) for modo=por_inicio}
+                        {--dir= : Output directory (default: storage/app/buscador)}';
 
     protected $description = 'Exports projects, keywords, people and participations as CSV files for Buscador import';
 
@@ -27,7 +28,7 @@ class ExportarCsvBuscador extends Command
 
     // Integrante estados considered valid for participations export.
     // Maps to legacy cd_estado IN (3, 4, 5, 8, 9):
-    //   3 → '' (unnamed / blank in legacy table)
+    //   3 → '' or NULL (unnamed / blank in legacy table)
     //   4 → 'Baja Creada'
     //   5 → 'Baja Recibida'
     //   8 → 'Cambio Hs. Creado'
@@ -83,8 +84,15 @@ class ExportarCsvBuscador extends Command
                 exit(self::FAILURE);
             }
             $query->whereIn('codigo', $codigos);
+        } elseif ($modo === 'por_inicio') {
+            $fechaInicio = $this->option('fecha-inicio');
+            if (!$fechaInicio) {
+                $this->error('--modo=por_inicio requires --fecha-inicio="YYYY-MM-DD"');
+                exit(self::FAILURE);
+            }
+            $query->where('inicio', $fechaInicio);
         } else {
-            // Default: active projects not yet finished (legacy cd_estado = 5 → 'Acreditado')
+            // Default: active projects not yet finished
             $query->where('fin', '>', now()->toDateString())
                 ->where('estado', self::ESTADO_PROYECTO_ACTIVO);
         }
@@ -185,7 +193,10 @@ class ExportarCsvBuscador extends Command
 
         $rows = Integrante::with('investigador.persona')
             ->whereIn('proyecto_id', $proyectoIds)
-            ->whereIn('estado', self::ESTADOS_INTEGRANTE_VALIDOS)
+            ->where(function ($q) {
+                $q->whereIn('estado', self::ESTADOS_INTEGRANTE_VALIDOS)
+                    ->orWhereNull('estado');
+            })
             ->get()
             ->map(function (Integrante $i) {
                 $investigador = $i->investigador;
@@ -228,7 +239,10 @@ class ExportarCsvBuscador extends Command
 
         $integrantes = Integrante::with(['proyecto', 'investigador.persona'])
             ->whereIn('proyecto_id', $proyectoIds)
-            ->whereIn('estado', self::ESTADOS_INTEGRANTE_VALIDOS)
+            ->where(function ($q) {
+                $q->whereIn('estado', self::ESTADOS_INTEGRANTE_VALIDOS)
+                    ->orWhereNull('estado');
+            })
             ->get();
 
         $rows = $integrantes->map(function (Integrante $i) {
