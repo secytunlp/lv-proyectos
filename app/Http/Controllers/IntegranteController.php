@@ -2190,8 +2190,11 @@ class IntegranteController extends Controller
         }
 
 
-        if (empty($integrante->tipo) || empty($integrante->horas)) {
+        if (empty($integrante->tipo) || empty($integrante->horas) || empty($integrante->cambio)) {
             $errores[] = 'Complete todos los campos de la pestaña Proyectos';
+        } elseif (date('Y', strtotime($integrante->cambio)) != Constants::YEAR) {
+            // Validate that the change date belongs to the configured year
+            $errores[] = 'Fecha de cambio fuera del período.';
         }
 
         if (empty($integrante->curriculum)) {
@@ -2825,8 +2828,11 @@ class IntegranteController extends Controller
 
 
 
-        if (empty($integrante->tipo) || empty($integrante->horas)|| empty($integrante->cambio)) {
+        if (empty($integrante->tipo) || empty($integrante->horas) || empty($integrante->cambio)) {
             $errores[] = 'Complete todos los campos de la pestaña Proyectos';
+        } elseif (date('Y', strtotime($integrante->cambio)) != Constants::YEAR) {
+            // Validate that the change date belongs to the configured year
+            $errores[] = 'Fecha de cambio fuera del período.';
         }
 
         if (($integrante->horas_anteriores>$integrante->horas)&&empty($integrante->reduccion)) {
@@ -4019,8 +4025,11 @@ class IntegranteController extends Controller
 
 
 
-        if (empty($integrante->tipo) || empty($integrante->horas)|| empty($integrante->cambio)) {
+        if (empty($integrante->tipo) || empty($integrante->horas) || empty($integrante->cambio)) {
             $errores[] = 'Complete todos los campos de la pestaña Proyectos';
+        } elseif (date('Y', strtotime($integrante->cambio)) != Constants::YEAR) {
+            // Validate that the change date belongs to the configured year
+            $errores[] = 'Fecha de cambio fuera del período.';
         }
 
         if (($integrante->horas_anteriores>$integrante->horas)&&empty($integrante->reduccion)) {

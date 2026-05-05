@@ -78,7 +78,7 @@
                                 <div class="tab-content" style="margin: 1%;">
                                     <div role="tabpanel" class="tab-pane active" id="datos_proyecto">
                                         <div class="row">
-                                            <div class="col-md-3">
+                                            <div class="col-md-2">
                                                 <div class="form-group">
                                                     <input type="hidden" name="proyecto_id" value="{{ $proyecto->id ?? '' }}">
                                                     <input type="hidden" name="alta" value="{{ ($integrante->alta)?date('Y-m-d', strtotime($integrante->alta)):'' }}">
@@ -93,11 +93,20 @@
                                                 </div>
                                             </div>
                                             <div class="col-md-2">
+
+                                                <div class="form-group">
+                                                    {{Form::label('cambio', 'Fecha de cambio')}}
+                                                    {{Form::date('cambio', ($integrante->cambio)?date('Y-m-d', strtotime($integrante->cambio)):'', ['class' => 'form-control'])}}
+
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
                                                 <div class="form-group">
                                                     {{Form::label('horas', 'Horas')}}
                                                     {{Form::number('horas', $integrante->horas, ['class' => 'form-control','placeholder'=>'Horas'])}}
                                                 </div>
                                             </div>
+
                                         </div>
                                         <div class="row">
                                             <div class="col-md-3">
