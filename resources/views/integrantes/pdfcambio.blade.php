@@ -94,7 +94,7 @@
     </div>
 </div>
 
-<div class="section-title">ALTA - IDENTIFICACION DEL {{$tipoIntegrante}}</div>
+<div class="section-title">CAMBIO - IDENTIFICACION DEL {{$tipoIntegrante}}</div>
 <div class="content">
     <div class="content" style="margin-top: 10px;">
         <span style="display: inline-block;width: 150px;"><strong>Apellido y Nombres</strong></span> <span style="display: inline-block; border: 1px solid #ccc;width: 545px; padding-top: {{ $integrante ? '0' : '15px' }}">{{ $integrante }}</span>
@@ -146,7 +146,7 @@
 </div>
 <div class="content">
     <div class="content" style="margin-top: 10px;">
-        <span style="display: inline-block;width: 150px;font-size: 16px;"><strong>FECHA DE ALTA</strong></span> <span style="display: inline-block; border: 1px solid #ccc;width: 100px; padding-top: {{ $fecha ? '0' : '15px' }}">{{ date('d/m/Y', strtotime($fecha)) }}</span> <span style="display: inline-block;width: 15px;"></span><span style="display: inline-block;width: 80px;"><strong>Universidad</strong></span> <span style="display: inline-block; border: 1px solid #ccc;width: 340px; padding-top: {{ $universidad ? '0' : '15px' }}">{{ $universidad }}</span>
+        <span style="display: inline-block;width: 150px;font-size: 16px;"><strong>FECHA DEL CAMBIO</strong></span> <span style="display: inline-block; border: 1px solid #ccc;width: 100px; padding-top: {{ $fecha ? '0' : '15px' }}">{{ date('d/m/Y', strtotime($fecha)) }}</span> <span style="display: inline-block;width: 15px;"></span><span style="display: inline-block;width: 80px;"><strong>Universidad</strong></span> <span style="display: inline-block; border: 1px solid #ccc;width: 340px; padding-top: {{ $universidad ? '0' : '15px' }}">{{ $universidad }}</span>
     </div>
 </div>
 <div class="content">
