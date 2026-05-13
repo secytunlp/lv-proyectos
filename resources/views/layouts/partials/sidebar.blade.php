@@ -26,7 +26,10 @@
       <li class="header">ADMINISTRACION</li>
       @if(auth()->user()->permissions->contains('name', 'investigador-listar'))<li><a href="{{ route('investigadors.index') }}"><i class="fa fa-microscope"></i>Investigadores</a></li>@endif
       @if(auth()->user()->permissions->contains('name', 'proyecto-listar'))<li><a href="{{ route('proyectos.index') }}"><i class="fa fa-cogs"></i>Proyectos</a></li>@endif
-      @if(auth()->user()->permissions->contains('name', 'integrante-listar'))<li><a href="{{ route('integrantes.index') }}"><i class="fa fa-user-friends"></i>Integrantes</a></li>@endif
+      {{-- Ocultar Integrantes a los directores (rol 2) --}}
+      @if(auth()->user()->permissions->contains('name', 'integrante-listar') && session('selected_rol') != 2)
+          <li><a href="{{ route('integrantes.index') }}"><i class="fa fa-user-friends"></i>Integrantes</a></li>
+      @endif
       @if(auth()->user()->permissions->contains('name', 'unidad-listar'))<li><a href="{{ route('unidad_investigacions.index') }}"><i class="fa fa-flask"></i>Unidades de Investigación</a></li>@endif
   </ul>
   @endif
