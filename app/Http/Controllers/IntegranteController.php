@@ -1088,7 +1088,7 @@ class IntegranteController extends Controller
             'integrante' => $datos->persona_apellido,
             'cuil' => $datos->cuil,
             'categoria_spu' => $datos->categoria_nombre,
-            'categoria_sicadi' => $datos->categoria_sicadi,
+            'categoria_sicadi' => $datos->sicadi_nombre,
             'titulo_grado' => $datos->titulogrado_nombre,
             'titulo_posgrado' => $datos->tituloposgrado_nombre,
             'cargo_docente' => $datos->cargo_nombre,
