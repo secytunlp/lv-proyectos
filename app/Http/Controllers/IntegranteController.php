@@ -4560,7 +4560,7 @@ class IntegranteController extends Controller
 
         if ((empty($integrante->titulo_id))&&((empty($integrante->carrera))||(empty($integrante->materias))||(empty($integrante->total)))){
 
-            $errores[] = 'Debe especificar Carrera, Total de materia y Materias adeudadas (si no es estudiante complete el título de grado)';
+            $errores[] = 'Debe especificar Carrera, Total de materia y Materias aprobadas (si no es estudiante complete el título de grado)';
         }
 
         if (

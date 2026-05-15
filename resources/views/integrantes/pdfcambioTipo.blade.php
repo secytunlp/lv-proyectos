@@ -119,7 +119,7 @@
 <div class="content">
     <div class="content" style="margin-top: 10px;">
         <span style="display: inline-block;width: 80px;"><strong>Estudiante</strong></span> <span style="display: inline-block; border: 1px solid #ccc;width: 35px">{{ $estudiante }}</span>
-        <span style="display: inline-block;width: 55px;"><strong>Carrera</strong></span> <span style="display: inline-block; border: 1px solid #ccc;width: 255px; padding-top: {{ $carrera ? '0' : '15px' }}">{{ $carrera }}</span> <span style="display: inline-block;width: 30px;"></span><span style="display: inline-block;width: 175px;"><strong>Materias Total/Adeudadas</strong></span> <span style="display: inline-block; border: 1px solid #ccc;width: 45px; padding-top: {{ $total ? '0' : '15px' }}">{{ $total }}</span>
+        <span style="display: inline-block;width: 55px;"><strong>Carrera</strong></span> <span style="display: inline-block; border: 1px solid #ccc;width: 255px; padding-top: {{ $carrera ? '0' : '15px' }}">{{ $carrera }}</span> <span style="display: inline-block;width: 30px;"></span><span style="display: inline-block;width: 175px;"><strong>Materias Total/aprobadas</strong></span> <span style="display: inline-block; border: 1px solid #ccc;width: 45px; padding-top: {{ $total ? '0' : '15px' }}">{{ $total }}</span>
     </div>
 </div>
 @else
