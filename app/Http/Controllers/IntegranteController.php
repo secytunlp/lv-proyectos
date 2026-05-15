@@ -40,7 +40,7 @@ class IntegranteController extends Controller
     function __construct()
     {
         $this->middleware('permission:integrante-listar|integrante-crear|integrante-editar|integrante-eliminar', ['only' => ['index','store','dataTable','admitir','buscarInvestigador']]);
-        $this->middleware('permission:integrante-crear', ['only' => ['create','store','generateAltaPDF','archivos']]);
+        $this->middleware('permission:integrante-crear', ['only' => ['create','store']]);
         $this->middleware('permission:integrante-editar', ['only' => ['edit','update','enviar']]);
         $this->middleware('permission:integrante-eliminar', ['only' => ['destroy']]);
         //dd(session()->all());
