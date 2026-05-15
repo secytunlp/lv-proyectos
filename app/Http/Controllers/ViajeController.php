@@ -631,6 +631,12 @@ class ViajeController extends Controller
                     ->orWhereNull('baja')
                     ->orWhere('baja', '0000-00-00');
             })
+            // Exclude members where start date equals end date
+            ->where(function ($q) {
+                $q->whereNull('baja')
+                    ->orWhere('baja', '0000-00-00')
+                    ->orWhereRaw('alta <> baja');
+            })
             ->whereHas('proyecto', function ($query) use ($fechaCorte) {
                 $query->whereIn('estado', ['Acreditado', 'En evaluación']) // 👈 acá el cambio
                 ->where('fin', '>', $fechaCorte);
@@ -1284,6 +1290,12 @@ class ViajeController extends Controller
                 $q->where('baja', '>', $fechaCorte) // Asegurarse que la baja sea futura
                 ->orWhereNull('baja')
                     ->orWhere('baja', '0000-00-00');
+            })
+            // Exclude members where start date equals end date
+            ->where(function ($q) {
+                $q->whereNull('baja')
+                    ->orWhere('baja', '0000-00-00')
+                    ->orWhereRaw('alta <> baja');
             })
             ->whereHas('proyecto', function ($query) use ($fechaCorte) {
                 $query->whereIn('estado', ['Acreditado', 'En evaluación']) // 👈 acá el cambio

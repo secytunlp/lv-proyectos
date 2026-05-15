@@ -510,6 +510,12 @@ class JovenController extends Controller
                 ->orWhereNull('baja')
                     ->orWhere('baja', '0000-00-00');
             })
+            // Exclude members where start date equals end date
+            ->where(function ($q) {
+                $q->whereNull('baja')
+                    ->orWhere('baja', '0000-00-00')
+                    ->orWhereRaw('alta <> baja');
+            })
             ->whereHas('proyecto', function ($query) {
                 $query->where('estado', 'Acreditado')
                     ->where('fin', '>', Carbon::now()->subYear()->endOfYear()->format('Y-m-d')); // Proyectos vigentes
@@ -1194,6 +1200,12 @@ class JovenController extends Controller
                     $q->where('baja', '>', Carbon::now()->format('Y-m-d')) // Asegurarse que la baja sea futura
                     ->orWhereNull('baja')
                         ->orWhere('baja', '0000-00-00');
+                })
+                // Exclude members where start date equals end date
+                ->where(function ($q) {
+                    $q->whereNull('baja')
+                        ->orWhere('baja', '0000-00-00')
+                        ->orWhereRaw('alta <> baja');
                 })
                 ->whereHas('proyecto', function ($query) {
                     $query->where('estado', 'Acreditado')
