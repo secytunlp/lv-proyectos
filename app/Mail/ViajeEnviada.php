@@ -37,7 +37,7 @@ class ViajeEnviada extends Mailable
             ->with($this->datos)
             ->from($this->datos['from_email'], $this->datos['from_name']) // Obtener desde $datos
             ->replyTo($this->datos['from_email'], $this->datos['from_name']) // Obtener desde $datos
-            ->withSymfonyMessage(function ($message) {
+            ->withSwiftMessage(function ($message) {
                 $headers = $message->getHeaders();
                 $headers->addTextHeader('Auto-Submitted', 'auto-generated');
                 $headers->addTextHeader('X-Auto-Response-Suppress', 'All');
