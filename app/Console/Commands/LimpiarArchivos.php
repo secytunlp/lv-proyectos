@@ -15,7 +15,7 @@ class LimpiarArchivos extends Command
 
     protected $description = 'Elimina archivos huérfanos de viajes, sicadi, jovenes e integrantes, y vacía la carpeta temp';
 
-    protected array $columnasViajes = [
+    protected $columnasViajes = [
         'curriculum',
         'trabajo',
         'aceptacion',
@@ -26,19 +26,19 @@ class LimpiarArchivos extends Command
         'cvprofesor',
     ];
 
-    protected array $columnasSicadiCurriculum = [
+    protected $columnasSicadiCurriculum = [
         'curriculum',
     ];
 
-    protected array $columnasSicadiFotos = [
+    protected $columnasSicadiFotos = [
         'foto',
     ];
 
-    protected array $columnasJovenes = [
+    protected $columnasJovenes = [
         'curriculum',
     ];
 
-    protected array $columnasIntegrantes = [
+    protected $columnasIntegrantes = [
         'curriculum',
         'actividades',
         'resolucion',
