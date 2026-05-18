@@ -39,10 +39,9 @@ class ViajeEnviada extends Mailable
             ->replyTo($this->datos['from_email'], $this->datos['from_name']) // Obtener desde $datos
             ->withSymfonyMessage(function ($message) {
                 $headers = $message->getHeaders();
-                $headers->addTextHeader('List-Unsubscribe', '<mailto:viajes.secyt@presi.unlp.edu.ar?subject=unsubscribe>');
                 $headers->addTextHeader('Auto-Submitted', 'auto-generated');
-                $headers->addTextHeader('Precedence', 'bulk');
                 $headers->addTextHeader('X-Auto-Response-Suppress', 'All');
+                $headers->addTextHeader('Precedence', 'bulk');
             });
         if ($this->adjuntarPlanilla) {
             if (file_exists($this->adjuntarPlanilla)) {
