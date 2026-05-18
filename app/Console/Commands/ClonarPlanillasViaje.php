@@ -11,7 +11,8 @@ class ClonarPlanillasViaje extends Command
     protected $signature = 'viaje:clonar-planillas
                             {periodo_origen : ID del periodo de origen (ej: 16)}
                             {periodo_destino : ID del periodo de destino (ej: 17)}
-                            {--dry-run : Simula la ejecución sin guardar cambios}';
+                            {--dry-run : Simula la ejecución sin guardar cambios}
+                            {--force : Borra las planillas existentes del periodo destino antes de clonar}';
 
     protected $description = 'Clona las planillas de evaluación de viaje de un periodo a otro';
 
@@ -33,6 +34,7 @@ class ClonarPlanillasViaje extends Command
         $periodoOrigen = (int) $this->argument('periodo_origen');
         $periodoDestino = (int) $this->argument('periodo_destino');
         $dryRun = $this->option('dry-run');
+        $force = $this->option('force');
 
         if ($periodoOrigen === $periodoDestino) {
             $this->error('El periodo de origen y destino no pueden ser iguales.');
@@ -50,13 +52,28 @@ class ClonarPlanillasViaje extends Command
             return 1;
         }
 
-        // Validate destination is empty
-        $existeDestino = DB::table('viaje_evaluacion_planillas')
+        // Block if destination already has planillas
+        $planillasDestinoExistentes = DB::table('viaje_evaluacion_planillas')
             ->where('periodo_id', $periodoDestino)
-            ->exists();
+            ->pluck('id');
 
-        if ($existeDestino) {
-            if (!$this->confirm("Ya existen planillas para el periodo {$periodoDestino}. ¿Continuar igual? (se generarán duplicados)")) {
+        if ($planillasDestinoExistentes->isNotEmpty()) {
+            if (!$force) {
+                $this->error("El periodo {$periodoDestino} ya tiene " . $planillasDestinoExistentes->count() . " planillas. Operación abortada.");
+                $this->line("Si querés borrarlas y volver a clonar, usá --force.");
+                return 1;
+            }
+
+            // Check that no evaluation has actually used these planillas before allowing wipe
+            $enUso = $this->planillasEnUso($planillasDestinoExistentes->all());
+            if ($enUso) {
+                $this->error("No se puede usar --force: existen evaluaciones con puntajes cargados que referencian las planillas del periodo {$periodoDestino}.");
+                $this->line("Tablas con referencias: " . implode(', ', $enUso));
+                return 1;
+            }
+
+            $this->warn("Se borrarán " . $planillasDestinoExistentes->count() . " planillas existentes del periodo {$periodoDestino} (y sus filas hijas).");
+            if (!$dryRun && !$this->confirm('¿Confirmás?')) {
                 $this->info('Operación cancelada.');
                 return 0;
             }
@@ -70,6 +87,11 @@ class ClonarPlanillasViaje extends Command
         DB::beginTransaction();
 
         try {
+            // Wipe existing destination planillas if --force was used
+            if (!empty($planillasDestinoExistentes) && $planillasDestinoExistentes->isNotEmpty()) {
+                $this->borrarPlanillasDestino($planillasDestinoExistentes->all());
+            }
+
             $mapPlanillas = [];
 
             foreach ($planillasOrigen as $planilla) {
@@ -172,5 +194,50 @@ class ClonarPlanillasViaje extends Command
                 throw new \Exception("Discrepancia de conteo en {$tabla}");
             }
         }
+    }
+
+    /**
+     * Checks whether any of the given planillas are referenced by puntaje tables.
+     * Returns an array of table names that contain references, or empty array if safe to wipe.
+     */
+    private function planillasEnUso(array $planillaIds)
+    {
+        $puntajeTables = [
+            'viaje_evaluacion_puntaje_cargos',
+            'viaje_evaluacion_puntaje_categorias',
+            'viaje_evaluacion_puntaje_items',
+            'viaje_evaluacion_puntaje_eventos',
+            'viaje_evaluacion_puntaje_plans',
+        ];
+
+        $enUso = [];
+        foreach ($puntajeTables as $tabla) {
+            $existe = DB::table($tabla)
+                ->whereIn('viaje_evaluacion_planilla_id', $planillaIds)
+                ->exists();
+            if ($existe) {
+                $enUso[] = $tabla;
+            }
+        }
+        return $enUso;
+    }
+
+    /**
+     * Deletes existing destination planillas and all their child rows.
+     * Should only be called after planillasEnUso() returned empty.
+     */
+    private function borrarPlanillasDestino(array $planillaIds)
+    {
+        foreach ($this->childTables as $tabla) {
+            $deleted = DB::table($tabla)
+                ->whereIn('viaje_evaluacion_planilla_id', $planillaIds)
+                ->delete();
+            $this->line("  Borradas {$deleted} filas de {$tabla}");
+        }
+
+        $deleted = DB::table('viaje_evaluacion_planillas')
+            ->whereIn('id', $planillaIds)
+            ->delete();
+        $this->line("  Borradas {$deleted} planillas del periodo destino");
     }
 }
