@@ -2577,7 +2577,7 @@ class IntegranteController extends Controller
         $roleName = Role::find(Constants::ID_ADMIN_FACULTAD_PROYECTOS)->name;
 
         // Obtener usuarios que pertenecen a la facultad especificada y tienen el rol con id 4
-        $usuarios = User::where('facultad_id', $integrante->facultad_id)
+        $usuarios = User::where('facultad_id', $integrante->proyecto->facultad_id)
             ->role($roleName)
             ->get();
 
@@ -2602,7 +2602,7 @@ class IntegranteController extends Controller
         $roleName = Role::find(Constants::ID_ADMIN_FACULTAD_PROYECTOS)->name;
 
         // Obtener usuarios que pertenecen a la facultad especificada y tienen el rol con id 4
-        $usuarios = User::where('facultad_id', $integrante->facultad_id)
+        $usuarios = User::where('facultad_id', $integrante->proyecto->facultad_id)
             ->role($roleName)
             ->get();
 
