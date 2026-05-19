@@ -2300,14 +2300,14 @@ class JovenController extends Controller
         $roleName = Role::find(Constants::ID_ADMIN_FACULTAD_PROYECTOS)->name;
 
         // Obtener usuarios que pertenecen a la facultad especificada y tienen el rol con id 4
-        $usuarios = User::where('facultad_id', $joven->facultadplanilla_id)
+        /*$usuarios = User::where('facultad_id', $joven->facultadplanilla_id)
             ->role($roleName)
             ->get();
 
         // Enviar correo electrónico a cada usuario
         foreach ($usuarios as $usuario) {
             Mail::to($usuario->email)->send(new JovenEnviada($datosCorreo, $joven));
-        }
+        }*/
     }
 
     public function admitir($id)
