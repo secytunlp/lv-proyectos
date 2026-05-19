@@ -3373,10 +3373,10 @@ class IntegranteController extends Controller
     public function validarHorasGuardar($request,$investigador,$proyecto_id)
     {
         //dd($request);
-        // Carrerainv IDs in CARRERAS_SIN_CARGO without cargo docente must be Colaborador
+        // Carrerainv IDs in PERSONAL_APOYO_CARRERA without cargo docente must be Colaborador
         if (
             !empty($request->carrerainvs[0])
-            && in_array($request->carrerainvs[0], explode(",", Constants::CARRERAS_SIN_CARGO))
+            && in_array($request->carrerainvs[0], explode(",", Constants::PERSONAL_APOYO_CARRERA))
             && empty($request->cargos[0])
             && $request->tipo !== 'Colaborador'
         ) {
@@ -3393,8 +3393,8 @@ class IntegranteController extends Controller
             $minHoras=4;
             if (!empty($request->carrerainvs)) {
                 if ($request->carrerainvs[0]){
-                    // Carrerainv IDs in CARRERAS_SIN_CARGO are treated as no cargo
-                    if ($request->carrerainvs[0] && !in_array($request->carrerainvs[0], explode(",", Constants::CARRERAS_SIN_CARGO))){
+                    // Carrerainv IDs in PERSONAL_APOYO_CARRERA are treated as no cargo
+                    if ($request->carrerainvs[0] && !in_array($request->carrerainvs[0], explode(",", Constants::PERSONAL_APOYO_CARRERA))){
                         $colaboradorConCargo = 1;
                     }
                 }
@@ -4617,8 +4617,8 @@ class IntegranteController extends Controller
             $errores[] = 'Complete todos los campos del Cargo Docente en la pestaña Universidad';
         }
         if (($integrante->tipo != 'Colaborador') && ($integrante->tipo != 'Becario, Tesista')){
-            // Carrerainv IDs in CARRERAS_SIN_CARGO are treated as no cargo
-            $tieneCarreraInv = !empty($integrante->carrerainv_id) && !in_array($integrante->carrerainv_id, explode(",", Constants::CARRERAS_SIN_CARGO));
+            // Carrerainv IDs in PERSONAL_APOYO_CARRERA are treated as no cargo
+            $tieneCarreraInv = !empty($integrante->carrerainv_id) && !in_array($integrante->carrerainv_id, explode(",", Constants::PERSONAL_APOYO_CARRERA));
             if (
                 (empty($integrante->cargo_id) && !$tieneCarreraInv && empty($integrante->beca))
             ) {
