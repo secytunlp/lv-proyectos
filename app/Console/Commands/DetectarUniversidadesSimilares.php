@@ -132,7 +132,7 @@ class DetectarUniversidadesSimilares extends Command
 
         $stopwords = [
             'universidad', 'nacional', 'autonoma', 'catolica', 'de', 'del', 'la', 'las', 'los', 'y',
-            'faculty', 'facultad', 'instituto', 'superior', 'formacion',
+            'faculty', 'facultad', 'instituto',' universitario', 'superior', 'formacion',
             'docente', 'licenciada', 'licenciado', 'en',
         ];
 
