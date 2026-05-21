@@ -161,17 +161,40 @@ class DetectarUniversidadesSimilares extends Command
 
     private function fusionarUniversidades($mantener, $eliminar): void
     {
-        DB::transaction(function () use ($mantener, $eliminar) {
+        // Tables to reassign, with the columns (besides universidad_id) that
+        // make a row unique. If a row in $eliminar would collide with an
+        // existing row in $mantener on these columns, it's a duplicate and
+        // gets deleted instead of reassigned.
+        $tablas = [
+            'investigadors'           => [],
+            'titulos'                 => ['nombre', 'nivel'],
+            'integrantes'             => [],
+            'investigador_cargos'     => [],
+            'investigador_categorias' => [],
+        ];
 
-            $tablas = [
-                'investigadors',
-                'titulos',
-                'integrantes',
-                'investigador_cargos',
-                'investigador_categorias',
-            ];
+        DB::transaction(function () use ($mantener, $eliminar, $tablas) {
 
-            foreach ($tablas as $tabla) {
+            foreach ($tablas as $tabla => $clavesUnicas) {
+
+                if (!empty($clavesUnicas)) {
+                    // Delete rows in $eliminar that already have an equivalent
+                    // row in $mantener (would violate the unique index).
+                    DB::table("{$tabla} as e")
+                        ->where('e.universidad_id', $eliminar)
+                        ->whereExists(function ($q) use ($tabla, $mantener, $clavesUnicas) {
+                            $q->select(DB::raw(1))
+                                ->from("{$tabla} as m")
+                                ->where('m.universidad_id', $mantener);
+
+                            foreach ($clavesUnicas as $col) {
+                                $q->whereColumn("m.{$col}", "e.{$col}");
+                            }
+                        })
+                        ->delete();
+                }
+
+                // Reassign the remaining (non-colliding) rows.
                 DB::table($tabla)
                     ->where('universidad_id', $eliminar)
                     ->update(['universidad_id' => $mantener]);
