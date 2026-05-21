@@ -11,7 +11,15 @@ use Illuminate\Support\Facades\DB;
  */
 trait FusionaUniversidades
 {
-    private function fusionarUniversidades($mantener, $eliminar): void
+    /**
+     * Merge $eliminar into $mantener.
+     *
+     * Returns a summary array keyed by table, each with:
+     *   - reasignadas: rows moved to $mantener
+     *   - duplicadas:  duplicate rows removed (already existed in $mantener)
+     *   - fks:         [childTable.column => rows redirected]
+     */
+    private function fusionarUniversidades($mantener, $eliminar): array
     {
         // Tables to reassign, with the columns (besides universidad_id) that
         // make a row unique. If a row in $eliminar would collide with an
@@ -25,9 +33,17 @@ trait FusionaUniversidades
             'investigador_categorias' => [],
         ];
 
-        DB::transaction(function () use ($mantener, $eliminar, $tablas) {
+        $resumen = [];
+
+        DB::transaction(function () use ($mantener, $eliminar, $tablas, &$resumen) {
 
             foreach ($tablas as $tabla => $clavesUnicas) {
+
+                $resumen[$tabla] = [
+                    'reasignadas' => 0,
+                    'duplicadas'  => 0,
+                    'fks'         => [],
+                ];
 
                 if (!empty($clavesUnicas)) {
                     // Find rows in $eliminar that already have an equivalent
@@ -60,14 +76,21 @@ trait FusionaUniversidades
                         if ($twinId) {
                             // Redirect foreign keys pointing to the duplicate
                             // row towards the surviving twin, then delete it.
-                            $this->redirigirFks($tabla, $dup->id, $twinId);
+                            $fks = $this->redirigirFks($tabla, $dup->id, $twinId);
+
+                            foreach ($fks as $ref => $cant) {
+                                $resumen[$tabla]['fks'][$ref] =
+                                    ($resumen[$tabla]['fks'][$ref] ?? 0) + $cant;
+                            }
+
                             DB::table($tabla)->where('id', $dup->id)->delete();
+                            $resumen[$tabla]['duplicadas']++;
                         }
                     }
                 }
 
                 // Reassign the remaining (non-colliding) rows.
-                DB::table($tabla)
+                $resumen[$tabla]['reasignadas'] = DB::table($tabla)
                     ->where('universidad_id', $eliminar)
                     ->update(['universidad_id' => $mantener]);
             }
@@ -76,13 +99,17 @@ trait FusionaUniversidades
                 ->where('id', $eliminar)
                 ->delete();
         });
+
+        return $resumen;
     }
 
     /**
      * Redirect foreign keys that point to a row being deleted ($viejoId)
      * towards the surviving row ($nuevoId).
+     *
+     * Returns ["childTable.column" => rows updated] for reporting.
      */
-    private function redirigirFks(string $tabla, $viejoId, $nuevoId): void
+    private function redirigirFks(string $tabla, $viejoId, $nuevoId): array
     {
         // Map: parent table => list of [child table, child column] FKs.
         $fks = [
@@ -99,10 +126,18 @@ trait FusionaUniversidades
             ],
         ];
 
+        $tocadas = [];
+
         foreach ($fks[$tabla] ?? [] as [$childTable, $childColumn]) {
-            DB::table($childTable)
+            $cant = DB::table($childTable)
                 ->where($childColumn, $viejoId)
                 ->update([$childColumn => $nuevoId]);
+
+            if ($cant > 0) {
+                $tocadas["{$childTable}.{$childColumn}"] = $cant;
+            }
         }
+
+        return $tocadas;
     }
 }
