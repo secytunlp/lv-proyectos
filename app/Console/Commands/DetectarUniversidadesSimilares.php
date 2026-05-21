@@ -178,9 +178,11 @@ class DetectarUniversidadesSimilares extends Command
             foreach ($tablas as $tabla => $clavesUnicas) {
 
                 if (!empty($clavesUnicas)) {
-                    // Delete rows in $eliminar that already have an equivalent
+                    // Find rows in $eliminar that already have an equivalent
                     // row in $mantener (would violate the unique index).
-                    DB::table("{$tabla} as e")
+                    // MariaDB doesn't support DELETE ... AS alias, so we
+                    // collect the ids first and delete by id.
+                    $duplicados = DB::table("{$tabla} as e")
                         ->where('e.universidad_id', $eliminar)
                         ->whereExists(function ($q) use ($tabla, $mantener, $clavesUnicas) {
                             $q->select(DB::raw(1))
@@ -191,7 +193,12 @@ class DetectarUniversidadesSimilares extends Command
                                 $q->whereColumn("m.{$col}", "e.{$col}");
                             }
                         })
-                        ->delete();
+                        ->pluck('e.id')
+                        ->all();
+
+                    if (!empty($duplicados)) {
+                        DB::table($tabla)->whereIn('id', $duplicados)->delete();
+                    }
                 }
 
                 // Reassign the remaining (non-colliding) rows.
