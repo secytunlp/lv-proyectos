@@ -159,6 +159,34 @@ class DetectarUniversidadesSimilares extends Command
         return trim(preg_replace('/\s+/', ' ', $texto));
     }
 
+    /**
+     * Redirect foreign keys that point to a row being deleted ($viejoId)
+     * towards the surviving row ($nuevoId). Each entry is [table, column].
+     */
+    private function redirigirFks(string $tabla, $viejoId, $nuevoId): void
+    {
+        // Map: parent table => list of [child table, child column] FKs.
+        $fks = [
+            'titulos' => [
+                ['viajes', 'titulo_id'],
+                ['integrantes', 'titulo_id'],
+                ['integrantes', 'titulopost_id'],
+                ['jovens', 'titulo_id'],
+                ['jovens', 'titulopost_id'],
+                ['investigador_titulos', 'titulo_id'],
+                ['investigadors', 'titulo_id'],
+                ['investigadors', 'titulopost_id'],
+                ['investigador_tituloposts', 'titulo_id'],
+            ],
+        ];
+
+        foreach ($fks[$tabla] ?? [] as [$childTable, $childColumn]) {
+            DB::table($childTable)
+                ->where($childColumn, $viejoId)
+                ->update([$childColumn => $nuevoId]);
+        }
+    }
+
     private function fusionarUniversidades($mantener, $eliminar): void
     {
         // Tables to reassign, with the columns (besides universidad_id) that
@@ -180,8 +208,8 @@ class DetectarUniversidadesSimilares extends Command
                 if (!empty($clavesUnicas)) {
                     // Find rows in $eliminar that already have an equivalent
                     // row in $mantener (would violate the unique index).
-                    // MariaDB doesn't support DELETE ... AS alias, so we
-                    // collect the ids first and delete by id.
+                    // We need both ids: the duplicate (to remove) and its twin
+                    // in $mantener (to redirect foreign keys to).
                     $duplicados = DB::table("{$tabla} as e")
                         ->where('e.universidad_id', $eliminar)
                         ->whereExists(function ($q) use ($tabla, $mantener, $clavesUnicas) {
@@ -193,11 +221,22 @@ class DetectarUniversidadesSimilares extends Command
                                 $q->whereColumn("m.{$col}", "e.{$col}");
                             }
                         })
-                        ->pluck('e.id')
-                        ->all();
+                        ->get(array_merge(['e.id'], array_map(fn ($c) => "e.{$c}", $clavesUnicas)));
 
-                    if (!empty($duplicados)) {
-                        DB::table($tabla)->whereIn('id', $duplicados)->delete();
+                    foreach ($duplicados as $dup) {
+                        // Find the surviving twin id in $mantener.
+                        $twin = DB::table($tabla)->where('universidad_id', $mantener);
+                        foreach ($clavesUnicas as $col) {
+                            $twin->where($col, $dup->{$col});
+                        }
+                        $twinId = $twin->value('id');
+
+                        if ($twinId) {
+                            // Redirect foreign keys pointing to the duplicate
+                            // title towards the surviving twin, then delete it.
+                            $this->redirigirFks($tabla, $dup->id, $twinId);
+                            DB::table($tabla)->where('id', $dup->id)->delete();
+                        }
                     }
                 }
 
