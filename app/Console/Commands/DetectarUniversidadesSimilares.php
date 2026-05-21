@@ -133,8 +133,8 @@ class DetectarUniversidadesSimilares extends Command
         $texto = $this->normalizar($texto);
 
         $stopwords = [
-            'universidad', 'nacional', 'autonoma', 'catolica', 'de', 'del', 'la', 'las', 'los', 'y',
-            'faculty', 'facultad', 'instituto', 'universitario', 'superior', 'formacion',
+            'universidad', 'universidade', 'universite', 'universita', 'nacional', 'autonoma', 'catolica', 'federal', 'de', 'del', 'la', 'las', 'los', 'y',
+            'faculty', 'facultad', 'instituto', 'universitario', 'superior', 'formacion', 'tecnologico',
             'docente', 'licenciada', 'licenciado', 'en',
         ];
 
