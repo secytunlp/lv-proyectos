@@ -131,14 +131,16 @@ class DetectarUniversidadesSimilares extends Command
         $texto = $this->normalizar($texto);
 
         $stopwords = [
-            'universidad', 'nacional', 'autonoma', 'de', 'del', 'la', 'las', 'los', 'y',
+            'universidad', 'nacional', 'autonoma', 'catolica', 'de', 'del', 'la', 'las', 'los', 'y',
             'faculty', 'facultad', 'instituto', 'superior', 'formacion',
             'docente', 'licenciada', 'licenciado', 'en',
         ];
 
         $palabras = array_filter(
             explode(' ', $texto),
-            fn ($p) => $p !== '' && mb_strlen($p) > 2 && !in_array($p, $stopwords, true)
+            function ($p) use ($stopwords) {
+                return $p !== '' && mb_strlen($p) > 2 && !in_array($p, $stopwords, true);
+            }
         );
 
         return array_values(array_unique($palabras));
@@ -221,7 +223,9 @@ class DetectarUniversidadesSimilares extends Command
                                 $q->whereColumn("m.{$col}", "e.{$col}");
                             }
                         })
-                        ->get(array_merge(['e.id'], array_map(fn ($c) => "e.{$c}", $clavesUnicas)));
+                        ->get(array_merge(['e.id'], array_map(function ($c) {
+                            return "e.{$c}";
+                        }, $clavesUnicas)));
 
                     foreach ($duplicados as $dup) {
                         // Find the surviving twin id in $mantener.
