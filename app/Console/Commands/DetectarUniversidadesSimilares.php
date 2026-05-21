@@ -80,17 +80,24 @@ class DetectarUniversidadesSimilares extends Command
             return "sigla coincidente ({$sigla1})";
         }
 
-        // 2) Text similarity over the normalized name
-        similar_text($this->normalizar($u1->nombre), $this->normalizar($u2->nombre), $percent);
-        if ($percent >= $threshold) {
-            return 'similitud ' . round($percent) . '%';
+        // Significant words only (drops "universidad", "nacional", "de", etc.)
+        $claves1 = $this->palabrasClave($u1->nombre);
+        $claves2 = $this->palabrasClave($u2->nombre);
+
+        // 2) Text similarity over the SIGNIFICANT part of the name only,
+        //    so a shared "universidad de" prefix doesn't inflate the score.
+        $nucleo1 = implode(' ', $claves1);
+        $nucleo2 = implode(' ', $claves2);
+
+        if ($nucleo1 !== '' && $nucleo2 !== '') {
+            similar_text($nucleo1, $nucleo2, $percent);
+            if ($percent >= $threshold) {
+                return 'similitud ' . round($percent) . '%';
+            }
         }
 
         // 3) Shared significant words (e.g. both mention "plata")
-        $comunes = array_intersect(
-            $this->palabrasClave($u1->nombre),
-            $this->palabrasClave($u2->nombre)
-        );
+        $comunes = array_intersect($claves1, $claves2);
 
         if (!empty($comunes)) {
             return 'palabras en comun (' . implode(', ', $comunes) . ')';
