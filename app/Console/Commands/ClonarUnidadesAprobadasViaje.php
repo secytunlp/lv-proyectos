@@ -63,6 +63,30 @@ class ClonarUnidadesAprobadasViaje extends Command
             $this->warn('MODO DRY-RUN: no se guardarán cambios');
         }
 
+        // Filter out unidad_id values that no longer exist in the unidads catalog,
+        // otherwise the FK constraint would reject the whole batch.
+        $unidadIdsOrigen = $unidadesOrigen->pluck('unidad_id')->all();
+        $unidadIdsValidas = DB::table('unidads')
+            ->whereIn('id', $unidadIdsOrigen)
+            ->pluck('id')
+            ->all();
+
+        $idsHuerfanas = array_diff($unidadIdsOrigen, $unidadIdsValidas);
+
+        if (!empty($idsHuerfanas)) {
+            $this->warn("Se descartan " . count($idsHuerfanas) . " unidades que ya no existen en `unidads`:");
+            $this->line('  ' . implode(', ', $idsHuerfanas));
+        }
+
+        $unidadesAClonar = $unidadesOrigen->filter(function ($u) use ($unidadIdsValidas) {
+            return in_array($u->unidad_id, $unidadIdsValidas);
+        });
+
+        if ($unidadesAClonar->isEmpty()) {
+            $this->error('No quedan unidades válidas para clonar.');
+            return 1;
+        }
+
         DB::beginTransaction();
 
         try {
@@ -76,7 +100,7 @@ class ClonarUnidadesAprobadasViaje extends Command
 
             // Build insert data, dropping the original PK and remapping periodo_id
             $insertData = [];
-            foreach ($unidadesOrigen as $unidad) {
+            foreach ($unidadesAClonar as $unidad) {
                 $insertData[] = [
                     'unidad_id'  => $unidad->unidad_id,
                     'periodo_id' => $periodoDestino,
@@ -92,15 +116,15 @@ class ClonarUnidadesAprobadasViaje extends Command
             $this->line("  " . count($insertData) . " unidades clonadas");
 
             // Sanity check
-            $countOrigen = $unidadesOrigen->count();
+            $countEsperado = $unidadesAClonar->count();
             $countNuevo = DB::table('viaje_evaluacion_unidad_aprobadas')
                 ->where('periodo_id', $periodoDestino)
                 ->count();
 
-            $status = ($countOrigen === $countNuevo) ? '✓' : '✗';
-            $this->line("  {$status} Verificación: origen={$countOrigen}, destino={$countNuevo}");
+            $status = ($countEsperado === $countNuevo) ? '✓' : '✗';
+            $this->line("  {$status} Verificación: esperado={$countEsperado}, destino={$countNuevo}");
 
-            if ($countOrigen !== $countNuevo) {
+            if ($countEsperado !== $countNuevo) {
                 throw new \Exception('Discrepancia de conteo en viaje_evaluacion_unidad_aprobadas');
             }
 
