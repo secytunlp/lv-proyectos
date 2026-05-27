@@ -1005,12 +1005,17 @@ class IntegranteController extends Controller
         $proyecto_id=$datos->proyecto_id;
         $otrosProyecto = Integrante::where('investigador_id', $datos->investigador_id)
             ->where(function ($query) {
-                $query->where('estado', '!=', 'Baja Creada')
-                    ->orWhere('estado', '!=', 'Baja Recibida')
-                    ->orWhereNull('estado') // Agregamos los que tengan estado = null
-                    ->orWhere('baja', '>', Carbon::now()->format('Y-m-d'))
-                    ->orWhereNull('baja')
-                    ->orWhere('baja', '0000-00-00');
+                // Not in a "baja" state
+                $query->where(function ($q) {
+                    $q->whereNotIn('estado', ['Baja Creada', 'Baja Recibida'])
+                        ->orWhereNull('estado');
+                })
+                    // AND still active by date
+                    ->where(function ($q) {
+                        $q->where('baja', '>', Carbon::now()->format('Y-m-d'))
+                            ->orWhereNull('baja')
+                            ->orWhere('baja', '0000-00-00');
+                    });
             })
             ->whereHas('proyecto', function ($query) use ($proyecto_id) {
                 $query->where('estado', 'Acreditado')
