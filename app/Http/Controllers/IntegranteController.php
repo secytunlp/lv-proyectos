@@ -3540,9 +3540,12 @@ class IntegranteController extends Controller
             // Consulta para obtener los integrantes
             $integrantes = Integrante::where('investigador_id', $investigador->id)
                 ->where(function ($query) {
-                    $query->where('estado', '!=', 'Baja Creada')
-                        ->where('estado', '!=', 'Baja Recibida')
-                        ->orWhereNull('estado') // Agregamos los que tengan estado = null
+                    // Not in a "baja" state
+                    $query->where(function ($q) {
+                        $q->whereNotIn('estado', ['Baja Creada', 'Baja Recibida'])
+                            ->orWhereNull('estado');
+                    })
+                        // AND still active by date
                         ->where(function ($q) {
                             $q->where('baja', '>', Carbon::now()->format('Y-m-d'))
                                 ->orWhereNull('baja')
@@ -3742,9 +3745,12 @@ class IntegranteController extends Controller
             // Consulta para obtener los integrantes
             $integrantes = Integrante::where('investigador_id', $investigador->id)
                 ->where(function ($query) {
-                    $query->where('estado', '!=', 'Baja Creada')
-                        ->where('estado', '!=', 'Baja Recibida')
-                        ->orWhereNull('estado') // Agregamos los que tengan estado = null
+                    // Not in a "baja" state
+                    $query->where(function ($q) {
+                        $q->whereNotIn('estado', ['Baja Creada', 'Baja Recibida'])
+                            ->orWhereNull('estado');
+                    })
+                        // AND still active by date
                         ->where(function ($q) {
                             $q->where('baja', '>', Carbon::now()->format('Y-m-d'))
                                 ->orWhereNull('baja')
