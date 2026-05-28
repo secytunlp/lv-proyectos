@@ -32,12 +32,12 @@
                 <div class="col-xs-12">
                     <div class="box">
                         <div class="box-header with-border">
-                            @can('solicitud-rechazar')
+
                                 @if (session('selected_rol') == 1)
                                     <a class='pull-right btn btn-info' href="{{ route('solicitud_sicadis.importar') }}" style="margin-left: 5px">Importar</a>
                                 @endif
-                            @endcan
-                                @can('solicitud-rechazar')
+
+                                @can(' Solicitud_sicadi-rechazar')
                                     <a class='pull-right btn btn-info' style="margin-left: 5px;" id="exportar-datos" href="#">Exportar</a>
                                 @endcan
                             @can('solicitud_sicadi-crear')
