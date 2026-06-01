@@ -24,7 +24,7 @@
 <p><strong>Le pedimos, en la medida de lo posible, que nos envíe las evaluaciones por sistema lo antes posible,</strong> con el fin de realizar los procesos administrativos necesarios para otorgar los subsidios en tiempo y forma</p>
 <p>
     Asimismo requerimos nos comunique su aceptación o rechazo dentro de las 48 hs. de recibida esta comunicación. Debe hacerlo por medio del sistema,
-    ingresando <a href="{urlWeb}">aquí</a> donde deberá seleccionar la solicitud a evaluar, para luego aceptarla o rechazarla.
+    ingresando <a href="{{urlWeb}}">{{urlWeb}}</a> donde deberá seleccionar la solicitud a evaluar, para luego aceptarla o rechazarla.
 </p>
 <p>
     Le aclaramos que cada solicitud tendrá asignado un evaluador interno (el mismo deberá pertenecer a la Unidad Académica del solicitante)
