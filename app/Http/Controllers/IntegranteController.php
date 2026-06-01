@@ -3478,7 +3478,10 @@ class IntegranteController extends Controller
                 }
             }*/
             if (!empty($request->institucions[0])) {
-                if ($request->institucions[0]=='CIN'){
+                if (
+                    $request->institucions[0]=='CIN'
+                    || ($request->institucions[0]=='CIC PBA' && $request->becas[0]=='Beca de entrenamiento')
+                ){
                     $maxHoras=12;
                     $minHoras=12;
                 }
@@ -3678,7 +3681,10 @@ class IntegranteController extends Controller
                 $unProyecto=1;
             }
             if (!empty($integrante->institucion)) {
-                if ($integrante->institucion=='CIN'){
+                if (
+                    $integrante->institucion=='CIN'
+                    || ($integrante->institucion=='CIC PBA' && $integrante->beca=='Beca de entrenamiento')
+                ){
                     $maxHoras=12;
                     $minHoras=12;
                 }
