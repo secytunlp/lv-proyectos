@@ -3679,7 +3679,7 @@ class IntegranteController extends Controller
             $unProyecto = 1;
             $minHoras=3;
             $maxHoras = 6;
-            if ($integrante->deddocs=='Simple'){
+            if ($integrante->deddoc=='Simple'){
                 //Log::info("Entra Dedicacion: ".$request->deddocs[0]);
                 if(!in_array($integrante->carrerainv_id, explode(",",Constants::CARRERAS_INVESTIGACION))){
 
@@ -3729,9 +3729,9 @@ class IntegranteController extends Controller
             $maxHoras = 35;
             $minHoras=10;
         }
-        elseif (!empty($integrante->deddocs)) {
+        elseif (!empty($integrante->deddoc)) {
 
-            switch ($integrante->deddocs) {
+            switch ($integrante->deddoc) {
                 case 'Exclusiva':
                     $dosProyectos = 1;
                     $maxHoras = 35;
