@@ -1129,7 +1129,7 @@
 
                     }
                     //alert('i: '+i+' - submax: '+submax+' - item_evaluacion_grupo_id.val(): '+item_evaluacion_grupo_id.val());
-                    if ((i==10)||(submax==item_evaluacion_grupo_id.val() )){
+                    if ((i==parseInt(cantidad.val()))||(submax==item_evaluacion_grupo_id.val() )){
 
                         subpuntaje = parseFloat(subpuntaje) + parseFloat(ptotal);
 
