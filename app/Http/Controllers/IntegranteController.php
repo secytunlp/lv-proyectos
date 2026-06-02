@@ -3543,6 +3543,14 @@ class IntegranteController extends Controller
 
             }
         }
+        // Fallback: if no specific rule matched (e.g. "Becario, Tesista" with no
+        // beca/cargo/carrerainv/dedicacion at UNLP), enforce single-project participation.
+        // Hours get a permissive range since there is no basis for stricter limits here.
+        if (!$unProyecto && !$dosProyectos) {
+            $unProyecto = 1;
+            $minHoras = 1;
+            $maxHoras = 4;
+        }
         if ($unProyecto || $dosProyectos){
             // Verificar si el investigador participa en otro proyecto activo
             // Consulta para obtener los integrantes
@@ -3568,9 +3576,19 @@ class IntegranteController extends Controller
                 ->get();
             // Verificar si la colección de integrantes no está vacía
             if (!$integrantes->isEmpty()) {
-                //dd($integrantes);
-                //Log::info("Horas ".$integrantes[0]->horas);
                 $proyectos = $integrantes->pluck('proyecto.codigo')->unique()->join(', ');
+
+                // A Colaborador in any active project cannot participate in another project in execution
+                $proyectosColaborador = $integrantes->filter(function ($int) {
+                    return $int->tipo === 'Colaborador';
+                });
+                if ($proyectosColaborador->isNotEmpty()) {
+                    $codigosColaborador = $proyectosColaborador->pluck('proyecto.codigo')->unique()->join(', ');
+                    return redirect()->back()
+                        ->withErrors(['cuil' => 'El investigador es Colaborador en el/los proyecto(s) ' . $codigosColaborador . ' y no puede formar parte de otro proyecto en ejecución'])
+                        ->withInput();
+                }
+
                 if ($unProyecto){
 
 
@@ -3751,6 +3769,14 @@ class IntegranteController extends Controller
 
             }
         }
+        // Fallback: if no specific rule matched (e.g. "Becario, Tesista" with no
+        // beca/cargo/carrerainv/dedicacion at UNLP), enforce single-project participation.
+        // Hours get a permissive range since there is no basis for stricter limits here.
+        if (!$unProyecto && !$dosProyectos) {
+            $unProyecto = 1;
+            $minHoras = 1;
+            $maxHoras = 4;
+        }
         if ($unProyecto || $dosProyectos){
             // Verificar si el investigador participa en otro proyecto activo
             // Consulta para obtener los integrantes
@@ -3771,15 +3797,24 @@ class IntegranteController extends Controller
                 ->whereHas('proyecto', function ($query) use ($proyecto_id) {
                     $query->where('estado', 'Acreditado')
                         ->where('id', '<>', $proyecto_id)
-                        // Modificar para que 'fin' sea mayor al 31/12 del año anterior
                         ->where('fin', '>', Carbon::now()->subYear()->endOfYear()->format('Y-m-d'));
                 })
                 ->get();
             // Verificar si la colección de integrantes no está vacía
             if (!$integrantes->isEmpty()) {
-                //dd($integrantes);
-                //Log::info("Horas ".$integrantes[0]->horas);
                 $proyectos = $integrantes->pluck('proyecto.codigo')->unique()->join(', ');
+
+                // A Colaborador in any active project cannot participate in another project in execution
+                $proyectosColaborador = $integrantes->filter(function ($int) {
+                    return $int->tipo === 'Colaborador';
+                });
+                if ($proyectosColaborador->isNotEmpty()) {
+                    $codigosColaborador = $proyectosColaborador->pluck('proyecto.codigo')->unique()->join(', ');
+                    return redirect()->back()
+                        ->withErrors(['cuil' => 'El investigador es Colaborador en el/los proyecto(s) ' . $codigosColaborador . ' y no puede formar parte de otro proyecto en ejecución'])
+                        ->withInput();
+                }
+
                 if ($unProyecto){
 
 
