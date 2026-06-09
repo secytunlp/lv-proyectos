@@ -37,7 +37,7 @@
                                     <a class='pull-right btn btn-info' href="{{ route('solicitud_sicadis.importar') }}" style="margin-left: 5px">Importar</a>
                                 @endif
 
-                                @can(' Solicitud_sicadi-rechazar')
+                                @can('solicitud_sicadi-rechazar')
                                     <a class='pull-right btn btn-info' style="margin-left: 5px;" id="exportar-datos" href="#">Exportar</a>
                                 @endcan
                             @can('solicitud_sicadi-crear')
