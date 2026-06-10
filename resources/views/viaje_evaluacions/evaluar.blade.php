@@ -263,7 +263,7 @@
 
         @php
             $puntajeitem = $evaluacion->puntaje_items->where('viaje_evaluacion_planilla_item_max_id', $itemMaximo->id)->first();
-            $puntaje = (($puntajeitem)&&($puntajeitem->puntaje))?(int)$puntajeitem->puntaje:'';
+            $puntaje = (($puntajeitem)&&($puntajeitem->puntaje))?$puntajeitem->puntaje:'';
             $cantidad = (($puntajeitem)&&($puntajeitem->cantidad))?$puntajeitem->cantidad:'';
             //$tope = (($itemMaximo->tope==0)||($itemMaximo->tope==$itemMaximo->minimo))?'':'<strong>Max. '.$itemMaximo->tope.'pt.</strong>';
             $step = '1';
@@ -391,7 +391,7 @@
 
         @php
             $puntajeitem = $evaluacion->puntaje_items->where('viaje_evaluacion_planilla_item_max_id', $itemMaximo->id)->first();
-            $puntaje = (($puntajeitem)&&($puntajeitem->puntaje))?(int)$puntajeitem->puntaje:'';
+            $puntaje = (($puntajeitem)&&($puntajeitem->puntaje))?$puntajeitem->puntaje:'';
             $cantidad = (($puntajeitem)&&($puntajeitem->cantidad))?$puntajeitem->cantidad:'';
             //$tope = (($itemMaximo->tope==0)||($itemMaximo->tope==$itemMaximo->minimo))?'':'<strong>Max. '.$itemMaximo->tope.'pt.</strong>';
             $step = '1';
@@ -487,7 +487,7 @@
 
             @php
                 $puntajeplan = $evaluacion->puntaje_plans->where('viaje_evaluacion_planilla_plan_max_id', $planMaximo->id)->first();
-                $puntaje = (($puntajeplan)&&($puntajeplan->puntaje))?(int)$puntajeplan->puntaje:'';
+                $puntaje = (($puntajeplan)&&($puntajeplan->puntaje))?$puntajeplan->puntaje:'';
 
 
                 $step = '1';
@@ -589,13 +589,13 @@
         @php
             $puntajeevento = $evaluacion->puntaje_eventos->where('viaje_evaluacion_planilla_evento_max_id', $eventoMaximo->id)->first();
 
-            $puntaje = (($puntajeevento)&&($puntajeevento->puntaje))?(int)$puntajeevento->puntaje:'';
+            $puntaje = (($puntajeevento)&&($puntajeevento->puntaje))?$puntajeevento->puntaje:'';
             $cantidad = (($puntajeevento)&&($puntajeevento->cantidad))?$puntajeevento->cantidad:'';
            $step = (($eventoMaximo->maximo!=0)&&($eventoMaximo->minimo==$eventoMaximo->maximo))?((($eventoMaximo->minimo==$eventoMaximo->maximo))?'1':'0.01'):'0.01';
 
 
 
-           $puntaje=($puntajeevento)?(int) $puntajeevento->puntaje:'';
+           $puntaje=($puntajeevento)?$puntajeevento->puntaje:'';
 
            $checked = (($eventoMaximo->minimo)&&($puntaje)&&($puntajeevento->id)&&($puntajeevento->viaje_evaluacion_planilla_evento_max_id==$eventoMaximo->id))?' CHECKED ':'';
             $disabled =(strchr($eventoMaximo->evento_nombre,'(Ord. 284)'))?' DISABLED ':'';

@@ -357,7 +357,7 @@
                 @php
                     $puntajeItem = $evaluacion->puntaje_items->where('viaje_evaluacion_planilla_item_max_id', $itemMaximo->id)->first();
                     $cantidad = (($puntajeItem)&&($puntajeItem->cantidad))?(int)$puntajeItem->cantidad:'';
-                    $puntaje = (($puntajeItem)&&($puntajeItem->puntaje))?(int)$puntajeItem->puntaje:'';
+                    $puntaje = (($puntajeItem)&&($puntajeItem->puntaje))?$puntajeItem->puntaje:'';
 
 
                     $hasta = $itemMaximo->maximo. ' c/u';
@@ -472,7 +472,7 @@
                 @php
                     $puntajeItem = $evaluacion->puntaje_items->where('viaje_evaluacion_planilla_item_max_id', $itemMaximo->id)->first();
                     $cantidad = (($puntajeItem)&&($puntajeItem->cantidad))?(int)$puntajeItem->cantidad:'';
-                    $puntaje = (($puntajeItem)&&($puntajeItem->puntaje))?(int)$puntajeItem->puntaje:'';
+                    $puntaje = (($puntajeItem)&&($puntajeItem->puntaje))?$puntajeItem->puntaje:'';
 
 
                     $hasta = $itemMaximo->maximo. ' c/u';
@@ -576,7 +576,7 @@
 
                     @php
                         $puntajePlan = $evaluacion->puntaje_plans->where('viaje_evaluacion_planilla_plan_max_id', $planMaximo->id)->first();
-                        $puntaje = (($puntajePlan)&&($puntajePlan->puntaje))?(int)$puntajePlan->puntaje:'';
+                        $puntaje = (($puntajePlan)&&($puntajePlan->puntaje))?$puntajePlan->puntaje:'';
 
 
                         $totalPlan = ($puntajePlan)?$puntaje:0;
@@ -682,7 +682,7 @@
                 @endif
                 @php
                     $puntajeEvento = $evaluacion->puntaje_eventos->where('viaje_evaluacion_planilla_evento_max_id', $eventoMaximo->id)->first();
-                    $puntaje = (($puntajeEvento)&&($puntajeEvento->puntaje))?(int)$puntajeEvento->puntaje:'';
+                    $puntaje = (($puntajeEvento)&&($puntajeEvento->puntaje))?$puntajeEvento->puntaje:'';
 
                     $c_u=' c/u';
 
