@@ -92,9 +92,53 @@ class ViajeController extends Controller
 
     public function dataTable(Request $request)
     {
-        $columnas = ['personas.nombre','periodos.nombre', 'personas.apellido', 'viajes.fecha','viajes.estado', 'facultads.cat', 'facultads.nombre', '','viajes.diferencia', 'viajes.puntaje',DB::raw("CASE viajes.motivo WHEN 'A) Reuniones Científicas' THEN 'A' ELSE CASE viajes.motivo WHEN 'B) Estadía de trabajo para investigar en ámbitos académicos externos a la UNLP' THEN 'B' ELSE CASE viajes.motivo WHEN 'C) Estadía de Trabajo en la UNLP para un Investigador Invitado' THEN 'C' ELSE '' END END END"),'viajes.monto']; // Define las columnas disponibles
-        $columnaOrden = $columnas[$request->input('order.0.column')];
-        $orden = $request->input('order.0.dir');
+        // Columns used ONLY for the global search (LIKE). Real columns only.
+        $columnas = [
+            'personas.nombre',
+            'periodos.nombre',
+            'personas.apellido',
+            'viajes.fecha',
+            'viajes.estado',
+            'facultads.cat',
+            'facultads.nombre',
+            'viajes.motivo',
+            'viajes.diferencia',
+            'viajes.puntaje',
+            'viajes.monto',
+        ];
+
+        // CASE expression for motivo, reused in SELECT and ORDER BY
+        $motivoCase = "CASE viajes.motivo
+        WHEN 'A) Reuniones Científicas' THEN 'A'
+        WHEN 'B) Estadía de trabajo para investigar en ámbitos académicos externos a la UNLP' THEN 'B'
+        WHEN 'C) Estadía de Trabajo en la UNLP para un Investigador Invitado' THEN 'C'
+        ELSE '' END";
+
+        $columnasOrdenables = [
+            'persona_nombre'   => 'personas.nombre',
+            'periodo_nombre'   => 'periodos.nombre',
+            'persona_apellido' => 'personas.apellido',
+            'fecha'            => 'viajes.fecha',
+            'estado'           => 'viajes.estado',
+            'facultad_cat'     => 'facultads.cat',
+            'facultad_nombre'  => 'facultads.nombre',
+            'motivo'           => DB::raw($motivoCase),
+            'monto'            => 'viajes.monto',
+            'diferencia'       => 'viajes.diferencia',
+            'puntaje'          => 'viajes.puntaje',
+        ];
+
+        $colIndex = $request->input('order.0.column');
+        $colName  = $request->input("columns.$colIndex.name")
+            ?: $request->input("columns.$colIndex.data");
+
+        $orden = strtolower($request->input('order.0.dir', 'asc'));
+        $orden = in_array($orden, ['asc', 'desc']) ? $orden : 'asc';
+
+        $columnaOrden = isset($columnasOrdenables[$colName])
+            ? $columnasOrdenables[$colName]
+            : 'personas.apellido';
+
         $busqueda = $request->input('search.value');
         $periodo = $request->input('periodo'); // Obtener el filtro de período de la solicitud
         $estado = $request->input('estado');
