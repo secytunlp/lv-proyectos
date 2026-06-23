@@ -711,9 +711,28 @@ class ViajeEvaluacionController extends Controller
 
     public function evaluar($id)
     {
-        $viaje = Viaje::find($id);
         $user = auth()->user();
-        $evaluacion = $viaje->evaluacions()->where('user_id', $user->id)->first(); // Evaluación del usuario
+        $esAdmin = (session('selected_rol') == 1);
+
+        if ($esAdmin) {
+            // Para admin, $id es el id de la evaluación.
+            $evaluacion = ViajeEvaluacion::find($id);
+            if (!$evaluacion) {
+                return redirect()->route('viajes.index')
+                    ->withErrors(['message' => 'No se encontró la evaluación']);
+            }
+            $viaje = Viaje::find($evaluacion->viaje_id);
+        } else {
+            // Para evaluador, $id es el id del viaje.
+            $viaje = Viaje::find($id);
+            $evaluacion = $viaje->evaluacions()->where('user_id', $user->id)->first();
+        }
+
+        if (!$evaluacion || !$viaje) {
+            return redirect()->route('viajes.index')
+                ->withErrors(['message' => 'No se encontró la evaluación']);
+        }
+
         $facultad= DB::table('facultads')->where('id', $viaje->facultadplanilla_id)->first();
 
         $tipoMap = [

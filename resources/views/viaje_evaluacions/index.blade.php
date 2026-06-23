@@ -233,7 +233,11 @@
                                     actionsHtml += '<a href="{{ route("viaje_evaluacions.evaluacion-pdf") }}?viaje_evaluacion_id=' + row.id + '" alt="Evaluación" title="Evaluación" target="_blank" style="margin-right: 5px;"><i class="fa fa-file-pdf"></i></a>';
                                 }
                             @endcan
-
+                            @if(session('selected_rol') == 1)
+                                if ((row.estado == 'En evaluación') || (row.estado == 'Evaluada')) {
+                                    actionsHtml += '<a href="{{ route("viaje_evaluacions.evaluar", ":id") }}" alt="Editar (admin)" title="Editar (admin)" style="margin-right: 5px;"><i class="fa fa-clipboard-check"></i></a>'.replace(':id', row.id);
+                                }
+                            @endif
 
                             return actionsHtml;
 
