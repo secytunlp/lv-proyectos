@@ -9,6 +9,8 @@ use App\Models\ViajeEvaluacion;
 use App\Models\ViajeEvaluacionEstado;
 
 use App\Traits\SanitizesInput;
+use App\Traits\CalculaViajeEvaluacion;
+
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -34,6 +36,7 @@ class ViajeEvaluacionController extends Controller
 {
 
     use SanitizesInput;
+    use CalculaViajeEvaluacion;
     function __construct()
     {
         /*$this->middleware('permission:integrante-listar|integrante-crear|integrante-editar|integrante-eliminar', ['only' => ['index','store','dataTable','admitir']]);
@@ -1020,6 +1023,14 @@ class ViajeEvaluacionController extends Controller
                 }
             }
 
+            // Recalculate the total server-side from the saved scores, ignoring the
+            // value submitted by the form/JS. This guarantees the stored total always
+            // matches the sum of the items and prevents JS timing bugs from persisting.
+            $totalServer = $this->calcularTotalEvaluacion($evaluacion->id);
+            if ($totalServer !== null) {
+                $evaluacion->puntaje = $totalServer;
+                $evaluacion->save();
+            }
 
             DB::commit();
             $respuestaID = 'success';

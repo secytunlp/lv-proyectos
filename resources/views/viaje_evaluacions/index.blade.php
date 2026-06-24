@@ -234,7 +234,7 @@
                                 }
                             @endcan
                             @if(session('selected_rol') == 1)
-                                if ((row.estado == 'En evaluación') || (row.estado == 'Evaluada')) {
+                                if ((row.estado == 'En evaluación')) {
                                     actionsHtml += '<a href="{{ route("viaje_evaluacions.evaluar", ":id") }}" alt="Editar (admin)" title="Editar (admin)" style="margin-right: 5px;"><i class="fa fa-clipboard-check"></i></a>'.replace(':id', row.id);
                                 }
                             @endif
