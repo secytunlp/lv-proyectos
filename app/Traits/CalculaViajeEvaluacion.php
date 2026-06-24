@@ -7,22 +7,21 @@ use App\Models\ViajeEvaluacion;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Calculates the total score of a viaje evaluation, replicating the PDF logic
- * (per-subgroup caps + per-parent-group caps). This is the single source of truth
- * for the stored total: saveEvaluar and the audit command should both use it so the
- * saved value can never diverge from the sum of the items (which is what the JS
- * timing bug caused).
+ * Calculates the total score of a viaje evaluation, replicating the blade/JS logic:
+ *  - Items are split into two BLOCKS by iterador1/iterador2 (Prod. 5 años / RRHH).
+ *  - Inside each block, every subgroup caps at its grupo_maximo.
+ *  - Each block then caps as a whole:
+ *      * Prod block -> padre_maximo of its first item (e.g. 45)
+ *      * RRHH block -> sum of the grupo_maximo of its groups (maxGrupoSiguiente)
+ *  - Events cap per group. Categoria/Cargo are single caps. Plan only when motivo != A.
  *
- * PHP 7.x compatible: no arrow functions, no union types, no str_contains.
+ * The two-level cap (block + subgroup) is what keeps the total <= 100 and what the
+ * previous version was missing (it summed groups loose, without the block cap).
+ *
+ * PHP 7.x compatible.
  */
 trait CalculaViajeEvaluacion
 {
-    /**
-     * Recalculates the total for an evaluation from its saved scores.
-     *
-     * @param  int  $evaluacionId
-     * @return float|null  Null when the planilla cannot be resolved.
-     */
     public function calcularTotalEvaluacion($evaluacionId)
     {
         $evaluacion = ViajeEvaluacion::find($evaluacionId);
@@ -36,7 +35,7 @@ trait CalculaViajeEvaluacion
         }
 
         $tipoMap = array(
-            'Investigador Formado'   => 'Formados',
+            'Investigador Formado' => 'Formados',
             'Investigador En Formación' => 'En formación',
         );
         $motivoMap = array(
@@ -86,7 +85,7 @@ trait CalculaViajeEvaluacion
             }
         }
 
-        // ----- ITEMS: cap per subgroup, then per parent group -----
+        // ----- ITEMS: split into blocks by iterador1/iterador2 (same order as blade) -----
         $itemMaximos = DB::table('viaje_evaluacion_planilla_item_maxs as im')
             ->leftJoin('evaluacion_grupos as g', 'im.evaluacion_grupo_id', '=', 'g.id')
             ->leftJoin('viaje_evaluacion_planilla_items as it', 'im.viaje_evaluacion_planilla_item_id', '=', 'it.id')
@@ -95,51 +94,83 @@ trait CalculaViajeEvaluacion
             ->orderBy('it.orden', 'ASC')
             ->get();
 
-        $subAcum = array();    // grupo_id => acumulado
-        $grupoMax = array();   // grupo_id => tope del subgrupo
-        $grupoPadre = array(); // grupo_id => padre_id
+        $iterador1 = (int) $planilla->iterador1;
+        $iterador2 = (int) $planilla->iterador2;
 
+        $bloqueProd = array();   // grupo_id => acumulado (bloque Prod)
+        $bloqueRRHH = array();   // grupo_id => acumulado (bloque RRHH)
+        $grupoMax = array();     // grupo_id => grupo_maximo
+        $padreMaxProd = 0;       // tope del bloque Prod (padre_maximo del primer item)
+        $maxGrupoRRHH = 0;       // tope del bloque RRHH (suma de grupo_maximo de sus grupos)
+        $rrhhGruposVistos = array();
+
+        $primerItem = $itemMaximos->first();
+        if ($primerItem) {
+            $padreProd = DB::table('evaluacion_grupos')
+                ->where('id', $primerItem->padre_id)
+                ->value('maximo');
+            $padreMaxProd = $padreProd ? $padreProd : 0;
+        }
+
+        $index = 0;
         foreach ($itemMaximos as $im) {
             $pi = $evaluacion->puntaje_items
                 ->where('viaje_evaluacion_planilla_item_max_id', $im->id)
                 ->first();
             $cantidad = ($pi && $pi->cantidad) ? (int) $pi->cantidad : 0;
             $valor = $cantidad * $im->maximo;
-
             $gid = $im->evaluacion_grupo_id;
-            if (!isset($subAcum[$gid])) {
-                $subAcum[$gid] = 0;
+
+            if (!isset($grupoMax[$gid])) {
                 $grupoMax[$gid] = $im->grupo_maximo;
-                $grupoPadre[$gid] = $im->padre_id;
             }
-            $subAcum[$gid] += $valor;
+
+            if ($index < $iterador1) {
+                if (!isset($bloqueProd[$gid])) {
+                    $bloqueProd[$gid] = 0;
+                }
+                $bloqueProd[$gid] += $valor;
+            } elseif ($index < $iterador2) {
+                if (!isset($bloqueRRHH[$gid])) {
+                    $bloqueRRHH[$gid] = 0;
+                    if (!isset($rrhhGruposVistos[$gid])) {
+                        $maxGrupoRRHH += $im->grupo_maximo;
+                        $rrhhGruposVistos[$gid] = true;
+                    }
+                }
+                $bloqueRRHH[$gid] += $valor;
+            }
+
+            $index++;
         }
 
-        $porPadre = array(); // padre_id => acumulado (post tope de subgrupo)
-        foreach ($subAcum as $gid => $acum) {
+        // Cerrar bloque PROD: topear subgrupos, sumar, topear el bloque a padreMaxProd.
+        $totalProd = 0;
+        foreach ($bloqueProd as $gid => $acum) {
             $gm = $grupoMax[$gid];
             if ($gm != 0 && $acum > $gm) {
                 $acum = $gm;
             }
-            $padre = $grupoPadre[$gid];
-            if ($padre) {
-                if (!isset($porPadre[$padre])) {
-                    $porPadre[$padre] = 0;
-                }
-                $porPadre[$padre] += $acum;
-            } else {
-                // Subgrupo sin padre: suma directa.
-                $total += $acum;
-            }
+            $totalProd += $acum;
         }
+        if ($padreMaxProd != 0 && $totalProd > $padreMaxProd) {
+            $totalProd = $padreMaxProd;
+        }
+        $total += $totalProd;
 
-        foreach ($porPadre as $padre => $acum) {
-            $pm = DB::table('evaluacion_grupos')->where('id', $padre)->value('maximo');
-            if ($pm && $acum > $pm) {
-                $acum = $pm;
+        // Cerrar bloque RRHH: topear subgrupos, sumar, topear el bloque a maxGrupoRRHH.
+        $totalRRHH = 0;
+        foreach ($bloqueRRHH as $gid => $acum) {
+            $gm = $grupoMax[$gid];
+            if ($gm != 0 && $acum > $gm) {
+                $acum = $gm;
             }
-            $total += $acum;
+            $totalRRHH += $acum;
         }
+        if ($maxGrupoRRHH != 0 && $totalRRHH > $maxGrupoRRHH) {
+            $totalRRHH = $maxGrupoRRHH;
+        }
+        $total += $totalRRHH;
 
         // ----- EVENTOS: cap per group -----
         $eventoMaximos = DB::table('viaje_evaluacion_planilla_evento_maxs as em')
@@ -150,13 +181,11 @@ trait CalculaViajeEvaluacion
 
         $subEvento = array();
         $grupoMaxEv = array();
-
         foreach ($eventoMaximos as $em) {
             $pe = $evaluacion->puntaje_eventos
                 ->where('viaje_evaluacion_planilla_evento_max_id', $em->id)
                 ->first();
             $valor = ($pe && $pe->puntaje) ? $pe->puntaje : 0;
-
             $gid = $em->evaluacion_grupo_id;
             if (!isset($subEvento[$gid])) {
                 $subEvento[$gid] = 0;
@@ -164,7 +193,6 @@ trait CalculaViajeEvaluacion
             }
             $subEvento[$gid] += $valor;
         }
-
         foreach ($subEvento as $gid => $acum) {
             $gm = $grupoMaxEv[$gid];
             if ($gm != 0 && $acum > $gm) {
