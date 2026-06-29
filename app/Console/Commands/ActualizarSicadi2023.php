@@ -220,9 +220,9 @@ class ActualizarSicadi2023 extends Command
                 'cargo_id, facultad_id, unidad_id, carrerainv_id, organismo_id, '.
                 'institucion, beca, desde, hasta, comentarios, created_at, updated_at) '.
                 'SELECT ig.id, ?, ig.tipo, ig.alta, ig.baja, ig.cambio, ig.horas, ig.estado, '.
-                'ig.consecuencias, ?, ig.reduccion, ig.categoria_id, a.nuevo_sicadi_id, ig.deddoc, '.
+                'ig.consecuencias, ig.motivos, ig.reduccion, ig.categoria_id, a.nuevo_sicadi_id, ig.deddoc, '.
                 'ig.cargo_id, ig.facultad_id, ig.unidad_id, ig.carrerainv_id, ig.organismo_id, '.
-                'ig.institucion, ig.beca, NOW(), NULL, NULL, NOW(), NOW() '.
+                'ig.institucion, ig.beca, NOW(), NULL, ?, NOW(), NOW() '.
                 'FROM tmp_integ a JOIN integrantes ig ON ig.id = a.integrante_id',
                 array($this->userId, 'Cambio de SICADI por recurso')
             );
