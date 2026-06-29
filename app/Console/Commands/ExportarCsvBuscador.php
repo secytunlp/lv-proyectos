@@ -268,6 +268,16 @@ class ExportarCsvBuscador extends Command
             $alta = ($i->alta === '0000-00-00' || !$i->alta) ? '' : $i->alta;
             $baja = ($i->baja === '0000-00-00' || !$i->baja) ? '' : $i->baja;
 
+            $altaFmt = $this->formatDate($alta);
+            $bajaFmt = $this->formatDate($baja);
+
+            // Skip participations with the same alta and baja date
+            // (added and removed on the same day → no real participation).
+            if ($altaFmt !== '' && $altaFmt === $bajaFmt) {
+                return null;
+            }
+
+
             return [
                 'code'                => $i->proyecto ? $i->proyecto->codigo : '',
                 'document_number'     => $persona->documento,
