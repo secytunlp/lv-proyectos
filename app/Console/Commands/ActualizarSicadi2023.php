@@ -93,7 +93,11 @@ class ActualizarSicadi2023 extends Command
             // Datos de entrada
             // =============================================================
             DB::statement('DROP TEMPORARY TABLE IF EXISTS tmp_recursos');
-            DB::statement('CREATE TEMPORARY TABLE tmp_recursos (cuil VARCHAR(15), nueva_cat VARCHAR(10))');
+            DB::statement(
+                'CREATE TEMPORARY TABLE tmp_recursos ('.
+                'cuil VARCHAR(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci, '.
+                'nueva_cat VARCHAR(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci)'
+            );
             $filas = array();
             foreach ($this->recursos as $cuil => $cat) {
                 $filas[] = array('cuil' => $cuil, 'nueva_cat' => $cat);
