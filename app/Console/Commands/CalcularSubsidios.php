@@ -30,6 +30,7 @@ class CalcularSubsidios extends Command
         {--mt= : Monto Total (MT) to distribute this period. Required.}
         {--periodo= : Viajes period id for the approved-units filter (#5). Required unless --skip-extraction.}
         {--fecha-corte= : Cutoff date (Y-m-d). Defaults to {anio-1}-12-31.}
+        {--hasta-inicio= : Exclude projects with inicio >= this date (Y-m-d). For replaying a past period.}
         {--skip-extraction : Skip #4/#5, run only on already-populated subsidio_* tables.}
         {--dry-run : Run everything inside a transaction and roll back at the end.}';
 
@@ -47,6 +48,8 @@ class CalcularSubsidios extends Command
     protected $anio;
     /** @var int */
     protected $periodo;
+    /** @var string|null */
+    protected $hastaInicio;
     /** @var string */
     protected $tablaDir;   // dirproy_AAAA
     /** @var string */
@@ -71,6 +74,8 @@ class CalcularSubsidios extends Command
         }
 
         $fechaCorte = $this->option('fecha-corte') ?: ($this->anio - 1).'-12-31';
+
+        $this->hastaInicio = $this->option('hasta-inicio') ?: null;
 
         $this->periodo = (int) $this->option('periodo');
         if (! $this->option('skip-extraction') && $this->periodo <= 0) {
@@ -207,6 +212,14 @@ class CalcularSubsidios extends Command
             $carreraWhen = "WHEN i.carrerainv_id IN ($ids) THEN '1'";
         }
 
+        // Optional: exclude projects starting on/after a date (replay a past period).
+        $hastaInicioSql = '';
+        $bindings = [$fechaCorte, $fechaCorte];
+        if ($this->hastaInicio) {
+            $hastaInicioSql = ' AND p.inicio < ?';
+            $bindings[] = $this->hastaInicio;
+        }
+
         $sql = "
             INSERT INTO subsidio_integrantes
                 (proyecto, inicio, fin, documento, director, alta, baja,
@@ -258,9 +271,10 @@ class CalcularSubsidios extends Command
               AND p.fin > ?
               AND (i.estado IS NULL OR i.estado = '')
               AND (i.baja IS NULL OR i.baja = '0000-00-00' OR i.alta <> i.baja)
+              $hastaInicioSql
         ";
 
-        DB::insert($sql, [$fechaCorte, $fechaCorte]);
+        DB::insert($sql, $bindings);
     }
 
     /**
@@ -276,6 +290,14 @@ class CalcularSubsidios extends Command
     protected function poblarSubsidioProyectos(string $fechaCorte): void
     {
         $this->info('Poblando subsidio_proyectos (#5)...');
+
+        // Optional: exclude projects starting on/after a date (replay a past period).
+        $hastaInicioSql = '';
+        $bindings = [$this->periodo, $fechaCorte];
+        if ($this->hastaInicio) {
+            $hastaInicioSql = ' AND p.inicio < ?';
+            $bindings[] = $this->hastaInicio;
+        }
 
         DB::insert("
             INSERT INTO subsidio_proyectos
@@ -303,7 +325,8 @@ class CalcularSubsidios extends Command
               AND p.tipo = 'I+D'
               AND p.estado = 'Acreditado'
               AND p.fin > ?
-        ", [$this->periodo, $fechaCorte]);
+              $hastaInicioSql
+        ", $bindings);
     }
 
     /**
@@ -453,12 +476,11 @@ class CalcularSubsidios extends Command
     {
         $this->info('calculo2: polinomio...');
 
-        // Ord per project = ord_base / Nd (Nd = numdirfac from calculo1), as in
-        // the original controller. This is the version that closed correctly last
-        // year (the document's literal Ord*Nd inflates the total and breaks the
-        // sum back to MT).
+        // Ord per project = ord_base * Nd (Nd = numdirfac from calculo1), per the
+        // CIU document formula. The difference between the sum of amounts and MT
+        // comes from unsubsidized projects (no integrantes), not from this term.
         DB::table($this->tablaDir)->where('ord', '!=', 0)
-            ->update(['ord' => DB::raw('ord / numdirfac')]);
+            ->update(['ord' => DB::raw('ord * numdirfac')]);
 
         // Nd term of ST = sum of every project's Ord*Nd.
         $Nd = (float) DB::table($this->tablaDir)->sum('ord');
