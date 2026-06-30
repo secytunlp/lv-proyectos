@@ -40,7 +40,7 @@ class CalcularSubsidios extends Command
      *
      * @var int[]
      */
-    protected $idsCarreraInv = [];
+    protected $idsCarreraInv = [1, 2, 3, 4, 5, 6, 12];
 
     /** @var int */
     protected $anio;
@@ -228,10 +228,10 @@ class CalcularSubsidios extends Command
                 JOIN proyectos p       ON i.proyecto_id = p.id
                 LEFT JOIN categorias cat_min ON cat_min.id =
                     CASE
-                        WHEN i.categoria_id IN (6,7,8,9,10) AND i.sicadi_id IN (6,7,8,9,10)
-                             THEN LEAST(i.categoria_id, i.sicadi_id)
-                        WHEN i.categoria_id IN (6,7,8,9,10) THEN i.categoria_id
-                        WHEN i.sicadi_id    IN (6,7,8,9,10) THEN i.sicadi_id
+                        WHEN inv.categoria_id IN (6,7,8,9,10) AND inv.sicadi_id IN (6,7,8,9,10)
+                             THEN LEAST(inv.categoria_id, inv.sicadi_id)
+                        WHEN inv.categoria_id IN (6,7,8,9,10) THEN inv.categoria_id
+                        WHEN inv.sicadi_id    IN (6,7,8,9,10) THEN inv.sicadi_id
                         ELSE NULL
                     END
             WHERE
