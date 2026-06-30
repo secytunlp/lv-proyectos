@@ -31,6 +31,7 @@ class CalcularSubsidios extends Command
         {--periodo= : Viajes period id for the approved-units filter (#5). Required unless --skip-extraction.}
         {--fecha-corte= : Cutoff date (Y-m-d). Defaults to {anio-1}-12-31.}
         {--hasta-inicio= : Exclude projects with inicio >= this date (Y-m-d). For replaying a past period.}
+        {--ord-dividir : Use ord/numdirfac (original controller) instead of ord*numdirfac (document). For comparison.}
         {--skip-extraction : Skip #4/#5, run only on already-populated subsidio_* tables.}
         {--dry-run : Run everything inside a transaction and roll back at the end.}';
 
@@ -477,10 +478,12 @@ class CalcularSubsidios extends Command
         $this->info('calculo2: polinomio...');
 
         // Ord per project = ord_base * Nd (Nd = numdirfac from calculo1), per the
-        // CIU document formula. The difference between the sum of amounts and MT
-        // comes from unsubsidized projects (no integrantes), not from this term.
+        // CIU document formula. With --ord-dividir it divides instead (original
+        // controller behaviour), for comparison. Only matters for directors with
+        // numdirfac >= 2; identical for everyone else.
+        $op = $this->option('ord-dividir') ? 'ord / numdirfac' : 'ord * numdirfac';
         DB::table($this->tablaDir)->where('ord', '!=', 0)
-            ->update(['ord' => DB::raw('ord * numdirfac')]);
+            ->update(['ord' => DB::raw($op)]);
 
         // Nd term of ST = sum of every project's Ord*Nd.
         $Nd = (float) DB::table($this->tablaDir)->sum('ord');
