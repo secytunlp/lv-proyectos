@@ -453,9 +453,12 @@ class CalcularSubsidios extends Command
     {
         $this->info('calculo2: polinomio...');
 
-        // Ord per project = ord_base * Nd (Nd = numdirfac from calculo1).
+        // Ord per project = ord_base / Nd (Nd = numdirfac from calculo1), as in
+        // the original controller. This is the version that closed correctly last
+        // year (the document's literal Ord*Nd inflates the total and breaks the
+        // sum back to MT).
         DB::table($this->tablaDir)->where('ord', '!=', 0)
-            ->update(['ord' => DB::raw('ord * numdirfac')]);
+            ->update(['ord' => DB::raw('ord / numdirfac')]);
 
         // Nd term of ST = sum of every project's Ord*Nd.
         $Nd = (float) DB::table($this->tablaDir)->sum('ord');
@@ -487,6 +490,7 @@ class CalcularSubsidios extends Command
             );
         }
 
+        // Round M to 2 decimals, exactly as the original controller did.
         $M = round($mt / $St, 2);
 
         $this->line("  ST = 1.3*$totA + 0.8*$totB + 0.5*$totC + Nd($Nd) = $St");
