@@ -643,6 +643,7 @@ class ViajeEvaluacionController extends Controller
 
             ->select('viaje_evaluacion_planilla_item_maxs.*', 'viaje_evaluacion_planilla_items.nombre as item_nombre', 'evaluacion_grupos.maximo as grupo_maximo', 'evaluacion_grupos.nombre as grupo_nombre', 'padre.nombre as padre_nombre','padre.id as padre_id','padre.maximo as padre_maximo')
             ->orderBy('viaje_evaluacion_planilla_items.orden', 'ASC')
+            ->orderBy('viaje_evaluacion_planilla_item_maxs.id', 'ASC')
             ->get();
 
         $eventoMaximos = DB::table('viaje_evaluacion_planillas')
@@ -654,6 +655,7 @@ class ViajeEvaluacionController extends Controller
 
             ->select('viaje_evaluacion_planilla_evento_maxs.*', 'viaje_evaluacion_planilla_eventos.nombre as evento_nombre', 'evaluacion_grupos.maximo as grupo_maximo', 'evaluacion_grupos.nombre as grupo_nombre', 'padre.nombre as padre_nombre','padre.id as padre_id','padre.maximo as padre_maximo')
             ->orderBy('viaje_evaluacion_planilla_eventos.orden', 'ASC')
+            ->orderBy('viaje_evaluacion_planilla_evento_maxs.id', 'ASC')
             ->get();
 
         $planMaximos = DB::table('viaje_evaluacion_planillas')
@@ -824,6 +826,7 @@ class ViajeEvaluacionController extends Controller
 
             ->select('viaje_evaluacion_planilla_item_maxs.*', 'viaje_evaluacion_planilla_items.nombre as item_nombre', 'evaluacion_grupos.maximo as grupo_maximo', 'evaluacion_grupos.nombre as grupo_nombre', 'padre.nombre as padre_nombre','padre.id as padre_id','padre.maximo as padre_maximo')
             ->orderBy('viaje_evaluacion_planilla_items.orden', 'ASC')
+            ->orderBy('viaje_evaluacion_planilla_item_maxs.id', 'ASC')
             ->get();
 
 
@@ -851,6 +854,7 @@ class ViajeEvaluacionController extends Controller
 
             ->select('viaje_evaluacion_planilla_evento_maxs.*', 'viaje_evaluacion_planilla_eventos.nombre as evento_nombre', 'evaluacion_grupos.maximo as grupo_maximo', 'evaluacion_grupos.nombre as grupo_nombre', 'padre.nombre as padre_nombre','padre.id as padre_id','padre.maximo as padre_maximo')
             ->orderBy('viaje_evaluacion_planilla_eventos.orden', 'ASC')
+            ->orderBy('viaje_evaluacion_planilla_evento_maxs.id', 'ASC')
             ->get();
 
         //dd($eventoMaximos);

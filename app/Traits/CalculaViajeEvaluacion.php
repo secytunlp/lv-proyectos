@@ -92,6 +92,7 @@ trait CalculaViajeEvaluacion
             ->where('im.viaje_evaluacion_planilla_id', $planilla->id)
             ->select('im.*', 'g.maximo as grupo_maximo', 'g.padre_id', 'it.orden')
             ->orderBy('it.orden', 'ASC')
+            ->orderBy('im.id', 'ASC')
             ->get();
 
         $iterador1 = (int) $planilla->iterador1;

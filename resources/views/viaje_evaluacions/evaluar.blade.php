@@ -272,6 +272,7 @@
             $c_u=' c/u';
 		 	/*$hasta = (($itemMaximo->maximo!=0)&&($itemMaximo->minimo==$itemMaximo->maximo))?((($itemMaximo->minimo==$itemMaximo->tope)&&($itemMaximo->minimo==$itemMaximo->maximo))?$itemMaximo->maximo. ' pt.':$itemMaximo->maximo. $c_u):(($itemMaximo->minimo!=$itemMaximo->maximo)?'Hasta '.$itemMaximo->maximo. ' c/u':'Hasta '.$itemMaximo->tope);*/
 		 	$hasta =$itemMaximo->maximo. $c_u;
+
             $descripcion = str_replace('#puntaje#', '<B>'.$itemMaximo->maximo.' puntos</B>',$itemMaximo->item_nombre);
         @endphp
 @if($primeritems->id == $itemMaximo->id)
