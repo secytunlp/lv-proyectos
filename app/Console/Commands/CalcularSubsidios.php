@@ -71,9 +71,12 @@ class CalcularSubsidios extends Command
 
         $dryRun = (bool) $this->option('dry-run');
 
+        // CREATE TABLE is DDL (implicit commit), so it must run BEFORE the
+        // transaction, otherwise it would close it and break --dry-run/rollback.
+        $this->crearTablasSiNoExisten();
+
         DB::beginTransaction();
         try {
-            $this->crearTablasSiNoExisten();
             $this->vaciarTablas();
 
             if (! $this->option('skip-extraction')) {
@@ -159,18 +162,23 @@ class CalcularSubsidios extends Command
 
     /**
      * Reset the scratch tables that get fully rebuilt each run.
-     * NOTE: this truncates subsidio_integrantes/subsidio_proyectos because the
-     * new in-DB flow rebuilds them from SICADI. If you still maintain manual
-     * state on subsidio_integrantes across runs (the old import workflow), do
-     * NOT truncate it here and rely on limpiarPendientes() instead.
+     *
+     * Uses DELETE (not TRUNCATE) on purpose: TRUNCATE causes an implicit COMMIT
+     * in MySQL/MariaDB, which would close the transaction opened in handle() and
+     * break both --dry-run and the rollback-on-error.
+     *
+     * NOTE: this clears subsidio_integrantes/subsidio_proyectos because the new
+     * in-DB flow rebuilds them from SICADI. If you still maintain manual state on
+     * subsidio_integrantes across runs (the old import workflow), do NOT clear it
+     * here and rely on limpiarPendientes() instead.
      */
     protected function vaciarTablas(): void
     {
         $this->info("Vaciando {$this->tablaDir} / {$this->tablaInt}...");
-        DB::statement("TRUNCATE TABLE `{$this->tablaDir}`");
-        DB::statement("TRUNCATE TABLE `{$this->tablaInt}`");
-        DB::statement('TRUNCATE TABLE subsidio_integrantes');
-        DB::statement('TRUNCATE TABLE subsidio_proyectos');
+        DB::table($this->tablaDir)->delete();
+        DB::table($this->tablaInt)->delete();
+        DB::table('subsidio_integrantes')->delete();
+        DB::table('subsidio_proyectos')->delete();
         // subsidio_informes  -> imported from SIGEVA, NOT touched
         // subsidio_proyecto_renuncias -> maintained by hand, NOT touched
     }
