@@ -267,11 +267,11 @@ class CalcularSubsidios extends Command
      * #5 — Proyectos para subsidios automáticos (SICADI nuevo).
      *
      * ord per project:
-     *   - unit NOT approved (Ord 284) for this period -> 2 (default)
-     *   - approved + UPID                             -> 2
-     *   - approved + Lab/Centro/Instituto             -> 8
+     *   - unit NOT approved (Ord 284) for this period -> 2
+     *   - unit approved                               -> 8
      *
-     * TODO: confirm u.bl_upid is how UPID is flagged in the new schema.
+     * NOTE: the UPID-specific case (approved UPID -> 2) was dropped on request;
+     * approved units now all get 8.
      */
     protected function poblarSubsidioProyectos(string $fechaCorte): void
     {
@@ -290,10 +290,7 @@ class CalcularSubsidios extends Command
                 inv.id,
                 p.facultad_id,
                 p.unidad_id,
-                CASE
-                    WHEN ua.unidad_id IS NULL THEN 2
-                    ELSE CASE WHEN u.bl_upid = 1 THEN 2 ELSE 8 END
-                END,
+                CASE WHEN ua.unidad_id IS NULL THEN 2 ELSE 8 END,
                 p.id
             FROM integrantes i
                 JOIN investigadors inv ON i.investigador_id = inv.id
@@ -301,7 +298,6 @@ class CalcularSubsidios extends Command
                 JOIN proyectos p       ON i.proyecto_id = p.id
                 LEFT JOIN viaje_evaluacion_unidad_aprobadas ua
                     ON ua.unidad_id = p.unidad_id AND ua.periodo_id = ?
-                LEFT JOIN unidads u ON p.unidad_id = u.id
             WHERE
                 i.tipo = 'Director'
               AND p.tipo = 'I+D'
