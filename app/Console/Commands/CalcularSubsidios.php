@@ -28,6 +28,7 @@ class CalcularSubsidios extends Command
     protected $signature = 'subsidios:calcular
         {--anio= : Period year, e.g. 2026. Defines dirproy_AAAA / intproy_AAAA. Required.}
         {--mt= : Monto Total (MT) to distribute this period. Required.}
+        {--periodo= : Viajes period id for the approved-units filter (#5). Required unless --skip-extraction.}
         {--fecha-corte= : Cutoff date (Y-m-d). Defaults to {anio-1}-12-31.}
         {--skip-extraction : Skip #4/#5, run only on already-populated subsidio_* tables.}
         {--dry-run : Run everything inside a transaction and roll back at the end.}';
@@ -44,6 +45,8 @@ class CalcularSubsidios extends Command
 
     /** @var int */
     protected $anio;
+    /** @var int */
+    protected $periodo;
     /** @var string */
     protected $tablaDir;   // dirproy_AAAA
     /** @var string */
@@ -68,6 +71,12 @@ class CalcularSubsidios extends Command
         }
 
         $fechaCorte = $this->option('fecha-corte') ?: ($this->anio - 1).'-12-31';
+
+        $this->periodo = (int) $this->option('periodo');
+        if (! $this->option('skip-extraction') && $this->periodo <= 0) {
+            $this->error('Falta --periodo (id del período de viajes para la #5).');
+            return self::FAILURE;
+        }
 
         $dryRun = (bool) $this->option('dry-run');
 
@@ -257,19 +266,48 @@ class CalcularSubsidios extends Command
     /**
      * #5 — Proyectos para subsidios automáticos (SICADI nuevo).
      *
-     * Legacy ord logic (to translate once the new schema names are known):
-     *   CASE WHEN unidadaprobadaviajes.cd_unidad IS NULL THEN 2
-     *        ELSE CASE WHEN unidad.bl_upid = 1 THEN 2 ELSE 8 END
-     *   END
-     * Needs the new equivalents of `unidadaprobadaviajes` (period filter) and
-     * `unidad.bl_upid`. Keep ord default = 2 / 8 for Lab-Centro-Instituto.
+     * ord per project:
+     *   - unit NOT approved (Ord 284) for this period -> 2 (default)
+     *   - approved + UPID                             -> 2
+     *   - approved + Lab/Centro/Instituto             -> 8
+     *
+     * TODO: confirm u.bl_upid is how UPID is flagged in the new schema.
      */
     protected function poblarSubsidioProyectos(string $fechaCorte): void
     {
-        throw new \RuntimeException(
-            'poblarSubsidioProyectos (#5) sin traducir: faltan los nombres nuevos de '.
-            'unidadaprobadaviajes y unidad.bl_upid. Usá --skip-extraction mientras tanto.'
-        );
+        $this->info('Poblando subsidio_proyectos (#5)...');
+
+        DB::insert("
+            INSERT INTO subsidio_proyectos
+                (proyecto, inicio, fin, documento, director,
+                 investigador_id, facultad_id, unidad_id, ord, proyecto_id)
+            SELECT
+                p.codigo,
+                p.inicio,
+                p.fin,
+                per.documento,
+                CONCAT(per.apellido, ', ', per.nombre),
+                inv.id,
+                p.facultad_id,
+                p.unidad_id,
+                CASE
+                    WHEN ua.unidad_id IS NULL THEN 2
+                    ELSE CASE WHEN u.bl_upid = 1 THEN 2 ELSE 8 END
+                END,
+                p.id
+            FROM integrantes i
+                JOIN investigadors inv ON i.investigador_id = inv.id
+                JOIN personas per      ON inv.persona_id = per.id
+                JOIN proyectos p       ON i.proyecto_id = p.id
+                LEFT JOIN viaje_evaluacion_unidad_aprobadas ua
+                    ON ua.unidad_id = p.unidad_id AND ua.periodo_id = ?
+                LEFT JOIN unidads u ON p.unidad_id = u.id
+            WHERE
+                i.tipo = 'Director'
+              AND p.tipo = 'I+D'
+              AND p.estado = 'Acreditado'
+              AND p.fin > ?
+        ", [$this->periodo, $fechaCorte]);
     }
 
     /**
@@ -445,7 +483,15 @@ class CalcularSubsidios extends Command
         }
 
         $St = (1.3 * $totA) + (0.8 * $totB) + (0.5 * $totC) + $Nd;
-        $M  = round($mt / $St, 2);
+
+        if ($St <= 0) {
+            throw new \RuntimeException(
+                'ST = 0: no hay integrantes/proyectos cargados para calcular '.
+                '(¿corriste con --skip-extraction y las subsidio_* vacías?).'
+            );
+        }
+
+        $M = round($mt / $St, 2);
 
         $this->line("  ST = 1.3*$totA + 0.8*$totB + 0.5*$totC + Nd($Nd) = $St");
         $this->line("  m  = $mt / $St = $M");
