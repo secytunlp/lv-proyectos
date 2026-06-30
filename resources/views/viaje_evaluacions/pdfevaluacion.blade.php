@@ -589,11 +589,9 @@
                             <td style="text-align: center;background-color: #e1e1e1;width: 15%" rowspan="{{($planMaximos->count()+$cantJustificaciones)}}"><strong>Max. {{$planMaximo->maximo}}pt.</strong></td>
                         @endif
 
-                        <td style="text-align: left;width: 65%" colspan="2">{!!  $descripcion !!}</td>
+                        <td style="text-align: left;width: 70%" colspan="3">{!!  $descripcion !!}</td>
 
-                        <td style="text-align: right;width: 5%">
-                            {{$puntaje}}
-                        </td>
+
                         <td style="text-align: center;width: 15%">
                             <strong> {{ number_format($totalPlan, 2) }}</strong>
                         </td>
