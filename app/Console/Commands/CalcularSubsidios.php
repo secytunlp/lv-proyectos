@@ -55,6 +55,8 @@ class CalcularSubsidios extends Command
     protected $tablaDir;   // dirproy_AAAA
     /** @var string */
     protected $tablaInt;   // intproy_AAAA
+    /** @var string */
+    protected $tablaRenuncias;   // subsidio_proyecto_renuncias_AAAA (manual, read-only)
 
     public function handle(): int
     {
@@ -67,6 +69,7 @@ class CalcularSubsidios extends Command
         }
         $this->tablaDir = "dirproy_{$this->anio}";
         $this->tablaInt = "intproy_{$this->anio}";
+        $this->tablaRenuncias = "subsidio_proyecto_renuncias_{$this->anio}";
 
         $mt = (float) $this->option('mt');
         if ($mt <= 0) {
@@ -89,6 +92,14 @@ class CalcularSubsidios extends Command
         // CREATE TABLE is DDL (implicit commit), so it must run BEFORE the
         // transaction, otherwise it would close it and break --dry-run/rollback.
         $this->crearTablasSiNoExisten();
+
+        // The per-year renuncias table is maintained by hand (read-only here).
+        // Fail early with a clear message if it's missing.
+        if (! $this->option('skip-extraction')
+            && ! DB::getSchemaBuilder()->hasTable($this->tablaRenuncias)) {
+            $this->error("No existe la tabla {$this->tablaRenuncias} (la cargás a mano). Creala antes de correr.");
+            return self::FAILURE;
+        }
 
         DB::beginTransaction();
         try {
@@ -377,7 +388,7 @@ class CalcularSubsidios extends Command
               AND (si.baja IS NULL OR si.baja > ? OR si.baja = '0000-00-00')
               AND (si.universidad_id = 11 OR si.universidad_id = 0 OR si.universidad_id IS NULL)
               AND NOT EXISTS (
-                  SELECT r.id FROM subsidio_proyecto_renuncias r
+                  SELECT r.id FROM {$this->tablaRenuncias} r
                   WHERE r.proyecto_id = si.proyecto_id
               )
         ";
@@ -418,7 +429,7 @@ class CalcularSubsidios extends Command
                 sp.ord
             FROM subsidio_proyectos sp
             WHERE NOT EXISTS (
-                SELECT r.id FROM subsidio_proyecto_renuncias r
+                SELECT r.id FROM {$this->tablaRenuncias} r
                 WHERE r.proyecto_id = sp.proyecto_id
             )
         ");
