@@ -57,6 +57,8 @@ class CalcularSubsidios extends Command
     protected $tablaInt;   // intproy_AAAA
     /** @var string */
     protected $tablaRenuncias;   // subsidio_proyecto_renuncias_AAAA (manual, read-only)
+    /** @var string */
+    protected $tablaInformes;    // subsidio_informes_AAAA (imported from SIGEVA, read-only)
 
     public function handle(): int
     {
@@ -70,6 +72,7 @@ class CalcularSubsidios extends Command
         $this->tablaDir = "dirproy_{$this->anio}";
         $this->tablaInt = "intproy_{$this->anio}";
         $this->tablaRenuncias = "subsidio_proyecto_renuncias_{$this->anio}";
+        $this->tablaInformes = "subsidio_informes_{$this->anio}";
 
         $mt = (float) $this->option('mt');
         if ($mt <= 0) {
@@ -93,12 +96,15 @@ class CalcularSubsidios extends Command
         // transaction, otherwise it would close it and break --dry-run/rollback.
         $this->crearTablasSiNoExisten();
 
-        // The per-year renuncias table is maintained by hand (read-only here).
-        // Fail early with a clear message if it's missing.
-        if (! $this->option('skip-extraction')
-            && ! DB::getSchemaBuilder()->hasTable($this->tablaRenuncias)) {
-            $this->error("No existe la tabla {$this->tablaRenuncias} (la cargás a mano). Creala antes de correr.");
-            return self::FAILURE;
+        // The per-year renuncias and informes tables are maintained by hand /
+        // imported (read-only here). Fail early with a clear message if missing.
+        if (! $this->option('skip-extraction')) {
+            foreach ([$this->tablaRenuncias, $this->tablaInformes] as $t) {
+                if (! DB::getSchemaBuilder()->hasTable($t)) {
+                    $this->error("No existe la tabla $t (la cargás/importás a mano). Creala antes de correr.");
+                    return self::FAILURE;
+                }
+            }
         }
 
         DB::beginTransaction();
@@ -127,6 +133,7 @@ class CalcularSubsidios extends Command
                 $this->warn('DRY-RUN: todos los cambios fueron revertidos.');
             } else {
                 DB::commit();
+                $this->registrarParametros($mt, $resumen);
                 $this->info("Cálculo {$this->anio} confirmado y guardado.");
             }
 
@@ -382,7 +389,7 @@ class CalcularSubsidios extends Command
                 si.facultad_id
             FROM subsidio_integrantes si
                 INNER JOIN subsidio_proyectos sp ON si.proyecto_id = sp.proyecto_id
-                LEFT JOIN subsidio_informes inf
+                LEFT JOIN {$this->tablaInformes} inf
                     ON inf.proyecto_id = si.proyecto_id AND inf.documento = si.documento
             WHERE si.dedicacion IN (1,2,3)
               AND (si.baja IS NULL OR si.baja > ? OR si.baja = '0000-00-00')
@@ -616,6 +623,29 @@ class CalcularSubsidios extends Command
         if ($lastId !== null) { // last group
             DB::table($this->tablaDir)->where('id', $lastId)->update(['total' => $acc]);
         }
+    }
+
+    /**
+     * Record MT and run parameters as a comment on the year's dirproy table,
+     * so it can always be reconstructed later (view with SHOW CREATE TABLE).
+     * Runs after commit (ALTER is DDL / implicit commit), real runs only.
+     */
+    protected function registrarParametros(float $mt, array $resumen): void
+    {
+        $comment = sprintf(
+            'Subsidios %d | MT=%s | periodo=%d | ST=%s | m=%s | total=%s | calculado=%s',
+            $this->anio,
+            $mt,
+            $this->periodo,
+            $resumen['St'],
+            $resumen['M'],
+            $resumen['totalMonto'],
+            date('Y-m-d H:i')
+        );
+        $comment = str_replace("'", '', $comment); // keep the comment literal safe
+
+        DB::statement("ALTER TABLE `{$this->tablaDir}` COMMENT = '{$comment}'");
+        $this->info("Parámetros guardados en el comentario de {$this->tablaDir}.");
     }
 
     protected function mostrarResumen(array $r): void
