@@ -35,7 +35,7 @@
                             <h3 class="box-title">Evaluaciones @if($viaje) - {{ $viaje->investigador->persona->apellido }} {{ $viaje->investigador->persona->nombre }} - Período - {{ $viaje->periodo->nombre }}@endif</h3>
                             @if($viaje)
 
-                                @can('integrante_estado-crear')
+                                @can('evaluacion-crear')
                                     <a style="margin-left: 5px;" class='pull-right btn btn-danger' href="{{ route('viaje_evaluacions.actualizar', ['viaje_id' => $viaje->id]) }}">Actualizar puntaje</a>
                                 @endcan
                                 <a style="margin-left: 5px;" class='pull-right btn btn-info' href="{{ route('viaje_evaluacions.enviar', ['viaje_id' => $viaje->id]) }}" onclick="return confirmarEnvio();">Enviar a Evaluadores</a>
