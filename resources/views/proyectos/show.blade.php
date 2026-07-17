@@ -177,10 +177,11 @@
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     @php
-                                                    $especialidad = $proyecto->disciplina()->nombre;
-                                                    if ($proyecto->especialidad()){
-                                                        $especialidad .= ' - '.$proyecto->especialidad()->nombre;
-                                                    }
+                                                        $especialidad = optional($proyecto->disciplina())->nombre ?? '';
+
+                                                        if ($proyecto->especialidad()) {
+                                                            $especialidad .= ($especialidad ? ' - ' : '') . optional($proyecto->especialidad())->nombre;
+                                                        }
                                                     @endphp
                                                     {{Form::label('especialidad', 'Especialidad')}}
 
@@ -189,7 +190,7 @@
                                             </div>
 
                                             <div class="col-md-3">
-                                                <div class="form-group">
+                                                <div class="form-group"
                                                     {{Form::label('tipoinv', 'Tipo de investigación')}}
                                                     {{Form::text('tipoinv', $proyecto->investigacion, ['class' => 'form-control','disabled'])}}
                                                 </div>
