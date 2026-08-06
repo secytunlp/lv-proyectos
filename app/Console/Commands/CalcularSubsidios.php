@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * Subsidy calculation pipeline (CIU polynomial, 2020 reform: hours-based).
  *
- * SP  = 1.3 * SUM(Hi for I,II,III) + 0.8 * SUM(Hi for IV) + 0.5 * SUM(Hi for V/uncat) + Ord*Nd
+ * SP  = 1.3 * SUM(Hi for I,II,III) + 0.8 * SUM(Hi for IV) + 0.5 * SUM(Hi for V/uncat) + Ord/Nd
  * ST  = SUM(SP) over all projects
  * m   = MT / ST
  * MP  = m * SP
@@ -31,7 +31,7 @@ class CalcularSubsidios extends Command
         {--periodo= : Viajes period id for the approved-units filter (#5). Required unless --skip-extraction.}
         {--fecha-corte= : Cutoff date (Y-m-d). Defaults to {anio-1}-12-31.}
         {--hasta-inicio= : Exclude projects with inicio >= this date (Y-m-d). For replaying a past period.}
-        {--ord-dividir : Use ord/numdirfac (original controller) instead of ord*numdirfac (document). For comparison.}
+        {--ord-multiplicar : Use ord*numdirfac instead of the document ord/numdirfac (CIU polynomial). For comparison only.}
         {--skip-extraction : Skip #4/#5, run only on already-populated subsidio_* tables.}
         {--dry-run : Run everything inside a transaction and roll back at the end.}';
 
@@ -165,7 +165,7 @@ class CalcularSubsidios extends Command
                 `pr_id` INT(11) NULL DEFAULT NULL,
                 `fac_id` INT(11) NULL DEFAULT NULL,
                 `unidad_id` INT(11) NULL DEFAULT NULL,
-                `ord` INT(11) NULL DEFAULT NULL,
+                `ord` DECIMAL(15,4) NULL DEFAULT NULL,
                 `created_at` TIMESTAMP NULL DEFAULT NULL,
                 `updated_at` TIMESTAMP NULL DEFAULT NULL,
                 PRIMARY KEY (`id`)
@@ -191,6 +191,19 @@ class CalcularSubsidios extends Command
                 PRIMARY KEY (`id`)
             ) COLLATE='utf8mb4_unicode_ci' ENGINE=InnoDB
         ");
+
+        // Upgrade a pre-existing dirproy_AAAA where `ord` was created as INT:
+        // the Ord/Nd division needs decimals, otherwise 8/3 truncates to 3.
+        $ordType = DB::selectOne("
+            SELECT DATA_TYPE AS data_type
+            FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME = ?
+              AND COLUMN_NAME = 'ord'
+        ", [$this->tablaDir]);
+        if ($ordType && strtolower($ordType->data_type) !== 'decimal') {
+            DB::statement("ALTER TABLE `{$this->tablaDir}` MODIFY `ord` DECIMAL(15,4) NULL DEFAULT NULL");
+        }
     }
 
     /**
@@ -485,7 +498,7 @@ class CalcularSubsidios extends Command
      * calculo2 — the core polynomial.
      *
      * Corrections vs the original controller:
-     *  - Ord*Nd (multiply by numdirfac) instead of Ord/Nd, per the CIU document.
+     *  - Ord/Nd (divide by numdirfac) per the CIU document (2020-11-05 polynomial).
      *  - numproy / 1÷numproy removed (dead code under the hours-based model).
      *  - $mt comes in as a parameter.
      *
@@ -495,11 +508,14 @@ class CalcularSubsidios extends Command
     {
         $this->info('calculo2: polinomio...');
 
-        // Ord per project = ord_base * Nd (Nd = numdirfac from calculo1), per the
-        // CIU document formula. With --ord-dividir it divides instead (original
-        // controller behaviour), for comparison. Only matters for directors with
+        // Ord per project = ord_base / Nd (Nd = numdirfac from calculo1), per the
+        // CIU document formula (2020-11-05 polynomial): the Ord bonus is shared
+        // among the director's projects in the unit. With --ord-multiplicar it
+        // multiplies instead, for comparison. Only matters for directors with
         // numdirfac >= 2; identical for everyone else.
-        $op = $this->option('ord-dividir') ? 'ord / numdirfac' : 'ord * numdirfac';
+        // ord is DECIMAL here (see crearTablasSiNoExisten) so the division keeps
+        // its fractional part instead of truncating to an integer.
+        $op = $this->option('ord-multiplicar') ? 'ord * numdirfac' : 'ord / numdirfac';
         DB::table($this->tablaDir)->where('ord', '!=', 0)
             ->update(['ord' => DB::raw($op)]);
 
