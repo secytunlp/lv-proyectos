@@ -4323,7 +4323,7 @@ class IntegranteController extends Controller
 
             $this->actualizarInvestigador($integrante,$investigador);
 
-            $this->cambiarEstado($integrante,'Confirmación de cambio de horas');
+            $this->cambiarEstado($integrante,'Confirmación de cambio de tipo');
 
 
             $integranteMail = ($integrante->tipo=='Colaborador')?$integrante->tipo:'Integrante';
