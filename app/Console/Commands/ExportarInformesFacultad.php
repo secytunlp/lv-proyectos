@@ -46,7 +46,7 @@ class ExportarInformesFacultad extends Command
                 '2022-2025' => 'Final',            // 4 años, cierra en 2025
                 '2023-2026' => 'Reducido 3° año',
                 '2024-2025' => 'Final',            // 2 años, cierra en 2025
-                '2024-2027' => 'Bienal (24-25)',
+                '2024-2027' => 'Bienal',
                 '2025-2026' => 'Reducido 1° año',  // aún sin proyectos cargados
                 '2025-2028' => 'Reducido 1° año',  // aún sin proyectos cargados
             ],
@@ -122,9 +122,13 @@ class ExportarInformesFacultad extends Command
         foreach ($grupos as $clave => $filas) {
             [$tipo, $facultad] = explode('||', $clave, 2);
             $tipoArchivo = str_replace(['/', '\\'], '-', $tipo); // "I+D" es seguro; PIIT-AP también
+            // Orden natural del código: 11/H999 antes que 11/H1000.
+            $filas = $filas->sort(function ($a, $b) {
+                return strnatcmp((string) $a->codigo, (string) $b->codigo);
+            })->values();
             $file = rtrim($salida, '/\\') . DIRECTORY_SEPARATOR
                 . "Informes {$anio} - {$tipoArchivo} - " . $this->nombreCorto($facultad) . '.xlsx';
-            $this->writeXlsx($filas->values(), $facultad, $tipo, $anio, $file);
+            $this->writeXlsx($filas, $facultad, $tipo, $anio, $file);
             $this->line(sprintf('  %-5s %-14s %3d  ->  %s',
                 $tipo, $this->nombreCorto($facultad), $filas->count(), basename($file)));
         }
