@@ -38,6 +38,19 @@ class CheckSelectedRolePermissions
             'universidads.update' => ['universidad-editar'],
             'universidads.destroy' => ['universidad-eliminar'],
 
+            'unidads.index' => ['unidad-listar'],
+            'unidads.show' => ['unidad-listar'],
+            'unidads.create' => ['unidad-crear'],
+            'unidads.store' => ['unidad-crear'],
+            'unidads.edit' => ['unidad-editar'],
+            'unidads.update' => ['unidad-editar'],
+            'unidads.destroy' => ['unidad-eliminar'],
+
+            'unidad_aprobadas.index' => ['unidad-listar'],
+            'unidad_aprobadas.agregar' => ['unidad-editar'],
+            'unidad_aprobadas.importar' => ['unidad-editar'],
+            'unidad_aprobadas.quitar' => ['unidad-editar'],
+
             'home' => ['solicitud-listar'],
             'titulos.index' => ['titulo-listar'],
             'titulos.dataTable' => ['titulo-listar'],

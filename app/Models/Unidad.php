@@ -9,10 +9,33 @@ class Unidad extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'tipo',
+        'padre_id',
+        'nombre',
+        'codigo',
+        'sigla',
+        'direccion',
+        'email',
+        'telefono',
+        'facultad_id',
+        'activa',
+    ];
+
+    protected $casts = [
+        'activa' => 'boolean',
+    ];
+
     // Relación para obtener el padre de la unidad actual
     public function padre()
     {
         return $this->belongsTo(Unidad::class, 'padre_id');
+    }
+
+    // Relación para obtener las unidades hijas
+    public function hijas()
+    {
+        return $this->hasMany(Unidad::class, 'padre_id');
     }
 
     // Función para obtener el camino hasta el padre de la unidad actual

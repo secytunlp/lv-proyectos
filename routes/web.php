@@ -23,6 +23,8 @@ use App\Http\Controllers\ViajeController;
 use App\Http\Controllers\ViajeEstadoController;
 use App\Http\Controllers\ViajeEvaluacionController;
 use App\Http\Controllers\ViajeEvaluacionEstadoController;
+use App\Http\Controllers\UnidadController;
+use App\Http\Controllers\UnidadAprobadaController;
 use App\Http\Controllers\UnidadInvestigacionController;
 use App\Http\Controllers\UnidadInvestigacionEstadoController;
 use App\Http\Controllers\MiembroController;
@@ -76,6 +78,14 @@ Route::group(['middleware' => ['auth', 'CheckSelectedRolePermissions']], functio
     Route::resource('personals', PersonalController::class);
 
     Route::resource('universidads', UniversidadController::class);
+
+    Route::resource('unidads', UnidadController::class);
+
+    // Unidades aprobadas por período (Jóvenes / Viajes)
+    Route::get('unidad-aprobadas', [UnidadAprobadaController::class, 'index'])->name('unidad_aprobadas.index');
+    Route::post('unidad-aprobadas/agregar', [UnidadAprobadaController::class, 'agregar'])->name('unidad_aprobadas.agregar');
+    Route::post('unidad-aprobadas/importar', [UnidadAprobadaController::class, 'importar'])->name('unidad_aprobadas.importar');
+    Route::post('unidad-aprobadas/quitar', [UnidadAprobadaController::class, 'quitar'])->name('unidad_aprobadas.quitar');
 
     Route::resource('titulos', TituloController::class);
     Route::post('titulo-datatable', [TituloController::class, 'dataTable'])->name('titulos.dataTable');

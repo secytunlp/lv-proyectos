@@ -15,11 +15,9 @@
   <ul class="sidebar-menu" data-widget="tree">
       <li class="header">CONFIGURACION</li>
       @if(auth()->user()->permissions->contains('name', 'universidad-listar'))<li><a href="{{ route('universidads.index') }}"><i class="fa fa-university"></i>Universidades</a></li>@endif
-
-
       @if(auth()->user()->permissions->contains('name', 'titulo-listar'))<li><a href="{{ route('titulos.index') }}"><i class="fa fa-graduation-cap"></i>Titulos</a></li>@endif
-
-
+      @if(session('selected_rol') == 1 && auth()->user()->permissions->contains('name', 'unidad-listar'))<li><a href="{{ route('unidads.index') }}"><i class="fa fa-sitemap"></i>Unidades</a></li>@endif
+      @if(session('selected_rol') == 1 && auth()->user()->permissions->contains('name', 'unidad-listar'))<li><a href="{{ route('unidad_aprobadas.index') }}"><i class="fa fa-check-square-o"></i>Unidades Aprobadas</a></li>@endif
   </ul>
   @if((session('es_director')))
   <ul class="sidebar-menu" data-widget="tree">
@@ -41,6 +39,7 @@
        @if(auth()->user()->permissions->contains('name', 'evaluacion-listar'))<li><a href="{{ route('joven_evaluacions.index') }}"><i class="fa fa-th-list"></i>Evaluaciones Jóvenes</a></li>@endif
        @if(auth()->user()->permissions->contains('name', 'solicitud-listar'))<li><a href="{{ route('viajes.index') }}"><i class="fa fa-plane"></i>Viajes/Estadías</a></li>@endif
        @if(auth()->user()->permissions->contains('name', 'evaluacion-listar'))<li><a href="{{ route('viaje_evaluacions.index') }}"><i class="fa fa-th-list"></i>Evaluaciones Viajes/Estadías</a></li>@endif
+
   {{--@endif--}}
   @if(auth()->user()->permissions->contains('name', 'solicitud_sicadi-listar'))<li><a href="{{ route('solicitud_sicadis.index') }}"><i class="fa fa-layer-group"></i>SICADI</a></li>@endif
 </ul>
