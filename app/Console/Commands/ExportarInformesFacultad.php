@@ -26,6 +26,7 @@ class ExportarInformesFacultad extends Command
     protected $signature = 'informes:facultad
         {--anio=2025 : Año del informe. Define qué cohortes entran y cómo se clasifican}
         {--estado=Acreditado : Estado del proyecto a incluir. "todos" para no filtrar}
+        {--juntos : Genera un único .xlsx con todas las facultades y programas juntos}
         {--salida= : Carpeta de salida para los .xlsx}';
 
     protected $description = 'Exporta un Excel por facultad con los proyectos que presentan informe y el tipo de informe según la cohorte';
@@ -110,6 +111,33 @@ class ExportarInformesFacultad extends Command
         if ($rows->isEmpty()) {
             $this->warn('No se encontraron proyectos que apliquen a los rangos indicados.');
             return self::FAILURE;
+        }
+
+        // Modo "todos juntos": un único archivo con todas las facultades y programas.
+        if ($this->option('juntos')) {
+            $ordenados = $rows->sort(function ($a, $b) {
+                $cmp = strcmp((string) $a->facultad, (string) $b->facultad);
+                if ($cmp === 0) {
+                    $cmp = strcmp((string) $a->tipo, (string) $b->tipo);
+                }
+                if ($cmp === 0) {
+                    $cmp = strnatcmp((string) $a->codigo, (string) $b->codigo);
+                }
+                return $cmp;
+            })->values();
+
+            $file = rtrim($salida, '/\\') . DIRECTORY_SEPARATOR . "Informes {$anio} - TODOS.xlsx";
+            $this->writeXlsxJuntos($ordenados, $anio, $file);
+            $this->info("Informes {$anio}: {$rows->count()} proyecto(s) en 1 archivo.");
+            $this->line('  ->  ' . basename($file));
+
+            $this->newLine();
+            $this->info('Resumen por tipo de informe:');
+            foreach ($rows->groupBy('informe') as $tipo => $g) {
+                $this->line(sprintf('  %-18s %d', $tipo, $g->count()));
+            }
+            $this->info("Listo. Archivo en: {$salida}");
+            return self::SUCCESS;
         }
 
         // Un archivo por facultad y por programa (I+D y PPID van separados).
@@ -216,6 +244,82 @@ class ExportarInformesFacultad extends Command
 
         (new Xlsx($spreadsheet))->save($path);
 
+        $spreadsheet->disconnectWorksheets();
+        unset($spreadsheet);
+    }
+
+    /** Cabeceras del archivo consolidado (todo junto). */
+    private const HEADERS_JUNTOS = [
+        'N°', 'Facultad', 'Programa', 'Proyecto', 'Título', 'Inicio', 'Fin', 'Director', 'Informe',
+    ];
+
+    private function writeXlsxJuntos($filas, int $anio, string $path): void
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Informes ' . $anio);
+
+        $lastCol = Coordinate::stringFromColumnIndex(count(self::HEADERS_JUNTOS));
+
+        // Título
+        $sheet->setCellValue('A1', "Proyectos con informe {$anio} - Todas las facultades");
+        $sheet->mergeCells("A1:{$lastCol}1");
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(12);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        // Encabezados
+        $headerRow = 3;
+        foreach (self::HEADERS_JUNTOS as $i => $h) {
+            $sheet->setCellValueByColumnAndRow($i + 1, $headerRow, $h);
+        }
+
+        // Datos
+        $r = $headerRow + 1;
+        $n = 1;
+        foreach ($filas as $row) {
+            $director = trim(($row->apellido ?? '') . ', ' . ($row->nombre ?? ''), ', ');
+            $sheet->setCellValueByColumnAndRow(1, $r, $n++);
+            $sheet->setCellValueByColumnAndRow(2, $r, $row->facultad);
+            $sheet->setCellValueByColumnAndRow(3, $r, $row->tipo);
+            $sheet->setCellValueByColumnAndRow(4, $r, $row->codigo);
+            $sheet->setCellValueByColumnAndRow(5, $r, $row->titulo);
+            $sheet->setCellValueByColumnAndRow(6, $r, $this->formatDate($row->inicio));
+            $sheet->setCellValueByColumnAndRow(7, $r, $this->formatDate($row->fin));
+            $sheet->setCellValueByColumnAndRow(8, $r, $director);
+            $sheet->setCellValueByColumnAndRow(9, $r, $row->informe);
+            $r++;
+        }
+        $lastRow = $r - 1;
+
+        // Estilo cabecera + bordes
+        $sheet->getStyle("A{$headerRow}:{$lastCol}{$headerRow}")->getFont()->setBold(true);
+        $sheet->getStyle("A{$headerRow}:{$lastCol}{$headerRow}")->getAlignment()
+            ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle("A{$headerRow}:{$lastCol}{$headerRow}")->getFill()
+            ->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('D9E1F2');
+        $sheet->getStyle("A{$headerRow}:{$lastCol}{$lastRow}")->getBorders()
+            ->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+
+        // Alineaciones y anchos: N°, Facultad, Programa, Proyecto, Título, Inicio, Fin, Director, Informe
+        $sheet->getStyle("A{$headerRow}:A{$lastRow}")->getAlignment()
+            ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle("C{$headerRow}:D{$lastRow}")->getAlignment()
+            ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle("F{$headerRow}:F{$lastRow}")->getAlignment()
+            ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle("G{$headerRow}:G{$lastRow}")->getAlignment()
+            ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle("E4:E{$lastRow}")->getAlignment()->setWrapText(true);
+        $sheet->getStyle("B4:B{$lastRow}")->getAlignment()->setWrapText(true);
+
+        $anchos = ['A' => 5, 'B' => 32, 'C' => 9, 'D' => 12, 'E' => 50, 'F' => 12, 'G' => 12, 'H' => 28, 'I' => 16];
+        foreach ($anchos as $col => $w) {
+            $sheet->getColumnDimension($col)->setWidth($w);
+        }
+
+        $sheet->freezePane('A' . ($headerRow + 1));
+
+        (new Xlsx($spreadsheet))->save($path);
         $spreadsheet->disconnectWorksheets();
         unset($spreadsheet);
     }
