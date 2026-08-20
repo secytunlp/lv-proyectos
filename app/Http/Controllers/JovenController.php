@@ -1822,7 +1822,7 @@ class JovenController extends Controller
             'carrerainv' => $datos->carrerainvs_nombre,
             'organismo' => $datos->organismo_nombre,
             'ingreso_carrera' => $datos->ingreso_carrerainv,
-            'unidadcarrera' => $datos->unidadcarrerainv,
+            'unidadcarrera' => $datos->unidadcarrera,
         ];
         //dd($data);
 
