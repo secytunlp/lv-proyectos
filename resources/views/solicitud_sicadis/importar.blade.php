@@ -36,8 +36,23 @@
 
 
                         {{ csrf_field() }}
-                        Archivo CSV
-                        <input type="file" name="archivoCSV" class="form-control" placeholder="">
+                        Archivo (.csv o .xlsx)
+                        <input type="file" name="archivoCSV" class="form-control" accept=".csv,.xlsx,.xls" placeholder="">
+                        <p class="help-block" style="margin-top: 10px">
+                            Se aceptan dos formatos y se detecta solo cuál es:
+                        </p>
+                        <ul class="help-block">
+                            <li>
+                                <strong>Planilla de docentes categorizados</strong> (.xlsx o .csv), con el encabezado:
+                                APELLIDO | NOMBRE | CUIL | U. ACADÉMICA | CONVOCATORIA | SOLICITADA | ASIGNADA | ÁREA | SUBÁREA.
+                                La convocatoria de cada fila se busca en las convocatorias cargadas en el sistema
+                                (Equivalencia / Evaluación + año) y no se pisan solicitudes ya existentes: si el CUIL ya está
+                                en esa convocatoria, la fila se saltea y se informa.
+                            </li>
+                            <li>
+                                <strong>CSV completo</strong> de 53 columnas separado por “;” (el de siempre).
+                            </li>
+                        </ul>
 
                         <!-- /.box-body -->
 

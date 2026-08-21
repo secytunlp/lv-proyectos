@@ -36,6 +36,10 @@ class SolicitudSicadiController extends Controller
 {
 
     use SanitizesInput;
+
+    /** Convocatorias de sicadi_convocatorias cacheadas durante una importación */
+    private $convocatoriasCache;
+
     /**
      * Display a listing of the resource.
      *
@@ -991,6 +995,22 @@ class SolicitudSicadiController extends Controller
 
         $file = $request->file('archivoCSV');
 
+        if (empty($file)) {
+            return redirect()->route('solicitud_sicadis.importar')->with('error', 'Debe seleccionar un archivo.');
+        }
+
+        // Detección de formato: planilla reducida de docentes categorizados (9 columnas)
+        // vs. el CSV histórico de 53 columnas separado por ";".
+        $extensionDetectada = strtolower($file->getClientOriginalExtension());
+
+        if (in_array($extensionDetectada, ['xlsx', 'xls'])) {
+            return $this->importprocessReducido($file);
+        }
+
+        if ($extensionDetectada === 'csv' && $this->csvEsFormatoReducido($file->getRealPath())) {
+            return $this->importprocessReducido($file);
+        }
+
         // File Details
         $filename = $file->getClientOriginalName();
         $extension = $file->getClientOriginalExtension();
@@ -1349,6 +1369,609 @@ class SolicitudSicadiController extends Controller
         //
         return redirect()->route('solicitud_sicadis.index')->with($respuestaID,$respuestaMSJ);
         }
+
+    /* ==========================================================================
+     |  Importación del "listado final" de docentes categorizados (formato corto)
+     |  --------------------------------------------------------------------------
+     |  Planilla de 9 columnas, en .xlsx o .csv:
+     |      APELLIDO | NOMBRE | CUIL | U. ACADÉMICA | CONVOCATORIA |
+     |      SOLICITADA | ASIGNADA | ÁREA | SUBÁREA
+     |
+     |  - La convocatoria se resuelve contra la tabla sicadi_convocatorias
+     |    (tipo Equivalencia/Evaluación + año que figure en el texto).
+     |  - No se pisan registros existentes: si el CUIL ya está cargado en esa
+     |    convocatoria se saltea y se informa.
+     |  - Cada fila es independiente: un error en una fila no anula el resto.
+     ========================================================================== */
+
+    private function importprocessReducido($file)
+    {
+        set_time_limit(0);
+        ini_set('memory_limit', '1024M');
+
+        $extension = strtolower($file->getClientOriginalExtension());
+
+        // 5MB
+        if ($file->getSize() > 5242880) {
+            return redirect()->route('solicitud_sicadis.importar')
+                ->with('error', 'Archivo demasiado grande. El archivo debe ser menor que 5MB.');
+        }
+
+        try {
+            $filas = ($extension === 'csv')
+                ? $this->leerFilasCsv($file->getRealPath())
+                : $this->leerFilasExcel($file->getRealPath());
+        } catch (\Exception $ex) {
+            Log::error('Importación SICADI (formato corto): ' . $ex->getMessage());
+            return redirect()->route('solicitud_sicadis.importar')
+                ->with('error', 'No se pudo leer el archivo: ' . $ex->getMessage());
+        }
+
+        $encabezado = array_shift($filas);
+        $mapa = $this->mapaColumnasReducido((array)$encabezado);
+
+        if (!$this->esFormatoReducido((array)$encabezado)) {
+            return redirect()->route('solicitud_sicadis.importar')
+                ->with('error', 'No se reconoce el encabezado del archivo. Se esperan las columnas: APELLIDO, NOMBRE, CUIL, U. ACADÉMICA, CONVOCATORIA, SOLICITADA, ASIGNADA, ÁREA, SUBÁREA.');
+        }
+
+        $creados = [];
+        $existentes = [];
+        $errores = [];
+        $procesados = []; // control de filas repetidas dentro del mismo archivo
+
+        foreach ($filas as $indice => $fila) {
+            $nroFila = $indice + 2; // +1 por el encabezado, +1 porque las planillas arrancan en 1
+            $fila = (array)$fila;
+
+            $apellido = trim((string)$this->celda($fila, $mapa, 'apellido'));
+            $nombre = trim((string)$this->celda($fila, $mapa, 'nombre'));
+            $cuilOriginal = trim((string)$this->celda($fila, $mapa, 'cuil'));
+
+            // Fila vacía
+            if ($apellido === '' && $nombre === '' && $cuilOriginal === '') {
+                continue;
+            }
+
+            $etiqueta = trim($apellido . ', ' . $nombre, ', ') . ' (fila ' . $nroFila . ')';
+
+            $cuil = $this->normalizarCuil($cuilOriginal);
+            if (empty($cuil)) {
+                $errores[] = $etiqueta . ': CUIL inválido o incompleto ("' . $cuilOriginal . '"), debe tener 11 dígitos';
+                continue;
+            }
+
+            if ($apellido === '' || $nombre === '') {
+                $errores[] = $etiqueta . ': faltan apellido y/o nombre';
+                continue;
+            }
+
+            $convocatoriaTexto = trim((string)$this->celda($fila, $mapa, 'convocatoria'));
+            $convocatoria = $this->resolverConvocatoria($convocatoriaTexto);
+            if (empty($convocatoria)) {
+                $errores[] = $etiqueta . ': ' . ($convocatoriaTexto === ''
+                        ? 'no tiene convocatoria en la planilla'
+                        : 'la convocatoria "' . $convocatoriaTexto . '" no coincide con ninguna de las cargadas en el sistema');
+                continue;
+            }
+
+            // Fila repetida dentro del propio archivo
+            $clave = $cuil . '|' . $convocatoria->id;
+            if (isset($procesados[$clave])) {
+                $existentes[] = $etiqueta . ' — repetido en el archivo (ya se procesó en la fila ' . $procesados[$clave] . ')';
+                continue;
+            }
+            $procesados[$clave] = $nroFila;
+
+            // Control de duplicados: mismo CUIL en la misma convocatoria
+            $yaExiste = SolicitudSicadi::where('cuil', $cuil)
+                ->where('convocatoria_id', $convocatoria->id)
+                ->exists();
+
+            if ($yaExiste) {
+                $existentes[] = $etiqueta . ' — ya estaba cargado en ' . $convocatoria->tipo . ' ' . $convocatoria->year;
+                continue;
+            }
+
+            $avisos = [];
+
+            $uaOriginal = trim((string)$this->celda($fila, $mapa, 'presentacion_ua'));
+            $ua = $this->normalizarUnidadAcademica($uaOriginal);
+            if (empty($ua)) {
+                $ua = 'Sin UA';
+                if ($uaOriginal !== '') {
+                    $avisos[] = 'U. Académica no reconocida ("' . $uaOriginal . '") → Sin UA';
+                }
+            }
+
+            $areaOriginal = trim((string)$this->celda($fila, $mapa, 'area'));
+            $area = $this->normalizarArea($areaOriginal);
+            if (empty($area) && $areaOriginal !== '') {
+                $avisos[] = 'Área no reconocida ("' . $areaOriginal . '") → quedó vacía';
+            }
+
+            $subareaOriginal = trim((string)$this->celda($fila, $mapa, 'subarea'));
+            $subarea = $this->normalizarSubarea($subareaOriginal);
+            if (empty($subarea) && $subareaOriginal !== '') {
+                $avisos[] = 'Subárea no reconocida ("' . $subareaOriginal . '") → quedó vacía';
+            }
+
+            $solicitadaOriginal = trim((string)$this->celda($fila, $mapa, 'categoria_solicitada'));
+            $solicitada = $this->normalizarCategoria($solicitadaOriginal);
+
+            $asignadaOriginal = trim((string)$this->celda($fila, $mapa, 'categoria_asignada'));
+            $asignada = $this->normalizarCategoria($asignadaOriginal);
+            if (empty($asignada) && $asignadaOriginal !== '') {
+                $avisos[] = 'Categoría asignada no reconocida ("' . $asignadaOriginal . '")';
+            }
+
+            $input = [
+                'apellido' => $apellido,
+                'nombre' => $nombre,
+                'cuil' => $cuil,
+                'convocatoria_id' => $convocatoria->id,
+                'estado' => 'Otorgada',
+                'presentacion_ua' => $ua,
+                'categoria_solicitada' => $solicitada,
+                'categoria_asignada' => $asignada,
+                'area' => $area,
+                'subarea' => $subarea,
+                'fecha' => Carbon::now()->format('Y-m-d'),
+                'observaciones' => 'Importado del listado de docentes categorizados' .
+                    ($convocatoriaTexto !== '' ? ' (' . $convocatoriaTexto . ')' : ''),
+            ];
+
+            // Cargo docente / dedicación desde cargos_alfabetico (igual que en el import completo)
+            $cargo = $this->cargoDocentePorCuil($cuil);
+            if (!empty($cargo)) {
+                $input['cargo_docente'] = $cargo['cargo_docente'];
+                $input['cargo_dedicacion'] = $cargo['cargo_dedicacion'];
+            } else {
+                $avisos[] = 'no tiene cargo docente activo';
+            }
+
+            $validator = $this->validateImport($input);
+            if ($validator->fails()) {
+                $errores[] = $etiqueta . ': ' . implode(', ', $validator->errors()->all());
+                continue;
+            }
+
+            try {
+                $solicitud = SolicitudSicadi::create($input);
+                $this->cambiarEstado($solicitud, 'Importación listado de categorizados');
+
+                Log::info('SICADI importado: ' . $etiqueta . ' - ' . $cuil . ' - convocatoria ' . $convocatoria->id);
+                $creados[] = $etiqueta . ' — ' . $convocatoria->tipo . ' ' . $convocatoria->year .
+                    (empty($avisos) ? '' : ' [' . implode(' | ', $avisos) . ']');
+            } catch (QueryException $ex) {
+                if (isset($ex->errorInfo[1]) && $ex->errorInfo[1] === 1062) {
+                    // Existe un registro con ese CUIL en otra convocatoria y la base no lo permite.
+                    // No se modifica el registro existente: se informa para revisarlo a mano.
+                    $errores[] = $etiqueta . ': ya existe una solicitud con ese CUIL en otra convocatoria (no se modificó nada)';
+                } else {
+                    Log::error('Importación SICADI: ' . $ex->getMessage());
+                    $errores[] = $etiqueta . ': ' . $ex->getMessage();
+                }
+            }
+        }
+
+        $mensaje = '<strong>Importación finalizada:</strong> ' . count($creados) . ' creados, ' .
+            count($existentes) . ' ya existentes, ' . count($errores) . ' con problemas.<br>';
+
+        if (!empty($creados)) {
+            $mensaje .= '<br><strong>Creados</strong><br>' . implode('<br>', $creados) . '<br>';
+        }
+        if (!empty($existentes)) {
+            $mensaje .= '<br><strong>Ya estaban cargados (no se tocaron)</strong><br>' . implode('<br>', $existentes) . '<br>';
+        }
+        if (!empty($errores)) {
+            $mensaje .= '<br><strong>No se pudieron importar</strong><br>' . implode('<br>', $errores) . '<br>';
+        }
+
+        return redirect()->route('solicitud_sicadis.index')
+            ->with(empty($errores) ? 'success' : 'error', $mensaje);
+    }
+
+    /**
+     * Lee un .xlsx/.xls y devuelve un array de filas.
+     */
+    private function leerFilasExcel($ruta)
+    {
+        $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($ruta);
+        $reader->setReadDataOnly(true);
+        $spreadsheet = $reader->load($ruta);
+
+        return $spreadsheet->getActiveSheet()->toArray(null, true, false, false);
+    }
+
+    /**
+     * Lee un .csv (separado por ";" o ",") y devuelve un array de filas en UTF-8.
+     */
+    private function leerFilasCsv($ruta)
+    {
+        $delimitador = $this->detectarDelimitadorCsv($ruta);
+        $filas = [];
+
+        if (($handle = fopen($ruta, 'r')) !== false) {
+            while (($datos = fgetcsv($handle, 10000, $delimitador)) !== false) {
+                $filas[] = array_map([$this, 'aUtf8'], $datos);
+            }
+            fclose($handle);
+        }
+
+        if (!empty($filas[0][0])) {
+            $filas[0][0] = preg_replace('/^\xEF\xBB\xBF/', '', $filas[0][0]);
+        }
+
+        return $filas;
+    }
+
+    private function aUtf8($valor)
+    {
+        if (!is_string($valor) || $valor === '') {
+            return $valor;
+        }
+
+        return mb_check_encoding($valor, 'UTF-8') ? $valor : utf8_encode($valor);
+    }
+
+    private function detectarDelimitadorCsv($ruta)
+    {
+        $primeraLinea = '';
+        if (($handle = fopen($ruta, 'r')) !== false) {
+            $primeraLinea = (string)fgets($handle);
+            fclose($handle);
+        }
+
+        return substr_count($primeraLinea, ',') > substr_count($primeraLinea, ';') ? ',' : ';';
+    }
+
+    /**
+     * ¿La primera línea del CSV es el encabezado de la planilla reducida?
+     */
+    private function csvEsFormatoReducido($ruta)
+    {
+        if (empty($ruta) || !file_exists($ruta)) {
+            return false;
+        }
+
+        $primeraLinea = '';
+        if (($handle = fopen($ruta, 'r')) !== false) {
+            $primeraLinea = (string)fgets($handle);
+            fclose($handle);
+        }
+
+        if ($primeraLinea === '') {
+            return false;
+        }
+
+        $primeraLinea = preg_replace('/^\xEF\xBB\xBF/', '', $primeraLinea);
+        $encabezado = array_map([$this, 'aUtf8'], str_getcsv($primeraLinea, $this->detectarDelimitadorCsv($ruta)));
+
+        return $this->esFormatoReducido($encabezado);
+    }
+
+    private function esFormatoReducido(array $encabezado)
+    {
+        $mapa = $this->mapaColumnasReducido($encabezado);
+
+        return isset($mapa['apellido'], $mapa['cuil'], $mapa['presentacion_ua'], $mapa['convocatoria']);
+    }
+
+    /**
+     * Ubica cada columna de la planilla reducida por su título (sin importar mayúsculas,
+     * acentos, puntos ni el orden en que vengan).
+     */
+    private function mapaColumnasReducido(array $encabezado)
+    {
+        $alias = [
+            'apellido' => 'apellido',
+            'apellidos' => 'apellido',
+            'nombre' => 'nombre',
+            'nombres' => 'nombre',
+            'cuil' => 'cuil',
+            'cuit' => 'cuil',
+            'u academica' => 'presentacion_ua',
+            'unidad academica' => 'presentacion_ua',
+            'ua' => 'presentacion_ua',
+            'facultad' => 'presentacion_ua',
+            'convocatoria' => 'convocatoria',
+            'solicitada' => 'categoria_solicitada',
+            'categoria solicitada' => 'categoria_solicitada',
+            'asignada' => 'categoria_asignada',
+            'categoria asignada' => 'categoria_asignada',
+            'area' => 'area',
+            'subarea' => 'subarea',
+            'sub area' => 'subarea',
+        ];
+
+        $mapa = [];
+        foreach ($encabezado as $indice => $titulo) {
+            $clave = $this->normalizarTexto($titulo);
+            if (isset($alias[$clave]) && !isset($mapa[$alias[$clave]])) {
+                $mapa[$alias[$clave]] = $indice;
+            }
+        }
+
+        return $mapa;
+    }
+
+    private function celda(array $fila, array $mapa, $campo)
+    {
+        if (!isset($mapa[$campo]) || !array_key_exists($mapa[$campo], $fila)) {
+            return null;
+        }
+
+        return $fila[$mapa[$campo]];
+    }
+
+    /**
+     * Minúsculas, sin acentos, sin puntuación y con espacios simples.
+     */
+    private function normalizarTexto($valor)
+    {
+        $valor = trim((string)$valor);
+        if ($valor === '') {
+            return '';
+        }
+
+        $valor = mb_strtolower($valor, 'UTF-8');
+        $valor = strtr($valor, [
+            'á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u',
+            'à' => 'a', 'è' => 'e', 'ì' => 'i', 'ò' => 'o', 'ù' => 'u',
+            'ä' => 'a', 'ë' => 'e', 'ï' => 'i', 'ö' => 'o', 'ü' => 'u',
+            'ñ' => 'n', 'ç' => 'c',
+        ]);
+        $valor = str_replace(['.', ',', ';', ':', '°', 'º'], ' ', $valor);
+        $valor = preg_replace('/\s+/u', ' ', $valor);
+
+        return trim($valor);
+    }
+
+    /**
+     * "20264294461" o "20-26429446-1" → "20-26429446-1".
+     * Si no tiene exactamente 11 dígitos devuelve null: no se completa ni se
+     * adivina ningún dígito, se informa la fila para corregirla en la planilla.
+     */
+    private function normalizarCuil($valor)
+    {
+        $digitos = preg_replace('/\D/', '', (string)$valor);
+
+        if ($digitos === '' || strlen($digitos) !== 11) {
+            return null;
+        }
+
+        return substr($digitos, 0, 2) . '-' . substr($digitos, 2, 8) . '-' . substr($digitos, 10, 1);
+    }
+
+    /**
+     * "Facultad de Ciencias Astronómicas y Geofísicas" → "Cs. Astronómicas y Geofísicas"
+     * (valor de config/facultades.php, que es el que usa el resto del sistema).
+     */
+    private function normalizarUnidadAcademica($valor)
+    {
+        if (trim((string)$valor) === '') {
+            return null;
+        }
+
+        $buscada = $this->claveFacultad($valor);
+        if ($buscada === '') {
+            return null;
+        }
+
+        foreach (array_keys(config('facultades')) as $facultad) {
+            if ($this->claveFacultad($facultad) === $buscada) {
+                return $facultad;
+            }
+        }
+
+        return null;
+    }
+
+    private function claveFacultad($valor)
+    {
+        $texto = $this->normalizarTexto($valor);
+        $texto = preg_replace('/^facultad de\s+/', '', $texto);
+        $texto = preg_replace('/\bciencias\b/', 'cs', $texto);
+
+        return str_replace(' ', '', $texto);
+    }
+
+    /**
+     * "A. Ciencias Exactas" → "A.Ciencias Exactas" (valor de AreaHelper).
+     */
+    private function normalizarArea($valor)
+    {
+        $texto = trim((string)$valor);
+        if ($texto === '') {
+            return null;
+        }
+
+        $areas = AreaHelper::areas();
+
+        if (preg_match('/^\s*([ABC])\b/i', $texto, $coincidencia)) {
+            $prefijo = strtoupper($coincidencia[1]) . '.';
+            foreach ($areas as $area) {
+                if (strpos($area, $prefijo) === 0) {
+                    return $area;
+                }
+            }
+        }
+
+        foreach ($areas as $area) {
+            if ($this->normalizarTexto($area) === $this->normalizarTexto($texto)) {
+                return $area;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * "B9. Ciencias del Ambiente", "B.13 Facultad de Odontología" o "A2. Facultad de
+     * Informática" → el valor exacto de AreaHelper::subareas() que corresponde al código.
+     */
+    private function normalizarSubarea($valor)
+    {
+        $texto = trim((string)$valor);
+        if ($texto === '') {
+            return null;
+        }
+
+        $subareas = AreaHelper::subareas();
+
+        if (preg_match('/^\s*([ABC])\.?\s*(\d{1,2})/i', $texto, $coincidencia)) {
+            $codigo = strtoupper($coincidencia[1]) . $coincidencia[2] . '.';
+            foreach ($subareas as $subarea) {
+                if (strpos($subarea, $codigo) === 0) {
+                    return $subarea;
+                }
+            }
+        }
+
+        foreach ($subareas as $subarea) {
+            if ($this->normalizarTexto($subarea) === $this->normalizarTexto($texto)) {
+                return $subarea;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Devuelve DI1..DI5 o null ("No posee", vacío o cualquier otra cosa).
+     */
+    private function normalizarCategoria($valor)
+    {
+        $texto = strtoupper(preg_replace('/\s+/', '', (string)$valor));
+
+        return array_key_exists($texto, config('categorias')) ? $texto : null;
+    }
+
+    /**
+     * Resuelve la convocatoria SOLO con lo que existe en sicadi_convocatorias:
+     * no hay tipos ni años escritos en el código, se comparan las filas de la tabla
+     * contra el texto de la planilla.
+     *
+     *  1) Coincidencia exacta con "nombre tipo year" (ej. "1er llamado Equivalencia 2024").
+     *  2) Si no, el tipo de alguna convocatoria aparece en el texto y el año coincide
+     *     ("3er llamado Equivalencia 2024" o "Equivalencia 2024" → la de Equivalencia 2024).
+     *
+     * Si no hay ninguna fila que coincida devuelve null y la fila se informa sin importarse.
+     */
+    private function resolverConvocatoria($texto)
+    {
+        $normalizado = $this->normalizarTexto($texto);
+        if ($normalizado === '') {
+            return null;
+        }
+
+        $convocatorias = $this->convocatoriasDisponibles();
+
+        // 1) "nombre tipo year" tal cual figura en la tabla
+        foreach ($convocatorias as $convocatoria) {
+            $completo = $this->normalizarTexto(
+                $convocatoria->nombre . ' ' . $convocatoria->tipo . ' ' . $convocatoria->year
+            );
+            if ($completo !== '' && $completo === $normalizado) {
+                return $convocatoria;
+            }
+        }
+
+        // 2) tipo de la tabla contenido en el texto + año del texto
+        $year = preg_match('/(19|20)\d{2}/', (string)$texto, $coincidencia) ? $coincidencia[0] : null;
+        if ($year === null) {
+            return null;
+        }
+
+        foreach ($convocatorias as $convocatoria) {
+            $tipo = $this->normalizarTexto($convocatoria->tipo);
+            if ($tipo === '' || (string)$convocatoria->year !== (string)$year) {
+                continue;
+            }
+            if (strpos($normalizado, $tipo) !== false) {
+                return $convocatoria;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Convocatorias cargadas en el sistema (se leen una sola vez por importación).
+     */
+    private function convocatoriasDisponibles()
+    {
+        if (!isset($this->convocatoriasCache)) {
+            $this->convocatoriasCache = SicadiConvocatoria::orderBy('year', 'desc')->get();
+        }
+
+        return $this->convocatoriasCache;
+    }
+
+    /**
+     * Cargo y dedicación docente vigentes para un CUIL (misma consulta que usa el
+     * importador completo y el alta de solicitudes).
+     */
+    private function cargoDocentePorCuil($cuil)
+    {
+        if (empty($cuil)) {
+            return null;
+        }
+
+        $registros = DB::table('cargos_alfabetico as C')
+            ->join(DB::raw("
+                (
+                    SELECT C1.dni, C1.cd_deddoc, MIN(C1.cd_cargo) as maxcargo
+                    FROM cargos_alfabetico as C1
+                    JOIN (
+                        SELECT dni, MIN(cd_deddoc) as maxded
+                        FROM cargos_alfabetico
+                        WHERE cd_deddoc IN (1,2,3)
+                            AND escalafon = 'Docente'
+                            AND situacion NOT IN ('Licencia sin goce de sueldos', 'Renuncia', 'Jubilación')
+                        GROUP BY dni
+                    ) as dmax
+                    ON C1.dni = dmax.dni AND C1.cd_deddoc = dmax.maxded
+                    WHERE C1.cd_cargo IN (1,2,3,4,5,7,8,9,10,11,12,13)
+                        AND C1.escalafon = 'Docente'
+                        AND C1.situacion NOT IN ('Licencia sin goce de sueldos', 'Renuncia', 'Jubilación')
+                    GROUP BY C1.dni, C1.cd_deddoc
+                ) as cmax
+            "), function ($join) {
+                $join->on('C.dni', '=', 'cmax.dni')
+                    ->on('C.cd_cargo', '=', 'cmax.maxcargo')
+                    ->on('C.cd_deddoc', '=', 'cmax.cd_deddoc');
+            })
+            ->join('cargos as cargo', 'cargo.id', '=', 'C.cd_cargo')
+            ->where('C.escalafon', 'Docente')
+            ->whereNotIn('C.situacion', ['Licencia sin goce de sueldos', 'Renuncia', 'Jubilación'])
+            ->whereRaw('? LIKE CONCAT(\'%\', C.dni, \'%\')', [$cuil])
+            ->select(
+                'C.dni',
+                'cargo.nombre as cargo',
+                DB::raw("
+                    CASE C.cd_deddoc
+                        WHEN 1 THEN 'Exclusiva'
+                        WHEN 2 THEN 'Semi Exclusiva'
+                        WHEN 3 THEN 'Simple'
+                        ELSE 'Sin datos'
+                    END as deddoc
+                ")
+            )
+            ->get();
+
+        if ($registros->isEmpty()) {
+            return null;
+        }
+
+        $registro = $registros->last();
+
+        return [
+            'cargo_docente' => trim(str_replace('Ordinario', '', $registro->cargo)),
+            'cargo_dedicacion' => $registro->deddoc,
+        ];
+    }
 
     public function cambiarEstado($solicitud, $comentarios)
     {
