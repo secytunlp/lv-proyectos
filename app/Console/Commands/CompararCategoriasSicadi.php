@@ -109,6 +109,7 @@ class CompararCategoriasSicadi extends Command
 
         $rows    = array();
         $resumen = array();
+        $porYear = array();
         $conDif  = 0;
 
         foreach ($filas as $f) {
@@ -163,6 +164,15 @@ class CompararCategoriasSicadi extends Command
 
             if ($diagnostico !== 'OK') {
                 $conDif++;
+            }
+
+            $y = ($f->conv_year === null || $f->conv_year === '') ? '(sin convocatoria)' : (string) $f->conv_year;
+            if (!isset($porYear[$y])) {
+                $porYear[$y] = array('total' => 0, 'dif' => 0);
+            }
+            $porYear[$y]['total']++;
+            if ($diagnostico !== 'OK') {
+                $porYear[$y]['dif']++;
             }
 
             // --- filtros de listado ---
@@ -228,6 +238,24 @@ class CompararCategoriasSicadi extends Command
         );
         $this->table(array('Diagnostico', 'Cantidad'), $resRows);
         $this->line('Con alguna diferencia: '.$conDif);
+
+        // ------------------------------------------------------------------
+        // Desglose por año de convocatoria (para ver que no se mira solo un año)
+        // ------------------------------------------------------------------
+        ksort($porYear);
+        $yearRows = array();
+        foreach ($porYear as $y => $d) {
+            $yearRows[] = array(
+                $y,
+                $d['total'],
+                $d['total'] - $d['dif'],
+                $d['dif'],
+                $d['total'] > 0 ? round($d['dif'] * 100 / $d['total'], 1).'%' : '-',
+            );
+        }
+        $this->line('');
+        $this->info('Por año de convocatoria:');
+        $this->table(array('Año', 'Solicitudes', 'OK', 'Con diferencia', '%'), $yearRows);
 
         return 0;
     }

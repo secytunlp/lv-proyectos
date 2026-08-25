@@ -1418,6 +1418,7 @@ class SolicitudSicadiController extends Controller
         $creados = [];
         $existentes = [];
         $errores = [];
+        $revisarCuil = []; // CUIL que no cierran o que no cruzan con personas (solo informativo)
         $procesados = []; // control de filas repetidas dentro del mismo archivo
 
         foreach ($filas as $indice => $fila) {
@@ -1485,6 +1486,13 @@ class SolicitudSicadiController extends Controller
             ];
 
             $avisos = [];
+
+            // Chequeo informativo del CUIL: dígito verificador y cruce con personas.
+            // NO cambia la lógica de alta: la solicitud se crea igual, solo se avisa.
+            $notaCuil = $this->revisarCuilContraPersonas($cuil);
+            if ($notaCuil !== null) {
+                $avisos[] = $notaCuil;
+            }
 
             $uaOriginal = trim((string)$this->celda($fila, $mapa, 'presentacion_ua'));
             $ua = $this->normalizarUnidadAcademica($uaOriginal);
@@ -1554,6 +1562,10 @@ class SolicitudSicadiController extends Controller
                 Log::info('SICADI importado: ' . $etiqueta . ' - ' . $cuil . ' - convocatoria ' . $convocatoria->id);
                 $creados[] = $etiqueta . ' — ' . $convocatoria->tipo . ' ' . $convocatoria->year .
                     (empty($avisos) ? '' : ' [' . implode(' | ', $avisos) . ']');
+
+                if ($notaCuil !== null) {
+                    $revisarCuil[] = $etiqueta . ' — CUIL ' . $cuil . ': ' . $notaCuil;
+                }
             } catch (QueryException $ex) {
                 if (isset($ex->errorInfo[1]) && $ex->errorInfo[1] === 1062) {
                     // Existe un registro con ese CUIL en otra convocatoria y la base no lo permite.
@@ -1567,7 +1579,8 @@ class SolicitudSicadiController extends Controller
         }
 
         $mensaje = '<strong>Importación finalizada:</strong> ' . count($creados) . ' creados, ' .
-            count($existentes) . ' ya existentes, ' . count($errores) . ' con problemas.<br>';
+            count($existentes) . ' ya existentes, ' . count($errores) . ' con problemas' .
+            (empty($revisarCuil) ? '' : ', ' . count($revisarCuil) . ' con el CUIL a revisar') . '.<br>';
 
         if (!empty($creados)) {
             $mensaje .= '<br><strong>Creados</strong><br>' . implode('<br>', $creados) . '<br>';
@@ -1577,6 +1590,12 @@ class SolicitudSicadiController extends Controller
         }
         if (!empty($errores)) {
             $mensaje .= '<br><strong>No se pudieron importar</strong><br>' . implode('<br>', $errores) . '<br>';
+        }
+        if (!empty($revisarCuil)) {
+            $mensaje .= '<br><strong>CUIL a revisar (la solicitud se creó igual)</strong><br>' .
+                'Estas filas no van a cruzar con el investigador hasta que se corrija el CUIL. ' .
+                'Después de importar, correr <code>php artisan sicadi:cotejar-cuil</code> para verlas en detalle.<br>' .
+                implode('<br>', $revisarCuil) . '<br>';
         }
 
         return redirect()->route('solicitud_sicadis.index')
@@ -1753,6 +1772,89 @@ class SolicitudSicadiController extends Controller
         }
 
         return substr($digitos, 0, 2) . '-' . substr($digitos, 2, 8) . '-' . substr($digitos, 10, 1);
+    }
+
+    /**
+     * Valida el dígito verificador de un CUIL de 11 dígitos.
+     * El prefijo "00" se considera inválido (CUIL nunca cargado, solo el DNI).
+     */
+    private function cuilVerificadorOk($valor)
+    {
+        $d = preg_replace('/\D/', '', (string)$valor);
+
+        if (strlen($d) !== 11 || substr($d, 0, 2) === '00') {
+            return false;
+        }
+
+        $mult = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
+        $suma = 0;
+        for ($i = 0; $i < 10; $i++) {
+            $suma += $mult[$i] * (int)$d[$i];
+        }
+
+        $dv = 11 - ($suma % 11);
+        if ($dv === 11) {
+            $dv = 0;
+        }
+        if ($dv === 10) {
+            $dv = 9;
+        }
+
+        return $dv === (int)$d[10];
+    }
+
+    /**
+     * Chequeo informativo del CUIL de una fila importada: verifica el dígito
+     * verificador y si el CUIL cruza con alguna fila de personas. Si no cruza,
+     * busca por DNI (los 8 dígitos centrales) para sugerir el candidato.
+     *
+     * Devuelve null si está todo bien, o el texto del aviso.
+     * NO modifica nada: el problema histórico de la carga 2024 fue que los CUIL
+     * tipeados a mano entraron sin este control y quedaron sin cruzar con el
+     * investigador. Para corregirlos existe el comando sicadi:cotejar-cuil.
+     */
+    private function revisarCuilContraPersonas($cuil)
+    {
+        $digitos = preg_replace('/\D/', '', (string)$cuil);
+        if (strlen($digitos) !== 11) {
+            return 'el CUIL no tiene 11 dígitos';
+        }
+
+        $verificadorOk = $this->cuilVerificadorOk($digitos);
+        $norm = "REPLACE(REPLACE(REPLACE(cuil, '-', ''), '.', ''), ' ', '')";
+
+        $persona = DB::table('personas')
+            ->whereRaw($norm . ' = ?', [$digitos])
+            ->select('id')
+            ->first();
+
+        if (!empty($persona)) {
+            return $verificadorOk
+                ? null
+                : 'el dígito verificador del CUIL no cierra (aunque cruza con la persona #' . $persona->id . ')';
+        }
+
+        $sufijo = $verificadorOk ? '' : ' y además su dígito verificador no cierra';
+
+        $candidatos = DB::table('personas')
+            ->where('documento', (int)substr($digitos, 2, 8))
+            ->select('id', 'apellido', 'nombre', 'cuil')
+            ->limit(3)
+            ->get();
+
+        if ($candidatos->count() === 1) {
+            $c = $candidatos->first();
+            return 'el CUIL no cruza con ninguna persona' . $sufijo .
+                '; hay una persona con el mismo DNI: #' . $c->id . ' ' . $c->apellido . ', ' . $c->nombre .
+                ' (CUIL en el sistema: ' . (empty($c->cuil) ? 's/d' : $c->cuil) . ') → revisar cuál de los dos está bien';
+        }
+
+        if ($candidatos->count() > 1) {
+            return 'el CUIL no cruza con ninguna persona' . $sufijo .
+                ' y hay ' . $candidatos->count() . ' personas con ese DNI → revisar a mano';
+        }
+
+        return 'el CUIL no cruza con ninguna persona del sistema' . $sufijo;
     }
 
     /**
