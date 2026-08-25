@@ -145,6 +145,9 @@ class CotejarCuilSicadi extends Command
                 $accion = 'AMBOS MAL';
             }
 
+            $userId = null;
+            $notaUser = '';
+
             // colision: el CUIL a grabar ya lo tiene otro registro
             if ($accion === 'PERSONA MAL') {
                 $choque = DB::select(
@@ -153,6 +156,37 @@ class CotejarCuilSicadi extends Command
                 );
                 if (count($choque) > 0) {
                     $accion = 'COLISION (persona #'.$choque[0]->id.')';
+                }
+
+                // Otra solicitud que hoy cruza con el CUIL viejo quedaria huerfana
+                if ($accion === 'PERSONA MAL' && $p->cuil !== null && $p->cuil !== '') {
+                    $otra = DB::select(
+                        'SELECT id FROM solicitud_sicadis WHERE '.$this->cuilNorm('cuil').' = '.$this->cuilNorm('?').' AND id <> ? LIMIT 1',
+                        array($p->cuil, $f->solicitud_id)
+                    );
+                    if (count($otra) > 0) {
+                        $accion = 'REVISAR (solicitud #'.$otra[0]->id.' usa el CUIL viejo)';
+                    }
+                }
+
+                // users.cuil es UNIQUE y es la clave de "esto es mio" en toda la app
+                if ($accion === 'PERSONA MAL' && $p->cuil !== null && $p->cuil !== '') {
+                    $us = DB::select(
+                        'SELECT id FROM users WHERE '.$this->cuilNorm('cuil').' = '.$this->cuilNorm('?').' LIMIT 1',
+                        array($p->cuil)
+                    );
+                    if (count($us) > 0) {
+                        $choqueU = DB::select(
+                            'SELECT id FROM users WHERE '.$this->cuilNorm('cuil').' = ? AND id <> ? LIMIT 1',
+                            array($digitos, $us[0]->id)
+                        );
+                        if (count($choqueU) > 0) {
+                            $accion = 'COLISION (usuario #'.$choqueU[0]->id.')';
+                        } else {
+                            $userId = $us[0]->id;
+                            $notaUser = ' +user#'.$userId;
+                        }
+                    }
                 }
             } elseif ($accion === 'SOLICITUD MAL') {
                 $choque = DB::select(
@@ -171,6 +205,7 @@ class CotejarCuilSicadi extends Command
                     'accion'        => $accion,
                     'solicitud_id'  => $f->solicitud_id,
                     'persona_id'    => $p->id,
+                    'user_id'       => $userId,
                     'cuil_solicitud'=> $f->cuil_solicitud,
                     'cuil_persona'  => $p->cuil,
                 );
@@ -183,7 +218,7 @@ class CotejarCuilSicadi extends Command
                 $this->corta($p->apellido.', '.$p->nombre, 26),
                 ($p->cuil === null || $p->cuil === '' ? 's/d' : $p->cuil).($okPer ? ' OK' : ' MAL'),
                 $accion,
-                $p->investigador_id === null ? 'SIN INV' : 'inv#'.$p->investigador_id,
+                ($p->investigador_id === null ? 'SIN INV' : 'inv#'.$p->investigador_id).$notaUser,
             );
 
             if ($solo !== null && $solo !== '' && stripos($accion, $solo) === false) {
@@ -222,7 +257,7 @@ class CotejarCuilSicadi extends Command
             return 0;
         }
 
-        $nPersona = 0; $nSolicitud = 0; $errores = array();
+        $nPersona = 0; $nSolicitud = 0; $nUser = 0; $errores = array();
 
         DB::beginTransaction();
         try {
@@ -232,6 +267,11 @@ class CotejarCuilSicadi extends Command
                         $nPersona += DB::table('personas')
                             ->where('id', $c['persona_id'])
                             ->update(array('cuil' => $c['cuil_solicitud'], 'updated_at' => now()));
+                        if ($c['user_id'] !== null) {
+                            $nUser += DB::table('users')
+                                ->where('id', $c['user_id'])
+                                ->update(array('cuil' => $c['cuil_solicitud'], 'updated_at' => now()));
+                        }
                     } else {
                         $nSolicitud += DB::table('solicitud_sicadis')
                             ->where('id', $c['solicitud_id'])
@@ -248,6 +288,7 @@ class CotejarCuilSicadi extends Command
                 array('Operacion', 'Filas'),
                 array(
                     array('personas.cuil corregido',          $nPersona),
+                    array('users.cuil corregido (acceso)',    $nUser),
                     array('solicitud_sicadis.cuil corregido',  $nSolicitud),
                 )
             );
