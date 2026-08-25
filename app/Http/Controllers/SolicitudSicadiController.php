@@ -1455,23 +1455,34 @@ class SolicitudSicadiController extends Controller
                 continue;
             }
 
-            // Fila repetida dentro del propio archivo
-            $clave = $cuil . '|' . $convocatoria->id;
+            // Fila repetida dentro del propio archivo (mismo CUIL en el mismo año)
+            $clave = $cuil . '|' . $convocatoria->year;
             if (isset($procesados[$clave])) {
-                $existentes[] = $etiqueta . ' — repetido en el archivo (ya se procesó en la fila ' . $procesados[$clave] . ')';
+                $existentes[] = $etiqueta . ' — repetido en el archivo: ya se procesó en la fila ' .
+                    $procesados[$clave]['fila'] . ' para ' . $procesados[$clave]['convocatoria'];
                 continue;
             }
-            $procesados[$clave] = $nroFila;
 
-            // Control de duplicados: mismo CUIL en la misma convocatoria
-            $yaExiste = SolicitudSicadi::where('cuil', $cuil)
-                ->where('convocatoria_id', $convocatoria->id)
-                ->exists();
+            // Control de duplicados: una sola solicitud por CUIL y por año, sin importar
+            // si la otra es de Equivalencia o de Evaluación (mismo criterio que el alta).
+            $existente = SolicitudSicadi::with('convocatoria')
+                ->where('cuil', $cuil)
+                ->whereHas('convocatoria', function ($query) use ($convocatoria) {
+                    $query->where('year', $convocatoria->year);
+                })
+                ->first();
 
-            if ($yaExiste) {
-                $existentes[] = $etiqueta . ' — ya estaba cargado en ' . $convocatoria->tipo . ' ' . $convocatoria->year;
+            if (!empty($existente)) {
+                $existentes[] = $etiqueta . ' — ya tiene solicitud ' . $convocatoria->year . ' en el sistema (' .
+                    (empty($existente->convocatoria) ? 'convocatoria ' . $existente->convocatoria_id : $existente->convocatoria->tipo . ' ' . $existente->convocatoria->year) .
+                    ', estado ' . $existente->estado . ')';
                 continue;
             }
+
+            $procesados[$clave] = [
+                'fila' => $nroFila,
+                'convocatoria' => $convocatoria->tipo . ' ' . $convocatoria->year,
+            ];
 
             $avisos = [];
 
