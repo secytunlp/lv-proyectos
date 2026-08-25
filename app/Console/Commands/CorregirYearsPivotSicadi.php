@@ -29,6 +29,8 @@ class CorregirYearsPivotSicadi extends Command
         {--de=2023 : Año equivocado a corregir}
         {--a=2024 : Año correcto (el de la primera convocatoria)}
         {--fusionar : Borrar la fila vieja cuando ya existe la del año nuevo con la misma categoria}
+        {--solo= : Listar solo los casos que contengan este texto (MOVER, FUSIONAR, CONFLICTO, MULTIPLE)}
+        {--limite=40 : Cortar el listado en N filas (0 = sin limite)}
         {--commit : Persistir los cambios (por defecto es dry-run)}';
 
     protected $description = 'Pasa las filas de investigador_sicadis del año equivocado al año de la convocatoria real';
@@ -38,6 +40,8 @@ class CorregirYearsPivotSicadi extends Command
         $de       = (int) $this->option('de');
         $a        = (int) $this->option('a');
         $fusionar = (bool) $this->option('fusionar');
+        $solo     = $this->option('solo');
+        $limite   = (int) $this->option('limite');
         $commit   = (bool) $this->option('commit');
 
         if ($de === $a) {
@@ -93,13 +97,28 @@ class CorregirYearsPivotSicadi extends Command
             return 0;
         }
 
+        // Investigadores con MAS DE UNA fila en el año viejo: moverlas todas
+        // dejaria dos filas en el año nuevo, rompiendo "una fila por año".
+        $multiples = array();
+        foreach (DB::select(
+            'SELECT investigador_id, COUNT(*) AS c FROM investigador_sicadis '.
+            'WHERE year = ? GROUP BY investigador_id HAVING c > 1',
+            array($de)
+        ) as $m) {
+            $multiples[$m->investigador_id] = (int) $m->c;
+        }
+
         $mover = array();
         $fus   = array();
         $conf  = array();
+        $mult  = array();
         $rows  = array();
 
         foreach ($filas as $f) {
-            if ($f->nueva_id === null) {
+            if (isset($multiples[$f->investigador_id])) {
+                $caso = 'MULTIPLE EN '.$de.' ('.$multiples[$f->investigador_id].')';
+                $mult[] = $f;
+            } elseif ($f->nueva_id === null) {
                 $caso = 'MOVER';
                 $mover[] = $f;
             } elseif ((int) $f->nueva_sicadi_id === (int) $f->sicadi_id) {
@@ -108,6 +127,10 @@ class CorregirYearsPivotSicadi extends Command
             } else {
                 $caso = 'CONFLICTO';
                 $conf[] = $f;
+            }
+
+            if ($solo !== null && $solo !== '' && stripos($caso, $solo) === false) {
+                continue;
             }
 
             $rows[] = array(
@@ -119,29 +142,46 @@ class CorregirYearsPivotSicadi extends Command
             );
         }
 
+        $recortado = false;
+        if ($limite > 0 && count($rows) > $limite) {
+            $rows = array_slice($rows, 0, $limite);
+            $recortado = true;
+        }
+
         $this->line('');
         $this->line('============================================================');
         $this->info($commit ? 'MODO: COMMIT (se persiste)' : 'MODO: DRY-RUN (no se guarda nada)');
         $this->line('============================================================');
 
-        $this->table(
-            array('Inv.', 'Persona', 'Fila '.$de, 'Fila '.$a, 'Caso'),
-            $rows
-        );
+        if (count($rows) > 0) {
+            $this->table(
+                array('Inv.', 'Persona', 'Fila '.$de, 'Fila '.$a, 'Caso'),
+                $rows
+            );
+            if ($recortado) {
+                $this->warn('Listado recortado a '.$limite.' filas (usa --limite=0 para verlas todas).');
+            }
+        }
 
         $this->line('');
         $this->info('Resumen:');
         $this->table(
             array('Caso', 'Cantidad', 'Que se hace'),
             array(
-                array('MOVER',     count($mover), 'year '.$de.' -> '.$a),
-                array('FUSIONAR',  count($fus),   $fusionar ? 'se borra la fila '.$de : 'NO se toca (pasa --fusionar)'),
-                array('CONFLICTO', count($conf),  'no se toca, revisar a mano'),
+                array('MOVER',              count($mover), 'year '.$de.' -> '.$a),
+                array('FUSIONAR',           count($fus),   $fusionar ? 'se borra la fila '.$de : 'NO se toca (pasa --fusionar)'),
+                array('CONFLICTO',          count($conf),  'no se toca, revisar a mano'),
+                array('MULTIPLE EN '.$de,   count($mult),  'no se toca, dejaria 2 filas en '.$a),
             )
         );
 
         if (count($conf) > 0) {
-            $this->warn('Hay '.count($conf).' investigadores con dos categorias distintas entre '.$de.' y '.$a.'. Revisalos antes de seguir.');
+            $this->warn('Hay '.count($conf).' filas con dos categorias distintas entre '.$de.' y '.$a.'. Revisalas antes de seguir.');
+        }
+        if (count($mult) > 0) {
+            $this->warn('Hay '.count($mult).' filas de investigadores con mas de un registro en '.$de.'. '.
+                'Moverlas dejaria dos filas en '.$a.' para la misma persona: hay que decidir cual queda. '.
+                'Verlas con: --solo=MULTIPLE --limite=0');
         }
 
         $aplicables = count($mover) + ($fusionar ? count($fus) : 0);
