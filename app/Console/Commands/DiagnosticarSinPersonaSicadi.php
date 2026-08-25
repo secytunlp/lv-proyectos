@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Para cada solicitud SICADI Otorgada cuyo CUIL no encuentra fila en personas,
@@ -40,11 +41,15 @@ class DiagnosticarSinPersonaSicadi extends Command
         $estado = $this->option('estado');
         $limite = (int) $this->option('limite');
 
+        // La columna documento existe en el $fillable del modelo pero no en
+        // todas las bases: se usa solo si esta.
+        $hayDocumento = Schema::hasColumn('solicitud_sicadis', 'documento');
+
         $sql =
             'SELECT '.
             '  s.id                 AS solicitud_id, '.
             '  s.cuil               AS cuil, '.
-            '  s.documento          AS documento, '.
+            ($hayDocumento ? '  s.documento          AS documento, ' : '  NULL AS documento, ').
             '  s.apellido           AS apellido, '.
             '  s.nombre             AS nombre, '.
             '  COALESCE(s.presentacion_ua, s.cargo_ua) AS ua, '.
