@@ -97,6 +97,7 @@ class CorregirYearsPivotSicadi extends Command
             '  v.actual, '.
             '  sv.nombre       AS categoria, '.
             "  TRIM(CONCAT(p.apellido, ', ', p.nombre)) AS persona, ".
+            '  p.cuil          AS cuil, '.
             '  i.sicadi_id     AS sicadi_investigador, '.
             '  si.nombre       AS categoria_investigador, '.
             '  n.id            AS nueva_id, '.
@@ -119,6 +120,24 @@ class CorregirYearsPivotSicadi extends Command
             $this->line('');
             $this->info('No hay filas con year '.$etiquetaDe.'. Nada que corregir.');
             return 0;
+        }
+
+        // ------------------------------------------------------------------
+        // Que dice la solicitud SICADI de cada uno (para poder decidir).
+        // Se carga en memoria y se matchea por CUIL normalizado: hacerlo con un
+        // JOIN por REPLACE() sobre miles de filas es carisimo.
+        // ------------------------------------------------------------------
+        $solicitudes = array();
+        foreach (DB::select(
+            'SELECT ss.cuil, ss.estado, ss.categoria_asignada, cc.tipo, cc.year '.
+            'FROM solicitud_sicadis ss '.
+            'LEFT JOIN sicadi_convocatorias cc ON cc.id = ss.convocatoria_id '.
+            'ORDER BY cc.year ASC, ss.id ASC'
+        ) as $s) {
+            $k = preg_replace('/\D/', '', (string) $s->cuil);
+            if ($k !== '') {
+                $solicitudes[$k] = $s; // queda la mas reciente
+            }
         }
 
         // Investigadores con MAS DE UNA fila en el año viejo
@@ -207,10 +226,11 @@ class CorregirYearsPivotSicadi extends Command
 
             $rows[] = array(
                 $f->investigador_id,
-                $this->corta($f->persona, 28),
+                $this->corta($f->persona, 26),
                 ($f->categoria === null ? '?' : $f->categoria).((int) $f->actual === 1 ? ' (actual)' : ''),
                 $f->categoria_investigador === null ? '-' : $f->categoria_investigador,
                 $f->nueva_id === null ? '-' : ($f->nueva_categoria === null ? '?' : $f->nueva_categoria).((int) $f->nueva_actual === 1 ? ' (actual)' : ''),
+                $this->textoSolicitud($solicitudes, $f->cuil),
                 $caso,
             );
         }
@@ -229,7 +249,7 @@ class CorregirYearsPivotSicadi extends Command
 
         if (count($rows) > 0) {
             $this->table(
-                array('Inv.', 'Persona', 'Fila '.$etiquetaDe, 'investigadors', 'Fila '.$a, 'Caso'),
+                array('Inv.', 'Persona', 'Fila '.$etiquetaDe, 'investigadors', 'Fila '.$a, 'Solicitud SICADI', 'Caso'),
                 $rows
             );
             if ($recortado) {
@@ -378,6 +398,23 @@ class CorregirYearsPivotSicadi extends Command
         }
 
         return 0;
+    }
+
+    /**
+     * "Otorgada DI3 (Evaluación 2024)" / "Presentada sin categoria" / "sin solicitud"
+     */
+    private function textoSolicitud($solicitudes, $cuil)
+    {
+        $k = preg_replace('/\D/', '', (string) $cuil);
+        if ($k === '' || !isset($solicitudes[$k])) {
+            return 'sin solicitud';
+        }
+
+        $s = $solicitudes[$k];
+        $cat = trim((string) $s->categoria_asignada);
+
+        return trim($s->estado.' '.($cat === '' ? 'sin cat.' : $cat).
+            ' ('.trim($s->tipo.' '.$s->year).')');
     }
 
     private function corta($v, $n)
