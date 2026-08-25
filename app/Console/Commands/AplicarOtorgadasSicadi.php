@@ -118,31 +118,15 @@ class AplicarOtorgadasSicadi extends Command
                 }
             }
 
-            // Fila destino del pivot: la que ya tiene la categoria nueva.
-            // Prioridad: la que ya esta marcada actual -> la del año de la
-            // convocatoria -> la mas reciente. Asi no se tocan los years de
-            // quienes ya estan bien.
+            // investigador_sicadis lleva UNA FILA POR CONVOCATORIA/AÑO, asi que
+            // la fila destino es la del año de la convocatoria — exista o no con
+            // la categoria correcta. Si ya hay una de ese año con otra categoria
+            // se le corrige el sicadi_id; nunca se agrega una segunda del mismo año.
             $destino = null;
             foreach ($pivots as $pv) {
-                if ((int) $pv->sicadi_id === (int) $f->sicadi_nuevo_id && (int) $pv->actual === 1) {
+                if ((int) $pv->year === (int) $f->conv_year) {
                     $destino = $pv;
                     break;
-                }
-            }
-            if ($destino === null) {
-                foreach ($pivots as $pv) {
-                    if ((int) $pv->sicadi_id === (int) $f->sicadi_nuevo_id && (int) $pv->year === (int) $f->conv_year) {
-                        $destino = $pv;
-                        break;
-                    }
-                }
-            }
-            if ($destino === null) {
-                foreach ($pivots as $pv) {
-                    if ((int) $pv->sicadi_id === (int) $f->sicadi_nuevo_id) {
-                        $destino = $pv;
-                        break;
-                    }
                 }
             }
 
@@ -153,8 +137,14 @@ class AplicarOtorgadasSicadi extends Command
             }
             if ($destino === null) {
                 $acciones[] = 'pivot: alta '.$f->cat_solicitud.' '.$f->conv_year;
-            } elseif ((int) $destino->actual !== 1) {
-                $acciones[] = 'pivot: marcar actual';
+            } else {
+                if ((int) $destino->sicadi_id !== (int) $f->sicadi_nuevo_id) {
+                    $acciones[] = 'pivot '.$f->conv_year.': '.
+                        ($destino->nombre === null ? '?' : $destino->nombre).' -> '.$f->cat_solicitud;
+                }
+                if ((int) $destino->actual !== 1) {
+                    $acciones[] = 'pivot: marcar actual';
+                }
             }
             $aDesmarcar = 0;
             foreach ($actuales as $pv) {
@@ -223,7 +213,7 @@ class AplicarOtorgadasSicadi extends Command
         // ------------------------------------------------------------------
         // Aplicar
         // ------------------------------------------------------------------
-        $nInv = 0; $nAlta = 0; $nMarca = 0; $nDesmarca = 0;
+        $nInv = 0; $nAlta = 0; $nMarca = 0; $nDesmarca = 0; $nCorrige = 0;
 
         DB::beginTransaction();
         try {
@@ -248,12 +238,20 @@ class AplicarOtorgadasSicadi extends Command
                     ));
                     $nAlta++;
                 } else {
+                    // Ya hay fila de ese año: se corrige en el lugar (una por año)
                     $destinoId = $f->_destino->id;
+                    $cambios = array();
+                    if ((int) $f->_destino->sicadi_id !== (int) $f->sicadi_nuevo_id) {
+                        $cambios['sicadi_id'] = $f->sicadi_nuevo_id;
+                        $nCorrige++;
+                    }
                     if ((int) $f->_destino->actual !== 1) {
-                        DB::table('investigador_sicadis')
-                            ->where('id', $destinoId)
-                            ->update(array('actual' => 1, 'updated_at' => now()));
+                        $cambios['actual'] = 1;
                         $nMarca++;
+                    }
+                    if (!empty($cambios)) {
+                        $cambios['updated_at'] = now();
+                        DB::table('investigador_sicadis')->where('id', $destinoId)->update($cambios);
                     }
                 }
 
@@ -270,10 +268,11 @@ class AplicarOtorgadasSicadi extends Command
             $this->table(
                 array('Operacion', 'Filas'),
                 array(
-                    array('investigadors.sicadi_id',               $nInv),
-                    array('investigador_sicadis (altas)',          $nAlta),
-                    array('investigador_sicadis (marcar actual)',  $nMarca),
-                    array('investigador_sicadis (desmarcar)',      $nDesmarca),
+                    array('investigadors.sicadi_id',                  $nInv),
+                    array('investigador_sicadis (altas)',             $nAlta),
+                    array('investigador_sicadis (categoria del año)', $nCorrige),
+                    array('investigador_sicadis (marcar actual)',     $nMarca),
+                    array('investigador_sicadis (desmarcar)',         $nDesmarca),
                 )
             );
 
