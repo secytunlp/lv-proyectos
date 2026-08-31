@@ -360,9 +360,13 @@ en la dirección de correo electrónico declarada precedentemente')}}
 
                                                     <tbody id="cuerpoBecaActual">
                                                     <tr>
+                                                        @php
+                                                            $instituciones = config('becaEntidades');
+                                                            unset($instituciones['Otra']);
+                                                            $instituciones['CIN'] = 'CIN';
+                                                        @endphp
+                                                        <td>{{ Form::select('institucionActual',[''=>'']+$instituciones, ($beca)?$beca->institucion:'',['class' => 'form-control institucionActual_select', 'style' => 'width: 150px']) }} {{Form::hidden('idBecaActual',($beca)?$beca->id:'')}}</td>
 
-                                                        <td>{{ Form::select('institucionActual',[''=>'','ANPCyT'=>'ANPCyT','CIC'=>'CIC','CONICET'=>'CONICET','UNLP'=>'UNLP','CIN'=>'CIN','OTRA'=>'OTRA'], ($beca)?$beca->institucion:'',['class' => 'form-control institucionActual_select', 'style' => 'width: 150px']) }} {{Form::hidden('idBecaActual',($beca)?$beca->id:'')}}</td>
-                                                        <!--<td>{{ Form::select('becaActual',[''=>'','Beca inicial'=>'Beca inicial','Beca superior'=>'Beca superior','Beca de entrenamiento'=>'Beca de entrenamiento','Beca doctoral'=>'Beca doctoral','Beca posdoctoral'=>'Beca posdoctoral','Beca finalización del doctorado'=>'Beca finalización del doctorado','Beca maestría'=>'Beca maestría','Beca Cofinanciada (UNLP-CIC)'=>'Beca Cofinanciada (UNLP-CIC)','EVC'=>'EVC'], ($beca)?$beca->beca:'',['class' => 'form-control becaActual_select', 'style' => 'width: 150px']) }}</td>-->
                                                         <td>{{ Form::select('becaActual', \App\Helpers\BecaHelper::obtenerOpcionesBecaPorInstitucion(($beca)?$beca->institucion:''), ($beca)?$beca->beca:'', ['class' => 'form-control becaActual_select', 'style' => 'width: 150px']) }}
                                                         </td>
                                                         <td>{{Form::date('becadesdeActual', ($beca) ?
