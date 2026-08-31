@@ -472,19 +472,27 @@ class JovenController extends Controller
             return redirect()->route('jovens.index')->withErrors(['message' => 'No se pueden presentar los Directores y/o Codirectores de Proyectos de Acreditación.']);
         }
 
-        $noRendidas = DB::table('joven_no_rendidas')->where('documento', $investigador->persona->documento)->get();
+        // La rendición se exige recién desde dos convocatorias atrás: la del año inmediato
+        // anterior todavía no está vencida y no debe bloquear la presentación.
+        // Replica el sistema viejo (AddSolicitudInitAction: $twoYear = CYT_PERIODO_YEAR - 2).
+        // Con YEAR_JOVENES = 2026 => exige 2024 y anteriores; 2025 no bloquea.
+        $ultimoYearExigible = intval(Constants::YEAR_JOVENES) - intval(Constants::PERIODOS_ANTERIORES_JOVENES);
+
+        // Padrón histórico: solicitudes no rendidas de antes de que existiera el sistema.
+        // Son todas anteriores, así que bloquean siempre (igual que en el sistema viejo).
+        $noRendidas = DB::table('joven_no_rendidas')
+            ->where('documento', $investigador->persona->documento)
+            ->get();
         $errores = [];
 
         foreach ($noRendidas as $noRendida) {
             $errores[] = 'Ud. no ha rendido la solicitud del año ' . $noRendida->year;
         }
 
-        $currentPeriodo = Constants::YEAR_JOVENES;
-
         $noRendidas = Joven::where('investigador_id', $investigador->id)
             ->where('estado', 'Otorgada-No-Rendida')
             ->join('periodos', 'jovens.periodo_id', '=', 'periodos.id')
-            ->where('periodos.nombre', '<', $currentPeriodo) // opcional pero recomendado
+            ->where('periodos.nombre', '<=', $ultimoYearExigible) // sólo convocatorias con rendición vencida
             ->pluck('periodos.nombre')
             ->unique()
             ->sort()
