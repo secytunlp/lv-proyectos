@@ -99,10 +99,10 @@ class PurgarDuplicadosInteractivo extends Command
 
             // Mostrar datos de cada investigador
             foreach ($ids as $pos => $id) {
-                $inv = DB::table('investigadors')->find($id);
-                $pers = DB::table('personas')->find($inv->persona_id);
-                $cat = $inv->categoria_id ? DB::table('categorias')->find($inv->categoria_id)->nombre : '-';
-                $sic = $inv->sicadi_id ? DB::table('sicadis')->find($inv->sicadi_id)->nombre : '-';
+                $inv = DB::table('investigadors')->where('id', $id)->first();
+                $pers = DB::table('personas')->where('id', $inv->persona_id)->first();
+                $cat = $inv->categoria_id ? DB::table('categorias')->where('id', $inv->categoria_id)->first()->nombre : '-';
+                $sic = $inv->sicadi_id ? DB::table('sicadis')->where('id', $inv->sicadi_id)->first()->nombre : '-';
                 $n_integrantes = DB::table('integrantes')->where('investigador_id', $id)->count();
                 $n_becas = DB::table('investigador_becas')->where('investigador_id', $id)->count();
 
@@ -178,10 +178,6 @@ class PurgarDuplicadosInteractivo extends Command
 
             } catch (\Exception $e) {
                 $this->error("❌ Error en fusión: {$e->getMessage()}");
-                Log::error("PurgarDuplicadosInteractivo - Error", [
-                    'ids' => $ids,
-                    'error' => $e->getMessage()
-                ]);
 
                 $continuar = $this->confirm('¿Continuar con el siguiente grupo?', true);
                 if (!$continuar) {
@@ -205,19 +201,27 @@ class PurgarDuplicadosInteractivo extends Command
 
     private function getCuil($id)
     {
-        $inv = DB::table('investigadors')->find($id);
+        $inv = DB::table('investigadors')->where('id', $id)->first();
         if (!$inv) return '?';
-        $pers = DB::table('personas')->find($inv->persona_id);
+        $pers = DB::table('personas')->where('id', $inv->persona_id)->first();
         return $pers ? $pers->cuil : '?';
     }
 
     private function fusionarPar($id_keep, $id_remove)
     {
-        $inv_keep = DB::table('investigadors')->find($id_keep);
-        $inv_remove = DB::table('investigadors')->find($id_remove);
+        $inv_keep = DB::table('investigadors')->where('id', $id_keep)->first();
+        $inv_remove = DB::table('investigadors')->where('id', $id_remove)->first();
 
         if (!$inv_keep || !$inv_remove) {
             throw new \Exception("Investigador no encontrado");
+        }
+
+        // Traer personas con ALL campos
+        $persona_keep = DB::table('personas')->where('id', $inv_keep->persona_id)->first();
+        $persona_remove = DB::table('personas')->where('id', $inv_remove->persona_id)->first();
+
+        if (!$persona_keep || !$persona_remove) {
+            throw new \Exception("Persona no encontrada");
         }
 
         // Mover datos
@@ -240,9 +244,6 @@ class PurgarDuplicadosInteractivo extends Command
         }
 
         // Fusionar datos de persona
-        $persona_keep = DB::table('personas')->find($inv_keep->persona_id);
-        $persona_remove = DB::table('personas')->find($inv_remove->persona_id);
-
         $campos_fusion = [
             'email', 'telefono', 'calle', 'nro', 'piso', 'depto',
             'localidad', 'cp', 'observaciones', 'tipoDocumento',
@@ -250,8 +251,8 @@ class PurgarDuplicadosInteractivo extends Command
         ];
         $update_data = [];
         foreach ($campos_fusion as $campo) {
-            $valor_keep = $persona_keep->{$campo};
-            $valor_remove = $persona_remove->{$campo};
+            $valor_keep = $persona_keep->{$campo} ?? null;
+            $valor_remove = $persona_remove->{$campo} ?? null;
             if (($valor_keep === null || $valor_keep === '') && $valor_remove !== null && $valor_remove !== '') {
                 $update_data[$campo] = $valor_remove;
             }
