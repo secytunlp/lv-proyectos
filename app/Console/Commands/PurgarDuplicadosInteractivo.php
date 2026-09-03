@@ -5,33 +5,20 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
-/**
- * Purga interactiva de investigadores duplicados.
- *
- * Para CADA grupo ALTA:
- * 1. Muestra datos de ambos investigadores (CUIL, proyecto, etc)
- * 2. Te pregunta cuál CUIL mantener
- * 3. Ejecuta la fusión
- *
- * Uso: php artisan investigadores:purgar-interactivo
- */
 class PurgarDuplicadosInteractivo extends Command
 {
     protected $signature = 'investigadores:purgar-interactivo
-        {--solo-alta : Procesar solo ALTA (default)}
         {--saltear-n= : Saltear primeros N grupos (para retomar)}';
 
     protected $description = 'Purga interactiva: revisa cada grupo y decides el CUIL a mantener.';
 
     public function handle()
     {
-        $solo_alta = true;
         $saltear_n = (int) ($this->option('saltear-n') ?? 0);
 
         $this->info("=== PURGA INTERACTIVA DE DUPLICADOS ===");
         $this->line("");
 
-        // --- Detectar duplicados ---
         $filas = DB::select(
             'SELECT i.id, p.cuil, p.apellido, p.nombre, p.nacimiento, '.
             '       i.facultad_id, ca.nombre AS categoria, si.nombre AS sicadi '.
@@ -44,7 +31,6 @@ class PurgarDuplicadosInteractivo extends Command
 
         $this->info('Analizando '.count($filas).' investigadores...');
 
-        // Actividad
         $act = array();
         foreach (DB::select(
             'SELECT investigador_id, COUNT(*) AS n, MIN(alta) AS mn, MAX(alta) AS mx '.
@@ -57,7 +43,6 @@ class PurgarDuplicadosInteractivo extends Command
             );
         }
 
-        // Agrupar
         $grupos_alta = $this->detectarDuplicados($filas, $act);
 
         $this->line('');
@@ -69,11 +54,9 @@ class PurgarDuplicadosInteractivo extends Command
             return 0;
         }
 
-        // --- Procesar cada grupo ---
         $timestamp = date('YmdHis');
         $tabla_backup = "investigadors_backup_interactivo_$timestamp";
 
-        // Backup global
         $this->line('📦 Backup global de investigadors...');
         DB::statement("CREATE TABLE $tabla_backup LIKE investigadors");
         DB::statement("INSERT INTO $tabla_backup SELECT * FROM investigadors");
@@ -96,7 +79,6 @@ class PurgarDuplicadosInteractivo extends Command
             $this->line("Motivo: {$grupo['motivo']}");
             $this->line("═══════════════════════════════════════════════════════════════");
 
-            // Mostrar datos de cada investigador
             foreach ($ids as $pos => $id) {
                 $inv = DB::table('investigadors')->where('id', $id)->first();
                 $pers = DB::table('personas')->where('id', $inv->persona_id)->first();
@@ -125,7 +107,6 @@ class PurgarDuplicadosInteractivo extends Command
                     $this->line("  Teléfono: {$pers->telefono}");
                 }
 
-                // Ver si hay usuario
                 $user = DB::table('users')->where('cuil', $pers->cuil)->first();
                 if ($user) {
                     $this->line("  👤 Usuario: {$user->email} (ID {$user->id})");
@@ -134,7 +115,6 @@ class PurgarDuplicadosInteractivo extends Command
 
             $this->line('');
 
-            // Decisión del usuario
             $choice = $this->choice(
                 '¿Cuál CUIL mantener?',
                 [
@@ -155,7 +135,6 @@ class PurgarDuplicadosInteractivo extends Command
                 continue;
             }
 
-            // Decidir qué ID mantener y cuál eliminar
             if (strpos($choice, 'ID menor') !== false) {
                 $id_keep = $ids[0];
                 $id_remove = $ids[1];
@@ -164,7 +143,6 @@ class PurgarDuplicadosInteractivo extends Command
                 $id_remove = $ids[0];
             }
 
-            // Ejecutar fusión
             try {
                 DB::transaction(function () use ($id_keep, $id_remove) {
                     $this->fusionarPar($id_keep, $id_remove);
@@ -175,7 +153,6 @@ class PurgarDuplicadosInteractivo extends Command
 
             } catch (\Exception $e) {
                 $this->error("❌ Error en fusión: {$e->getMessage()}");
-
                 $continuar = $this->confirm('¿Continuar con el siguiente grupo?', true);
                 if (!$continuar) {
                     return 1;
@@ -220,28 +197,40 @@ class PurgarDuplicadosInteractivo extends Command
             throw new \Exception("Persona no encontrada");
         }
 
-        // 1. Mover TODOS los integrantes
+        // 1. Mover integrantes
         DB::table('integrantes')
             ->where('investigador_id', $id_remove)
             ->update(['investigador_id' => $id_keep]);
 
-        // 2. Mover TODAS las becas
+        // 2. Mover becas
         DB::table('investigador_becas')
             ->where('investigador_id', $id_remove)
             ->update(['investigador_id' => $id_keep]);
 
-        // 3. Mover relaciones en pivots
-        $pivots = [
-            'investigador_titulos', 'investigador_tituloposts', 'investigador_cargos',
-            'investigador_categorias', 'investigador_carreras', 'investigador_sicadis',
+        // 3. Mover/eliminar relaciones en pivots (elimina duplicados primero)
+        $pivots_map = [
+            'investigador_titulos' => 'titulo_id',
+            'investigador_tituloposts' => 'titulo_id',
+            'investigador_cargos' => 'cargo_id',
+            'investigador_categorias' => 'categoria_id',
+            'investigador_carreras' => 'carrerainv_id',
+            'investigador_sicadis' => 'sicadi_id',
         ];
-        foreach ($pivots as $pivot) {
+
+        foreach ($pivots_map as $pivot => $fk_field) {
+            // Eliminar relaciones que ya existen en keep (para evitar UNIQUE constraint)
+            DB::statement(
+                "DELETE FROM $pivot WHERE investigador_id = ? AND $fk_field IN (SELECT $fk_field FROM $pivot WHERE investigador_id = ?)",
+                [$id_remove, $id_keep]
+            );
+
+            // Mover los que quedan
             DB::table($pivot)
                 ->where('investigador_id', $id_remove)
                 ->update(['investigador_id' => $id_keep]);
         }
 
-        // 4. Copiar datos OPCIONALES de persona_remove a persona_keep (no documento)
+        // 4. Copiar datos opcionales
         $campos_fusion = [
             'email', 'telefono', 'calle', 'nro', 'piso', 'depto',
             'localidad', 'cp', 'observaciones', 'genero', 'foto', 'fallecimiento'
@@ -296,7 +285,6 @@ class PurgarDuplicadosInteractivo extends Command
 
         $vistos = [];
 
-        // Duplicados por documento
         foreach ($porDoc as $doc => $miembros) {
             if (count($miembros) < 2) continue;
             $ids = array_map(fn($m) => (int)$m->id, $miembros);
@@ -307,7 +295,6 @@ class PurgarDuplicadosInteractivo extends Command
             $grupos[] = $this->armarGrupo($miembros, 'ALTA', "mismo documento $doc");
         }
 
-        // Duplicados por nombre+nacimiento
         foreach ($porNombre as $nom => $miembros) {
             if (count($miembros) < 2) continue;
 
