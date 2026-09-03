@@ -10,11 +10,14 @@ use Illuminate\Support\Facades\DB;
  * sicadi:comparar-* / sicadi:verificar-pivot para el otro eje de categorias.
  *
  * Diferencia de fondo con SICADI: las categorias SPU NO tienen tabla de
- * solicitudes. La fuente de verdad es el sistema viejo (docente.cd_categoria en
- * mysql_origen), no una tabla de produccion. Por eso son dos controles y no
- * tres, y el criterio de desempate se invierte: si investigadors y el origen
- * difieren, gana el origen, porque SyncInvestigadors lo va a pisar en la
- * proxima corrida.
+ * solicitudes. Historicamente la fuente de verdad fue el sistema viejo
+ * (docente.cd_categoria en mysql_origen). Por eso son dos controles y no tres.
+ *
+ * QUIEN GANA depende de si los sync van a volver a correr. Al 2026-09 el sistema
+ * viejo esta en obsolescencia y los sync NO corren de rutina (se corrieron una o
+ * pocas veces), asi que gana lo LOCAL: las diferencias contra el origen son
+ * correcciones manuales posteriores a la ultima corrida y hay que conservarlas.
+ * Este control es una foto de cierre de la migracion, no un chequeo periodico.
  *
  *   1) ORIGEN   investigadors.categoria_id  <->  docente.cd_categoria
  *   2) PIVOT    investigadors.categoria_id  <->  investigador_categorias
@@ -25,7 +28,12 @@ use Illuminate\Support\Facades\DB;
  * formas a "sin categoria", igual que los comandos de SICADI hacen con el
  * sicadi_id = 1. Sin esa normalizacion el control 2 devuelve ~12800 SIN PIVOT
  * que son simplemente gente que nunca se categorizo.
- * El pivot no lo sincroniza nadie.
+ *
+ * OJO con `sync:categorias`: pese al nombre NO sincroniza el catalogo, puebla
+ * este pivot desde docente con `year = null`, `actual = 1` y un upsert por
+ * (investigador_id, categoria_id) que solo toca `updated_at`. Nunca desmarca lo
+ * anterior ni borra nada, asi que regenera ACTUAL DUPLICADO cada vez que alguien
+ * cambia de categoria en el sistema viejo, y deja todas las filas sin año.
  *
  * Solo lee: no modifica nada.
  */
@@ -248,9 +256,13 @@ class VerificarCategorias extends Command
         $this->resumir($resumen, $revisados.' investigadores', $conDif);
 
         $this->line('');
-        $this->line('Gana el ORIGEN: SyncInvestigadors reescribe categoria_id en cada corrida.');
-        $this->line('FALTA EN LOCAL / SOBRA EN LOCAL / DISTINTA se corrigen solas en el proximo sync;');
-        $this->line('si el valor bueno es el local, hay que cargarlo en docente.cd_categoria, no aca.');
+        $this->line('Quien gana depende de si los sync vuelven a correr:');
+        $this->line('  - si vuelven a correr, gana el ORIGEN: SyncInvestigadors reescribe categoria_id');
+        $this->line('    y estas diferencias se pisan solas en la proxima corrida.');
+        $this->line('  - si el sistema viejo se esta dando de baja, gana lo LOCAL: son correcciones');
+        $this->line('    manuales hechas despues de la ultima corrida, hay que CONSERVARLAS.');
+        $this->line('Al 2026-09 rige el segundo caso: foto de cierre, no chequeo periodico.');
+        $this->line('ORIGEN FUERA DE CATALOGO es FK rota en docente; el valor final se decide aca.');
         if ($sinOrigen > 0 && !$this->option('incluir-sin-origen')) {
             $this->line($sinOrigen.' investigadores no existen en docente (altas locales), no listados.');
         }
@@ -404,9 +416,16 @@ class VerificarCategorias extends Command
         $this->resumir($resumen, $revisados.' investigadores con categoria o con pivot', $conDif);
 
         $this->line('');
-        $this->line('El pivot SPU no lo sincroniza nadie: es el unico lugar donde vive el historial,');
-        $this->line('y por eso se desfasa de categoria_id, que el sync reescribe todos los dias.');
-        $this->line('Antes de tocar el pivot, correr el control 1: si el origen manda otra categoria,');
+        $this->line('Este pivot lo poblo sync:categorias (pese al nombre no sincroniza el catalogo):');
+        $this->line('inserta con year = NULL y actual = 1, y su upsert solo toca updated_at, asi que');
+        $this->line('nunca desmarca lo anterior. De ahi los ACTUAL DUPLICADO y que todo este sin año.');
+        $this->line('Mientras ese comando NO se vuelva a correr son residuo historico: se corrigen a');
+        $this->line('mano una vez y no vuelven. Si alguna vez hay que volver a correrlo, arreglarlo antes.');
+        $this->line('');
+        $this->line('PIVOT SIN INV = el origen paso a s/c y categoria_id se actualizo, pero la fila del');
+        $this->line('pivot quedo marcada actual. Suele ser una categoria vencida: la fila sirve como');
+        $this->line('historial, lo que hay que sacar es el actual = 1, no borrarla.');
+        $this->line('Antes de tocar nada, correr el control 1: si el origen manda otra categoria,');
         $this->line('cualquier arreglo local dura hasta la proxima corrida.');
 
         return true;
