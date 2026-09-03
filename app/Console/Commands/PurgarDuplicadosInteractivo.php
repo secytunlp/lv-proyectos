@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Purga interactiva de investigadores duplicados.
@@ -160,11 +159,9 @@ class PurgarDuplicadosInteractivo extends Command
             if (strpos($choice, 'ID menor') !== false) {
                 $id_keep = $ids[0];
                 $id_remove = $ids[1];
-                $cuil_keep = $this->getCuil($id_keep);
             } else {
                 $id_keep = $ids[1];
                 $id_remove = $ids[0];
-                $cuil_keep = $this->getCuil($id_keep);
             }
 
             // Ejecutar fusión
@@ -216,7 +213,6 @@ class PurgarDuplicadosInteractivo extends Command
             throw new \Exception("Investigador no encontrado");
         }
 
-        // Traer personas con ALL campos
         $persona_keep = DB::table('personas')->where('id', $inv_keep->persona_id)->first();
         $persona_remove = DB::table('personas')->where('id', $inv_remove->persona_id)->first();
 
@@ -224,15 +220,17 @@ class PurgarDuplicadosInteractivo extends Command
             throw new \Exception("Persona no encontrada");
         }
 
-        // Mover datos
+        // 1. Mover TODOS los integrantes
         DB::table('integrantes')
             ->where('investigador_id', $id_remove)
             ->update(['investigador_id' => $id_keep]);
 
+        // 2. Mover TODAS las becas
         DB::table('investigador_becas')
             ->where('investigador_id', $id_remove)
             ->update(['investigador_id' => $id_keep]);
 
+        // 3. Mover relaciones en pivots
         $pivots = [
             'investigador_titulos', 'investigador_tituloposts', 'investigador_cargos',
             'investigador_categorias', 'investigador_carreras', 'investigador_sicadis',
@@ -243,11 +241,10 @@ class PurgarDuplicadosInteractivo extends Command
                 ->update(['investigador_id' => $id_keep]);
         }
 
-        // Fusionar datos de persona
+        // 4. Copiar datos OPCIONALES de persona_remove a persona_keep (no documento)
         $campos_fusion = [
             'email', 'telefono', 'calle', 'nro', 'piso', 'depto',
-            'localidad', 'cp', 'observaciones', 'tipoDocumento',
-            'documento', 'genero', 'foto', 'fallecimiento'
+            'localidad', 'cp', 'observaciones', 'genero', 'foto', 'fallecimiento'
         ];
         $update_data = [];
         foreach ($campos_fusion as $campo) {
@@ -263,7 +260,7 @@ class PurgarDuplicadosInteractivo extends Command
                 ->update($update_data);
         }
 
-        // Eliminar usuario del investigador removido
+        // 5. Eliminar usuario del investigador removido
         $user_remove = DB::table('users')
             ->where('cuil', $persona_remove->cuil)
             ->first();
@@ -271,8 +268,10 @@ class PurgarDuplicadosInteractivo extends Command
             DB::table('users')->where('id', $user_remove->id)->delete();
         }
 
-        // Eliminar investigador y persona
+        // 6. Eliminar investigador redundante
         DB::table('investigadors')->where('id', $id_remove)->delete();
+
+        // 7. Eliminar persona redundante
         DB::table('personas')->where('id', $persona_remove->id)->delete();
     }
 
@@ -282,7 +281,6 @@ class PurgarDuplicadosInteractivo extends Command
         $porDoc = [];
         $porNombre = [];
 
-        // Procesar filas (normalizar)
         foreach ($filas as $f) {
             $f->_doc = $this->doc($f->cuil);
             $f->_nom = $this->nom($f->apellido, $f->nombre);
