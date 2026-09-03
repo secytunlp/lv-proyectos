@@ -30,6 +30,14 @@ use Illuminate\Support\Facades\DB;
  *          o mismo nombre + misma facultad y la categoria esta en un solo lado
  *   BAJA   solo coincide el nombre: probable homonimo, no se lista por defecto
  *
+ * Ademas cruza la ACTIVIDAD de cada registro (integrantes: cuantos proyectos y
+ * entre que fechas). Si dos registros del grupo estuvieron activos AL MISMO
+ * TIEMPO en proyectos distintos, es evidencia de que son dos personas: nadie
+ * figura dos veces en paralelo. Eso degrada MEDIA/BAJA a homonimo.
+ * En los ALTA no degrada: ahi el solapamiento solo significa que el duplicado
+ * se uso de los dos lados a la vez, que es justamente lo que pasa cuando una
+ * persona quedo cargada dos veces.
+ *
  * Solo lee: no modifica nada.
  */
 class DetectarDuplicadosInvestigadores extends Command
@@ -40,6 +48,28 @@ class DetectarDuplicadosInvestigadores extends Command
         {--limite=0 : Cortar el listado en N grupos (0 = sin limite)}';
 
     protected $description = 'Detecta la misma persona cargada dos veces en investigadors, con nivel de confianza';
+
+    private $actividad = array();
+
+    /** true si dos registros del grupo estuvieron activos en años que se pisan */
+    private function solapan($miembros)
+    {
+        $iv = array();
+        foreach ($miembros as $m) {
+            $id = (int) $m->id;
+            if (isset($this->actividad[$id]) && $this->actividad[$id]['mn'] !== '') {
+                $iv[] = array((int) $this->actividad[$id]['mn'], (int) $this->actividad[$id]['mx']);
+            }
+        }
+        for ($i = 0; $i < count($iv); $i++) {
+            for ($j = $i + 1; $j < count($iv); $j++) {
+                if ($iv[$i][0] <= $iv[$j][1] && $iv[$j][0] <= $iv[$i][1]) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     /** Deja solo los digitos del documento: saca el verificador y toma los ultimos 8 */
     private function doc($cuil)
@@ -105,6 +135,19 @@ class DetectarDuplicadosInvestigadores extends Command
         );
 
         $this->info('Revisando '.count($filas).' investigadores...');
+
+        $act = array();
+        foreach (DB::select(
+            'SELECT investigador_id, COUNT(*) AS n, MIN(alta) AS mn, MAX(alta) AS mx '.
+            'FROM integrantes WHERE investigador_id IS NOT NULL GROUP BY investigador_id'
+        ) as $a) {
+            $act[(int) $a->investigador_id] = array(
+                'n'  => (int) $a->n,
+                'mn' => $a->mn === null ? '' : substr((string) $a->mn, 0, 4),
+                'mx' => $a->mx === null ? '' : substr((string) $a->mx, 0, 4),
+            );
+        }
+        $this->actividad = $act;
 
         $porNombre = array();
         $porDoc    = array();
@@ -210,6 +253,11 @@ class DetectarDuplicadosInvestigadores extends Command
                 $motivo = 'solo coincide el nombre';
             }
 
+            if ($conf !== 'ALTA' && $this->solapan($resto)) {
+                $conf = 'BAJA';
+                $motivo = 'activos al mismo tiempo en proyectos distintos: son dos personas';
+            }
+
             $grupos[] = $this->grupo($resto, $conf, $motivo);
         }
 
@@ -245,6 +293,7 @@ class DetectarDuplicadosInvestigadores extends Command
                 $g['nacs'],
                 $g['cats'],
                 $g['sics'],
+                $g['acts'],
                 $g['motivo'],
             );
         }
@@ -262,7 +311,7 @@ class DetectarDuplicadosInvestigadores extends Command
 
         if (count($rows) > 0) {
             $this->table(
-                array('Conf.', 'Persona', 'Ids', 'CUILs', 'Nacimiento', 'Categorias', 'SICADIs', 'Motivo'),
+                array('Conf.', 'Persona', 'Ids', 'CUILs', 'Nacimiento', 'Categorias', 'SICADIs', 'Actividad', 'Motivo'),
                 $rows
             );
             if ($recortado) {
@@ -308,7 +357,7 @@ class DetectarDuplicadosInvestigadores extends Command
 
     private function grupo($miembros, $conf, $motivo)
     {
-        $ids = array(); $cuils = array(); $nacs = array(); $cats = array(); $sics = array();
+        $ids = array(); $cuils = array(); $nacs = array(); $cats = array(); $sics = array(); $acts = array();
         $conCat = 0;
         foreach ($miembros as $m) {
             $ids[]   = (int) $m->id;
@@ -316,6 +365,8 @@ class DetectarDuplicadosInvestigadores extends Command
             $nacs[]  = $m->_nac === '' ? '-' : $m->_nac;
             $cats[]  = $m->categoria === null ? '-' : $m->categoria;
             $sics[]  = $m->sicadi === null ? '-' : $m->sicadi;
+            $a = isset($this->actividad[(int) $m->id]) ? $this->actividad[(int) $m->id] : null;
+            $acts[]  = $a === null ? 'sin proy.' : ($a['mn'].'-'.$a['mx'].' ('.$a['n'].')');
             if ($this->tieneDato($m->categoria) || $this->tieneDato($m->sicadi)) {
                 $conCat++;
             }
@@ -329,6 +380,7 @@ class DetectarDuplicadosInvestigadores extends Command
             'nacs'    => implode(' | ', array_unique($nacs)),
             'cats'    => implode(',', $cats),
             'sics'    => implode(',', $sics),
+            'acts'    => implode(' | ', $acts),
             'motivo'  => $motivo,
             'dato_partido' => ($conCat > 0 && $conCat < count($miembros)),
         );
