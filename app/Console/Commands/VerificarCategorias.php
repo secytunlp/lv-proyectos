@@ -425,8 +425,8 @@ class VerificarCategorias extends Command
         $this->line('PIVOT SIN INV = el origen paso a s/c y categoria_id se actualizo, pero la fila del');
         $this->line('pivot quedo marcada actual. Suele ser una categoria vencida: la fila sirve como');
         $this->line('historial, lo que hay que sacar es el actual = 1, no borrarla.');
-        $this->line('Antes de tocar nada, correr el control 1: si el origen manda otra categoria,');
-        $this->line('cualquier arreglo local dura hasta la proxima corrida.');
+        $this->line('El control 1 muestra que dice el origen; con el sistema viejo en baja eso es');
+        $this->line('informativo: el valor final de cada caso se decide y se escribe aca.');
 
         return true;
     }

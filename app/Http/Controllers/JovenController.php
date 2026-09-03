@@ -769,7 +769,9 @@ class JovenController extends Controller
 // Validación de fechas de beca
         $becaDesde = $request->input('becadesdeActual');
         $becaHasta = $request->input('becahastaActual');
-        $fechaCierre = Carbon::parse(Constants::CIERRE);
+        // The beca must be current at this call's closing date (CIERRE_JOVENES),
+        // not at the closing date of the Proyectos call (CIERRE).
+        $fechaCierre = Carbon::parse(Constants::CIERRE_JOVENES);
         $fechaActual = Carbon::now(); // Obtener la fecha actual
         if ($becaDesde && $becaHasta) {
             $fechaDesde = Carbon::parse($becaDesde);
@@ -780,10 +782,10 @@ class JovenController extends Controller
             }
 
             if ($fechaHasta->lessThan($fechaCierre)) {
-                $errores[] = "Beca no vigente";
+                $errores[] = "Beca no vigente: finaliza antes del cierre de la convocatoria (" . $fechaCierre->format('d/m/Y') . ")";
             }
             if ($fechaDesde->greaterThan($fechaCierre)) {
-                $errores[] = "Beca no vigente";
+                $errores[] = "Beca no vigente: comienza después del cierre de la convocatoria (" . $fechaCierre->format('d/m/Y') . ")";
             }
 
         }
@@ -2020,7 +2022,8 @@ class JovenController extends Controller
             }
             $becaDesde = $beca->desde;
             $becaHasta = $beca->hasta;
-            $fechaCierre = Carbon::parse(Constants::CIERRE);
+            // Same rule as validateAdditionalData(): the call's own closing date.
+            $fechaCierre = Carbon::parse(Constants::CIERRE_JOVENES);
             $fechaActual = Carbon::now(); // Obtener la fecha actual
             if ($becaDesde && $becaHasta) {
                 $fechaDesde = Carbon::parse($becaDesde);
@@ -2031,10 +2034,10 @@ class JovenController extends Controller
                 }
 
                 if ($fechaHasta->lessThan($fechaCierre)) {
-                    $errores[] = "Beca no vigente";
+                    $errores[] = "Beca no vigente: finaliza antes del cierre de la convocatoria (" . $fechaCierre->format('d/m/Y') . ")";
                 }
                 if ($fechaDesde->greaterThan($fechaCierre)) {
-                    $errores[] = "Beca no vigente";
+                    $errores[] = "Beca no vigente: comienza después del cierre de la convocatoria (" . $fechaCierre->format('d/m/Y') . ")";
                 }
 
             }
