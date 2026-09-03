@@ -20,7 +20,11 @@ use Illuminate\Support\Facades\DB;
  *   2) PIVOT    investigadors.categoria_id  <->  investigador_categorias
  *
  * SyncInvestigadors escribe categoria_id con `?: null`, asi que 0, '' y NULL
- * en el origen son todos "sin categoria": la comparacion los trata igual.
+ * en el origen son todos "sin categoria". Ademas el catalogo `categorias` tiene
+ * una fila `s/c` que significa lo mismo: la comparacion normaliza las tres
+ * formas a "sin categoria", igual que los comandos de SICADI hacen con el
+ * sicadi_id = 1. Sin esa normalizacion el control 2 devuelve ~12800 SIN PIVOT
+ * que son simplemente gente que nunca se categorizo.
  * El pivot no lo sincroniza nadie.
  *
  * Solo lee: no modifica nada.
@@ -34,11 +38,27 @@ class VerificarCategorias extends Command
         {--sin-pivot : Saltear el control contra el pivot}
         {--incluir-sin-origen : Listar tambien los investigadores que no existen en docente}
         {--incluir-sin-year : Marcar tambien las filas de pivot sin year}
+        {--incluir-sc : No tratar s/c como "sin categoria" (muestra el ruido)}
         {--limite=50 : Cortar cada listado en N filas (0 = sin limite)}';
 
     protected $description = 'Verifica las categorias SPU contra el sistema viejo y contra investigador_categorias';
 
     private $catNombres = array();
+    private $scIds = array();
+    private $tratarSc = true;
+
+    /** 0, NULL y s/c son la misma cosa: "sin categoria" */
+    private function norm($id)
+    {
+        $id = (int) $id;
+        if ($id === 0) {
+            return 0;
+        }
+        if ($this->tratarSc && in_array($id, $this->scIds, true)) {
+            return 0;
+        }
+        return $id;
+    }
 
     private function cuilNorm($col)
     {
@@ -51,7 +71,7 @@ class VerificarCategorias extends Command
         if ($id === 0) {
             return '(sin)';
         }
-        return isset($this->catNombres[$id]) ? $this->catNombres[$id] : ('?'.$id);
+        return isset($this->catNombres[$id]) ? $this->catNombres[$id] : ('INEXISTENTE('.$id.')');
     }
 
     public function handle()
@@ -60,8 +80,21 @@ class VerificarCategorias extends Command
         $solo   = $this->option('solo');
         $limite = (int) $this->option('limite');
 
+        $this->tratarSc = !$this->option('incluir-sc');
+
+        $sinCat = array('S/C', 'SC', 'S/D', 'SIN CATEGORIA', 'SIN CATEGORÍA', '-', 'NO POSEE');
         foreach (DB::table('categorias')->select('id', 'nombre')->get() as $c) {
             $this->catNombres[(int) $c->id] = $c->nombre;
+            if (in_array(strtoupper(trim($c->nombre)), $sinCat, true)) {
+                $this->scIds[] = (int) $c->id;
+            }
+        }
+        if ($this->tratarSc && count($this->scIds) > 0) {
+            $etiquetas = array();
+            foreach ($this->scIds as $id) {
+                $etiquetas[] = $this->catNombres[$id].' (id '.$id.')';
+            }
+            $this->line('Tratando como "sin categoria": '.implode(', ', $etiquetas).'. Usa --incluir-sc para no hacerlo.');
         }
 
         $huboAlgo = false;
@@ -130,7 +163,7 @@ class VerificarCategorias extends Command
                 foreach ($chunk as $r) {
                     $revisados++;
                     $id    = (int) $r->id;
-                    $local = (int) $r->categoria_id;   // 0 si NULL
+                    $local = $this->norm($r->categoria_id);   // 0 = sin categoria
 
                     if (!array_key_exists($id, $orig)) {
                         $sinOrigen++;
@@ -140,7 +173,7 @@ class VerificarCategorias extends Command
                         $diag = 'NO EXISTE EN ORIGEN';
                         $origTxt = '-';
                     } else {
-                        $remoto = $orig[$id];          // 0 = sin categoria
+                        $remoto = $this->norm($orig[$id]);   // 0 = sin categoria
                         if ($remoto === $local) {
                             continue;
                         }
@@ -151,7 +184,7 @@ class VerificarCategorias extends Command
                         } else {
                             $diag = 'DISTINTA';
                         }
-                        $origTxt = $this->cat($remoto);
+                        $origTxt = $this->cat($orig[$id]);
                     }
 
                     $conDif++;
@@ -172,7 +205,7 @@ class VerificarCategorias extends Command
                         $r->cuil,
                         $this->corta(trim($r->apellido.', '.$r->nombre), 30),
                         $this->corta($r->ua, 14),
-                        $this->cat($local),
+                        $this->cat((int) $r->categoria_id),
                         $origTxt,
                         $diag,
                     );
@@ -262,7 +295,8 @@ class VerificarCategorias extends Command
         foreach ($filas as $f) {
             $revisados++;
 
-            $invId    = (int) $f->inv_cat_id;
+            $invIdRaw = (int) $f->inv_cat_id;
+            $invId    = $this->norm($invIdRaw);
             $invTiene = ($invId !== 0);
             $pvFilas  = (int) $f->filas;
             $actuales = (int) $f->actuales;
@@ -270,11 +304,19 @@ class VerificarCategorias extends Command
             $actIds = array();
             if ($f->act_ids !== null && $f->act_ids !== '') {
                 foreach (explode(',', $f->act_ids) as $v) {
-                    $actIds[] = (int) $v;
+                    $n = $this->norm($v);
+                    if ($n !== 0) {
+                        $actIds[] = $n;
+                    }
                 }
             }
+            $actuales = count($actIds) > 0 ? $actuales : 0;   // actual s/c = sin actual real
 
             $marcas = array();
+
+            if ($invIdRaw !== 0 && !isset($this->catNombres[$invIdRaw])) {
+                $marcas[] = 'CATEGORIA INEXISTENTE ('.$invIdRaw.')';
+            }
 
             if ($pvFilas === 0) {
                 if ($invTiene) {
@@ -327,7 +369,7 @@ class VerificarCategorias extends Command
                 $f->cuil,
                 $this->corta($f->persona, 30),
                 $this->corta($f->ua, 14),
-                $f->inv_cat === null ? '(sin)' : $f->inv_cat,
+                $this->cat($invIdRaw),
                 $f->detalle === null ? '-' : $this->corta($f->detalle, 42),
                 $diag,
             );
