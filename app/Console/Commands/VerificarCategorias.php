@@ -173,18 +173,34 @@ class VerificarCategorias extends Command
                         $diag = 'NO EXISTE EN ORIGEN';
                         $origTxt = '-';
                     } else {
-                        $remoto = $this->norm($orig[$id]);   // 0 = sin categoria
-                        if ($remoto === $local) {
+                        $rawRemoto = (int) $orig[$id];
+                        $remoto    = $this->norm($rawRemoto);   // 0 = sin categoria
+
+                        $marcas = array();
+
+                        // FK rota en el sistema viejo: cd_categoria que no esta
+                        // en el catalogo `categoria`. El sync la copia tal cual,
+                        // asi que local y origen "coinciden" y sin este chequeo
+                        // el caso pasa invisible.
+                        if ($rawRemoto !== 0 && !isset($this->catNombres[$rawRemoto])) {
+                            $marcas[] = 'ORIGEN FUERA DE CATALOGO ('.$rawRemoto.')';
+                        }
+
+                        if ($remoto !== $local) {
+                            if ($local === 0) {
+                                $marcas[] = 'FALTA EN LOCAL';
+                            } elseif ($remoto === 0) {
+                                $marcas[] = 'SOBRA EN LOCAL';
+                            } else {
+                                $marcas[] = 'DISTINTA';
+                            }
+                        }
+
+                        if (count($marcas) === 0) {
                             continue;
                         }
-                        if ($local === 0) {
-                            $diag = 'FALTA EN LOCAL';
-                        } elseif ($remoto === 0) {
-                            $diag = 'SOBRA EN LOCAL';
-                        } else {
-                            $diag = 'DISTINTA';
-                        }
-                        $origTxt = $this->cat($orig[$id]);
+                        $diag = implode(' + ', $marcas);
+                        $origTxt = $this->cat($rawRemoto);
                     }
 
                     $conDif++;
