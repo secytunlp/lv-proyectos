@@ -73,6 +73,15 @@ class DetectarDuplicadosInvestigadores extends Command
         return implode('', $a);
     }
 
+    /** s/c y - no son un dato cargado: cuentan como sin categoria */
+    private function tieneDato($v)
+    {
+        if ($v === null) {
+            return false;
+        }
+        return !in_array(strtoupper(trim($v)), array('S/C', 'SC', '-', ''), true);
+    }
+
     /** Documento de extranjero provisorio de ANSES */
     private function provisorio($doc)
     {
@@ -182,7 +191,7 @@ class DetectarDuplicadosInvestigadores extends Command
                     $hayProv = true;
                 }
                 $facs[(string) $m->facultad_id] = true;
-                if ($m->categoria !== null || $m->sicadi !== null) {
+                if ($this->tieneDato($m->categoria) || $this->tieneDato($m->sicadi)) {
                     $conCat++;
                 }
             }
@@ -307,7 +316,7 @@ class DetectarDuplicadosInvestigadores extends Command
             $nacs[]  = $m->_nac === '' ? '-' : $m->_nac;
             $cats[]  = $m->categoria === null ? '-' : $m->categoria;
             $sics[]  = $m->sicadi === null ? '-' : $m->sicadi;
-            if ($m->categoria !== null || $m->sicadi !== null) {
+            if ($this->tieneDato($m->categoria) || $this->tieneDato($m->sicadi)) {
                 $conCat++;
             }
         }
