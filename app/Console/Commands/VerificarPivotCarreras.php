@@ -13,11 +13,16 @@ use Illuminate\Support\Facades\DB;
  * Es el equivalente de sicadi:verificar-pivot para las carreras de investigacion.
  * Mismos diagnosticos, con dos diferencias de fondo:
  *
- *   - La identidad de una fila es el PAR (carrerainv_id, organismo_id), no la
- *     carrera sola: la misma carrera puede existir en dos organismos (CONICET,
- *     CIC, ...) y comparar solo por carrerainv_id los confunde.
- *   - El pivot no tiene `year` sino `ingreso`, asi que en lugar de ANIO DUPLICADO
- *     se marca PAR DUPLICADO: dos filas con la misma carrera en el mismo organismo.
+ *   - `carrerainv_id` es el CARGO de carrera (Asistente, Adjunto, Independiente,
+ *     Principal, Superior, los Profesional*) y `organismo_id` la INSTITUCION
+ *     (CONICET, CIC). La identidad de una fila es el par CARGO + INSTITUCION:
+ *     el mismo cargo existe en las dos instituciones y comparar solo por
+ *     carrerainv_id las confunde.
+ *   - Varias filas de la misma institucion con cargos distintos son la PROGRESION
+ *     de carrera de la persona, no un error: la vieja es historial y no se borra,
+ *     solo tiene que estar sin `actual`. El duplicado de verdad es repetir el
+ *     mismo cargo en la misma institucion, y eso es CARGO DUPLICADO (el pivot no
+ *     tiene `year` sino `ingreso`, asi que no hay ANIO DUPLICADO).
  *
  * Por que hacia falta: el bug 7 (InvestigadorController, radio con value fijo mas
  * la bandera $esActual inicializada fuera del loop) dejaba marcadas `actual = 1`
@@ -28,12 +33,12 @@ use Illuminate\Support\Facades\DB;
  * se limpia una vez y no vuelve.
  *
  * Diagnosticos:
- *   SIN PIVOT           tiene carrera y ninguna fila en el pivot
+ *   SIN PIVOT           tiene cargo y ninguna fila en el pivot
  *   SIN ACTUAL          tiene filas pero ninguna marcada actual = 1
  *   ACTUAL DUPLICADO    mas de una fila con actual = 1        <- bug 7
- *   INV <> PIVOT        ninguna fila actual coincide con el par del investigador
- *   PIVOT SIN INV       hay pivot actual con carrera y el investigador esta sin carrera
- *   PAR DUPLICADO       mas de una fila con la misma carrera y organismo
+ *   INV <> PIVOT        ninguna fila actual coincide con el cargo del investigador
+ *   PIVOT SIN INV       hay pivot actual con cargo y el investigador esta sin cargo
+ *   CARGO DUPLICADO     el mismo cargo repetido en la misma institucion
  *
  * Cuando hay ACTUAL DUPLICADO y una de las filas actuales SI coincide con el
  * investigador, no se marca INV <> PIVOT: esa es la firma del arrastre del bug 7
@@ -222,7 +227,7 @@ class VerificarPivotCarreras extends Command
             }
 
             if ($pvFilas > (int) $f->pv_pares) {
-                $marcas[] = 'PAR DUPLICADO';
+                $marcas[] = 'CARGO DUPLICADO';
             }
 
             if (count($marcas) === 0) {
@@ -260,7 +265,7 @@ class VerificarPivotCarreras extends Command
         if ($conDif === 0) {
             $this->info('Pivot consistente: '.$revisados.' investigadores revisados, ninguna diferencia.');
             $this->line('Toda fila actual = 1 coincide con investigadors.carrerainv_id + organismo_id');
-            $this->line('y no hay carreras repetidas en el mismo organismo.');
+            $this->line('y ningun cargo esta repetido en la misma institucion.');
             return 0;
         }
 
@@ -294,11 +299,16 @@ class VerificarPivotCarreras extends Command
         $this->line('Con alguna diferencia: '.$conDif);
 
         $this->line('');
-        $this->line('ACTUAL DUPLICADO a secas = arrastre del bug 7: el par del investigador esta entre');
-        $this->line('las filas actuales y sobran las posteriores. Se corrige desmarcando las que no');
-        $this->line('coinciden; el valor de investigadors ya esta bien y no hay que tocarlo.');
+        $this->line('Varias filas de la misma institucion con cargos distintos son la PROGRESION de');
+        $this->line('carrera, no un error: las viejas son historial y no se borran, solo tienen que');
+        $this->line('quedar sin actual. CARGO DUPLICADO es el unico duplicado real: mismo cargo');
+        $this->line('repetido en la misma institucion.');
+        $this->line('');
+        $this->line('ACTUAL DUPLICADO a secas = arrastre del bug 7: el cargo vigente del investigador');
+        $this->line('esta entre las filas actuales y sobran las anteriores de su progresion. Se');
+        $this->line('corrige desmarcando las que no coinciden; investigadors ya esta bien.');
         $this->line('ACTUAL DUPLICADO + INV <> PIVOT, en cambio, es un caso a mirar de a uno: ninguna');
-        $this->line('fila actual coincide, asi que hay que decidir cual es la carrera correcta.');
+        $this->line('fila actual coincide, asi que hay que decidir cual es el cargo correcto.');
         $this->line('');
         $this->line('El bug 7 esta corregido desde el 2026-09-04, asi que esto es residuo historico:');
         $this->line('se limpia una vez y no vuelve. Ver claude/comandos-verificacion-sicadi.md.');
