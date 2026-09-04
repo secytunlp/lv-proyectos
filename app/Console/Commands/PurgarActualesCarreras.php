@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 /**
  * Purga interactiva de los ACTUAL DUPLICADO de investigador_carreras.
@@ -41,7 +40,14 @@ class PurgarActualesCarreras extends Command
 
     protected $description = 'Purga interactiva de los actual duplicados en investigador_carreras';
 
-    /** Jerarquia de la carrera, por palabra clave del nombre */
+    /**
+     * Jerarquia del escalafon, por palabra clave del nombre. Es la misma para
+     * Investigador y para Profesional:
+     *   Asistente < Adjunto < Independiente < Principal < Superior
+     *
+     * No se usa la columna `orden` de carrerainvs: esta incompleta (hay filas en
+     * NULL) y mezclarla con esta escala daba sugerencias invertidas.
+     */
     private $rangos = array(
         'ASISTENTE'     => 1,
         'ADJUNTO'       => 2,
@@ -49,8 +55,6 @@ class PurgarActualesCarreras extends Command
         'PRINCIPAL'     => 4,
         'SUPERIOR'      => 5,
     );
-
-    private $tieneOrden = false;
 
     private function cuilNorm($col)
     {
@@ -93,13 +97,6 @@ class PurgarActualesCarreras extends Command
 
         foreach ($filas as $i => $f) {
             $escalafones[] = $this->escalafon($f->cargo_nombre);
-
-            if ($this->tieneOrden && $f->cargo_orden !== null) {
-                // La columna `orden` del catalogo manda: menor orden = mayor jerarquia,
-                // igual que Cargo::orden en InvestigadorController::esMayorCargo().
-                $pesos[$i] = -1 * (int) $f->cargo_orden;
-                continue;
-            }
 
             $r = $this->rango($f->cargo_nombre);
             if ($r === null) {
@@ -153,11 +150,9 @@ class PurgarActualesCarreras extends Command
 
     private function filasDe($invId)
     {
-        $selOrden = $this->tieneOrden ? 'cv.orden AS cargo_orden, ' : 'NULL AS cargo_orden, ';
-
         return DB::select(
             'SELECT ic.id, ic.carrerainv_id, ic.organismo_id, ic.ingreso, ic.actual, '.
-            'cv.nombre AS cargo_nombre, '.$selOrden.
+            'cv.nombre AS cargo_nombre, '.
             'og.codigo AS organismo_nombre '.
             'FROM investigador_carreras ic '.
             'LEFT JOIN carrerainvs cv ON cv.id = ic.carrerainv_id '.
@@ -262,13 +257,10 @@ class PurgarActualesCarreras extends Command
         $auto      = (bool) $this->option('auto-superior');
         $dryRun    = (bool) $this->option('dry-run');
 
-        $this->tieneOrden = Schema::hasColumn('carrerainvs', 'orden');
-
         $this->info('=== PURGA INTERACTIVA DE ACTUALES DUPLICADOS (CARRERAS) ===');
         $this->line('');
-        $this->line($this->tieneOrden
-            ? 'Jerarquia: columna `orden` de carrerainvs (menor orden = cargo superior).'
-            : 'Jerarquia deducida del nombre: Asistente < Adjunto < Independiente < Principal < Superior.');
+        $this->line('Jerarquia: Asistente < Adjunto < Independiente < Principal < Superior,');
+        $this->line('la misma para Investigador y para Profesional.');
         $this->line('Investigador y Profesional son escalafones distintos: ahi no se sugiere nada.');
         if ($dryRun) {
             $this->warn('DRY-RUN: no se escribe nada.');
