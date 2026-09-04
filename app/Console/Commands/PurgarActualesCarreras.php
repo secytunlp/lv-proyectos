@@ -36,7 +36,8 @@ class PurgarActualesCarreras extends Command
         {--cuil= : Procesar solo este CUIL}
         {--saltear-n=0 : Saltear los primeros N casos (para retomar)}
         {--auto-superior : No preguntar cuando el cargo superior se puede deducir sin ambiguedad}
-        {--dry-run : Mostrar que haria, sin escribir nada}';
+        {--dry-run : Mostrar que haria, sin escribir nada}
+        {--resumen : Clasificar todos los casos sin preguntar nada, para decidir la estrategia}';
 
     protected $description = 'Purga interactiva de los actual duplicados en investigador_carreras';
 
@@ -133,6 +134,127 @@ class PurgarActualesCarreras extends Command
         );
     }
 
+    private function cabecera($invId)
+    {
+        return DB::selectOne(
+            'SELECT i.id, p.cuil, '.
+            "TRIM(CONCAT(COALESCE(p.apellido, ''), ', ', COALESCE(p.nombre, ''))) AS persona, ".
+            'f.nombre AS ua, i.carrerainv_id, i.organismo_id, '.
+            'ci.nombre AS inv_cargo, oi.codigo AS inv_organismo '.
+            'FROM investigadors i '.
+            'JOIN personas p ON p.id = i.persona_id '.
+            'LEFT JOIN carrerainvs ci ON ci.id = i.carrerainv_id '.
+            'LEFT JOIN organismos  oi ON oi.id = i.organismo_id '.
+            'LEFT JOIN facultads   f  ON f.id  = i.facultad_id '.
+            'WHERE i.id = ?',
+            array($invId)
+        );
+    }
+
+    private function filasDe($invId)
+    {
+        $selOrden = $this->tieneOrden ? 'cv.orden AS cargo_orden, ' : 'NULL AS cargo_orden, ';
+
+        return DB::select(
+            'SELECT ic.id, ic.carrerainv_id, ic.organismo_id, ic.ingreso, ic.actual, '.
+            'cv.nombre AS cargo_nombre, '.$selOrden.
+            'og.codigo AS organismo_nombre '.
+            'FROM investigador_carreras ic '.
+            'LEFT JOIN carrerainvs cv ON cv.id = ic.carrerainv_id '.
+            'LEFT JOIN organismos  og ON og.id = ic.organismo_id '.
+            'WHERE ic.investigador_id = ? '.
+            'ORDER BY ic.ingreso IS NULL, ic.ingreso, ic.id',
+            array($invId)
+        );
+    }
+
+    /**
+     * Clasifica todos los casos sin preguntar nada, para decidir la estrategia:
+     *   A) sugerencia clara y coincide con investigadors  -> --auto-superior sin riesgo
+     *   B) sugerencia clara pero difiere de investigadors -> auto tambien corrige investigadors
+     *   C) sin sugerencia                                 -> a mano
+     */
+    private function resumir($casos)
+    {
+        $a = array();
+        $b = array();
+        $c = array();
+
+        foreach ($casos as $caso) {
+            $invId = (int) $caso->investigador_id;
+            $cab   = $this->cabecera($invId);
+            $filas = $this->filasDe($invId);
+            $sug   = $this->sugerir($filas);
+
+            if ($sug === null) {
+                $c[] = array($invId, $this->corta($cab->persona, 30), $this->detalleFilas($filas));
+                continue;
+            }
+
+            $f = $filas[$sug];
+            $coincide = ((int) $f->carrerainv_id === (int) $cab->carrerainv_id
+                && (int) $f->organismo_id === (int) $cab->organismo_id);
+
+            if ($coincide) {
+                $a[] = $invId;
+            } else {
+                $b[] = array(
+                    $invId,
+                    $this->corta($cab->persona, 28),
+                    $this->corta(($cab->inv_cargo === null ? '(sin)' : $cab->inv_cargo)
+                        .' '.($cab->inv_organismo === null ? '' : $cab->inv_organismo), 26),
+                    $this->corta($f->cargo_nombre.' '.$f->organismo_nombre, 26),
+                );
+            }
+        }
+
+        $this->table(
+            array('Grupo', 'Casos', 'Que pasa con --auto-superior'),
+            array(
+                array('A) superior = investigadors', count($a), 'Solo desmarca las otras filas'),
+                array('B) superior <> investigadors', count($b), 'Ademas corrige investigadors'),
+                array('C) sin sugerencia', count($c), 'Los saltea, quedan para vos'),
+            )
+        );
+
+        if (count($b) > 0) {
+            $this->line('');
+            $this->warn('B) El cargo superior no es el que tiene investigadors ('.count($b).'):');
+            $this->table(array('Inv.', 'Persona', 'investigadors dice', 'Superior del pivot'), $b);
+        }
+
+        if (count($c) > 0) {
+            $this->line('');
+            $this->warn('C) Sin sugerencia, hay que decidir a mano ('.count($c).'):');
+            $this->table(array('Inv.', 'Persona', 'Filas actuales'), $c);
+        }
+
+        $this->line('');
+        $this->line('Si B esta bien, "carreras:purgar-actuales --auto-superior" resuelve A y B');
+        $this->line('y deja los de C para revisar de a uno.');
+
+        return 0;
+    }
+
+    private function detalleFilas($filas)
+    {
+        $p = array();
+        foreach ($filas as $f) {
+            if (!$f->actual) {
+                continue;
+            }
+            $p[] = ($f->cargo_nombre === null ? '?' : $f->cargo_nombre)
+                .' '.($f->organismo_nombre === null ? '-' : $f->organismo_nombre);
+        }
+        return $this->corta(implode(' | ', $p), 55);
+    }
+
+    private function corta($v, $n)
+    {
+        $v = (string) $v;
+        return mb_strlen($v) > $n ? mb_substr($v, 0, $n - 1).'.' : $v;
+    }
+
     public function handle()
     {
         $cuil      = $this->option('cuil');
@@ -177,6 +299,10 @@ class PurgarActualesCarreras extends Command
         $this->info('Casos a revisar: '.count($casos));
         $this->line('');
 
+        if ($this->option('resumen')) {
+            return $this->resumir($casos);
+        }
+
         if (!$dryRun) {
             $ts = date('YmdHis');
             $bkCarreras = 'investigador_carreras_backup_'.$ts;
@@ -204,33 +330,8 @@ class PurgarActualesCarreras extends Command
 
             $invId = (int) $caso->investigador_id;
 
-            $cab = DB::selectOne(
-                'SELECT i.id, p.cuil, '.
-                "TRIM(CONCAT(COALESCE(p.apellido, ''), ', ', COALESCE(p.nombre, ''))) AS persona, ".
-                'f.nombre AS ua, i.carrerainv_id, i.organismo_id, '.
-                'ci.nombre AS inv_cargo, oi.codigo AS inv_organismo '.
-                'FROM investigadors i '.
-                'JOIN personas p ON p.id = i.persona_id '.
-                'LEFT JOIN carrerainvs ci ON ci.id = i.carrerainv_id '.
-                'LEFT JOIN organismos  oi ON oi.id = i.organismo_id '.
-                'LEFT JOIN facultads   f  ON f.id  = i.facultad_id '.
-                'WHERE i.id = ?',
-                array($invId)
-            );
-
-            $selOrden = $this->tieneOrden ? 'cv.orden AS cargo_orden, ' : 'NULL AS cargo_orden, ';
-
-            $filas = DB::select(
-                'SELECT ic.id, ic.carrerainv_id, ic.organismo_id, ic.ingreso, ic.actual, '.
-                'cv.nombre AS cargo_nombre, '.$selOrden.
-                'og.codigo AS organismo_nombre '.
-                'FROM investigador_carreras ic '.
-                'LEFT JOIN carrerainvs cv ON cv.id = ic.carrerainv_id '.
-                'LEFT JOIN organismos  og ON og.id = ic.organismo_id '.
-                'WHERE ic.investigador_id = ? '.
-                'ORDER BY ic.ingreso IS NULL, ic.ingreso, ic.id',
-                array($invId)
-            );
+            $cab   = $this->cabecera($invId);
+            $filas = $this->filasDe($invId);
 
             $this->line('');
             $this->info('['.($idx + 1).'/'.count($casos).'] '.$cab->persona.'  (inv '.$invId.', CUIL '.$cab->cuil.')');
