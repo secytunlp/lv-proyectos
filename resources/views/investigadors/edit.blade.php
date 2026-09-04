@@ -403,7 +403,7 @@
                                                     </thead>
 
                                                     <tbody id="cuerpoCategorias">
-                                                    @foreach ($investigador->categorias as $categoria)
+                                                    @foreach ($investigador->categorias as $catIndex => $categoria)
                                                     <tr>
 
                                                         <td>{{ Form::select('categorias[]',$categorias, $categoria->pivot->categoria_id,['class' => 'form-control', 'style' => 'width: 60px']) }}</td>
@@ -411,7 +411,7 @@
                                                         <td>{{Form::date('catnotificacions[]',  ($categoria->pivot->notificacion)?date('Y-m-d', strtotime($categoria->pivot->notificacion)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
                                                         <td>{{ Form::select('catuniversidads[]',$universidades, $categoria->pivot->universidad_id,['class' => 'form-control js-example-basic-single', 'style' => 'width: 300px']) }}</td>
 
-                                                        <td>{{ Form::radio('catactual', 1, ($categoria->pivot->actual)?true:false,['id' => 'catactual_1']) }}</td> <!-- Usamos un nombre único con el índice 1 -->
+                                                        <td>{{ Form::radio('catactual', $catIndex + 1, ($categoria->pivot->actual)?true:false,['id' => 'catactual_' . ($catIndex + 1)]) }}</td>
                                                         <td><a href="#" class="btn btn-danger removeCategoria"><i class="glyphicon glyphicon-remove"></i></a></td>
                                                     </tr>
                                                     @endforeach
@@ -443,7 +443,7 @@
                                                     </thead>
 
                                                     <tbody id="cuerpoSicadis">
-                                                    @foreach ($investigador->sicadis as $sicadi)
+                                                    @foreach ($investigador->sicadis as $sicadiIndex => $sicadi)
                                                     <tr>
 
                                                         <td>{{ Form::select('sicadis[]',$sicadis, $sicadi->pivot->sicadi_id,['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
@@ -451,7 +451,7 @@
                                                         <td>{{Form::date('sicadinotificacions[]', ($sicadi->pivot->notificacion)?date('Y-m-d', strtotime($sicadi->pivot->notificacion)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
 
 
-                                                        <td>{{ Form::radio('sicadiactual', 1, ($sicadi->pivot->actual)?true:false,['id' => 'sicadiactual_1']) }}</td> <!-- Usamos un nombre único con el índice 1 -->
+                                                        <td>{{ Form::radio('sicadiactual', $sicadiIndex + 1, ($sicadi->pivot->actual)?true:false,['id' => 'sicadiactual_' . ($sicadiIndex + 1)]) }}</td>
                                                         <td><a href="#" class="btn btn-danger removeSicadi"><i class="glyphicon glyphicon-remove"></i></a></td>
                                                     </tr>
                                                     @endforeach
@@ -738,6 +738,12 @@
 
             if (confirmDelete) {
                 $(this).parent().parent().remove();
+                // Renumera los radios para que el value siga coincidiendo con el orden de las filas
+                $('#cuerpoCategorias tr').each(function(i){
+                    $(this).find('input[type="radio"][name="catactual"]')
+                        .attr('id', 'catactual_' + (i + 1))
+                        .attr('value', i + 1);
+                });
             }
 
 
@@ -775,6 +781,12 @@
 
             if (confirmDelete) {
                 $(this).parent().parent().remove();
+                // Renumera los radios para que el value siga coincidiendo con el orden de las filas
+                $('#cuerpoSicadis tr').each(function(i){
+                    $(this).find('input[type="radio"][name="sicadiactual"]')
+                        .attr('id', 'sicadiactual_' + (i + 1))
+                        .attr('value', i + 1);
+                });
             }
 
 

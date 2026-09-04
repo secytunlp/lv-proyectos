@@ -179,87 +179,19 @@ class DetectarDuplicadosInvestigadores extends Command
         }
 
         // --- Grupos por nombre ---
-        foreach ($porNombre as $nom => $miembros) {
-            if (count($miembros) < 2) {
-                continue;
-            }
+        // --- Grupos por nombre ---
+        $this->pasada($porNombre, '', $grupos, $vistos);
 
-            // Subagrupar por nacimiento cuando lo hay: separa homonimos reales
-            $porNac = array();
-            $sinNac = array();
-            foreach ($miembros as $m) {
-                if ($m->_nac !== '') {
-                    $porNac[$m->_nac][] = $m;
-                } else {
-                    $sinNac[] = $m;
-                }
-            }
-
-            foreach ($porNac as $nac => $grupo) {
-                if (count($grupo) < 2) {
-                    continue;
-                }
-                $ids = $this->ids($grupo);
-                if (isset($vistos[$ids])) {
-                    continue;
-                }
-                $vistos[$ids] = true;
-                $grupos[] = $this->grupo($grupo, 'ALTA', 'mismo nombre y nacimiento '.$nac);
-            }
-
-            // Los que no se pudieron separar por nacimiento
-            $resto = $sinNac;
-            if (count($porNac) === 0) {
-                $resto = $miembros;
-            }
-            if (count($resto) < 2) {
-                continue;
-            }
-
-            $ids = $this->ids($resto);
-            if (isset($vistos[$ids])) {
-                continue;
-            }
-            $vistos[$ids] = true;
-
-            $huellas = array();
-            $hayProv = false;
-            $facs    = array();
-            $conCat  = 0;
-            foreach ($resto as $m) {
-                if ($m->_huella !== '') {
-                    $huellas[$m->_huella] = true;
-                }
-                if ($this->provisorio($m->_doc)) {
-                    $hayProv = true;
-                }
-                $facs[(string) $m->facultad_id] = true;
-                if ($this->tieneDato($m->categoria) || $this->tieneDato($m->sicadi)) {
-                    $conCat++;
-                }
-            }
-
-            if (count($huellas) === 1 && count($resto) > 1) {
-                $conf = 'ALTA';
-                $motivo = 'mismo nombre y los mismos digitos en el documento';
-            } elseif ($hayProv) {
-                $conf = 'MEDIA';
-                $motivo = 'mismo nombre y un CUIL provisorio de ANSES';
-            } elseif (count($facs) === 1 && $conCat > 0 && $conCat < count($resto)) {
-                $conf = 'MEDIA';
-                $motivo = 'mismo nombre, misma facultad, categoria en un solo lado';
-            } else {
-                $conf = 'BAJA';
-                $motivo = 'solo coincide el nombre';
-            }
-
-            if ($conf !== 'ALTA' && $this->solapan($resto)) {
-                $conf = 'BAJA';
-                $motivo = 'activos al mismo tiempo en proyectos distintos: son dos personas';
-            }
-
-            $grupos[] = $this->grupo($resto, $conf, $motivo);
+        // --- Segunda pasada: el nombre puede estar invertido ---
+        // "DIAZ, MARIA JULIETA" y "DIAZ, JULIETA MARIA" dan la misma clave si se
+        // ordenan las palabras. Sin esto, un duplicado con el nombre dado vuelta
+        // en uno de los dos registros no se agrupa nunca. Caso real: en SIGEVA el
+        // DNI 28671709 es DIAZ, JULIETA MARIA y en produccion figura al reves.
+        $porOrden = array();
+        foreach ($filas as $f) {
+            $porOrden[$this->nomOrdenado($f->apellido, $f->nombre)][] = $f;
         }
+        $this->pasada($porOrden, ' (nombre en distinto orden)', $grupos, $vistos);
 
         // ------------------------------------------------------------------
         $orden = array('ALTA' => 0, 'MEDIA' => 1, 'BAJA' => 2);
@@ -343,6 +275,106 @@ class DetectarDuplicadosInvestigadores extends Command
         $this->line('Al fusionar, acordarse de users.cuil: es UNIQUE y decide el acceso a los tramites.');
 
         return 0;
+    }
+
+
+    /** Igual que nom() pero con las palabras ordenadas: detecta nombres invertidos */
+    private function nomOrdenado($apellido, $nombre)
+    {
+        $t = explode(' ', $this->nom($apellido, $nombre));
+        sort($t);
+        return implode(' ', $t);
+    }
+
+    /** Recorre un indice nombre => registros y arma los grupos que falten */
+    private function pasada($indice, $sufijo, &$grupos, &$vistos)
+    {
+        foreach ($indice as $clave => $miembros) {
+            if (count($miembros) < 2) {
+                continue;
+            }
+            foreach ($porNombre as $nom => $miembros) {
+                if (count($miembros) < 2) {
+                    continue;
+                }
+
+                // Subagrupar por nacimiento cuando lo hay: separa homonimos reales
+                $porNac = array();
+                $sinNac = array();
+                foreach ($miembros as $m) {
+                    if ($m->_nac !== '') {
+                        $porNac[$m->_nac][] = $m;
+                    } else {
+                        $sinNac[] = $m;
+                    }
+                }
+
+                foreach ($porNac as $nac => $grupo) {
+                    if (count($grupo) < 2) {
+                        continue;
+                    }
+                    $ids = $this->ids($grupo);
+                    if (isset($vistos[$ids])) {
+                        continue;
+                    }
+                    $vistos[$ids] = true;
+                    $grupos[] = $this->grupo($grupo, 'ALTA', 'mismo nombre y nacimiento '.$nac.$sufijo);
+                }
+
+                // Los que no se pudieron separar por nacimiento
+                $resto = $sinNac;
+                if (count($porNac) === 0) {
+                    $resto = $miembros;
+                }
+                if (count($resto) < 2) {
+                    continue;
+                }
+
+                $ids = $this->ids($resto);
+                if (isset($vistos[$ids])) {
+                    continue;
+                }
+                $vistos[$ids] = true;
+
+                $huellas = array();
+                $hayProv = false;
+                $facs    = array();
+                $conCat  = 0;
+                foreach ($resto as $m) {
+                    if ($m->_huella !== '') {
+                        $huellas[$m->_huella] = true;
+                    }
+                    if ($this->provisorio($m->_doc)) {
+                        $hayProv = true;
+                    }
+                    $facs[(string) $m->facultad_id] = true;
+                    if ($this->tieneDato($m->categoria) || $this->tieneDato($m->sicadi)) {
+                        $conCat++;
+                    }
+                }
+
+                if (count($huellas) === 1 && count($resto) > 1) {
+                    $conf = 'ALTA';
+                    $motivo = 'mismo nombre y los mismos digitos en el documento'.$sufijo;
+                } elseif ($hayProv) {
+                    $conf = 'MEDIA';
+                    $motivo = 'mismo nombre y un CUIL provisorio de ANSES'.$sufijo;
+                } elseif (count($facs) === 1 && $conCat > 0 && $conCat < count($resto)) {
+                    $conf = 'MEDIA';
+                    $motivo = 'mismo nombre, misma facultad, categoria en un solo lado'.$sufijo;
+                } else {
+                    $conf = 'BAJA';
+                    $motivo = 'solo coincide el nombre'.$sufijo;
+                }
+
+                if ($conf !== 'ALTA' && $this->solapan($resto)) {
+                    $conf = 'BAJA';
+                    $motivo = 'activos al mismo tiempo en proyectos distintos: son dos personas';
+                }
+
+                $grupos[] = $this->grupo($resto, $conf, $motivo);
+            }
+        }
     }
 
     private function ids($miembros)

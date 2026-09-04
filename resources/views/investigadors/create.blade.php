@@ -734,6 +734,12 @@
 
             if (confirmDelete) {
                 $(this).parent().parent().remove();
+                // Renumera los radios para que el value siga coincidiendo con el orden de las filas
+                $('#cuerpoCategorias tr').each(function(i){
+                    $(this).find('input[type="radio"][name="catactual"]')
+                        .attr('id', 'catactual_' + (i + 1))
+                        .attr('value', i + 1);
+                });
             }
 
 
@@ -771,6 +777,12 @@
 
             if (confirmDelete) {
                 $(this).parent().parent().remove();
+                // Renumera los radios para que el value siga coincidiendo con el orden de las filas
+                $('#cuerpoSicadis tr').each(function(i){
+                    $(this).find('input[type="radio"][name="sicadiactual"]')
+                        .attr('id', 'sicadiactual_' + (i + 1))
+                        .attr('value', i + 1);
+                });
             }
 
 

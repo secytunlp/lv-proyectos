@@ -344,7 +344,8 @@ class InvestigadorController extends Controller
             }
 
             if (!empty($request->carrerainvs)) {
-                $esActual=0;
+                $carrerainv_id = null;
+                $organismo_id = null;
                 foreach ($request->carrerainvs as $item => $v) {
                     // Verifica si el radio "actual" está seleccionado para esta fila
                     /*$esActual = isset($request['actual_' . ($item + 1)]) && $request['actual_' . ($item + 1)] == 1;
@@ -353,6 +354,7 @@ class InvestigadorController extends Controller
                         $organismo_id = $request->organismos[$item];
                     }*/
 
+                    $esActual = 0;
                     if ($request->actual == ($item + 1)) {
                         // Esta es la fila que se considera "actual"
                         $carrerainv_id = $request->carrerainvs[$item];
@@ -382,10 +384,10 @@ class InvestigadorController extends Controller
             }
 
             if (!empty($request->categorias)) {
-                $esCatActual=0;
+                $categoria_id = null;
                 foreach ($request->categorias as $item => $v) {
 
-
+                    $esCatActual = 0;
                     if ($request->catactual == ($item + 1)) {
                         // Esta es la fila que se considera "actual"
                         $categoria_id = $request->categorias[$item];
@@ -415,10 +417,10 @@ class InvestigadorController extends Controller
             }
 
             if (!empty($request->sicadis)) {
-                $essicadiActual=0;
+                $sicadi_id = null;
                 foreach ($request->sicadis as $item => $v) {
 
-
+                    $essicadiActual = 0;
                     if ($request->sicadiactual == ($item + 1)) {
                         // Esta es la fila que se considera "actual"
                         $sicadi_id = $request->sicadis[$item];
@@ -826,7 +828,8 @@ class InvestigadorController extends Controller
             }
 
             if (!empty($request->carrerainvs)) {
-                $esActual=0;
+                $carrerainv_id = null;
+                $organismo_id = null;
                 foreach ($request->carrerainvs as $item => $v) {
                     // Verifica si el radio "actual" está seleccionado para esta fila
                     /*$esActual = isset($request['actual_' . ($item + 1)]) && $request['actual_' . ($item + 1)] == 1;
@@ -835,6 +838,7 @@ class InvestigadorController extends Controller
                         $organismo_id = $request->organismos[$item];
                     }*/
 
+                    $esActual = 0;
                     if ($request->actual == ($item + 1)) {
                         // Esta es la fila que se considera "actual"
                         $carrerainv_id = $request->carrerainvs[$item];
@@ -868,10 +872,10 @@ class InvestigadorController extends Controller
             }
 
             if (!empty($request->categorias)) {
-                $esCatActual=0;
+                $categoria_id = null;
                 foreach ($request->categorias as $item => $v) {
 
-
+                    $esCatActual = 0;
                     if ($request->catactual == ($item + 1)) {
                         // Esta es la fila que se considera "actual"
                         $categoria_id = $request->categorias[$item];
@@ -901,10 +905,10 @@ class InvestigadorController extends Controller
             }
 
             if (!empty($request->sicadis)) {
-                $essicadiActual=0;
+                $sicadi_id = null;
                 foreach ($request->sicadis as $item => $v) {
 
-
+                    $essicadiActual = 0;
                     if ($request->sicadiactual == ($item + 1)) {
                         // Esta es la fila que se considera "actual"
                         $sicadi_id = $request->sicadis[$item];
