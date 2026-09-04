@@ -900,8 +900,10 @@ class InvestigadorController extends Controller
             }
             if (!empty($request->categorias)) {
                 $investigador->categoria_id = $categoria_id;
-
-
+            }
+            else{
+                // Sin filas en el pivot no hay categoria actual: dejarla en s/c.
+                $investigador->categoria_id = null;
             }
 
             if (!empty($request->sicadis)) {
@@ -933,8 +935,10 @@ class InvestigadorController extends Controller
             }
             if (!empty($request->sicadis)) {
                 $investigador->sicadi_id = $sicadi_id;
-
-
+            }
+            else{
+                // Sin filas en el pivot no hay categoria actual: dejarla en s/c.
+                $investigador->sicadi_id = null;
             }
             //dd($request->institucions);
             if (!empty($request->becas)) {
