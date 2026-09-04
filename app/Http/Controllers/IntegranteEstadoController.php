@@ -497,9 +497,21 @@ class IntegranteEstadoController extends Controller
                             return $categoria->id == $nuevaCategoria['categoria_id'];
                         });
 
+                        // Una sola fila actual por investigador: desmarcar las anteriores
+                        // antes de marcar esta. Sin esto quedan varias con actual = 1 (bug 2).
+                        DB::table('investigador_categorias')
+                            ->where('investigador_id', $investigador->id)
+                            ->where('actual', 1)
+                            ->update(array('actual' => 0, 'updated_at' => now()));
+
                         if ($existingCategoria) {
-                            // Si la categoría ya está asociada, no es necesario hacer nada ya que es la misma categoría
-                            Log::info("La categoría ya está asociada: " . $nuevaCategoria['categoria_id']);
+                            // Ya estaba asociada: la fila existe, solo hay que dejarla actual.
+                            DB::table('investigador_categorias')
+                                ->where('investigador_id', $investigador->id)
+                                ->where('categoria_id', $nuevaCategoria['categoria_id'])
+                                ->update(array('actual' => 1, 'updated_at' => now()));
+
+                            Log::info("La categoría ya está asociada, marcada actual: " . $nuevaCategoria['categoria_id']);
                         } else {
                             // Si la categoría no está asociada, agregarla
                             DB::table('investigador_categorias')->insert([
@@ -537,9 +549,21 @@ class IntegranteEstadoController extends Controller
                             return $sicadi->id == $nuevoSicadi['sicadi_id'];
                         });
 
+                        // Una sola fila actual por investigador: desmarcar las anteriores
+                        // antes de marcar esta. Sin esto quedan varias con actual = 1 (bug 2).
+                        DB::table('investigador_sicadis')
+                            ->where('investigador_id', $investigador->id)
+                            ->where('actual', 1)
+                            ->update(array('actual' => 0, 'updated_at' => now()));
+
                         if ($existingSicadi) {
-                            // Si el SICADI ya está asociado, no es necesario hacer nada ya que es el mismo SICADI
-                            Log::info("El SICADI ya está asociado: " . $nuevoSicadi['sicadi_id']);
+                            // Ya estaba asociado: la fila existe, solo hay que dejarla actual.
+                            DB::table('investigador_sicadis')
+                                ->where('investigador_id', $investigador->id)
+                                ->where('sicadi_id', $nuevoSicadi['sicadi_id'])
+                                ->update(array('actual' => 1, 'updated_at' => now()));
+
+                            Log::info("El SICADI ya está asociado, marcado actual: " . $nuevoSicadi['sicadi_id']);
                         } else {
                             // Si el SICADI no está asociado, agregarlo
                             DB::table('investigador_sicadis')->insert([

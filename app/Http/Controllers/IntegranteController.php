@@ -3269,6 +3269,13 @@ class IntegranteController extends Controller
         ==========================*/
         if ($integrante->carrerainv_id) {
 
+            // Una sola fila actual por investigador: desmarcar las anteriores antes
+            // de marcar esta. Sin esto quedan varias con actual = 1 (bug 2).
+            DB::table('investigador_carreras')
+                ->where('investigador_id', $investigador->id)
+                ->where('actual', 1)
+                ->update(array('actual' => 0, 'updated_at' => now()));
+
             DB::table('investigador_carreras')->updateOrInsert(
                 [
                     'investigador_id' => $investigador->id,
@@ -3291,6 +3298,13 @@ class IntegranteController extends Controller
         ==========================*/
         if ($integrante->categoria_id) {
 
+            // Una sola fila actual por investigador: desmarcar las anteriores antes
+            // de marcar esta. Sin esto quedan varias con actual = 1 (bug 2).
+            DB::table('investigador_categorias')
+                ->where('investigador_id', $investigador->id)
+                ->where('actual', 1)
+                ->update(array('actual' => 0, 'updated_at' => now()));
+
             DB::table('investigador_categorias')->updateOrInsert(
                 [
                     'investigador_id' => $investigador->id,
@@ -3310,6 +3324,13 @@ class IntegranteController extends Controller
            SICADI
         ==========================*/
         if ($integrante->sicadi_id) {
+
+            // Una sola fila actual por investigador: desmarcar las anteriores antes
+            // de marcar esta. Sin esto quedan varias con actual = 1 (bug 2).
+            DB::table('investigador_sicadis')
+                ->where('investigador_id', $investigador->id)
+                ->where('actual', 1)
+                ->update(array('actual' => 0, 'updated_at' => now()));
 
             DB::table('investigador_sicadis')->updateOrInsert(
                 [
