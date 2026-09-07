@@ -369,28 +369,25 @@ class InvestigadorController extends Controller
                     $investigador->tituloposts()->attach($request->tituloposts[$item], ['egreso'=> $request->egresoposts[$item], 'created_at' => now(), 'updated_at' => now()]);
                 }
             }
-            $mayorCargo = null;
-            $mayorDeddoc = null;
-            $mayorFacultad = null;
-            $mayorUniversidad = null;
+            $mejorCargo = null;
             if (!empty($request->cargos)) {
 
                 foreach ($request->cargos as $item => $v) {
                     $activo=0;
                     if (isset($request->activos[$item]) ) {
                         $activo=1;
-                        if ($mayorDeddoc === null || $request->deddocs[$item] < $mayorDeddoc) {
-                            $mayorDeddoc = $request->deddocs[$item];
-                            $mayorCargo = $request->cargos[$item];
-                            $mayorFacultad = $request->facultads[$item];
-                            $mayorUniversidad = $request->universidads[$item];
-                            if ($request->deddocs[$item] == $mayorDeddoc) {
-                                if ($mayorCargo === null || $this->esMayorCargo($request->cargos[$item], $mayorCargo)) {
-                                    $mayorCargo = $request->cargos[$item];
-                                    $mayorFacultad = $request->facultads[$item];
-                                    $mayorUniversidad = $request->universidads[$item];
-                                }
-                            }
+                        // Cargo principal, con el mismo criterio que cargos:actualizar
+                        // (ActualizarCargosDocentes): mayor dedicacion, luego menor
+                        // cargo_id, luego ingreso mas reciente. Ver ganaCargo().
+                        $candidato = array(
+                            'cargo'       => $request->cargos[$item],
+                            'deddoc'      => $request->deddocs[$item],
+                            'ingreso'     => isset($request->ingresos[$item]) ? $request->ingresos[$item] : null,
+                            'facultad'    => $request->facultads[$item],
+                            'universidad' => $request->universidads[$item],
+                        );
+                        if ($mejorCargo === null || $this->ganaCargo($candidato, $mejorCargo)) {
+                            $mejorCargo = $candidato;
                         }
                     }
 
@@ -408,12 +405,12 @@ class InvestigadorController extends Controller
                     ]);
                 }
             }
-            // Guarda el mayor cargo encontrado en el investigador
-            if ($mayorCargo !== null) {
-                $investigador->cargo_id = $mayorCargo;
-                $investigador->deddoc = $mayorDeddoc;
-                $investigador->facultad_id = $mayorFacultad;
-                $investigador->universidad_id = $mayorUniversidad;
+            // Guarda el cargo principal encontrado en el investigador
+            if ($mejorCargo !== null) {
+                $investigador->cargo_id = $mejorCargo['cargo'];
+                $investigador->deddoc = $mejorCargo['deddoc'];
+                $investigador->facultad_id = $mejorCargo['facultad'];
+                $investigador->universidad_id = $mejorCargo['universidad'];
                 $investigador->save();
             }
 
@@ -594,6 +591,60 @@ class InvestigadorController extends Controller
         Log::info("Actual: " . $deddocActual . " - Mayor: ".$deddocMayor);
         Log::info("Es mayor: " . ($indiceActual > $indiceMayor)?'SI':'NO');
         return $indiceActual > $indiceMayor;
+    }
+
+    /**
+     * Jerarquia de la dedicacion docente, de mayor a menor. El numero mas bajo
+     * gana. Se define explicitamente para no depender de si `deddoc` es ENUM
+     * (MySQL ordena por el orden de declaracion) o texto (ordena alfabetico).
+     */
+    private function rangoDeddoc($deddoc)
+    {
+        $d = strtoupper(trim((string) $deddoc));
+        $escala = array(
+            'EXCLUSIVA'      => 1,
+            'SEMI EXCLUSIVA' => 2,
+            'SEMIEXCLUSIVA'  => 2,
+            'SIMPLE'         => 3,
+        );
+        return isset($escala[$d]) ? $escala[$d] : 99;   // desconocida, al final
+    }
+
+    /**
+     * Decide si el cargo $a le gana a $b como cargo principal del investigador.
+     *
+     * Replica el criterio de cargos:actualizar (ActualizarCargosDocentes), que
+     * elige con ->orderBy('deddoc')->orderBy('cargo_id')->orderByDesc('ingreso'):
+     * primero la mayor dedicacion, despues el menor cargo_id, y a igualdad el
+     * ingreso mas reciente. Que los dos usen el mismo criterio evita que el
+     * formulario y el comando se pisen entre si.
+     *
+     * La version anterior de esta logica estaba rota: comparaba la dedicacion
+     * contra un valor que acababa de asignar (siempre igual) y esMayorCargo()
+     * terminaba comparando el cargo consigo mismo, ademas de usar `<` estricto
+     * en la condicion externa. Resultado: a igual dedicacion ganaba el primero
+     * de la lista del formulario, no el de mayor jerarquia.
+     *
+     * NOTA: cargos:actualizar desempata por `cargo_id` y esMayorCargo() por
+     * `cargos.orden`, que es el campo pensado para eso. Son criterios distintos
+     * que hoy conviven; aca se replica el del comando. Unificar los dos a
+     * `orden` queda pendiente porque cambia lo que hace el comando.
+     */
+    private function ganaCargo($a, $b)
+    {
+        $da = $this->rangoDeddoc($a['deddoc']);
+        $db = $this->rangoDeddoc($b['deddoc']);
+        if ($da !== $db) {
+            return $da < $db;
+        }
+
+        $ca = (int) $a['cargo'];
+        $cb = (int) $b['cargo'];
+        if ($ca !== $cb) {
+            return $ca < $cb;
+        }
+
+        return strcmp((string) $a['ingreso'], (string) $b['ingreso']) > 0;
     }
 
     function esMayorCargo($cargoActual, $cargoMayor)
@@ -861,28 +912,25 @@ class InvestigadorController extends Controller
 
                 }
             }
-            $mayorCargo = null;
-            $mayorDeddoc = null;
-            $mayorFacultad = null;
-            $mayorUniversidad = null;
+            $mejorCargo = null;
             if (!empty($request->cargos)) {
 
                 foreach ($request->cargos as $item => $v) {
                     $activo=0;
                     if (isset($request->activos[$item]) ) {
                         $activo=1;
-                        if ($mayorDeddoc === null || $request->deddocs[$item] < $mayorDeddoc) {
-                            $mayorDeddoc = $request->deddocs[$item];
-                            $mayorCargo = $request->cargos[$item];
-                            $mayorFacultad = $request->facultads[$item];
-                            $mayorUniversidad = $request->universidads[$item];
-                            if ($request->deddocs[$item] == $mayorDeddoc) {
-                                if ($mayorCargo === null || $this->esMayorCargo($request->cargos[$item], $mayorCargo)) {
-                                    $mayorCargo = $request->cargos[$item];
-                                    $mayorFacultad = $request->facultads[$item];
-                                    $mayorUniversidad = $request->universidads[$item];
-                                }
-                            }
+                        // Cargo principal, con el mismo criterio que cargos:actualizar
+                        // (ActualizarCargosDocentes): mayor dedicacion, luego menor
+                        // cargo_id, luego ingreso mas reciente. Ver ganaCargo().
+                        $candidato = array(
+                            'cargo'       => $request->cargos[$item],
+                            'deddoc'      => $request->deddocs[$item],
+                            'ingreso'     => isset($request->ingresos[$item]) ? $request->ingresos[$item] : null,
+                            'facultad'    => $request->facultads[$item],
+                            'universidad' => $request->universidads[$item],
+                        );
+                        if ($mejorCargo === null || $this->ganaCargo($candidato, $mejorCargo)) {
+                            $mejorCargo = $candidato;
                         }
                     }
 
@@ -900,12 +948,12 @@ class InvestigadorController extends Controller
                     ]);
                 }
             }
-            // Guarda el mayor cargo encontrado en el investigador
-            if ($mayorCargo !== null) {
-                $investigador->cargo_id = $mayorCargo;
-                $investigador->deddoc = $mayorDeddoc;
-                $investigador->facultad_id = $mayorFacultad;
-                $investigador->universidad_id = $mayorUniversidad;
+            // Guarda el cargo principal encontrado en el investigador
+            if ($mejorCargo !== null) {
+                $investigador->cargo_id = $mejorCargo['cargo'];
+                $investigador->deddoc = $mejorCargo['deddoc'];
+                $investigador->facultad_id = $mejorCargo['facultad'];
+                $investigador->universidad_id = $mejorCargo['universidad'];
 
             }
             else{
