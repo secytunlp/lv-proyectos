@@ -395,7 +395,7 @@
                                                     <tr>
 
                                                         <td>{{ Form::select('categorias[]',$categorias, '',['class' => 'form-control', 'style' => 'width: 60px']) }}</td>
-                                                        <td>{{ Form::select('catyears[]',$years, '',['class' => 'form-control', 'style' => 'width: 80px']) }}</td>
+                                                        <td>{{ Form::select('catyears[]',['' => ''] +$years, '',['class' => 'form-control', 'style' => 'width: 80px']) }}</td>
                                                         <td>{{Form::date('catnotificacions[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
                                                         <td>{{ Form::select('catuniversidads[]',$universidades, '',['class' => 'form-control js-example-basic-single', 'style' => 'width: 300px']) }}</td>
 
@@ -434,7 +434,7 @@
                                                     <tr>
 
                                                         <td>{{ Form::select('sicadis[]',$sicadis, '',['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
-                                                        <td>{{ Form::select('sicadiyears[]',$years, '',['class' => 'form-control', 'style' => 'width: 80px']) }}</td>
+                                                        <td>{{ Form::select('sicadiyears[]',['' => ''] +$years, '',['class' => 'form-control', 'style' => 'width: 80px']) }}</td>
                                                         <td>{{Form::date('sicadinotificacions[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
 
 
@@ -710,7 +710,7 @@
         {
             var tr='<tr>'+
                 '<td>'+'{{ Form::select('categorias[]',$categorias ?? [''=>''], '',['class' => 'form-control', 'style' => 'width: 60px']) }}'+'</td>'+
-                '<td>'+'{{ Form::select('catyears[]',$years ?? [''=>''], '',['class' => 'form-control', 'style' => 'width: 60px']) }}'+'</td>'+
+                '<td>'+'{{ Form::select('catyears[]',['' => ''] + ($years ?? []), '',['class' => 'form-control', 'style' => 'width: 60px']) }}'+'</td>'+
                 '<td>'+'{{Form::date('catnotificacions[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
                 '<td>'+'{{ Form::select('catuniversidads[]',$universidades ?? [''=>''], '',['class' => 'form-control js-example-basic-single', 'style' => 'width: 300px']) }}'+'</td>'+
 
@@ -753,7 +753,7 @@
         {
             var tr='<tr>'+
                 '<td>'+'{{ Form::select('sicadis[]',$sicadis ?? [''=>''], '',['class' => 'form-control', 'style' => 'width: 120px']) }}'+'</td>'+
-                '<td>'+'{{ Form::select('sicadiyears[]',$years ?? [''=>''], '',['class' => 'form-control', 'style' => 'width: 60px']) }}'+'</td>'+
+                '<td>'+'{{ Form::select('sicadiyears[]',['' => ''] + ($years ?? []), '',['class' => 'form-control', 'style' => 'width: 60px']) }}'+'</td>'+
                 '<td>'+'{{Form::date('sicadinotificacions[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
 
 

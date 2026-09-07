@@ -171,6 +171,74 @@ class InvestigadorController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    /**
+     * Valida las filas de los pivots antes de guardar.
+     *
+     * Sin esto, una fila incompleta o repetida entraba igual: el detach ya habia
+     * borrado todo y el insert fallaba con un 1062 crudo (caso ALONSO 96179, que
+     * mando dos veces el par cargo 12 + organismo 2, contra el UNIQUE
+     * investigador_id_carrerainv_id_organismo_id).
+     *
+     * Reglas:
+     *   - Carrera: cargo e institucion obligatorios, y el par no se puede repetir.
+     *   - Categorias SPU y SICADI: la categoria es obligatoria. El año puede quedar
+     *     vacio: todo el pivot SPU esta sin año y es un estado legitimo.
+     *
+     * Devuelve un array de mensajes; vacio si esta todo bien.
+     */
+    private function validarPivots(Request $request)
+    {
+        $errores = array();
+
+        if (!empty($request->carrerainvs)) {
+            $vistos = array();
+            foreach ($request->carrerainvs as $i => $v) {
+                $fila  = $i + 1;
+                $cargo = trim((string) $v);
+                $org   = isset($request->organismos[$i]) ? trim((string) $request->organismos[$i]) : '';
+
+                if ($cargo === '' && $org === '') {
+                    $errores[] = 'Carrera de Investigacion: la fila '.$fila.' esta vacia, quitala con la cruz roja.';
+                    continue;
+                }
+                if ($cargo === '') {
+                    $errores[] = 'Carrera de Investigacion: la fila '.$fila.' no tiene cargo.';
+                    continue;
+                }
+                if ($org === '') {
+                    $errores[] = 'Carrera de Investigacion: la fila '.$fila.' no tiene institucion.';
+                    continue;
+                }
+
+                $par = $cargo.':'.$org;
+                if (isset($vistos[$par])) {
+                    $errores[] = 'Carrera de Investigacion: las filas '.$vistos[$par].' y '.$fila
+                        .' tienen el mismo cargo en la misma institucion.';
+                    continue;
+                }
+                $vistos[$par] = $fila;
+            }
+        }
+
+        if (!empty($request->categorias)) {
+            foreach ($request->categorias as $i => $v) {
+                if (trim((string) $v) === '') {
+                    $errores[] = 'Categorias SPU: la fila '.($i + 1).' no tiene categoria.';
+                }
+            }
+        }
+
+        if (!empty($request->sicadis)) {
+            foreach ($request->sicadis as $i => $v) {
+                if (trim((string) $v) === '') {
+                    $errores[] = 'Categorias SICADI: la fila '.($i + 1).' no tiene categoria.';
+                }
+            }
+        }
+
+        return $errores;
+    }
+
     public function store(Request $request)
     {
         $this->validate($request, [
@@ -231,6 +299,11 @@ class InvestigadorController extends Controller
         }
 
 
+        $erroresPivot = $this->validarPivots($request);
+        if (count($erroresPivot) > 0) {
+            return redirect()->back()->with('error', implode(' ', $erroresPivot));
+        }
+
         DB::beginTransaction();
         $ok = 1;
 
@@ -268,6 +341,7 @@ class InvestigadorController extends Controller
         }
 
         if ($ok){
+          try {
             // Guardar el primer título pasado en $request->titulo en la columna titulo_id del investigador
             if (!empty($request->titulos)) {
                 $investigador->titulo_id = $request->titulos[0];
@@ -494,6 +568,13 @@ class InvestigadorController extends Controller
             DB::commit();
             $respuestaID = 'success';
             $respuestaMSJ = 'Investigador creado con éxito';
+          } catch (\Exception $e) {
+            // Sin este catch la transaccion quedaba abierta ante cualquier excepcion
+            // y solo se revertia al cerrarse la conexion: funcionaba de rebote.
+            DB::rollBack();
+            $respuestaID = 'error';
+            $respuestaMSJ = 'No se guardo nada. '.$e->getMessage();
+          }
         }
         else{
             DB::rollback();
@@ -683,6 +764,11 @@ class InvestigadorController extends Controller
         }
 
         $investigador = Investigador::find($id);
+        $erroresPivot = $this->validarPivots($request);
+        if (count($erroresPivot) > 0) {
+            return redirect()->back()->with('error', implode(' ', $erroresPivot));
+        }
+
         DB::beginTransaction();
         $ok = 1;
 
@@ -731,6 +817,7 @@ class InvestigadorController extends Controller
         }
 
         if ($ok){
+          try {
             $investigador->titulos()->detach();
             $investigador->tituloposts()->detach();
             $investigador->cargos()->detach();
@@ -1005,6 +1092,13 @@ class InvestigadorController extends Controller
             DB::commit();
             $respuestaID = 'success';
             $respuestaMSJ = 'Investigador modificado con éxito';
+          } catch (\Exception $e) {
+            // Sin este catch la transaccion quedaba abierta ante cualquier excepcion
+            // y solo se revertia al cerrarse la conexion: funcionaba de rebote.
+            DB::rollBack();
+            $respuestaID = 'error';
+            $respuestaMSJ = 'No se guardo nada. '.$e->getMessage();
+          }
         }
         else{
             DB::rollback();
