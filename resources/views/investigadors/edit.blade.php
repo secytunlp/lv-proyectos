@@ -373,6 +373,13 @@
                                                     </tr>
                                                     @endforeach
                                                     </tbody>
+                                                    <tfoot>
+                                                    <tr>
+                                                        <td colspan="3" style="text-align: right; font-style: italic;">Ninguna (sin carrera actual)</td>
+                                                        <td>{{ Form::radio('actual', 0, $investigador->carrerainvs->filter(function ($r) { return $r->pivot->actual; })->isEmpty(), ['id' => 'actual_0']) }}</td>
+                                                        <td></td>
+                                                    </tr>
+                                                    </tfoot>
 
 
 
@@ -416,6 +423,13 @@
                                                     </tr>
                                                     @endforeach
                                                     </tbody>
+                                                    <tfoot>
+                                                    <tr>
+                                                        <td colspan="4" style="text-align: right; font-style: italic;">Ninguna (sin categoría actual)</td>
+                                                        <td>{{ Form::radio('catactual', 0, $investigador->categorias->filter(function ($r) { return $r->pivot->actual; })->isEmpty(), ['id' => 'catactual_0']) }}</td>
+                                                        <td></td>
+                                                    </tr>
+                                                    </tfoot>
 
 
 
@@ -456,6 +470,13 @@
                                                     </tr>
                                                     @endforeach
                                                     </tbody>
+                                                    <tfoot>
+                                                    <tr>
+                                                        <td colspan="3" style="text-align: right; font-style: italic;">Ninguna (sin categoría actual)</td>
+                                                        <td>{{ Form::radio('sicadiactual', 0, $investigador->sicadis->filter(function ($r) { return $r->pivot->actual; })->isEmpty(), ['id' => 'sicadiactual_0']) }}</td>
+                                                        <td></td>
+                                                    </tr>
+                                                    </tfoot>
 
 
 
@@ -680,7 +701,7 @@
                 '<td>'+'{{Form::date('carringresos[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
 
 
-                '<td><input type="radio" name="actual" id="actual_' + ($("input[id^=\'actual_\']").length + 1) + '" value="' + ($("input[id^=\'actual_\']").length + 1) + '"></td>' +
+                '<td><input type="radio" name="actual" id="actual_' + ($("#cuerpoCarrerainvs input[name=actual]").length + 1) + '" value="' + ($("#cuerpoCarrerainvs input[name=actual]").length + 1) + '"></td>' +
 
 
                 '<td><a href="#" class="btn btn-danger removeCarrerainv"><i class="glyphicon glyphicon-remove"></i></a></td>'+
@@ -720,7 +741,7 @@
 
 
 
-                '<td><input type="radio" name="catactual" id="catactual_' + ($("input[id^=\'catactual_\']").length + 1) + '" value="' + ($("input[id^=\'catactual_\']").length + 1) + '"></td>' +
+                '<td><input type="radio" name="catactual" id="catactual_' + ($("#cuerpoCategorias input[name=catactual]").length + 1) + '" value="' + ($("#cuerpoCategorias input[name=catactual]").length + 1) + '"></td>' +
 
 
                 '<td><a href="#" class="btn btn-danger removeCategoria"><i class="glyphicon glyphicon-remove"></i></a></td>'+
@@ -763,7 +784,7 @@
 
 
 
-                '<td><input type="radio" name="sicadiactual" id="sicadiactual_' + ($("input[id^=\'sicadiactual_\']").length + 1) + '" value="' + ($("input[id^=\'sicadiactual_\']").length + 1) + '"></td>' +
+                '<td><input type="radio" name="sicadiactual" id="sicadiactual_' + ($("#cuerpoSicadis input[name=sicadiactual]").length + 1) + '" value="' + ($("#cuerpoSicadis input[name=sicadiactual]").length + 1) + '"></td>' +
 
 
                 '<td><a href="#" class="btn btn-danger removeSicadi"><i class="glyphicon glyphicon-remove"></i></a></td>'+

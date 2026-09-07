@@ -445,22 +445,24 @@ class IntegranteEstadoController extends Controller
                             return $carrerainv->id == $nuevaCarrera['carrerainv_id'];
                         });
 
+                        // Una sola fila actual por investigador: desmarcar las anteriores
+                        // antes de marcar esta. Sin esto quedan varias con actual = 1 (bug 2).
+                        DB::table('investigador_carreras')
+                            ->where('investigador_id', $investigador->id)
+                            ->where('actual', 1)
+                            ->update(array('actual' => 0, 'updated_at' => now()));
+
                         if ($existingCarrera) {
-                            // Si la carrera ya está asociada, verificar si los datos son diferentes
-                            if ($existingCarrera->pivot->organismo_id != $nuevaCarrera['organismo_id'] ||
-                                $existingCarrera->pivot->ingreso != $nuevaCarrera['ingreso']) {
+                            // Ya esta asociada: se actualizan los datos si cambiaron y, en
+                            // cualquier caso, esta fila vuelve a quedar como la actual.
+                            $investigador->carrerainvs()->updateExistingPivot($nuevaCarrera['carrerainv_id'], [
+                                'organismo_id' => $nuevaCarrera['organismo_id'],
+                                'ingreso' => $nuevaCarrera['ingreso'],
+                                'actual' => 1,
+                                'updated_at' => now(),
+                            ]);
 
-                                // Actualizar el registro en la tabla intermedia
-                                $investigador->carrerainvs()->updateExistingPivot($nuevaCarrera['carrerainv_id'], [
-                                    'organismo_id' => $nuevaCarrera['organismo_id'],
-                                    'ingreso' => $nuevaCarrera['ingreso'],
-                                    'updated_at' => now(),
-                                ]);
-
-                                Log::info("Carrera actualizada: " . $nuevaCarrera['carrerainv_id']);
-                            } else {
-                                Log::info("La carrera ya está asociada con los mismos datos: " . $nuevaCarrera['carrerainv_id']);
-                            }
+                            Log::info("Carrera actualizada y marcada actual: " . $nuevaCarrera['carrerainv_id']);
                         } else {
                             // Si la carrera no está asociada, agregarla
                             $investigador->carrerainvs()->attach($nuevaCarrera['carrerainv_id'], array_merge($nuevaCarrera, [
@@ -480,6 +482,13 @@ class IntegranteEstadoController extends Controller
                     if ($actualizarInvestigador) {
                         $investigador->carrerainv_id = null;
                         $investigador->organismo_id = null;
+
+                        // Se le quito la carrera: las filas del pivot quedan como
+                        // historial, pero ninguna puede seguir marcada actual.
+                        DB::table('investigador_carreras')
+                            ->where('investigador_id', $investigador->id)
+                            ->where('actual', 1)
+                            ->update(array('actual' => 0, 'updated_at' => now()));
                     }
                 }
                 if ($request->categorias[0]) {
@@ -530,6 +539,13 @@ class IntegranteEstadoController extends Controller
                     $integrante->categoria_id = null;
                     if ($actualizarInvestigador) {
                         $investigador->categoria_id = null;
+
+                        // Se le quito la categoria: la fila del pivot queda como
+                        // historial, pero ninguna puede seguir marcada actual.
+                        DB::table('investigador_categorias')
+                            ->where('investigador_id', $investigador->id)
+                            ->where('actual', 1)
+                            ->update(array('actual' => 0, 'updated_at' => now()));
                     }
                 }
 
@@ -582,6 +598,13 @@ class IntegranteEstadoController extends Controller
                     $integrante->sicadi_id = null;
                     if ($actualizarInvestigador) {
                         $investigador->sicadi_id = null;
+
+                        // Se le quito la categoria: la fila del pivot queda como
+                        // historial, pero ninguna puede seguir marcada actual.
+                        DB::table('investigador_sicadis')
+                            ->where('investigador_id', $investigador->id)
+                            ->where('actual', 1)
+                            ->update(array('actual' => 0, 'updated_at' => now()));
                     }
                 }
 
