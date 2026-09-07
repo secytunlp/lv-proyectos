@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -130,7 +131,16 @@ class ExportarDocentesSinSolicitud extends Command
      */
     private function documentosConSolicitud(): ?array
     {
-        $query = DB::table('solicitud_sicadis')->select('documento', 'cuil');
+        // `documento` esta en el $fillable del modelo pero no existe en todas
+        // las bases; el CUIL si. Se usa solo si la columna esta.
+        $hayDocumento = Schema::hasColumn('solicitud_sicadis', 'documento');
+
+        $columnas = $hayDocumento ? ['cuil', 'documento'] : ['cuil'];
+        $query = DB::table('solicitud_sicadis')->select($columnas);
+
+        $this->line($hayDocumento
+            ? 'Cruce por: cuil + documento'
+            : 'Cruce por: cuil (la tabla no tiene columna documento)');
 
         $convocatoria = $this->option('convocatoria');
         if ($convocatoria !== null && $convocatoria !== '') {
@@ -154,7 +164,7 @@ class ExportarDocentesSinSolicitud extends Command
         // Se agregan las dos claves, la del documento y la del CUIL: si estan
         // cargadas distintas, cualquiera de las dos vale como "ya se presento".
         foreach ($solicitudes as $s) {
-            $doc  = $this->claveDoc($s->documento);
+            $doc  = $hayDocumento ? $this->claveDoc($s->documento) : '';
             $cuil = $this->dniDesdeCuil($s->cuil);
 
             if ($doc !== '') {
@@ -173,11 +183,12 @@ class ExportarDocentesSinSolicitud extends Command
 
         $this->line('Solicitudes leidas: ' . $solicitudes->count()
             . ' -> ' . count($set) . ' documentos distintos');
-        if ($porCuil > 0) {
+        if ($hayDocumento && $porCuil > 0) {
             $this->line('  ' . $porCuil . ' identificada(s) solo por el CUIL (documento vacio)');
         }
         if ($sinDocumento > 0) {
-            $this->warn('  ' . $sinDocumento . ' solicitud(es) sin documento ni CUIL usable: no pueden cruzarse'
+            $this->warn('  ' . $sinDocumento . ' solicitud(es) sin CUIL usable'
+                . ($hayDocumento ? ' ni documento' : '') . ': no se pueden cruzar'
                 . ' (esa gente puede aparecer en el listado aunque se haya presentado).');
         }
 
