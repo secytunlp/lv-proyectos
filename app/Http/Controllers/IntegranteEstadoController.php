@@ -419,6 +419,19 @@ class IntegranteEstadoController extends Controller
                         $investigador->deddoc = null;
                         $investigador->facultad_id = null;
                         $investigador->universidad_id = null;
+
+                        // Se le quito el cargo: el investigador queda sin ninguna
+                        // designacion vigente, asi que se desactivan TODAS las filas
+                        // activas del pivot, no solo la que estaba declarada en este
+                        // integrante. NO se borran: quedan como historial con activo = 0.
+                        //
+                        // Sin esto, entre la quita y la proxima corrida de
+                        // cargos:actualizar el pivot sigue mostrando designaciones
+                        // vigentes que ya no corresponden (los PIVOT SIN INV del control).
+                        DB::table('investigador_cargos')
+                            ->where('investigador_id', $investigador->id)
+                            ->where('activo', 1)
+                            ->update(array('activo' => 0, 'updated_at' => now()));
                     }
                 }
 

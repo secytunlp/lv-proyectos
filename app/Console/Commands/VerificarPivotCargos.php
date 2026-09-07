@@ -26,6 +26,15 @@ use Illuminate\Support\Facades\DB;
  *    solo cargo_id, deddoc y facultad_id. Compararlo daba ~1600 diferencias que
  *    no significan nada. No se compara.
  *
+ * 4) QUE NO HAYA CARGO EN investigadors NO ES UN ERROR. El cargo se le puede
+ *    quitar a mano desde la pantalla de Integrantes (caso ACCIARESI, integrante
+ *    44857, al que se le saco el Profesor Consulto), y eso no da de baja la
+ *    designacion docente en la universidad: el pivot sigue con activo = 1 con
+ *    razon. Las dos cosas pueden ser ciertas a la vez, a diferencia de lo que
+ *    pasa en carreras. Por eso PIVOT SIN INV solo se marca con
+ *    --incluir-pivot-sin-inv, y por eso realinearlos seria volver a ponerles un
+ *    cargo que alguien les saco a proposito.
+ *
  * 3) EL MISMO CARGO REPETIDO NO ES DUPLICADO. El updateOrInsert de
  *    cargos:actualizar usa como clave (investigador, cargo, deddoc, facultad,
  *    ingreso): la misma persona con el mismo cargo en dos fechas distintas son
@@ -59,7 +68,8 @@ use Illuminate\Support\Facades\DB;
  * mayor jerarquia. Mismo patron que el bug 7.
  *
  * Diagnosticos:
- *   PIVOT SIN INV       hay cargo activo y el investigador esta sin cargo
+ *   PIVOT SIN INV       hay designacion activa y el investigador esta sin cargo.
+ *                       Solo con --incluir-pivot-sin-inv: es un estado legitimo, ver punto 4
  *   SIN ACTIVO          tiene filas, ninguna activa, y el investigador tiene cargo
  *   INV <> PIVOT        el cargo de investigadors no esta entre los activos
  *   NO ES EL PRINCIPAL  esta entre los activos, pero no es el que elige el criterio
@@ -75,6 +85,7 @@ class VerificarPivotCargos extends Command
         {--cuil= : Filtrar por un CUIL puntual}
         {--solo= : Mostrar solo los diagnosticos que contengan este texto}
         {--incluir-sin-pivot : Marcar tambien a los que tienen cargo y ninguna fila (normal, ~4200)}
+        {--incluir-pivot-sin-inv : Marcar tambien a los que no tienen cargo y si designacion activa (normal, ~65)}
         {--limite=50 : Cortar el listado en N filas (0 = sin limite)}';
 
     protected $description = 'Verifica investigadors.cargo_id + deddoc + facultad contra investigador_cargos';
@@ -108,6 +119,7 @@ class VerificarPivotCargos extends Command
         $cuil            = $this->option('cuil');
         $solo            = $this->option('solo');
         $incluirSinPivot = (bool) $this->option('incluir-sin-pivot');
+        $incluirPivotSinInv = (bool) $this->option('incluir-pivot-sin-inv');
         $limite          = (int) $this->option('limite');
 
         $this->info('=== Cargos docentes: investigadors <-> investigador_cargos ===');
@@ -117,6 +129,8 @@ class VerificarPivotCargos extends Command
         $this->line('universidad_id no se compara: ningun comando lo escribe en este circuito.');
         $this->line('Consulto y Emerito en investigadors no se comparan: son distinciones que se');
         $this->line('conservan aunque el pivot diga otra cosa.');
+        $this->line('Tener designacion activa y ningun cargo en investigadors tambien es normal (se');
+        $this->line('quita desde Integrantes): PIVOT SIN INV solo con --incluir-pivot-sin-inv.');
         $this->line('');
 
         $sql =
@@ -209,7 +223,9 @@ class VerificarPivotCargos extends Command
                     $marcas[] = 'SIN ACTIVO';
                 }
             } elseif (!$invTiene) {
-                $marcas[] = 'PIVOT SIN INV';
+                if ($incluirPivotSinInv) {
+                    $marcas[] = 'PIVOT SIN INV';
+                }
             } else {
                 $coincide = null;
                 foreach ($activas as $r) {

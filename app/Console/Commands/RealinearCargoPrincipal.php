@@ -29,9 +29,15 @@ use Illuminate\Support\Facades\DB;
  *   DEDDOC <> PIVOT     idem con la dedicacion
  *
  * Lo que NO toca sin pedirlo expresamente:
- *   --incluir-sin-inv       investigadors sin cargo y con activos en el pivot (65).
- *                           Varios son Ayudante Alumno: hay que decidir antes si
- *                           ese cargo debe bajar a investigadors o no.
+ *   --incluir-sin-inv       investigadors sin cargo y con designacion activa (65).
+ *                           NO USAR salvo que se sepa muy bien lo que se hace: a
+ *                           esa gente se le quito el cargo A MANO desde la pantalla
+ *                           de Integrantes (caso ACCIARESI, integrante 44857, al
+ *                           que se le saco el Profesor Consulto). La designacion
+ *                           docente sigue vigente en la universidad, por eso el
+ *                           pivot esta activo, pero en SICADI se decidio que el
+ *                           investigador no lleve cargo. Usar esta opcion revierte
+ *                           esa decision para los 65 de una.
  *   --incluir-inv-distinto  el cargo de investigadors no esta entre los activos
  *                           (335). Son mayormente Interino contra Ordinario, y
  *                           para resolverlos hace falta el listado alfabetico:
@@ -41,7 +47,7 @@ class RealinearCargoPrincipal extends Command
 {
     protected $signature = 'cargos:realinear-principal
         {--cuil= : Procesar solo este CUIL}
-        {--incluir-sin-inv : Incluir a los que no tienen cargo en investigadors}
+        {--incluir-sin-inv : PELIGROSO. Les pone cargo a los que no tienen. Ver la nota de la clase}
         {--incluir-inv-distinto : Incluir a los que tienen un cargo que no esta entre los activos}
         {--commit : Escribir. Sin esto solo muestra que haria}
         {--limite=50 : Cortar el listado en N filas (0 = sin limite)}';
@@ -164,7 +170,7 @@ class RealinearCargoPrincipal extends Command
                 if (!$sinInv) {
                     continue;
                 }
-                $motivo = 'SIN INV';
+                $motivo = 'SIN INV (revierte una quita manual)';
             } else {
                 $entreActivos = null;
                 foreach ($activas as $r) {
