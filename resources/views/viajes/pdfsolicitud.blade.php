@@ -1099,7 +1099,7 @@ switch ($motivo) {
                     <td>
                         @if($tipoPresupuesto->id == 2)
                             @php
-                            $detalles = explode('|', $presupuesto->detalle);
+                            $detalles = array_pad(explode('|', (string) $presupuesto->detalle), 3, '');
                             $concepto = $detalles[0];
                             @endphp
                             @if($concepto === 'Viaticos')

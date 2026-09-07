@@ -1080,36 +1080,39 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
                                                                                         ['class' => 'form-control', 'style' => 'width: 120px', 'onchange' => 'seleccionarConcepto(this)']) }}
 
                                                                                     {{-- Contenedor para campos adicionales --}}
+                                                                                    {{-- Se renderizan SIEMPRE los cinco campos (ocultos los que no
+                                                                                         corresponden al concepto) para que cada array tenga
+                                                                                         exactamente una entrada por fila. Antes se emitían los
+                                                                                         hidden vacíos MÁS el campo real del concepto, con lo cual
+                                                                                         ese array recibía dos entradas y se desalineaba. --}}
+                                                                                    @php
+                                                                                        $conceptoOld   = old('presupuesto'.$tipoPresupuesto->id.'conceptos.'.$index);
+                                                                                        $esViaticos    = $conceptoOld === 'Viaticos';
+                                                                                        $esPasajes     = $conceptoOld === 'Pasajes';
+                                                                                        $esInscripcion = $conceptoOld === 'Inscripcion';
+                                                                                    @endphp
                                                                                     <div class="extra-fields" style="display: flex; gap: 10px; align-items: center;">
-                                                                                        <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}dias[]" value="">
-                                                                                        <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}lugar[]" value="">
-                                                                                        <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}pasajes[]" value="">
-                                                                                        <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}destino[]" value="">
-                                                                                        <input type="hidden" name="presupuesto{{$tipoPresupuesto->id}}inscripcion[]" value="">
-                                                                                        @if(old('presupuesto'.$tipoPresupuesto->id.'conceptos.'.$index)=== 'Viaticos')
-                                                                                            {{ Form::text('presupuesto'.$tipoPresupuesto->id.'dias[]', old('presupuesto'.$tipoPresupuesto->id.'dias.'.$index),
-                                                                                                ['class' => 'form-control ds_dias', 'placeholder' => 'Días', 'style' => 'width:150px'])
-                                                                                            }}
+                                                                                        {{ Form::text('presupuesto'.$tipoPresupuesto->id.'dias[]', old('presupuesto'.$tipoPresupuesto->id.'dias.'.$index),
+                                                                                            ['class' => 'form-control ds_dias', 'placeholder' => 'Días', 'style' => ($esViaticos ? '' : 'display:none; ').'width:150px'])
+                                                                                        }}
 
-                                                                                            {{ Form::text('presupuesto'.$tipoPresupuesto->id.'lugar[]', old('presupuesto'.$tipoPresupuesto->id.'lugar.'.$index),
-                                                                                                ['class' => 'form-control ds_lugar', 'placeholder' => 'Lugar', 'style' => 'width:150px'])
-                                                                                            }}
-                                                                                        @elseif(old('presupuesto'.$tipoPresupuesto->id.'conceptos.'.$index) === 'Pasajes')
-                                                                                            {{ Form::select('presupuesto'.$tipoPresupuesto->id.'pasajes[]',
-                                                                                                ['' => '', 'Aereo' => 'Aéreo', 'Omnibus' => 'Omnibus', 'Automovil' => 'Automóvil', 'Otros' => 'Otros'],
-                                                                                                old('presupuesto'.$tipoPresupuesto->id.'pasajes.'.$index),
-                                                                                                ['class' => 'form-control ds_pasajes', 'style' => ' width:120px']
-                                                                                            ) }}
+                                                                                        {{ Form::text('presupuesto'.$tipoPresupuesto->id.'lugar[]', old('presupuesto'.$tipoPresupuesto->id.'lugar.'.$index),
+                                                                                            ['class' => 'form-control ds_lugar', 'placeholder' => 'Lugar', 'style' => ($esViaticos ? '' : 'display:none; ').'width:150px'])
+                                                                                        }}
 
-                                                                                            {{ Form::text('presupuesto'.$tipoPresupuesto->id.'destino[]', old('presupuesto'.$tipoPresupuesto->id.'destino.'.$index),
-                                                                                                ['class' => 'form-control ds_destino', 'placeholder' => 'Destino', 'style' => 'width:150px'])
-                                                                                            }}
-                                                                                        @elseif(old('presupuesto'.$tipoPresupuesto->id.'conceptos.'.$index) === 'Inscripcion')
-                                                                                            {{ Form::text('presupuesto'.$tipoPresupuesto->id.'inscripcion[]', old('presupuesto'.$tipoPresupuesto->id.'inscripcion.'.$index),
-                                                                                                ['class' => 'form-control ds_inscripcion', 'placeholder' => 'Descripción', 'style' => 'width:150px'])
-                                                                                            }}
+                                                                                        {{ Form::select('presupuesto'.$tipoPresupuesto->id.'pasajes[]',
+                                                                                            ['' => '', 'Aereo' => 'Aéreo', 'Omnibus' => 'Omnibus', 'Automovil' => 'Automóvil', 'Otros' => 'Otros'],
+                                                                                            old('presupuesto'.$tipoPresupuesto->id.'pasajes.'.$index),
+                                                                                            ['class' => 'form-control ds_pasajes', 'style' => ($esPasajes ? '' : 'display:none; ').'width:120px']
+                                                                                        ) }}
 
-                                                                                        @endif
+                                                                                        {{ Form::text('presupuesto'.$tipoPresupuesto->id.'destino[]', old('presupuesto'.$tipoPresupuesto->id.'destino.'.$index),
+                                                                                            ['class' => 'form-control ds_destino', 'placeholder' => 'Destino', 'style' => ($esPasajes ? '' : 'display:none; ').'width:150px'])
+                                                                                        }}
+
+                                                                                        {{ Form::text('presupuesto'.$tipoPresupuesto->id.'inscripcion[]', old('presupuesto'.$tipoPresupuesto->id.'inscripcion.'.$index),
+                                                                                            ['class' => 'form-control ds_inscripcion', 'placeholder' => 'Descripción', 'style' => ($esInscripcion ? '' : 'display:none; ').'width:150px'])
+                                                                                        }}
                                                                                     </div>
                                                                                 </div>
                                                                             </td>
