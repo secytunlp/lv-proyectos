@@ -1381,34 +1381,45 @@ class JovenController extends Controller
                     foreach ($fechas as $index => $fecha) {
 
                         // Obtén los valores de cada campo, o usa una cadena vacía si no están definidos
-                        $concepto = $conceptos[$index] ?? '';
-                        $dia = $dias[$index] ?? '';
-                        $lugar = $lugares[$index] ?? '';
-                        $pasaje = $pasajes[$index] ?? '';
-                        $destino = $destinos[$index] ?? '';
-                        $inscripcion = $inscripciones[$index] ?? '';
-                        $otro = $otros[$index] ?? '';
+                        $concepto = trim((string) ($conceptos[$index] ?? ''));
+                        $dia = trim((string) ($dias[$index] ?? ''));
+                        $lugar = trim((string) ($lugares[$index] ?? ''));
+                        $pasaje = trim((string) ($pasajes[$index] ?? ''));
+                        $destino = trim((string) ($destinos[$index] ?? ''));
+                        $inscripcion = trim((string) ($inscripciones[$index] ?? ''));
+                        $otro = trim((string) ($otros[$index] ?? ''));
                         $importe = $importes[$index] ?? 0;
 
-
-
+                        // Hay algo cargado en la fila (además del importe)
+                        $tieneDatos = ($concepto !== '' || $dia !== '' || $lugar !== '' || $pasaje !== ''
+                            || $destino !== '' || $inscripcion !== '' || $otro !== '');
 
                         // Verifica si al menos uno de los campos no está vacío
-                        if (!empty($concepto) || !empty($dia) || !empty($lugar) || !empty($pasaje) || !empty($destino) || !empty($inscripcion) || !empty($otro) || !empty($importe)) {
-                            // Solo concatenar los campos no vacíos
-                            $campos = array_filter([
-                                $concepto,
-                                $dia,
-                                $lugar,
-                                $pasaje,
-                                $destino,
-                                $inscripcion,
-                                $otro
-                            ]);
+                        if ($tieneDatos || !empty($importe)) {
+                            // IMPORTANTE: el detalle se guarda SIEMPRE con 3 posiciones fijas
+                            // separadas por "|", porque las vistas lo leen por posición
+                            // ($detalles[0] = concepto, [1] y [2] = campos extra del concepto).
+                            // No filtrar los vacíos: correrían las posiciones y romperían la lectura.
+                            switch ($concepto) {
+                                case 'Viaticos':
+                                    $campos = [$concepto, $dia, $lugar];
+                                    break;
+                                case 'Pasajes':
+                                    $campos = [$concepto, $pasaje, $destino];
+                                    break;
+                                case 'Inscripcion':
+                                    $campos = [$concepto, $inscripcion, ''];
+                                    break;
+                                case 'Otros':
+                                    $campos = [$concepto, $otro, ''];
+                                    break;
+                                default:
+                                    $campos = [$concepto, '', ''];
+                                    break;
+                            }
                             // Registrar en el log el contenido de $campos
-                            //Log::info('Campos después del filtro:', $campos);
-                            // Concatenar los valores con "|", solo incluyendo los campos no vacíos
-                            if (!empty($campos)) {
+                            //Log::info('Campos a guardar:', $campos);
+                            if ($tieneDatos) {
                                 $detalle = implode('|', $campos);
                                 // Si hay un id existente, se actualiza en lugar de insertar
                                 /*if (!empty($ids[$index])) {

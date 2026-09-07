@@ -794,7 +794,7 @@ a) detallar el mismo y b) justificar su pedido. En el caso de solicitar bibliogr
                                                             @else
                                                                 @foreach ($joven->presupuestos->where('tipo_presupuesto_id', $tipoPresupuesto->id) as $presupuesto)
                                                                     @php
-                                                                        $detalles = explode('|', $presupuesto->detalle);
+                                                                        $detalles = array_pad(explode('|', (string) $presupuesto->detalle), 3, '');
                                                                         $concepto = $detalles[0];
                                                                     @endphp
                                                                     <tr>
