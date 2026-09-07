@@ -112,61 +112,55 @@ class NormalizarDetallesPresupuestos extends Command
 
     /**
      * Devuelve [detalleNormalizado, esDudoso].
+     *
+     * Criterio conservador: sólo se tocan las filas que efectivamente pueden romper
+     * la vista, es decir las de conceptos que usan las 3 posiciones (Viaticos,
+     * Alojamiento, Pasajes) y que llegaron con menos de 3. Todo lo demás
+     * (Inscripcion, Otros, conceptos vacíos, y cualquier fila que ya tenga 3 o más
+     * posiciones) se deja exactamente como está: nunca se fusionan campos.
      */
     private function normalizar(string $detalle): array
     {
+        // Detalle vacío: no hay nada que normalizar
+        if (trim($detalle) === '') {
+            return [$detalle, false];
+        }
+
         $partes = explode('|', $detalle);
-        $concepto = trim($partes[0] ?? '');
+
+        // Ya tiene las 3 posiciones (o más): la vista lo lee sin problema, no lo toco
+        if (count($partes) >= 3) {
+            return [$detalle, false];
+        }
+
+        $concepto = trim($partes[0]);
         $resto = array_values(array_slice($partes, 1));
-        $dudoso = false;
 
-        // Si ya viene con más de 3 posiciones, junto el sobrante en la última
-        if (count($resto) > 2) {
-            $resto = [$resto[0], implode(' ', array_slice($resto, 1))];
+        // Sólo Viaticos/Alojamiento/Pasajes necesitan la posición 2; el resto no rompe
+        if (!in_array($concepto, ['Viaticos', 'Alojamiento', 'Pasajes'], true)) {
+            return [$detalle, false];
         }
 
-        switch ($concepto) {
-            case 'Viaticos':
-            case 'Alojamiento': // concepto legacy, misma estructura (cantidad|lugar)
-                if (count($resto) === 1) {
-                    // Un solo dato: si es numérico lo tomo como días/noches, si no como lugar
-                    if (is_numeric(trim($resto[0]))) {
-                        $campos = [$concepto, trim($resto[0]), ''];
-                    } else {
-                        $campos = [$concepto, '', trim($resto[0])];
-                    }
-                    $dudoso = true;
-                } else {
-                    $campos = [$concepto, trim($resto[0] ?? ''), trim($resto[1] ?? '')];
-                }
-                break;
-
-            case 'Pasajes':
-                if (count($resto) === 1) {
-                    // Un solo dato: si es un medio de transporte va en la posición 1, si no es el destino
-                    if (in_array(trim($resto[0]), self::MEDIOS, true)) {
-                        $campos = [$concepto, trim($resto[0]), ''];
-                    } else {
-                        $campos = [$concepto, '', trim($resto[0])];
-                    }
-                    $dudoso = true;
-                } else {
-                    $campos = [$concepto, trim($resto[0] ?? ''), trim($resto[1] ?? '')];
-                }
-                break;
-
-            case 'Inscripcion':
-            case 'Otros':
-                // Sólo usan la posición 1 (descripción); la 2 queda vacía
-                $campos = [$concepto, trim(implode(' ', $resto)), ''];
-                break;
-
-            default:
-                // Concepto vacío o desconocido: conservo lo que haya en las 3 posiciones
-                $campos = [$concepto, trim($resto[0] ?? ''), trim($resto[1] ?? '')];
-                break;
+        // Falta todo salvo el concepto
+        if (count($resto) === 0) {
+            return [implode('|', [$concepto, '', '']), false];
         }
 
-        return [implode('|', $campos), $dudoso];
+        // Falta un campo: hay que deducir en qué posición va el que sí está
+        $valor = trim($resto[0]);
+
+        if ($concepto === 'Pasajes') {
+            // Si es un medio de transporte va en la posición 1, si no es el destino
+            $campos = in_array($valor, self::MEDIOS, true)
+                ? [$concepto, $valor, '']
+                : [$concepto, '', $valor];
+        } else {
+            // Viaticos / Alojamiento: si es numérico lo tomo como días/noches, si no como lugar
+            $campos = is_numeric($valor)
+                ? [$concepto, $valor, '']
+                : [$concepto, '', $valor];
+        }
+
+        return [implode('|', $campos), true];
     }
 }
