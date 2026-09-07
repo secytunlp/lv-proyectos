@@ -12,8 +12,12 @@ use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 
 /**
- * Exporta a .xlsx la gente de `cargos_alfabetico` con escalafon Docente y/o
- * Docente Preuniversitario que NO tiene ninguna solicitud en `solicitud_sicadis`.
+ * Exporta a .xlsx las filas de `cargos_alfabetico` con escalafon Docente y/o
+ * Docente Preuniversitario cuyo documento NO aparece en `solicitud_sicadis`.
+ *
+ * Sale TODO: una fila por registro del alfabetico, sin filtrar situaciones ni
+ * dependencias. Si una persona tiene tres cargos, salen los tres. Elegir con
+ * cual quedarse es una decision posterior, no la toma este comando.
  *
  * El cruce es por documento: se normaliza a digitos sin ceros a la izquierda,
  * de los dos lados. De `solicitud_sicadis` se toma `documento` y, ademas, el DNI
@@ -23,9 +27,7 @@ use PhpOffice\PhpSpreadsheet\Cell\DataType;
  * Uso:
  *   php artisan exportar:docentes-sin-solicitud
  *   php artisan exportar:docentes-sin-solicitud --convocatoria=5
- *   php artisan exportar:docentes-sin-solicitud --detalle
  *   php artisan exportar:docentes-sin-solicitud --facultad=170 --facultad=181
- *   php artisan exportar:docentes-sin-solicitud --todas-situaciones
  *   php artisan exportar:docentes-sin-solicitud --salida=storage/app/faltantes.xlsx
  */
 class ExportarDocentesSinSolicitud extends Command
@@ -34,28 +36,12 @@ class ExportarDocentesSinSolicitud extends Command
         {--escalafon=* : Escalafones a incluir. Por defecto "Docente" y "Docente Preuniversitario"}
         {--convocatoria= : Id de convocatoria. Si se indica, solo cuentan las solicitudes de esa convocatoria}
         {--facultad=* : Filtra por cd_facultad. Vacio = todas}
-        {--solo-facultades-validas : Deja solo las 17 dependencias que usa cargos:actualizar}
-        {--todas-situaciones : No excluye Renuncia / Jubilacion / Licencia sin goce de sueldos}
-        {--detalle : Una fila por cargo en vez de una fila por persona}
         {--salida= : Ruta del .xlsx de salida}';
 
-    protected $description = 'Exporta a Excel los docentes de cargos_alfabetico que no figuran en solicitud_sicadis';
+    protected $description = 'Exporta a Excel los cargos docentes de cargos_alfabetico cuyo DNI no figura en solicitud_sicadis';
 
     /** Escalafones que se toman si no se pasa --escalafon */
     private const ESCALAFONES = ['Docente', 'Docente Preuniversitario'];
-
-    /** Situaciones que se descartan salvo --todas-situaciones (mismo criterio que cargos:actualizar) */
-    private const SITUACIONES_EXCLUIDAS = [
-        'Licencia sin goce de sueldos',
-        'Renuncia',
-        'Jubilación',
-    ];
-
-    /** Las 17 dependencias que filtra cargos:actualizar */
-    private const FACULTADES_VALIDAS = [
-        165, 167, 168, 169, 170, 171, 172, 173, 174,
-        175, 176, 177, 179, 180, 181, 187, 1220,
-    ];
 
     private const DEDDOC = [
         1 => 'Exclusiva',
@@ -63,15 +49,13 @@ class ExportarDocentesSinSolicitud extends Command
         3 => 'Simple',
     ];
 
-    private const HEADERS_PERSONA = [
-        'DNI', 'Apellido y Nombres', 'Nacimiento', 'Escalafon', 'Dependencia',
-        'Cargo', 'Dedicacion', 'Situacion', 'Desde', 'Cargos',
-    ];
-
-    private const HEADERS_DETALLE = [
+    private const HEADERS = [
         'DNI', 'Apellido y Nombres', 'Nacimiento', 'Escalafon', 'Dependencia',
         'cd_facultad', 'Cargo', 'Clase', 'Dedicacion', 'Funcion', 'Situacion', 'Desde',
     ];
+
+    /** Columnas que van centradas */
+    private const CENTRADAS = ['A', 'C', 'F', 'H', 'L'];
 
     public function handle(): int
     {
@@ -80,7 +64,7 @@ class ExportarDocentesSinSolicitud extends Command
             $escalafones = self::ESCALAFONES;
         }
 
-        $this->info('=== Docentes de cargos_alfabetico sin solicitud en solicitud_sicadis ===');
+        $this->info('=== Cargos docentes sin solicitud en solicitud_sicadis ===');
         $this->line('Escalafones: ' . implode(' | ', $escalafones));
 
         $conSolicitud = $this->documentosConSolicitud();
@@ -90,36 +74,36 @@ class ExportarDocentesSinSolicitud extends Command
 
         $filas = $this->cargosDocentes($escalafones);
         if ($filas->isEmpty()) {
-            $this->warn('No hay filas en cargos_alfabetico con esos filtros.');
+            $this->warn('No hay filas en cargos_alfabetico con esos escalafones.');
             $this->mostrarEscalafonesDisponibles();
             return self::FAILURE;
         }
-        $this->line('Filas de cargos_alfabetico que pasan los filtros: ' . $filas->count());
+        $this->line('Filas de cargos_alfabetico: ' . $filas->count());
 
-        $faltantes = $filas->filter(function ($c) use ($conSolicitud) {
+        $sinDni = 0;
+        $faltantes = $filas->filter(function ($c) use ($conSolicitud, &$sinDni) {
             $clave = $this->claveDoc($c->dni);
-            return $clave !== '' && !isset($conSolicitud[$clave]);
+            if ($clave === '') {
+                $sinDni++;
+                return false;
+            }
+            return !isset($conSolicitud[$clave]);
         })->values();
 
-        $sinDni = $filas->count() - $filas->filter(function ($c) {
-            return $this->claveDoc($c->dni) !== '';
-        })->count();
         if ($sinDni > 0) {
             $this->warn($sinDni . ' fila(s) con documento vacio o no numerico: quedan afuera.');
         }
 
-        $personasTotal    = $filas->pluck('dni')->map(function ($d) { return $this->claveDoc($d); })
-                                  ->filter()->unique()->count();
-        $personasFaltante = $faltantes->pluck('dni')->map(function ($d) { return $this->claveDoc($d); })
-                                      ->filter()->unique()->count();
+        $personasTotal    = $this->personasDistintas($filas);
+        $personasFaltante = $this->personasDistintas($faltantes);
 
         $this->newLine();
         $this->info('Personas distintas en el alfabetico: ' . $personasTotal);
         $this->info('Sin solicitud en solicitud_sicadis:  ' . $personasFaltante
-            . ' (' . $faltantes->count() . ' cargos)');
+            . ' personas / ' . $faltantes->count() . ' cargos');
 
         if ($faltantes->isEmpty()) {
-            $this->warn('No hay nadie para exportar.');
+            $this->warn('No hay nada para exportar.');
             return self::SUCCESS;
         }
 
@@ -128,12 +112,7 @@ class ExportarDocentesSinSolicitud extends Command
         );
         $this->ensureDir(dirname($salida));
 
-        if ($this->option('detalle')) {
-            $this->escribirDetalle($faltantes, $salida);
-        } else {
-            $this->escribirPorPersona($faltantes, $salida);
-        }
-
+        $this->escribir($faltantes, $salida);
         $this->resumen($faltantes);
 
         $this->newLine();
@@ -147,7 +126,7 @@ class ExportarDocentesSinSolicitud extends Command
 
     /**
      * Set de documentos normalizados que YA tienen solicitud. Devuelve null si
-     * la tabla no existe.
+     * la tabla no se puede leer.
      */
     private function documentosConSolicitud(): ?array
     {
@@ -205,86 +184,42 @@ class ExportarDocentesSinSolicitud extends Command
         return $set;
     }
 
-    /** Filas de cargos_alfabetico que entran al listado. */
+    /**
+     * Filas de cargos_alfabetico. Sin filtro de situacion: entran tambien
+     * Renuncia, Jubilacion y las licencias.
+     */
     private function cargosDocentes(array $escalafones)
     {
         $query = DB::table('cargos_alfabetico')->whereIn('escalafon', $escalafones);
-
-        if (!$this->option('todas-situaciones')) {
-            $query->whereNotIn('situacion', self::SITUACIONES_EXCLUIDAS);
-            $this->line('Situaciones excluidas: ' . implode(' | ', self::SITUACIONES_EXCLUIDAS));
-        } else {
-            $this->line('Situaciones: todas');
-        }
 
         $facultades = $this->option('facultad');
         if (!empty($facultades)) {
             $query->whereIn('cd_facultad', $facultades);
             $this->line('Dependencias: ' . implode(', ', $facultades));
-        } elseif ($this->option('solo-facultades-validas')) {
-            $query->whereIn('cd_facultad', self::FACULTADES_VALIDAS);
-            $this->line('Dependencias: las 17 de cargos:actualizar');
         } else {
             $this->line('Dependencias: todas');
         }
+        $this->line('Situaciones: todas (no se excluye ninguna)');
 
-        return $query->orderBy('investigador')->orderBy('dni')->get();
+        return $query
+            ->orderBy('investigador')
+            ->orderBy('dni')
+            ->orderBy('cd_deddoc')
+            ->orderBy('cd_cargo')
+            ->get();
     }
 
     // -------------------------------------------------------------------------
     // Escritura
     // -------------------------------------------------------------------------
 
-    /** Una fila por persona: los cargos se resumen en una celda cada uno. */
-    private function escribirPorPersona($faltantes, string $path): void
-    {
-        $grupos = $faltantes->groupBy(function ($c) {
-            return $this->claveDoc($c->dni);
-        });
-
-        $spreadsheet = new Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
-        $sheet->setTitle('Sin solicitud');
-
-        foreach (self::HEADERS_PERSONA as $i => $h) {
-            $sheet->setCellValueByColumnAndRow($i + 1, 1, $h);
-        }
-
-        $r = 2;
-        foreach ($grupos as $lista) {
-            $primero = $lista->first();
-
-            $sheet->setCellValueExplicitByColumnAndRow(
-                1, $r, (string) $primero->dni, DataType::TYPE_STRING
-            );
-            $sheet->setCellValueByColumnAndRow(2,  $r, trim((string) $primero->investigador));
-            $sheet->setCellValueByColumnAndRow(3,  $r, $this->fechaCorta($primero->nacimiento));
-            $sheet->setCellValueByColumnAndRow(4,  $r, $this->unicos($lista, 'escalafon'));
-            $sheet->setCellValueByColumnAndRow(5,  $r, $this->unicos($lista, 'ds_facultad'));
-            $sheet->setCellValueByColumnAndRow(6,  $r, $this->unicos($lista, 'ds_cargo'));
-            $sheet->setCellValueByColumnAndRow(7,  $r, $this->dedicaciones($lista));
-            $sheet->setCellValueByColumnAndRow(8,  $r, $this->unicos($lista, 'situacion'));
-            $sheet->setCellValueByColumnAndRow(9,  $r, $this->fechaCorta($this->fechaMinima($lista)));
-            $sheet->setCellValueByColumnAndRow(10, $r, $lista->count());
-            $r++;
-        }
-
-        $this->estilar($sheet, self::HEADERS_PERSONA, $r - 1, ['A', 'C', 'I', 'J']);
-        (new Xlsx($spreadsheet))->save($path);
-        $this->line('Escrito: ' . $path . ' (' . $grupos->count() . ' personas)');
-
-        $spreadsheet->disconnectWorksheets();
-        unset($spreadsheet);
-    }
-
-    /** Una fila por cargo, tal cual esta en cargos_alfabetico. */
-    private function escribirDetalle($faltantes, string $path): void
+    private function escribir($faltantes, string $path): void
     {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Sin solicitud');
 
-        foreach (self::HEADERS_DETALLE as $i => $h) {
+        foreach (self::HEADERS as $i => $h) {
             $sheet->setCellValueByColumnAndRow($i + 1, 1, $h);
         }
 
@@ -307,7 +242,7 @@ class ExportarDocentesSinSolicitud extends Command
             $r++;
         }
 
-        $this->estilar($sheet, self::HEADERS_DETALLE, $r - 1, ['A', 'C', 'F', 'H', 'L']);
+        $this->estilar($sheet, $r - 1);
         (new Xlsx($spreadsheet))->save($path);
         $this->line('Escrito: ' . $path . ' (' . count($faltantes) . ' filas)');
 
@@ -315,9 +250,9 @@ class ExportarDocentesSinSolicitud extends Command
         unset($spreadsheet);
     }
 
-    private function estilar($sheet, array $headers, int $lastRow, array $centradas): void
+    private function estilar($sheet, int $lastRow): void
     {
-        $lastCol = Coordinate::stringFromColumnIndex(count($headers));
+        $lastCol = Coordinate::stringFromColumnIndex(count(self::HEADERS));
 
         $sheet->getStyle("A1:{$lastCol}1")->getFont()->setBold(true);
         $sheet->getStyle("A1:{$lastCol}1")->getAlignment()
@@ -328,11 +263,11 @@ class ExportarDocentesSinSolicitud extends Command
         $sheet->freezePane('A2');
         $sheet->setAutoFilter("A1:{$lastCol}{$lastRow}");
 
-        for ($c = 1; $c <= count($headers); $c++) {
+        for ($c = 1; $c <= count(self::HEADERS); $c++) {
             $sheet->getColumnDimension(Coordinate::stringFromColumnIndex($c))->setAutoSize(true);
         }
 
-        foreach ($centradas as $col) {
+        foreach (self::CENTRADAS as $col) {
             $sheet->getStyle("{$col}2:{$col}{$lastRow}")->getAlignment()
                 ->setHorizontal(Alignment::HORIZONTAL_CENTER);
         }
@@ -347,7 +282,16 @@ class ExportarDocentesSinSolicitud extends Command
         $this->newLine();
         $this->info('Por escalafon:');
         foreach ($faltantes->groupBy('escalafon')->sortKeys() as $k => $g) {
-            $this->line(sprintf('  %-28s %5d', $k === '' ? '(vacio)' : $k, $g->count()));
+            $this->line(sprintf('  %-32s %5d', $k === '' ? '(vacio)' : $k, $g->count()));
+        }
+
+        $this->newLine();
+        $this->info('Por situacion:');
+        $porSit = $faltantes->groupBy('situacion')->map(function ($g) {
+            return $g->count();
+        })->sortDesc();
+        foreach ($porSit as $sit => $n) {
+            $this->line(sprintf('  %-32s %5d', $sit === '' ? '(vacia)' : $this->corta($sit, 30), $n));
         }
 
         $this->newLine();
@@ -357,6 +301,16 @@ class ExportarDocentesSinSolicitud extends Command
         })->sortDesc()->take(20);
         foreach ($porDep as $dep => $n) {
             $this->line(sprintf('  %-52s %5d', $this->corta($dep, 50), $n));
+        }
+
+        $conVarios = $faltantes->groupBy(function ($c) {
+            return $this->claveDoc($c->dni);
+        })->filter(function ($g) {
+            return $g->count() > 1;
+        })->count();
+        if ($conVarios > 0) {
+            $this->newLine();
+            $this->line($conVarios . ' persona(s) aparecen con mas de un cargo: salen todas sus filas.');
         }
     }
 
@@ -380,6 +334,18 @@ class ExportarDocentesSinSolicitud extends Command
     // Helpers
     // -------------------------------------------------------------------------
 
+    private function personasDistintas($filas): int
+    {
+        $set = [];
+        foreach ($filas as $c) {
+            $k = $this->claveDoc($c->dni);
+            if ($k !== '') {
+                $set[$k] = true;
+            }
+        }
+        return count($set);
+    }
+
     /** Documento normalizado: solo digitos, sin ceros a la izquierda. */
     private function claveDoc($v): string
     {
@@ -401,42 +367,6 @@ class ExportarDocentesSinSolicitud extends Command
     {
         $k = (int) $v;
         return isset(self::DEDDOC[$k]) ? self::DEDDOC[$k] : '';
-    }
-
-    private function dedicaciones($lista): string
-    {
-        $vals = [];
-        foreach ($lista as $c) {
-            $d = $this->deddoc($c->cd_deddoc);
-            if ($d !== '' && !in_array($d, $vals, true)) {
-                $vals[] = $d;
-            }
-        }
-        return implode(' / ', $vals);
-    }
-
-    private function unicos($lista, string $campo): string
-    {
-        $vals = [];
-        foreach ($lista as $c) {
-            $v = trim((string) $c->$campo);
-            if ($v !== '' && !in_array($v, $vals, true)) {
-                $vals[] = $v;
-            }
-        }
-        return implode(' / ', $vals);
-    }
-
-    private function fechaMinima($lista)
-    {
-        $min = null;
-        foreach ($lista as $c) {
-            $f = $this->fechaIso($c->dt_fecha);
-            if ($f !== '' && ($min === null || $f < $min)) {
-                $min = $f;
-            }
-        }
-        return $min;
     }
 
     private function fechaIso($value): string
