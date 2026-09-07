@@ -8,48 +8,64 @@ use Illuminate\Support\Facades\DB;
 /**
  * Cuarto control de pivots: los cargos docentes.
  *
- *   investigadors.cargo_id + deddoc + facultad_id + universidad_id
- *        <->  investigador_cargos (filas con activo = 1)
+ *   investigadors.cargo_id + deddoc + facultad_id  <->  investigador_cargos (activo = 1)
  *
- * Diferencias con los otros tres pivots:
+ * Este pivot NO funciona como los otros tres, y de asumir que si salio una
+ * primera version de este comando que marcaba 7789 casos sobre 11866 (66%), casi
+ * todos falsos. Las tres diferencias que importan:
  *
- *   - La columna se llama `activo`, no `actual`, y VARIOS ACTIVOS ES LEGITIMO:
- *     una persona puede tener mas de un cargo docente a la vez. Lo que no puede
- *     pasar es que investigadors no coincida con ninguno de ellos.
- *   - De este pivot salen CUATRO campos de investigadors, no uno. Se comparan
- *     los cuatro por separado para saber cual esta mal.
+ * 1) EL PIVOT ES UN SUBCONJUNTO, POR DISEÑO. `sync:cargos` lo puebla desde
+ *    cargos_alfabetico del origen filtrando por escalafon Docente, 18 facultades,
+ *    los cargos [1,2,3,4,5,14], y excluyendo licencia sin goce / renuncia /
+ *    jubilacion. `investigadors.cargo_id` en cambio llega sin ese filtro. Que
+ *    alguien tenga cargo y ninguna fila en el pivot es lo NORMAL — son ~4200
+ *    casos — y por eso SIN PIVOT solo se marca con --incluir-sin-pivot.
  *
- * Como elige el controlador cual baja a investigadors (InvestigadorController,
- * en store() y update()): gana el de MENOR deddoc entre los activos, y a igual
- * deddoc deberia desempatar la jerarquia del cargo via esMayorCargo(). Ese
- * desempate NO funciona:
+ * 2) `universidad_id` NO VIAJA. Ni `sync:cargos` ni `cargos:actualizar` lo
+ *    escriben: el select del sync no lo trae y el update de investigadors toca
+ *    solo cargo_id, deddoc y facultad_id. Compararlo daba ~1600 diferencias que
+ *    no significan nada. No se compara.
+ *
+ * 3) EL MISMO CARGO REPETIDO NO ES DUPLICADO. El updateOrInsert de
+ *    cargos:actualizar usa como clave (investigador, cargo, deddoc, facultad,
+ *    ingreso): la misma persona con el mismo cargo en dos fechas distintas son
+ *    dos designaciones, historial legitimo. No se marca.
+ *
+ * QUIEN MANDA ACA es `cargos:actualizar` (ActualizarCargosDocentes), no el
+ * formulario. Ese comando desactiva todo, reinserta lo vigente y elige el cargo
+ * principal con:
+ *
+ *     ->where('activo',1)->orderBy('deddoc')->orderBy('cargo_id')->orderByDesc('ingreso')
+ *
+ * y con eso escribe cargo_id + deddoc + facultad_id en investigadors. Este
+ * control replica ese mismo ORDER BY en SQL (no reimplementado en PHP, para que
+ * el orden de `deddoc` lo resuelva el motor igual que alli) y marca
+ * NO ES EL PRINCIPAL cuando investigadors no coincide con esa fila.
+ *
+ * Esa es la senal mas util: ademas de detectar que falto correr cargos:actualizar,
+ * atrapa lo que escribe mal el formulario. InvestigadorController elige el mayor
+ * cargo con una condicion rota —
  *
  *     if ($mayorDeddoc === null || $request->deddocs[$item] < $mayorDeddoc) {
  *         $mayorDeddoc = $request->deddocs[$item];
  *         $mayorCargo  = $request->cargos[$item];
- *         ...
- *         if ($request->deddocs[$item] == $mayorDeddoc) {      // recien asignado: siempre true
+ *         if ($request->deddocs[$item] == $mayorDeddoc) {   // recien asignado: siempre true
  *             if ($mayorCargo === null || $this->esMayorCargo($request->cargos[$item], $mayorCargo)) {
  *
- * El if interno compara la dedicacion contra un valor que se asigno dos lineas
- * antes, y esMayorCargo() termina comparando el cargo consigo mismo. Ademas la
- * condicion externa es `<` estricta, asi que un segundo cargo con la MISMA
- * dedicacion nunca entra. Resultado: a igual dedicacion gana el PRIMERO de la
- * lista del formulario, no el de mayor jerarquia. Es el mismo patron del bug 7.
- *
- * Por eso VARIOS ACTIVOS no es un error pero si lo que hay que mirar: es donde
- * ese desempate pudo elegir mal.
+ * el if interno compara la dedicacion contra un valor asignado dos lineas antes
+ * y esMayorCargo() termina comparando el cargo consigo mismo; ademas la condicion
+ * externa es `<` estricta, asi que un segundo cargo con la MISMA dedicacion nunca
+ * entra. A igual dedicacion gana el primero de la lista del formulario, no el de
+ * mayor jerarquia. Mismo patron que el bug 7.
  *
  * Diagnosticos:
- *   SIN PIVOT           tiene cargo y ninguna fila en el pivot
- *   SIN ACTIVO          tiene filas pero ninguna con activo = 1
  *   PIVOT SIN INV       hay cargo activo y el investigador esta sin cargo
+ *   SIN ACTIVO          tiene filas, ninguna activa, y el investigador tiene cargo
  *   INV <> PIVOT        el cargo de investigadors no esta entre los activos
+ *   NO ES EL PRINCIPAL  esta entre los activos, pero no es el que elige el criterio
  *   DEDDOC <> PIVOT     el cargo coincide pero la dedicacion no
  *   FACULTAD <> PIVOT   el cargo coincide pero la unidad academica no
- *   UNIVERSIDAD <> PIVOT  idem con la universidad
- *   CARGO DUPLICADO     el mismo cargo repetido en la misma facultad y universidad
- *   VARIOS ACTIVOS (n)  informativo, solo con --incluir-varios
+ *   SIN PIVOT           solo con --incluir-sin-pivot (ver punto 1)
  *
  * Solo lee: no modifica nada.
  */
@@ -58,10 +74,10 @@ class VerificarPivotCargos extends Command
     protected $signature = 'cargos:verificar-pivot
         {--cuil= : Filtrar por un CUIL puntual}
         {--solo= : Mostrar solo los diagnosticos que contengan este texto}
-        {--incluir-varios : Marcar tambien a los que tienen mas de un cargo activo}
+        {--incluir-sin-pivot : Marcar tambien a los que tienen cargo y ninguna fila (normal, ~4200)}
         {--limite=50 : Cortar el listado en N filas (0 = sin limite)}';
 
-    protected $description = 'Verifica investigadors.cargo_id + deddoc + facultad + universidad contra investigador_cargos';
+    protected $description = 'Verifica investigadors.cargo_id + deddoc + facultad contra investigador_cargos';
 
     private function cuilNorm($col)
     {
@@ -76,20 +92,23 @@ class VerificarPivotCargos extends Command
 
     public function handle()
     {
-        $cuil           = $this->option('cuil');
-        $solo           = $this->option('solo');
-        $incluirVarios  = (bool) $this->option('incluir-varios');
-        $limite         = (int) $this->option('limite');
+        $cuil            = $this->option('cuil');
+        $solo            = $this->option('solo');
+        $incluirSinPivot = (bool) $this->option('incluir-sin-pivot');
+        $limite          = (int) $this->option('limite');
 
         $this->info('=== Cargos docentes: investigadors <-> investigador_cargos ===');
+        $this->line('');
+        $this->line('El pivot es un subconjunto filtrado por sync:cargos, asi que tener cargo y');
+        $this->line('ninguna fila es normal: SIN PIVOT solo se marca con --incluir-sin-pivot.');
+        $this->line('universidad_id no se compara: ningun comando lo escribe en este circuito.');
         $this->line('');
 
         $sql =
             'SELECT '.
             '  i.id AS investigador_id, p.cuil AS cuil, '.
             "  TRIM(CONCAT(COALESCE(p.apellido, ''), ', ', COALESCE(p.nombre, ''))) AS persona, ".
-            '  i.cargo_id AS inv_cargo_id, i.deddoc AS inv_deddoc, '.
-            '  i.facultad_id AS inv_facultad_id, i.universidad_id AS inv_universidad_id, '.
+            '  i.cargo_id AS inv_cargo_id, i.deddoc AS inv_deddoc, i.facultad_id AS inv_facultad_id, '.
             '  ca.nombre AS inv_cargo, fa.nombre AS inv_facultad, '.
             '  pv.filas, pv.activos '.
             'FROM investigadors i '.
@@ -111,33 +130,32 @@ class VerificarPivotCargos extends Command
 
         $filas = DB::select($sql, $bind);
 
-        // todas las filas de pivot de los investigadores en juego, en una sola query
         $ids = array();
         foreach ($filas as $f) {
             $ids[] = (int) $f->investigador_id;
         }
 
-        $pivotPorInv = array();
+        // Las filas activas, ordenadas EXACTAMENTE como las ordena cargos:actualizar
+        // para elegir el principal. Se deja que el motor resuelva el orden de
+        // `deddoc` en lugar de reimplementarlo aca.
+        $activasPorInv = array();
         foreach (array_chunk($ids, 2000) as $lote) {
             if (count($lote) === 0) {
                 continue;
             }
             $marcas = implode(',', array_fill(0, count($lote), '?'));
             $rows = DB::select(
-                'SELECT ig.investigador_id, ig.cargo_id, ig.deddoc, ig.ingreso, ig.activo, '.
-                'ig.facultad_id, ig.universidad_id, '.
-                'cg.nombre AS cargo_nombre, cg.orden AS cargo_orden, '.
-                'fc.nombre AS facultad_nombre, un.nombre AS universidad_nombre '.
+                'SELECT ig.investigador_id, ig.cargo_id, ig.deddoc, ig.ingreso, ig.facultad_id, '.
+                'cg.nombre AS cargo_nombre, fc.nombre AS facultad_nombre '.
                 'FROM investigador_cargos ig '.
-                'LEFT JOIN cargos       cg ON cg.id = ig.cargo_id '.
-                'LEFT JOIN facultads    fc ON fc.id = ig.facultad_id '.
-                'LEFT JOIN universidads un ON un.id = ig.universidad_id '.
-                'WHERE ig.investigador_id IN ('.$marcas.') '.
-                'ORDER BY ig.investigador_id, ig.activo DESC, cg.orden, ig.id',
+                'LEFT JOIN cargos    cg ON cg.id = ig.cargo_id '.
+                'LEFT JOIN facultads fc ON fc.id = ig.facultad_id '.
+                'WHERE ig.activo = 1 AND ig.investigador_id IN ('.$marcas.') '.
+                'ORDER BY ig.investigador_id, ig.deddoc, ig.cargo_id, ig.ingreso DESC',
                 $lote
             );
             foreach ($rows as $r) {
-                $pivotPorInv[(int) $r->investigador_id][] = $r;
+                $activasPorInv[(int) $r->investigador_id][] = $r;
             }
         }
 
@@ -155,20 +173,12 @@ class VerificarPivotCargos extends Command
             $pvFilas  = (int) $f->filas;
             $activos  = (int) $f->activos;
 
-            $todas = isset($pivotPorInv[$invId]) ? $pivotPorInv[$invId] : array();
-            $activas = array();
-            $pares   = array();
-            foreach ($todas as $r) {
-                if ((int) $r->activo === 1) {
-                    $activas[] = $r;
-                }
-                $pares[] = (int) $r->cargo_id.':'.(int) $r->facultad_id.':'.(int) $r->universidad_id;
-            }
+            $activas = isset($activasPorInv[$invId]) ? $activasPorInv[$invId] : array();
 
             $marcas = array();
 
             if ($pvFilas === 0) {
-                if ($invTiene) {
+                if ($invTiene && $incluirSinPivot) {
                     $marcas[] = 'SIN PIVOT';
                 }
             } elseif ($activos === 0) {
@@ -178,7 +188,6 @@ class VerificarPivotCargos extends Command
             } elseif (!$invTiene) {
                 $marcas[] = 'PIVOT SIN INV';
             } else {
-                // buscar entre los activos el que tenga el mismo cargo
                 $coincide = null;
                 foreach ($activas as $r) {
                     if ((int) $r->cargo_id === $invCargo) {
@@ -190,24 +199,18 @@ class VerificarPivotCargos extends Command
                 if ($coincide === null) {
                     $marcas[] = 'INV <> PIVOT';
                 } else {
+                    // la primera del array es la que elegiria cargos:actualizar
+                    $principal = $activas[0];
+                    if ((int) $principal->cargo_id !== $invCargo) {
+                        $marcas[] = 'NO ES EL PRINCIPAL';
+                    }
                     if ((string) $coincide->deddoc !== (string) $f->inv_deddoc) {
                         $marcas[] = 'DEDDOC <> PIVOT';
                     }
                     if ((int) $coincide->facultad_id !== (int) $f->inv_facultad_id) {
                         $marcas[] = 'FACULTAD <> PIVOT';
                     }
-                    if ((int) $coincide->universidad_id !== (int) $f->inv_universidad_id) {
-                        $marcas[] = 'UNIVERSIDAD <> PIVOT';
-                    }
                 }
-            }
-
-            if (count($pares) > count(array_unique($pares))) {
-                $marcas[] = 'CARGO DUPLICADO';
-            }
-
-            if ($incluirVarios && $activos > 1) {
-                $marcas[] = 'VARIOS ACTIVOS ('.$activos.')';
             }
 
             if (count($marcas) === 0) {
@@ -226,11 +229,11 @@ class VerificarPivotCargos extends Command
             }
 
             $detalle = array();
-            foreach ($todas as $r) {
+            foreach ($activas as $r) {
                 $detalle[] = ($r->cargo_nombre === null ? '?' : $r->cargo_nombre)
                     .' '.($r->deddoc === null ? 's/d' : $r->deddoc)
-                    .' '.($r->facultad_nombre === null ? '-' : $this->corta($r->facultad_nombre, 12))
-                    .((int) $r->activo === 1 ? '*' : '');
+                    .' '.($r->facultad_nombre === null ? '-' : $this->corta($r->facultad_nombre, 10))
+                    .' '.($r->ingreso === null ? 's/i' : substr((string) $r->ingreso, 0, 7));
             }
 
             $rowsOut[] = array(
@@ -238,17 +241,16 @@ class VerificarPivotCargos extends Command
                 $f->cuil,
                 $this->corta($f->persona, 26),
                 $this->corta(($f->inv_cargo === null ? '(sin)' : $f->inv_cargo)
-                    .' '.($f->inv_deddoc === null ? 's/d' : $f->inv_deddoc), 22),
-                $this->corta($f->inv_facultad === null ? '-' : $f->inv_facultad, 14),
-                $this->corta(implode(' | ', $detalle), 44),
+                    .' '.($f->inv_deddoc === null ? 's/d' : $f->inv_deddoc), 24),
+                $this->corta($f->inv_facultad === null ? '-' : $f->inv_facultad, 12),
+                $this->corta(implode(' | ', $detalle), 46),
                 $diagnostico,
             );
         }
 
         if ($conDif === 0) {
             $this->info('Cargos consistentes: '.$revisados.' investigadores revisados, ninguna diferencia.');
-            $this->line('investigadors.cargo_id + deddoc + facultad + universidad coinciden con');
-            $this->line('alguna fila activa del pivot, y no hay cargos repetidos.');
+            $this->line('investigadors coincide con el cargo principal de sus filas activas.');
             return 0;
         }
 
@@ -260,7 +262,7 @@ class VerificarPivotCargos extends Command
 
         if (count($rowsOut) > 0) {
             $this->table(
-                array('Inv.', 'CUIL', 'Persona', 'Investigador', 'U. Acad.', 'Pivot (* = activo)', 'Diagnostico'),
+                array('Inv.', 'CUIL', 'Persona', 'Investigador', 'U. Acad.', 'Activos del pivot (1ro = principal)', 'Diagnostico'),
                 $rowsOut
             );
             if ($recortado) {
@@ -282,17 +284,14 @@ class VerificarPivotCargos extends Command
         $this->line('Con alguna diferencia: '.$conDif);
 
         $this->line('');
-        $this->line('Varios cargos activos a la vez es LEGITIMO: no se marca salvo --incluir-varios.');
-        $this->line('Lo que no puede pasar es que investigadors no coincida con ninguno de ellos.');
+        $this->line('Varios cargos activos a la vez es legitimo. El principal es el primero de la');
+        $this->line('columna Activos: menor deddoc, luego menor cargo_id, luego ingreso mas reciente,');
+        $this->line('el mismo criterio de cargos:actualizar.');
         $this->line('');
-        $this->line('De este pivot salen cuatro campos de investigadors, por eso los diagnosticos');
-        $this->line('estan desglosados: DEDDOC / FACULTAD / UNIVERSIDAD <> PIVOT significan que el');
-        $this->line('cargo coincide pero el resto del cuarteto quedo viejo.');
-        $this->line('');
-        $this->line('OJO con el desempate: a igual dedicacion, InvestigadorController se queda con el');
-        $this->line('PRIMERO de la lista y no con el de mayor jerarquia (esMayorCargo() termina');
-        $this->line('comparando el cargo consigo mismo). Los casos con varios activos y misma');
-        $this->line('dedicacion son los sospechosos. Ver claude/comandos-verificacion-sicadi.md.');
+        $this->line('NO ES EL PRINCIPAL = investigadors quedo con un cargo activo que no es el que');
+        $this->line('corresponde. O falto correr cargos:actualizar, o lo escribio el formulario, que');
+        $this->line('a igual dedicacion se queda con el primero de la lista en vez del de mayor');
+        $this->line('jerarquia. Correr cargos:actualizar realinea; el bug del formulario no.');
 
         return 0;
     }
