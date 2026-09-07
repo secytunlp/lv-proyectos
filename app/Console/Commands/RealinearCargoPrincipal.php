@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
  *
  * El principal es el primero de:
  *
- *     WHERE activo = 1 ORDER BY deddoc, cargo_id, ingreso DESC
+ *     WHERE activo = 1 ORDER BY deddoc, cargos.orden, ingreso DESC
  *
  * el mismo ORDER BY de cargos:actualizar, resuelto por el motor para que el
  * orden de `deddoc` sea identico al de alli.
@@ -51,6 +51,19 @@ class RealinearCargoPrincipal extends Command
     private function cuilNorm($col)
     {
         return "REPLACE(REPLACE(REPLACE(".$col.", '-', ''), '.', ''), ' ', '')";
+    }
+
+
+    /**
+     * Profesor Consulto y Profesor Emerito son distinciones academicas, no un
+     * escalon del escalafon docente. Si investigadors ya tiene una de las dos,
+     * NO se reemplaza por el cargo del pivot.
+     */
+    private function esProtegido($nombre)
+    {
+        $n = mb_strtoupper((string) $nombre, 'UTF-8');
+        $n = str_replace(array('Á','É','Í','Ó','Ú'), array('A','E','I','O','U'), $n);
+        return strpos($n, 'CONSULTO') !== false || strpos($n, 'EMERITO') !== false;
     }
 
     private function corta($v, $n)
@@ -114,7 +127,7 @@ class RealinearCargoPrincipal extends Command
                 'LEFT JOIN cargos    cg ON cg.id = ig.cargo_id '.
                 'LEFT JOIN facultads fc ON fc.id = ig.facultad_id '.
                 'WHERE ig.activo = 1 AND ig.investigador_id IN ('.$marcas.') '.
-                'ORDER BY ig.investigador_id, ig.deddoc, ig.cargo_id, ig.ingreso DESC',
+                'ORDER BY ig.investigador_id, ig.deddoc, cg.orden IS NULL, cg.orden, ig.cargo_id, ig.ingreso DESC',
                 $lote
             );
             foreach ($rows as $r) {
@@ -125,8 +138,9 @@ class RealinearCargoPrincipal extends Command
             }
         }
 
-        $aCambiar = array();
-        $motivos  = array();
+        $aCambiar   = array();
+        $motivos    = array();
+        $protegidos = 0;
 
         foreach ($filas as $f) {
             $invId    = (int) $f->investigador_id;
@@ -138,6 +152,12 @@ class RealinearCargoPrincipal extends Command
             $principal = $activas[0];
             $invCargo  = (int) $f->inv_cargo_id;
             $invTiene  = ($invCargo !== 0);
+
+            // Consulto y Emerito no se reemplazan nunca
+            if ($invTiene && $this->esProtegido($f->inv_cargo)) {
+                $protegidos++;
+                continue;
+            }
 
             // en que caso esta
             if (!$invTiene) {
@@ -200,6 +220,9 @@ class RealinearCargoPrincipal extends Command
 
         if (count($aCambiar) === 0) {
             $this->info('Nada que realinear con las opciones dadas.');
+            if ($protegidos > 0) {
+                $this->line('Salteados por Consulto / Emerito: '.$protegidos.'.');
+            }
             return 0;
         }
 
@@ -229,6 +252,9 @@ class RealinearCargoPrincipal extends Command
         $this->line('');
         $this->table(array('Motivo', 'Cantidad'), $resRows);
         $this->info('Total a realinear: '.count($aCambiar));
+        if ($protegidos > 0) {
+            $this->line('Salteados por Consulto / Emerito: '.$protegidos.' (no se reemplazan).');
+        }
 
         if (!$commit) {
             $this->line('');

@@ -35,7 +35,7 @@ use Illuminate\Support\Facades\DB;
  * formulario. Ese comando desactiva todo, reinserta lo vigente y elige el cargo
  * principal con:
  *
- *     ->where('activo',1)->orderBy('deddoc')->orderBy('cargo_id')->orderByDesc('ingreso')
+ *     ->where('activo',1)->orderBy('deddoc')->orderBy('cargo_id')->orderByDesc('ingreso')  <-- cargo_id esta MAL, ver nota
  *
  * y con eso escribe cargo_id + deddoc + facultad_id en investigadors. Este
  * control replica ese mismo ORDER BY en SQL (no reimplementado en PHP, para que
@@ -84,6 +84,19 @@ class VerificarPivotCargos extends Command
         return "REPLACE(REPLACE(REPLACE(".$col.", '-', ''), '.', ''), ' ', '')";
     }
 
+
+    /**
+     * Profesor Consulto y Profesor Emerito son distinciones academicas, no un
+     * escalon del escalafon docente. Si investigadors ya tiene una de las dos,
+     * NO se reemplaza por el cargo del pivot.
+     */
+    private function esProtegido($nombre)
+    {
+        $n = mb_strtoupper((string) $nombre, 'UTF-8');
+        $n = str_replace(array('Á','É','Í','Ó','Ú'), array('A','E','I','O','U'), $n);
+        return strpos($n, 'CONSULTO') !== false || strpos($n, 'EMERITO') !== false;
+    }
+
     private function corta($v, $n)
     {
         $v = (string) $v;
@@ -102,6 +115,8 @@ class VerificarPivotCargos extends Command
         $this->line('El pivot es un subconjunto filtrado por sync:cargos, asi que tener cargo y');
         $this->line('ninguna fila es normal: SIN PIVOT solo se marca con --incluir-sin-pivot.');
         $this->line('universidad_id no se compara: ningun comando lo escribe en este circuito.');
+        $this->line('Consulto y Emerito en investigadors no se comparan: son distinciones que se');
+        $this->line('conservan aunque el pivot diga otra cosa.');
         $this->line('');
 
         $sql =
@@ -151,7 +166,7 @@ class VerificarPivotCargos extends Command
                 'LEFT JOIN cargos    cg ON cg.id = ig.cargo_id '.
                 'LEFT JOIN facultads fc ON fc.id = ig.facultad_id '.
                 'WHERE ig.activo = 1 AND ig.investigador_id IN ('.$marcas.') '.
-                'ORDER BY ig.investigador_id, ig.deddoc, ig.cargo_id, ig.ingreso DESC',
+                'ORDER BY ig.investigador_id, ig.deddoc, cg.orden IS NULL, cg.orden, ig.cargo_id, ig.ingreso DESC',
                 $lote
             );
             foreach ($rows as $r) {
@@ -161,8 +176,9 @@ class VerificarPivotCargos extends Command
 
         $rowsOut   = array();
         $resumen   = array();
-        $conDif    = 0;
-        $revisados = 0;
+        $conDif     = 0;
+        $revisados  = 0;
+        $protegidos = 0;
 
         foreach ($filas as $f) {
             $revisados++;
@@ -174,6 +190,13 @@ class VerificarPivotCargos extends Command
             $activos  = (int) $f->activos;
 
             $activas = isset($activasPorInv[$invId]) ? $activasPorInv[$invId] : array();
+
+            // Consulto y Emerito no se comparan: son distinciones academicas que
+            // se conservan aunque el pivot diga otra cosa.
+            if ($invTiene && $this->esProtegido($f->inv_cargo)) {
+                $protegidos++;
+                continue;
+            }
 
             $marcas = array();
 
@@ -282,10 +305,13 @@ class VerificarPivotCargos extends Command
         $this->info('Sobre '.$revisados.' investigadores con cargo o con pivot:');
         $this->table(array('Diagnostico', 'Cantidad'), $resRows);
         $this->line('Con alguna diferencia: '.$conDif);
+        if ($protegidos > 0) {
+            $this->line('No comparados por Consulto / Emerito: '.$protegidos.'.');
+        }
 
         $this->line('');
         $this->line('Varios cargos activos a la vez es legitimo. El principal es el primero de la');
-        $this->line('columna Activos: menor deddoc, luego menor cargo_id, luego ingreso mas reciente,');
+        $this->line('columna Activos: mayor dedicacion, luego mayor jerarquia de cargo (cargos.orden), luego ingreso mas reciente,');
         $this->line('el mismo criterio de cargos:actualizar.');
         $this->line('');
         $this->line('NO ES EL PRINCIPAL = investigadors quedo con un cargo activo que no es el que');

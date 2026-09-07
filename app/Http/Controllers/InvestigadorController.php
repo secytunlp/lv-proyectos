@@ -613,11 +613,10 @@ class InvestigadorController extends Controller
     /**
      * Decide si el cargo $a le gana a $b como cargo principal del investigador.
      *
-     * Replica el criterio de cargos:actualizar (ActualizarCargosDocentes), que
-     * elige con ->orderBy('deddoc')->orderBy('cargo_id')->orderByDesc('ingreso'):
-     * primero la mayor dedicacion, despues el menor cargo_id, y a igualdad el
-     * ingreso mas reciente. Que los dos usen el mismo criterio evita que el
-     * formulario y el comando se pisen entre si.
+     * Criterio: primero la mayor dedicacion; a IGUAL DEDICACION gana el cargo de
+     * mayor jerarquia (menor `cargos.orden`, el mismo campo que usa
+     * esMayorCargo()); y recien a igualdad de las dos cosas, el ingreso mas
+     * reciente.
      *
      * La version anterior de esta logica estaba rota: comparaba la dedicacion
      * contra un valor que acababa de asignar (siempre igual) y esMayorCargo()
@@ -625,10 +624,12 @@ class InvestigadorController extends Controller
      * en la condicion externa. Resultado: a igual dedicacion ganaba el primero
      * de la lista del formulario, no el de mayor jerarquia.
      *
-     * NOTA: cargos:actualizar desempata por `cargo_id` y esMayorCargo() por
-     * `cargos.orden`, que es el campo pensado para eso. Son criterios distintos
-     * que hoy conviven; aca se replica el del comando. Unificar los dos a
-     * `orden` queda pendiente porque cambia lo que hace el comando.
+     * OJO: cargos:actualizar (ActualizarCargosDocentes) desempata con
+     * ->orderBy('cargo_id'), que es un id arbitrario y NO una jerarquia. Con dos
+     * cargos de igual dedicacion elige mal — caso ACOSTA ROSARIO (101553), con
+     * Ayudante Diplomado Simple y JTP Simple, donde se quedaba con el Ayudante.
+     * Ese comando hay que corregirlo tambien, cambiando ese orderBy por
+     * `cargos.orden`; hasta que eso pase, correrlo vuelve a desalinear estos casos.
      */
     private function ganaCargo($a, $b)
     {
@@ -638,13 +639,20 @@ class InvestigadorController extends Controller
             return $da < $db;
         }
 
-        $ca = (int) $a['cargo'];
-        $cb = (int) $b['cargo'];
-        if ($ca !== $cb) {
-            return $ca < $cb;
+        $oa = $this->ordenCargo($a['cargo']);
+        $ob = $this->ordenCargo($b['cargo']);
+        if ($oa !== $ob) {
+            return $oa < $ob;
         }
 
         return strcmp((string) $a['ingreso'], (string) $b['ingreso']) > 0;
+    }
+
+    /** Jerarquia del cargo segun el catalogo: menor `orden` = cargo superior */
+    private function ordenCargo($cargoId)
+    {
+        $orden = Cargo::where('id', (int) $cargoId)->value('orden');
+        return $orden === null ? PHP_INT_MAX : (int) $orden;
     }
 
     function esMayorCargo($cargoActual, $cargoMayor)

@@ -122,12 +122,22 @@ class ActualizarCargosDocentes extends Command
 
 
                 // ⭐ CARGO PRINCIPAL
-                $principal = DB::table('investigador_cargos')
-                    ->where('investigador_id',$investigador->id)
-                    ->where('activo',1)
-                    ->orderBy('deddoc')
-                    ->orderBy('cargo_id')
-                    ->orderByDesc('ingreso')
+                // Mayor dedicacion; a IGUAL DEDICACION gana el cargo de mayor
+                // jerarquia (menor `cargos.orden`); recien despues el ingreso mas
+                // reciente. Antes desempataba con ->orderBy('cargo_id'), que es un
+                // id arbitrario y no una jerarquia: con dos cargos de la misma
+                // dedicacion elegia mal. Caso ACOSTA ROSARIO (101553), Ayudante
+                // Diplomado Simple y JTP Simple, donde se quedaba con el Ayudante.
+                $principal = DB::table('investigador_cargos as ic')
+                    ->leftJoin('cargos as cg', 'cg.id', '=', 'ic.cargo_id')
+                    ->where('ic.investigador_id',$investigador->id)
+                    ->where('ic.activo',1)
+                    ->orderBy('ic.deddoc')
+                    ->orderByRaw('cg.orden IS NULL')
+                    ->orderBy('cg.orden')
+                    ->orderBy('ic.cargo_id')
+                    ->orderByDesc('ic.ingreso')
+                    ->select('ic.*')
                     ->first();
 
                 if ($principal) {
