@@ -13,6 +13,11 @@ use Illuminate\Support\Facades\DB;
  * controlador pueden tener menos de 3 posiciones (se filtraban los vacíos), lo
  * que rompía la edición con "Undefined array key 1".
  *
+ * Criterio conservador: sólo se completan las filas que pueden romper la vista
+ * (Viaticos/Alojamiento/Pasajes con menos de 3 posiciones). Las filas que ya
+ * tienen 3 o más, y los conceptos que no usan la tercera posición
+ * (Inscripcion, Otros), se dejan intactas: nunca se fusionan campos.
+ *
  * Por defecto SIMULA: no toca la base hasta que se pasa --apply.
  */
 class NormalizarDetallesPresupuestos extends Command
@@ -21,10 +26,23 @@ class NormalizarDetallesPresupuestos extends Command
                             {--apply : Aplica los cambios en la base (sin esta opción sólo simula)}
                             {--tabla=todas : joven | viaje | todas}';
 
-    protected $description = 'Normaliza el campo detalle de los presupuestos tipo 2 a 3 posiciones fijas separadas por "|"';
+    protected $description = 'Completa a 3 posiciones el detalle de los presupuestos tipo 2 de Viaticos/Pasajes que quedaron incompletos';
 
     /** Medios de transporte válidos para el concepto Pasajes */
     private const MEDIOS = ['Aereo', 'Omnibus', 'Automovil'];
+
+    /**
+     * Cuántas posiciones del detalle lee la vista para cada concepto.
+     * Viaticos/Alojamiento/Pasajes usan [1] y [2]; Inscripcion/Otros sólo [1].
+     * Una fila con menos posiciones que las de su concepto rompe la vista.
+     */
+    private const POSICIONES = [
+        'Viaticos'    => 3,
+        'Alojamiento' => 3,
+        'Pasajes'     => 3,
+        'Inscripcion' => 2,
+        'Otros'       => 2,
+    ];
 
     public function handle()
     {
@@ -114,10 +132,9 @@ class NormalizarDetallesPresupuestos extends Command
      * Devuelve [detalleNormalizado, esDudoso].
      *
      * Criterio conservador: sólo se tocan las filas que efectivamente pueden romper
-     * la vista, es decir las de conceptos que usan las 3 posiciones (Viaticos,
-     * Alojamiento, Pasajes) y que llegaron con menos de 3. Todo lo demás
-     * (Inscripcion, Otros, conceptos vacíos, y cualquier fila que ya tenga 3 o más
-     * posiciones) se deja exactamente como está: nunca se fusionan campos.
+     * la vista, según cuántas posiciones lee cada concepto (ver POSICIONES).
+     * Una fila que ya tiene las que su concepto necesita se deja EXACTAMENTE como
+     * está, y nunca se fusionan campos existentes.
      */
     private function normalizar(string $detalle): array
     {
@@ -127,19 +144,19 @@ class NormalizarDetallesPresupuestos extends Command
         }
 
         $partes = explode('|', $detalle);
-
-        // Ya tiene las 3 posiciones (o más): la vista lo lee sin problema, no lo toco
-        if (count($partes) >= 3) {
-            return [$detalle, false];
-        }
-
         $concepto = trim($partes[0]);
-        $resto = array_values(array_slice($partes, 1));
 
-        // Sólo Viaticos/Alojamiento/Pasajes necesitan la posición 2; el resto no rompe
-        if (!in_array($concepto, ['Viaticos', 'Alojamiento', 'Pasajes'], true)) {
+        // Concepto vacío o desconocido: la vista no lee ninguna posición extra, no rompe
+        if (!isset(self::POSICIONES[$concepto])) {
             return [$detalle, false];
         }
+
+        // Ya tiene las posiciones que su concepto lee: la vista lo resuelve bien
+        if (count($partes) >= self::POSICIONES[$concepto]) {
+            return [$detalle, false];
+        }
+
+        $resto = array_values(array_slice($partes, 1));
 
         // Falta todo salvo el concepto
         if (count($resto) === 0) {
