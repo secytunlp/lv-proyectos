@@ -593,7 +593,10 @@ class ExportarDocentesSinSolicitud extends Command
                 return '(no esta en investigadors)';
             }
             $ids = $this->categoriaIds($c->dni);
-            return $ids === '' ? '(sin categoria_id)' : $ids;
+            if ($ids === '') {
+                return '(sin categoria_id)';
+            }
+            return $ids . ' = ' . $this->categoriaNombres($c->dni);
         })->map(function ($g) {
             return $g->count();
         })->sortDesc();
