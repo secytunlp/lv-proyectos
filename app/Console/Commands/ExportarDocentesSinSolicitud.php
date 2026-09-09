@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -37,6 +38,9 @@ class ExportarDocentesSinSolicitud extends Command
         {--escalafon=* : Escalafones a incluir. Por defecto "Docente" y "Docente Preuniversitario"}
         {--convocatoria= : Id de convocatoria. Si se indica, solo cuentan las solicitudes de esa convocatoria}
         {--facultad=* : Filtra por cd_facultad. Vacio = todas}
+        {--excluir-excel=* : Ruta de un .xls/.xlsx/.csv con gente a sacar del listado. Se puede repetir}
+        {--sin-categoria : Deja solo a los que NO tienen investigadors.categoria_id en la lista de --categorias}
+        {--categorias=6,7,8,9,10 : Ids de categoria que cuentan como "categorizado", separados por coma}
         {--salida= : Ruta del .xlsx de salida}';
 
     protected $description = 'Exporta a Excel los cargos docentes de cargos_alfabetico cuyo DNI no figura en solicitud_sicadis';
@@ -53,10 +57,17 @@ class ExportarDocentesSinSolicitud extends Command
     private const HEADERS = [
         'DNI', 'Apellido y Nombres', 'Nacimiento', 'Escalafon', 'Dependencia',
         'cd_facultad', 'Cargo', 'Clase', 'Dedicacion', 'Funcion', 'Situacion', 'Desde',
+        'En_investigadors', 'categoria_id', 'Categoria',
     ];
 
     /** Columnas que van centradas */
-    private const CENTRADAS = ['A', 'C', 'F', 'H', 'L'];
+    private const CENTRADAS = ['A', 'C', 'F', 'H', 'L', 'M', 'N'];
+
+    /** clave de documento => array de categoria_id de investigadors (vacio = esta pero sin categoria) */
+    private $categoriaPorDoc = null;
+
+    /** id => nombre de la tabla categorias */
+    private $nombresCategoria = null;
 
     public function handle(): int
     {
@@ -103,13 +114,50 @@ class ExportarDocentesSinSolicitud extends Command
         $this->info('Sin solicitud en solicitud_sicadis:  ' . $personasFaltante
             . ' personas / ' . $faltantes->count() . ' cargos');
 
+        $excluidos = $this->documentosDeExcels();
+        if ($excluidos === null) {
+            return self::FAILURE;
+        }
+        if (count($excluidos) > 0) {
+            $antes = $faltantes->count();
+            $faltantes = $faltantes->filter(function ($c) use ($excluidos) {
+                $k = $this->claveDoc($c->dni);
+                return $k !== '' && !isset($excluidos[$k]);
+            })->values();
+
+            $this->newLine();
+            $this->info('Filtro --excluir-excel:');
+            $this->line('  Se descartan ' . ($antes - $faltantes->count()) . ' cargos');
+            $this->info('  Quedan: ' . $this->personasDistintas($faltantes)
+                . ' personas / ' . $faltantes->count() . ' cargos');
+        }
+
+        // La categoria se carga siempre: aunque no se filtre por ella, va como
+        // columna para poder mirarla desde el Excel.
+        $categorias = $this->categoriasBuscadas();
+        $this->cargarCategorias();
+
+        if ($this->option('sin-categoria')) {
+            $antes = $faltantes->count();
+            $faltantes = $faltantes->filter(function ($c) use ($categorias) {
+                return !$this->tieneCategoria($c->dni, $categorias);
+            })->values();
+
+            $this->newLine();
+            $this->info('Filtro --sin-categoria (categoria_id NOT IN ' . implode(',', $categorias) . '):');
+            $this->line('  Se descartan ' . ($antes - $faltantes->count()) . ' cargos ya categorizados');
+            $this->info('  Quedan: ' . $this->personasDistintas($faltantes)
+                . ' personas / ' . $faltantes->count() . ' cargos');
+        }
+
         if ($faltantes->isEmpty()) {
             $this->warn('No hay nada para exportar.');
             return self::SUCCESS;
         }
 
+        $sufijo = $this->option('sin-categoria') ? '_sin_categoria' : '';
         $salida = $this->option('salida') ?: storage_path(
-            'app/docentes_sin_solicitud_' . date('Ymd') . '.xlsx'
+            'app/docentes_sin_solicitud' . $sufijo . '_' . date('Ymd') . '.xlsx'
         );
         $this->ensureDir(dirname($salida));
 
@@ -221,6 +269,227 @@ class ExportarDocentesSinSolicitud extends Command
     }
 
     // -------------------------------------------------------------------------
+    // Exclusiones que vienen en planillas sueltas
+    // -------------------------------------------------------------------------
+
+    /**
+     * Junta los documentos de los .xlsx / .csv pasados en --excluir-excel.
+     *
+     * Busca en las primeras 20 filas un encabezado con CUIL, Documento o DNI y
+     * usa esa(s) columna(s); si no lo encuentra, avisa y usa la primera columna.
+     * Sirve igual con CUIL de 11 digitos o con DNI pelado.
+     *
+     * Devuelve null si algun archivo no se pudo leer.
+     */
+    private function documentosDeExcels(): ?array
+    {
+        $rutas = $this->option('excluir-excel');
+        if (empty($rutas)) {
+            return array();
+        }
+
+        $titulos = array('cuil', 'documento', 'dni', 'nro documento', 'nro. documento');
+        $set = array();
+
+        foreach ($rutas as $ruta) {
+            if (!is_readable($ruta)) {
+                $this->error('No puedo leer el archivo: ' . $ruta);
+                return null;
+            }
+
+            try {
+                $reader = IOFactory::createReaderForFile($ruta);
+                $reader->setReadDataOnly(true);
+                $hoja = $reader->load($ruta)->getSheet(0);
+                $filas = $hoja->toArray(null, true, false, false);
+            } catch (\Exception $e) {
+                $this->error('No pude abrir ' . $ruta . ': ' . $e->getMessage());
+                return null;
+            }
+
+            // encabezado
+            $idxCab = null;
+            $cols = array();
+            foreach ($filas as $i => $fila) {
+                foreach ($fila as $col => $titulo) {
+                    $t = mb_strtolower(trim(preg_replace('/\s+/u', ' ',
+                        str_replace("\xc2\xa0", ' ', (string) $titulo))), 'UTF-8');
+                    if (in_array($t, $titulos, true)) {
+                        $cols[] = $col;
+                    }
+                }
+                if (count($cols) > 0) {
+                    $idxCab = $i;
+                    break;
+                }
+                if ($i > 20) {
+                    break;
+                }
+            }
+
+            if ($idxCab === null) {
+                $this->warn('  ' . basename($ruta)
+                    . ': no encontre encabezado CUIL/Documento/DNI, uso la primera columna.');
+                $idxCab = -1;
+                $cols = array(0);
+            }
+
+            $antes = count($set);
+            $vacias = 0;
+            for ($i = $idxCab + 1; $i < count($filas); $i++) {
+                $huboAlgo = false;
+                foreach ($cols as $col) {
+                    if (!isset($filas[$i][$col])) {
+                        continue;
+                    }
+                    $v = $filas[$i][$col];
+                    if ($v === null || trim((string) $v) === '') {
+                        continue;
+                    }
+                    $huboAlgo = true;
+
+                    // Puede ser un CUIL de 11 o un DNI pelado: se prueban los dos.
+                    $k = $this->dniDesdeCuil($v);
+                    if ($k === '') {
+                        $k = $this->claveDoc($v);
+                    }
+                    if ($k !== '') {
+                        $set[$k] = true;
+                    }
+                }
+                if (!$huboAlgo) {
+                    $vacias++;
+                }
+            }
+
+            $this->line('Exclusion ' . basename($ruta) . ': '
+                . (count($set) - $antes) . ' documentos nuevos'
+                . ($vacias > 0 ? ' (' . $vacias . ' filas vacias salteadas)' : ''));
+        }
+
+        $this->line('Total a excluir por planilla: ' . count($set) . ' documentos');
+        return $set;
+    }
+
+    // -------------------------------------------------------------------------
+    // Categoria en investigadors
+    // -------------------------------------------------------------------------
+
+    /** Ids de categoria que cuentan como "ya categorizado". */
+    private function categoriasBuscadas(): array
+    {
+        $crudo = (string) $this->option('categorias');
+        $ids = array();
+        foreach (explode(',', $crudo) as $p) {
+            $p = trim($p);
+            if ($p !== '' && ctype_digit($p)) {
+                $ids[] = (int) $p;
+            }
+        }
+        return $ids;
+    }
+
+    /**
+     * Mapa documento normalizado => array de categoria_id, armado desde
+     * investigadors + personas. Se indexa por el documento y tambien por el DNI
+     * que sale del CUIL de la persona, porque en el alfabetico solo hay DNI y
+     * hay personas con uno de los dos campos mal cargado.
+     *
+     * Una clave presente con array vacio = la persona esta en investigadors pero
+     * sin categoria_id. Una clave ausente = no esta en investigadors. Los dos
+     * casos son "sin categoria" para el filtro.
+     */
+    private function cargarCategorias(): void
+    {
+        if ($this->categoriaPorDoc !== null) {
+            return;
+        }
+
+        $filas = DB::table('investigadors as i')
+            ->join('personas as p', 'p.id', '=', 'i.persona_id')
+            ->select('p.documento', 'p.cuil', 'i.categoria_id')
+            ->get();
+
+        $mapa = array();
+        foreach ($filas as $f) {
+            $claves = array();
+            $d = $this->claveDoc($f->documento);
+            if ($d !== '') {
+                $claves[] = $d;
+            }
+            $c = $this->dniDesdeCuil($f->cuil);
+            if ($c !== '' && $c !== $d) {
+                $claves[] = $c;
+            }
+
+            foreach ($claves as $k) {
+                if (!isset($mapa[$k])) {
+                    $mapa[$k] = array();
+                }
+                if ($f->categoria_id !== null && (int) $f->categoria_id > 0) {
+                    $cat = (int) $f->categoria_id;
+                    if (!in_array($cat, $mapa[$k], true)) {
+                        $mapa[$k][] = $cat;
+                    }
+                }
+            }
+        }
+
+        $this->categoriaPorDoc = $mapa;
+        $this->line('Investigadores leidos: ' . $filas->count()
+            . ' -> ' . count($mapa) . ' documentos con ficha en investigadors');
+
+        try {
+            $this->nombresCategoria = DB::table('categorias')->pluck('nombre', 'id')->toArray();
+        } catch (\Exception $e) {
+            $this->nombresCategoria = array();
+        }
+    }
+
+    /** true si esa persona tiene alguna de las categorias buscadas. */
+    private function tieneCategoria($dni, array $categorias): bool
+    {
+        $k = $this->claveDoc($dni);
+        if ($k === '' || !isset($this->categoriaPorDoc[$k])) {
+            return false;
+        }
+        return count(array_intersect($this->categoriaPorDoc[$k], $categorias)) > 0;
+    }
+
+    /** 'S' si la persona esta en investigadors, 'N' si no. */
+    private function enInvestigadors($dni): string
+    {
+        $k = $this->claveDoc($dni);
+        return ($k !== '' && isset($this->categoriaPorDoc[$k])) ? 'S' : 'N';
+    }
+
+    /** categoria_id de la persona, separados por / si tuviera mas de uno. */
+    private function categoriaIds($dni): string
+    {
+        $k = $this->claveDoc($dni);
+        if ($k === '' || empty($this->categoriaPorDoc[$k])) {
+            return '';
+        }
+        return implode(' / ', $this->categoriaPorDoc[$k]);
+    }
+
+    /** Nombre(s) de la categoria segun la tabla categorias. */
+    private function categoriaNombres($dni): string
+    {
+        $k = $this->claveDoc($dni);
+        if ($k === '' || empty($this->categoriaPorDoc[$k])) {
+            return '';
+        }
+        $nombres = array();
+        foreach ($this->categoriaPorDoc[$k] as $id) {
+            $nombres[] = isset($this->nombresCategoria[$id])
+                ? (string) $this->nombresCategoria[$id]
+                : ('#' . $id);
+        }
+        return implode(' / ', $nombres);
+    }
+
+    // -------------------------------------------------------------------------
     // Escritura
     // -------------------------------------------------------------------------
 
@@ -250,6 +519,9 @@ class ExportarDocentesSinSolicitud extends Command
             $sheet->setCellValueByColumnAndRow(10, $r, (string) $c->funcion);
             $sheet->setCellValueByColumnAndRow(11, $r, (string) $c->situacion);
             $sheet->setCellValueByColumnAndRow(12, $r, $this->fechaCorta($c->dt_fecha));
+            $sheet->setCellValueByColumnAndRow(13, $r, $this->enInvestigadors($c->dni));
+            $sheet->setCellValueByColumnAndRow(14, $r, $this->categoriaIds($c->dni));
+            $sheet->setCellValueByColumnAndRow(15, $r, $this->categoriaNombres($c->dni));
             $r++;
         }
 
@@ -314,6 +586,21 @@ class ExportarDocentesSinSolicitud extends Command
             $this->line(sprintf('  %-52s %5d', $this->corta($dep, 50), $n));
         }
 
+        $this->newLine();
+        $this->info('Por categoria en investigadors:');
+        $porCat = $faltantes->groupBy(function ($c) {
+            if ($this->enInvestigadors($c->dni) === 'N') {
+                return '(no esta en investigadors)';
+            }
+            $ids = $this->categoriaIds($c->dni);
+            return $ids === '' ? '(sin categoria_id)' : $ids;
+        })->map(function ($g) {
+            return $g->count();
+        })->sortDesc();
+        foreach ($porCat as $cat => $n) {
+            $this->line(sprintf('  %-32s %5d', $cat, $n));
+        }
+
         $conVarios = $faltantes->groupBy(function ($c) {
             return $this->claveDoc($c->dni);
         })->filter(function ($g) {
@@ -364,14 +651,21 @@ class ExportarDocentesSinSolicitud extends Command
         return strlen($d) >= 6 ? $d : '';
     }
 
-    /** DNI que esta adentro de un CUIL de 11 digitos (posiciones 3 a 10). */
+    /**
+     * DNI que sale del campo `cuil`. Con 11 digitos es un CUIL y el DNI son las
+     * posiciones 3 a 10; con 7 u 8 digitos ya quedo cargado el DNI pelado, que
+     * tambien pasa (hay solicitudes asi).
+     */
     private function dniDesdeCuil($v): string
     {
         $d = preg_replace('/\D/', '', (string) $v);
-        if (strlen($d) !== 11) {
-            return '';
+        if (strlen($d) === 11) {
+            return $this->claveDoc(substr($d, 2, 8));
         }
-        return $this->claveDoc(substr($d, 2, 8));
+        if (strlen($d) >= 7 && strlen($d) <= 8) {
+            return $this->claveDoc($d);
+        }
+        return '';
     }
 
     private function deddoc($v): string
