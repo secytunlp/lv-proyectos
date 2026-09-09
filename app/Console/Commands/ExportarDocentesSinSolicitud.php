@@ -42,6 +42,7 @@ class ExportarDocentesSinSolicitud extends Command
         {--control-nombre : Marca a los que, pese a no cruzar por CUIL, tienen una solicitud con el mismo apellido y nombre}
         {--excluir-nombre : Ademas de marcarlos, saca del listado a los de coincidencia EXACTA. Implica --control-nombre}
         {--sin-categoria : Deja solo a los que NO tienen investigadors.categoria_id en la lista de --categorias}
+        {--con-categoria : Al reves: deja solo a los que SI la tienen, con su categoria. Excluyente con --sin-categoria}
         {--categorias=6,7,8,9,10 : Ids de categoria que cuentan como "categorizado", separados por coma}
         {--salida= : Ruta del .xlsx de salida}';
 
@@ -111,6 +112,11 @@ class ExportarDocentesSinSolicitud extends Command
         $escalafones = $this->option('escalafon');
         if (empty($escalafones)) {
             $escalafones = self::ESCALAFONES;
+        }
+
+        if ($this->option('sin-categoria') && $this->option('con-categoria')) {
+            $this->error('--sin-categoria y --con-categoria son excluyentes: son las dos mitades del mismo corte.');
+            return self::FAILURE;
         }
 
         $this->info('=== Cargos docentes sin solicitud en solicitud_sicadis ===');
@@ -186,6 +192,17 @@ class ExportarDocentesSinSolicitud extends Command
             $this->line('  Se descartan ' . ($antes - $faltantes->count()) . ' cargos ya categorizados');
             $this->info('  Quedan: ' . $this->personasDistintas($faltantes)
                 . ' personas / ' . $faltantes->count() . ' cargos');
+        } elseif ($this->option('con-categoria')) {
+            $antes = $faltantes->count();
+            $faltantes = $faltantes->filter(function ($c) use ($categorias) {
+                return $this->tieneCategoria($c->dni, $categorias);
+            })->values();
+
+            $this->newLine();
+            $this->info('Filtro --con-categoria (categoria_id IN ' . implode(',', $categorias) . '):');
+            $this->line('  Se descartan ' . ($antes - $faltantes->count()) . ' cargos sin categoria');
+            $this->info('  Quedan: ' . $this->personasDistintas($faltantes)
+                . ' personas / ' . $faltantes->count() . ' cargos');
         }
 
         if ($this->controlNombre()) {
@@ -228,7 +245,12 @@ class ExportarDocentesSinSolicitud extends Command
             return self::SUCCESS;
         }
 
-        $sufijo = $this->option('sin-categoria') ? '_sin_categoria' : '';
+        $sufijo = '';
+        if ($this->option('sin-categoria')) {
+            $sufijo = '_sin_categoria';
+        } elseif ($this->option('con-categoria')) {
+            $sufijo = '_con_categoria';
+        }
         $salida = $this->option('salida') ?: storage_path(
             'app/docentes_sin_solicitud' . $sufijo . '_' . date('Ymd') . '.xlsx'
         );
@@ -854,7 +876,12 @@ class ExportarDocentesSinSolicitud extends Command
 
         // Se ocultan al final: el autoSize de arriba las dimensiona igual, asi
         // quedan bien si el usuario las muestra desde Excel.
+        // Con --con-categoria la categoria ES el objeto del listado, asi que esa
+        // columna queda a la vista.
         foreach (self::OCULTAS as $col) {
+            if ($col === 'N' && $this->option('con-categoria')) {
+                continue;
+            }
             $sheet->getColumnDimension($col)->setVisible(false);
         }
     }
