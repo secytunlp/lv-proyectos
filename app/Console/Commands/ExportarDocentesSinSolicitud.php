@@ -39,6 +39,8 @@ class ExportarDocentesSinSolicitud extends Command
         {--convocatoria= : Id de convocatoria. Si se indica, solo cuentan las solicitudes de esa convocatoria}
         {--facultad=* : Filtra por cd_facultad. Vacio = todas}
         {--excluir-excel=* : Ruta de un .xls/.xlsx/.csv con gente a sacar del listado. Se puede repetir}
+        {--control-nombre : Marca a los que, pese a no cruzar por CUIL, tienen una solicitud con el mismo apellido y nombre}
+        {--excluir-nombre : Ademas de marcarlos, saca del listado a los de coincidencia EXACTA. Implica --control-nombre}
         {--sin-categoria : Deja solo a los que NO tienen investigadors.categoria_id en la lista de --categorias}
         {--categorias=6,7,8,9,10 : Ids de categoria que cuentan como "categorizado", separados por coma}
         {--salida= : Ruta del .xlsx de salida}';
@@ -60,6 +62,9 @@ class ExportarDocentesSinSolicitud extends Command
         'En_investigadors', 'categoria_id', 'Categoria',
     ];
 
+    /** Se agregan al final solo con --control-nombre */
+    private const HEADERS_NOMBRE = ['Match_nombre', 'Solicitud_coincidente'];
+
     /** Columnas que van centradas */
     private const CENTRADAS = ['A', 'C', 'F', 'H', 'L', 'M', 'N'];
 
@@ -68,6 +73,9 @@ class ExportarDocentesSinSolicitud extends Command
 
     /** id => nombre de la tabla categorias */
     private $nombresCategoria = null;
+
+    /** array('exacto' => [...], 'parcial' => [...]) con las solicitudes indexadas por nombre */
+    private $nombresSolicitud = null;
 
     public function handle(): int
     {
@@ -148,6 +156,41 @@ class ExportarDocentesSinSolicitud extends Command
             $this->line('  Se descartan ' . ($antes - $faltantes->count()) . ' cargos ya categorizados');
             $this->info('  Quedan: ' . $this->personasDistintas($faltantes)
                 . ' personas / ' . $faltantes->count() . ' cargos');
+        }
+
+        if ($this->controlNombre()) {
+            $this->cargarIndiceNombres();
+
+            $exactos = 0;
+            $parciales = 0;
+            foreach ($faltantes as $c) {
+                $m = $this->matchPorNombre($c->investigador);
+                if ($m['tipo'] === 'EXACTO') {
+                    $exactos++;
+                } elseif ($m['tipo'] === 'PARCIAL') {
+                    $parciales++;
+                }
+            }
+
+            $this->newLine();
+            $this->info('Control por apellido y nombre:');
+            $this->line('  Coincidencia EXACTA  (apellido + todos los nombres): ' . $exactos . ' cargos');
+            $this->line('  Coincidencia PARCIAL (apellido + primer nombre):     ' . $parciales . ' cargos');
+            $this->line('  Son personas que NO cruzaron por CUIL pero figuran con ese nombre en');
+            $this->line('  solicitud_sicadis: o el CUIL esta mal cargado en algun lado, o son homonimos.');
+
+            if ($this->option('excluir-nombre')) {
+                $antes = $faltantes->count();
+                $faltantes = $faltantes->filter(function ($c) {
+                    return $this->matchPorNombre($c->investigador)['tipo'] !== 'EXACTO';
+                })->values();
+                $this->newLine();
+                $this->info('Filtro --excluir-nombre (solo los EXACTO):');
+                $this->line('  Se descartan ' . ($antes - $faltantes->count()) . ' cargos');
+                $this->info('  Quedan: ' . $this->personasDistintas($faltantes)
+                    . ' personas / ' . $faltantes->count() . ' cargos');
+                $this->warn('  Los PARCIAL quedan en el listado, marcados en la columna Match_nombre.');
+            }
         }
 
         if ($faltantes->isEmpty()) {
@@ -266,6 +309,138 @@ class ExportarDocentesSinSolicitud extends Command
             ->orderBy('cd_deddoc')
             ->orderBy('cd_cargo')
             ->get();
+    }
+
+    // -------------------------------------------------------------------------
+    // Control por apellido y nombre
+    // -------------------------------------------------------------------------
+
+    /**
+     * Indices de solicitud_sicadis por nombre, para detectar a los que no
+     * cruzaron por CUIL pero igual se presentaron (CUIL mal cargado de un lado
+     * o del otro).
+     *
+     * Se arman dos:
+     *   exacto  = APELLIDO|TODOS LOS NOMBRES
+     *   parcial = APELLIDO|PRIMER NOMBRE
+     *
+     * El parcial existe porque es comun que en un lado figure "JUAN CARLOS" y en
+     * el otro solo "JUAN". Trae homonimos: es para revisar, no para descartar.
+     */
+    private function cargarIndiceNombres(): void
+    {
+        if ($this->nombresSolicitud !== null) {
+            return;
+        }
+
+        $query = DB::table('solicitud_sicadis as s')
+            ->leftJoin('sicadi_convocatorias as c', 'c.id', '=', 's.convocatoria_id')
+            ->select('s.id', 's.apellido', 's.nombre', 's.cuil', 'c.tipo', 'c.year');
+
+        $convocatoria = $this->option('convocatoria');
+        if ($convocatoria !== null && $convocatoria !== '') {
+            $query->where('s.convocatoria_id', $convocatoria);
+        }
+
+        $exacto  = array();
+        $parcial = array();
+
+        foreach ($query->get() as $s) {
+            $ap = $this->normNombre($s->apellido);
+            $no = $this->normNombre($s->nombre);
+            if ($ap === '' || $no === '') {
+                continue;
+            }
+
+            $detalle = '#' . $s->id
+                . ' ' . trim((string) $s->apellido) . ', ' . trim((string) $s->nombre)
+                . ' [cuil ' . ($s->cuil === null || $s->cuil === '' ? 's/d' : $s->cuil) . ']'
+                . ($s->tipo === null ? '' : ' ' . $s->tipo . ' ' . $s->year);
+
+            $kExacto = $ap . '|' . $no;
+            if (!isset($exacto[$kExacto])) {
+                $exacto[$kExacto] = array();
+            }
+            $exacto[$kExacto][] = $detalle;
+
+            $partes = explode(' ', $no);
+            $kParcial = $ap . '|' . $partes[0];
+            if (!isset($parcial[$kParcial])) {
+                $parcial[$kParcial] = array();
+            }
+            $parcial[$kParcial][] = $detalle;
+        }
+
+        $this->nombresSolicitud = array('exacto' => $exacto, 'parcial' => $parcial);
+        $this->line('Indice por nombre: ' . count($exacto) . ' apellido+nombre distintos');
+    }
+
+    /**
+     * Devuelve array('tipo' => 'EXACTO'|'PARCIAL'|'', 'detalle' => string) para
+     * una fila del alfabetico.
+     */
+    private function matchPorNombre($completo): array
+    {
+        $vacio = array('tipo' => '', 'detalle' => '');
+
+        list($ap, $no) = $this->partirNombre($completo);
+        if ($ap === '' || $no === '') {
+            return $vacio;
+        }
+
+        $k = $ap . '|' . $no;
+        if (isset($this->nombresSolicitud['exacto'][$k])) {
+            return array(
+                'tipo'    => 'EXACTO',
+                'detalle' => implode(' ;; ', $this->nombresSolicitud['exacto'][$k]),
+            );
+        }
+
+        $partes = explode(' ', $no);
+        $k = $ap . '|' . $partes[0];
+        if (isset($this->nombresSolicitud['parcial'][$k])) {
+            return array(
+                'tipo'    => 'PARCIAL',
+                'detalle' => implode(' ;; ', $this->nombresSolicitud['parcial'][$k]),
+            );
+        }
+
+        return $vacio;
+    }
+
+    /**
+     * "APELLIDO, NOMBRES" -> array(apellido, nombres) normalizados.
+     *
+     * Se corta por la coma, no por el primer espacio: asi no se rompen los
+     * apellidos compuestos ("DI GIORGIO, ANA" -> DI GIORGIO / ANA).
+     */
+    private function partirNombre($completo): array
+    {
+        $s = trim((string) $completo);
+        $pos = mb_strpos($s, ',');
+        if ($pos === false) {
+            return array($this->normNombre($s), '');
+        }
+        return array(
+            $this->normNombre(mb_substr($s, 0, $pos)),
+            $this->normNombre(mb_substr($s, $pos + 1)),
+        );
+    }
+
+    /** Mayusculas, sin acentos, sin puntuacion, espacios colapsados. */
+    private function normNombre($v): string
+    {
+        $v = mb_strtoupper(trim((string) $v), 'UTF-8');
+        $v = strtr($v, array(
+            'Á' => 'A', 'À' => 'A', 'Â' => 'A', 'Ä' => 'A', 'Ã' => 'A',
+            'É' => 'E', 'È' => 'E', 'Ê' => 'E', 'Ë' => 'E',
+            'Í' => 'I', 'Ì' => 'I', 'Î' => 'I', 'Ï' => 'I',
+            'Ó' => 'O', 'Ò' => 'O', 'Ô' => 'O', 'Ö' => 'O', 'Õ' => 'O',
+            'Ú' => 'U', 'Ù' => 'U', 'Û' => 'U', 'Ü' => 'U',
+            'Ñ' => 'N', 'Ç' => 'C',
+        ));
+        $v = preg_replace('/[^A-Z ]/', ' ', $v);
+        return trim(preg_replace('/\s+/', ' ', $v));
     }
 
     // -------------------------------------------------------------------------
@@ -493,13 +668,28 @@ class ExportarDocentesSinSolicitud extends Command
     // Escritura
     // -------------------------------------------------------------------------
 
+    /** true si hay que correr el control por nombre. */
+    private function controlNombre(): bool
+    {
+        return (bool) $this->option('control-nombre') || (bool) $this->option('excluir-nombre');
+    }
+
+    private function cabeceras(): array
+    {
+        return $this->controlNombre()
+            ? array_merge(self::HEADERS, self::HEADERS_NOMBRE)
+            : self::HEADERS;
+    }
+
     private function escribir($faltantes, string $path): void
     {
+        $headers = $this->cabeceras();
+
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Sin solicitud');
 
-        foreach (self::HEADERS as $i => $h) {
+        foreach ($headers as $i => $h) {
             $sheet->setCellValueByColumnAndRow($i + 1, 1, $h);
         }
 
@@ -522,6 +712,11 @@ class ExportarDocentesSinSolicitud extends Command
             $sheet->setCellValueByColumnAndRow(13, $r, $this->enInvestigadors($c->dni));
             $sheet->setCellValueByColumnAndRow(14, $r, $this->categoriaIds($c->dni));
             $sheet->setCellValueByColumnAndRow(15, $r, $this->categoriaNombres($c->dni));
+            if ($this->controlNombre()) {
+                $m = $this->matchPorNombre($c->investigador);
+                $sheet->setCellValueByColumnAndRow(16, $r, $m['tipo']);
+                $sheet->setCellValueByColumnAndRow(17, $r, $m['detalle']);
+            }
             $r++;
         }
 
@@ -535,7 +730,8 @@ class ExportarDocentesSinSolicitud extends Command
 
     private function estilar($sheet, int $lastRow): void
     {
-        $lastCol = Coordinate::stringFromColumnIndex(count(self::HEADERS));
+        $headers = $this->cabeceras();
+        $lastCol = Coordinate::stringFromColumnIndex(count($headers));
 
         $sheet->getStyle("A1:{$lastCol}1")->getFont()->setBold(true);
         $sheet->getStyle("A1:{$lastCol}1")->getAlignment()
