@@ -59,14 +59,42 @@ class ExportarDocentesSinSolicitud extends Command
     private const HEADERS = [
         'DNI', 'Apellido y Nombres', 'Nacimiento', 'Escalafon', 'Dependencia',
         'cd_facultad', 'Cargo', 'Clase', 'Dedicacion', 'Funcion', 'Situacion', 'Desde',
-        'En_investigadors', 'categoria_id', 'Categoria',
+        'En_investigadors', 'categoria_id', 'Categoria', 'Proyecto_vigente',
     ];
+
+    /**
+     * Estados de `integrantes` que cuentan para "proyecto vigente": aprobado
+     * (NULL / ''), con baja pedida pero sin aprobar, con un cambio en tramite,
+     * y tambien las altas todavia no aprobadas ('Alta Creada' / 'Alta Recibida').
+     *
+     * Es la lista de exportar:integrantes-excel MAS las altas pendientes, o sea
+     * el equivalente a correr aquel comando con --incluir-altas-pendientes: si
+     * la persona ya pidio el alta en un proyecto en ejecucion, cuenta como que
+     * esta adentro.
+     */
+    private const ESTADOS_INTEGRANTE = [
+        '',
+        'Alta Creada', 'Alta Recibida',
+        'Baja Creada', 'Baja Recibida',
+        'Cambio Creado', 'Cambio Recibido',
+        'Cambio Hs. Creado', 'Cambio Hs. Recibido',
+        'Cambio Tipo Creado', 'Cambio Tipo Recibido',
+    ];
+
+    /**
+     * Columnas que se escriben pero quedan ocultas en la planilla: el dato esta
+     * (se puede mostrar desde Excel) pero no estorba a la vista.
+     */
+    private const OCULTAS = ['F', 'M', 'N'];
 
     /** Se agregan al final solo con --control-nombre */
     private const HEADERS_NOMBRE = ['Match_nombre', 'Solicitud_coincidente'];
 
     /** Columnas que van centradas */
-    private const CENTRADAS = ['A', 'C', 'F', 'H', 'L', 'M', 'N'];
+    private const CENTRADAS = ['A', 'C', 'F', 'H', 'L', 'M', 'N', 'P'];
+
+    /** clave de documento => true si tiene un proyecto acreditado en ejecucion hoy */
+    private $enProyectoVigente = null;
 
     /** clave de documento => array de categoria_id de investigadors (vacio = esta pero sin categoria) */
     private $categoriaPorDoc = null;
@@ -76,6 +104,7 @@ class ExportarDocentesSinSolicitud extends Command
 
     /** array('exacto' => [...], 'parcial' => [...]) con las solicitudes indexadas por nombre */
     private $nombresSolicitud = null;
+
 
     public function handle(): int
     {
@@ -144,6 +173,7 @@ class ExportarDocentesSinSolicitud extends Command
         // columna para poder mirarla desde el Excel.
         $categorias = $this->categoriasBuscadas();
         $this->cargarCategorias();
+        $this->cargarProyectoVigente();
 
         if ($this->option('sin-categoria')) {
             $antes = $faltantes->count();
@@ -309,6 +339,76 @@ class ExportarDocentesSinSolicitud extends Command
             ->orderBy('cd_deddoc')
             ->orderBy('cd_cargo')
             ->get();
+    }
+
+    // -------------------------------------------------------------------------
+    // Proyecto vigente
+    // -------------------------------------------------------------------------
+
+    /**
+     * Documentos de la gente que hoy integra un proyecto acreditado en ejecucion.
+     *
+     * "Vigente" = proyecto con estado Acreditado cuyo periodo inicio..fin
+     * contiene la fecha de hoy, y la persona figura como integrante efectivo:
+     * estado aprobado o tramite en curso (ESTADOS_INTEGRANTE), sin baja anterior
+     * a hoy y sin alta posterior a hoy. Mismo criterio que
+     * exportar:integrantes-excel, para que los dos listados no se contradigan.
+     */
+    private function cargarProyectoVigente(): void
+    {
+        if ($this->enProyectoVigente !== null) {
+            return;
+        }
+
+        $hoy = date('Y-m-d');
+        $estados = self::ESTADOS_INTEGRANTE;
+
+        $filas = DB::table('integrantes as i')
+            ->join('investigadors as inv', 'inv.id', '=', 'i.investigador_id')
+            ->join('personas as p', 'p.id', '=', 'inv.persona_id')
+            ->join('proyectos as pr', 'pr.id', '=', 'i.proyecto_id')
+            ->where('pr.estado', 'Acreditado')
+            ->whereNotNull('pr.inicio')
+            ->whereNotNull('pr.fin')
+            ->where('pr.inicio', '<=', $hoy)
+            ->where('pr.fin', '>=', $hoy)
+            ->where(function ($q) use ($estados) {
+                $q->whereIn('i.estado', $estados)->orWhereNull('i.estado');
+            })
+            ->where(function ($q) use ($hoy) {
+                $q->whereNull('i.baja')
+                    ->orWhere('i.baja', '=', '0000-00-00')
+                    ->orWhere('i.baja', '>=', $hoy);
+            })
+            ->where(function ($q) use ($hoy) {
+                $q->whereNull('i.alta')
+                    ->orWhere('i.alta', '=', '0000-00-00')
+                    ->orWhere('i.alta', '<=', $hoy);
+            })
+            ->select('p.documento', 'p.cuil')
+            ->get();
+
+        $set = array();
+        foreach ($filas as $f) {
+            $d = $this->claveDoc($f->documento);
+            if ($d !== '') {
+                $set[$d] = true;
+            }
+            $c = $this->dniDesdeCuil($f->cuil);
+            if ($c !== '') {
+                $set[$c] = true;
+            }
+        }
+
+        $this->enProyectoVigente = $set;
+        $this->line('Integrantes de proyectos acreditados en ejecucion al ' . $hoy . ': '
+            . $filas->count() . ' filas -> ' . count($set) . ' documentos');
+    }
+
+    private function proyectoVigente($dni): string
+    {
+        $k = $this->claveDoc($dni);
+        return ($k !== '' && isset($this->enProyectoVigente[$k])) ? 'SI' : 'NO';
     }
 
     // -------------------------------------------------------------------------
@@ -712,10 +812,11 @@ class ExportarDocentesSinSolicitud extends Command
             $sheet->setCellValueByColumnAndRow(13, $r, $this->enInvestigadors($c->dni));
             $sheet->setCellValueByColumnAndRow(14, $r, $this->categoriaIds($c->dni));
             $sheet->setCellValueByColumnAndRow(15, $r, $this->categoriaNombres($c->dni));
+            $sheet->setCellValueByColumnAndRow(16, $r, $this->proyectoVigente($c->dni));
             if ($this->controlNombre()) {
                 $m = $this->matchPorNombre($c->investigador);
-                $sheet->setCellValueByColumnAndRow(16, $r, $m['tipo']);
-                $sheet->setCellValueByColumnAndRow(17, $r, $m['detalle']);
+                $sheet->setCellValueByColumnAndRow(17, $r, $m['tipo']);
+                $sheet->setCellValueByColumnAndRow(18, $r, $m['detalle']);
             }
             $r++;
         }
@@ -749,6 +850,12 @@ class ExportarDocentesSinSolicitud extends Command
         foreach (self::CENTRADAS as $col) {
             $sheet->getStyle("{$col}2:{$col}{$lastRow}")->getAlignment()
                 ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        }
+
+        // Se ocultan al final: el autoSize de arriba las dimensiona igual, asi
+        // quedan bien si el usuario las muestra desde Excel.
+        foreach (self::OCULTAS as $col) {
+            $sheet->getColumnDimension($col)->setVisible(false);
         }
     }
 
@@ -798,6 +905,17 @@ class ExportarDocentesSinSolicitud extends Command
         })->sortDesc();
         foreach ($porCat as $cat => $n) {
             $this->line(sprintf('  %-32s %5d', $cat, $n));
+        }
+
+        $this->newLine();
+        $this->info('Por proyecto vigente:');
+        $porVig = $faltantes->groupBy(function ($c) {
+            return $this->proyectoVigente($c->dni);
+        })->map(function ($g) {
+            return $g->count();
+        })->sortKeys();
+        foreach ($porVig as $v => $n) {
+            $this->line(sprintf('  %-32s %5d', $v, $n));
         }
 
         $conVarios = $faltantes->groupBy(function ($c) {
