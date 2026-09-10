@@ -35,6 +35,7 @@ class AuditarBecasJovenes extends Command
         {--fecha-referencia= : Beca vigente a esta fecha (Y-m-d). Por defecto <anio>-04-01}
         {--estado= : Filtra por estado de la solicitud. Vacio = todos}
         {--solo= : Muestra solo las filas cuyo diagnostico contenga este texto}
+        {--todas : No filtrar por UNLP: considera becas de cualquier institucion}
         {--salida= : Ruta del .xlsx de salida}';
 
     protected $description = 'Audita las becas de los jovenes de un periodo contra investigador_becas';
@@ -71,6 +72,7 @@ class AuditarBecasJovenes extends Command
 
         $estado = trim((string) $this->option('estado'));
         $solo   = trim((string) $this->option('solo'));
+        $todas  = (bool) $this->option('todas');
 
         $query = DB::table('jovens as j')
             ->leftJoin('periodos as pe', 'pe.id', '=', 'j.periodo_id')
@@ -92,6 +94,9 @@ class AuditarBecasJovenes extends Command
 
         $this->info('Periodo '.$anio.($estado !== '' ? ', estado '.$estado : '').' — solicitudes: '.$jovenes->count());
         $this->line('Beca vigente al '.$fechaRef);
+        $this->line($todas
+            ? 'Sin filtro de institucion (--todas)'
+            : 'Solo becas con institucion = UNLP, en las dos tablas');
 
         if ($jovenes->isEmpty()) {
             $this->warn('No hay solicitudes para ese periodo.');
@@ -110,11 +115,14 @@ class AuditarBecasJovenes extends Command
         // Beca declarada en la solicitud
         $becasJoven = [];
         if (!empty($jovenIds)) {
-            $filas = DB::table('joven_becas')
+            $consulta = DB::table('joven_becas')
                 ->select('joven_id', 'institucion', 'beca', 'desde', 'hasta', 'unlp')
                 ->whereIn('joven_id', $jovenIds)
-                ->where('actual', 1)
-                ->get();
+                ->where('actual', 1);
+            if (!$todas) {
+                $consulta->where('institucion', 'UNLP');
+            }
+            $filas = $consulta->get();
             foreach ($filas as $fila) {
                 $becasJoven[(int) $fila->joven_id] = $fila;
             }
@@ -123,12 +131,15 @@ class AuditarBecasJovenes extends Command
         // Becas del investigador vigentes a la fecha de referencia
         $becasInv = [];
         if (!empty($invIds)) {
-            $filas = DB::table('investigador_becas')
+            $consulta = DB::table('investigador_becas')
                 ->select('id', 'investigador_id', 'institucion', 'beca', 'desde', 'hasta', 'resumen')
                 ->whereIn('investigador_id', $invIds)
                 ->where('desde', '<=', $fechaRef)
-                ->where('hasta', '>=', $fechaRef)
-                ->get();
+                ->where('hasta', '>=', $fechaRef);
+            if (!$todas) {
+                $consulta->where('institucion', 'UNLP');
+            }
+            $filas = $consulta->get();
             foreach ($filas as $fila) {
                 $iid = (int) $fila->investigador_id;
                 if (!array_key_exists($iid, $becasInv)) {

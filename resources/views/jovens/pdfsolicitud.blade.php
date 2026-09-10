@@ -243,7 +243,9 @@
     </div>
 
 </div>
-@if(intval($year)>2025)
+{{-- El resumen sale de investigador_becas y solo lo cargan las becas UNLP,
+     asi que sin resumen no se imprime el recuadro vacio. --}}
+@if(intval($year)>2025 && !empty($resumen_beca))
     <div class="content">
         <div>RESUMEN DE LA BECA</div>
     </div>
