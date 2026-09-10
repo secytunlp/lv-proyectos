@@ -161,6 +161,11 @@ class ImportarResumenesBecas extends Command
                 $pos = array_key_exists($clave, $indices) ? $indices[$clave] : null;
                 $bruto = ($pos !== null && array_key_exists($pos, $datos)) ? $datos[$pos] : '';
                 $fila[$clave] = trim($this->aUtf8($bruto));
+                // HeidiSQL exporta los NULL como el texto "NULL" salvo que se
+                // vacie "Valor para NULL" en el dialogo de exportacion.
+                if (strcasecmp($fila[$clave], 'NULL') === 0) {
+                    $fila[$clave] = '';
+                }
             }
             $filas[] = $fila;
         }
@@ -253,6 +258,37 @@ class ImportarResumenesBecas extends Command
             }
         }
 
+        // Segunda vuelta por CUIL, solo para diagnosticar los SIN PERSONA:
+        // puede haber personas cargadas con el documento distinto del CUIL.
+        $cuils = [];
+        foreach ($filas as $fila) {
+            $cuil = $this->soloDigitos($fila['cuil']);
+            if (strlen($cuil) === 11) {
+                $cuils[$cuil] = true;
+            }
+        }
+        $cuils = array_keys($cuils);
+
+        $personasPorCuil = [];
+        if (!empty($cuils)) {
+            $entrecomillados = [];
+            foreach ($cuils as $cuil) {
+                $entrecomillados[] = "'".$cuil."'";
+            }
+            $cuilNorm = "REPLACE(REPLACE(REPLACE(cuil, '-', ''), '.', ''), ' ', '')";
+            $personasCuil = DB::table('personas')
+                ->select('id', 'cuil')
+                ->whereRaw($cuilNorm.' IN ('.implode(',', $entrecomillados).')')
+                ->get();
+            foreach ($personasCuil as $persona) {
+                $clave = $this->soloDigitos($persona->cuil);
+                if (!array_key_exists($clave, $personasPorCuil)) {
+                    $personasPorCuil[$clave] = [];
+                }
+                $personasPorCuil[$clave][] = (int) $persona->id;
+            }
+        }
+
         $personaIds = [];
         foreach ($personasPorDoc as $ids) {
             foreach ($ids as $id) {
@@ -306,7 +342,9 @@ class ImportarResumenesBecas extends Command
                 'nombre'       => $fila['nombre'],
                 'documento'    => '',
                 'origen_doc'   => '',
+                'cuil'         => $fila['cuil'],
                 'anio'         => '',
+                'becas_investigador' => '',
                 'beca_id'      => '',
                 'institucion'  => '',
                 'beca'         => '',
@@ -344,6 +382,12 @@ class ImportarResumenesBecas extends Command
 
             if (!array_key_exists($doc, $personasPorDoc)) {
                 $registro['accion'] = 'SIN PERSONA';
+                $cuilFila = $this->soloDigitos($fila['cuil']);
+                if ($cuilFila !== '' && array_key_exists($cuilFila, $personasPorCuil)) {
+                    $registro['detalle'] = 'pero el CUIL matchea persona(s): '
+                        .implode(',', $personasPorCuil[$cuilFila])
+                        .' -> documento distinto en personas';
+                }
                 $informe[] = $registro;
                 continue;
             }
@@ -362,20 +406,31 @@ class ImportarResumenesBecas extends Command
                 continue;
             }
 
-            $candidatas = [];
-            $basura     = 0;
-            $desdeAnio  = $anio.'-01-01';
-            $hastaAnio  = $anio.'-12-31';
+            $candidatas   = [];
+            $todas        = [];
+            $otraInst     = 0;
+            $sinFechas    = 0;
+            $basura       = 0;
+            $fueraPeriodo = 0;
+            $desdeAnio    = $anio.'-01-01';
+            $hastaAnio    = $anio.'-12-31';
 
             foreach ($investigadoresPorPersona[$personaId] as $invId) {
                 if (!array_key_exists($invId, $becasPorInvestigador)) {
                     continue;
                 }
                 foreach ($becasPorInvestigador[$invId] as $beca) {
+                    $todas[] = trim((string) $beca->institucion).'|'
+                        .trim((string) $beca->beca).'|'
+                        .substr((string) $beca->desde, 0, 10).'|'
+                        .substr((string) $beca->hasta, 0, 10);
+
                     if ($institucion !== '' && strcasecmp(trim((string) $beca->institucion), $institucion) !== 0) {
+                        $otraInst++;
                         continue;
                     }
                     if (empty($beca->desde) || empty($beca->hasta)) {
+                        $sinFechas++;
                         continue;
                     }
                     $bDesde = substr((string) $beca->desde, 0, 10);
@@ -388,15 +443,34 @@ class ImportarResumenesBecas extends Command
                     }
                     if ($bDesde <= $hastaAnio && $bHasta >= $desdeAnio) {
                         $candidatas[] = $beca;
+                    } else {
+                        $fueraPeriodo++;
                     }
                 }
             }
 
+            $registro['becas_investigador'] = implode(' ;; ', $todas);
+
             if (empty($candidatas)) {
+                $motivos = [];
+                if (empty($todas)) {
+                    $motivos[] = 'el investigador no tiene NINGUNA beca cargada';
+                } else {
+                    if ($otraInst > 0) {
+                        $motivos[] = $otraInst.' con institucion != '.$institucion;
+                    }
+                    if ($sinFechas > 0) {
+                        $motivos[] = $sinFechas.' sin fechas';
+                    }
+                    if ($basura > 0) {
+                        $motivos[] = $basura.' con fecha epoch';
+                    }
+                    if ($fueraPeriodo > 0) {
+                        $motivos[] = $fueraPeriodo.' fuera de '.$anio;
+                    }
+                }
                 $registro['accion']  = 'SIN BECA DEL PERIODO';
-                $registro['detalle'] = $basura > 0
-                    ? $basura.' fila(s) descartadas por fecha epoch'
-                    : 'ninguna beca solapa '.$anio;
+                $registro['detalle'] = implode(', ', $motivos);
                 $informe[] = $registro;
                 continue;
             }
@@ -450,6 +524,30 @@ class ImportarResumenesBecas extends Command
         }
         $this->newLine();
         $this->table(['Accion', 'Filas'], $resumenTabla);
+
+        // Desglose por motivo, para no tener que abrir el CSV
+        $porMotivo = [];
+        foreach ($informe as $registro) {
+            if ($registro['accion'] === 'ACTUALIZAR' || $registro['accion'] === 'SIN CAMBIOS') {
+                continue;
+            }
+            $clave = $registro['accion'].' :: '.($registro['detalle'] !== '' ? $registro['detalle'] : '(sin detalle)');
+            if (!array_key_exists($clave, $porMotivo)) {
+                $porMotivo[$clave] = 0;
+            }
+            $porMotivo[$clave]++;
+        }
+        if (!empty($porMotivo)) {
+            arsort($porMotivo);
+            $tablaMotivos = [];
+            foreach (array_slice($porMotivo, 0, 15, true) as $clave => $cantidad) {
+                $partes = explode(' :: ', $clave, 2);
+                $tablaMotivos[] = [$partes[0], mb_substr($partes[1], 0, 70, 'UTF-8'), $cantidad];
+            }
+            $this->newLine();
+            $this->line('Desglose por motivo:');
+            $this->table(['Accion', 'Motivo', 'Filas'], $tablaMotivos);
+        }
 
         $problemas = [];
         foreach ($informe as $registro) {
