@@ -11,6 +11,196 @@
 
 
 @section('content')
+@php
+    /*
+     * Repoblado del formulario cuando el server rebota la validacion (update()).
+     *
+     * OJO con LaravelCollective: para un campo array como 'titulos[]', old() devuelve
+     * el ARRAY completo y getSelectedValue() resuelve con in_array(), asi que todas
+     * las filas terminarian marcando cualquiera de los valores enviados. Por eso las
+     * filas repetibles se arman a mano con $selectFila()/$fechaFila() y no con Form::.
+     * Los campos sueltos (apellido, email, etc.) si los repuebla Form:: solo.
+     *
+     * Cada tabla se dibuja desde old() si venimos de un POST rebotado, y desde el
+     * modelo si es una carga normal de la pantalla.
+     */
+    $selectFila = function ($name, $list, $selected = '', $class = 'form-control', $style = '') {
+        $html = '<select name="' . e($name) . '" class="' . e($class) . '"'
+              . ($style !== '' ? ' style="' . e($style) . '"' : '') . '>';
+        foreach ($list as $valor => $etiqueta) {
+            $sel = ((string) $valor === (string) $selected) ? ' selected' : '';
+            $html .= '<option value="' . e($valor) . '"' . $sel . '>' . e($etiqueta) . '</option>';
+        }
+
+        return $html . '</select>';
+    };
+
+    $fechaFila = function ($name, $valor = '', $style = 'width:150px;') {
+        return '<input type="date" name="' . e($name) . '" class="form-control"'
+             . ' style="' . e($style) . '" value="' . e($valor) . '">';
+    };
+
+    $fechaIso = function ($valor) {
+        return $valor ? date('Y-m-d', strtotime($valor)) : '';
+    };
+
+    $dedicaciones = config('dedicaciones');
+    unset($dedicaciones['Sin Dedicación']);
+
+    $institucionesBeca = ['' => '', 'ANPCyT' => 'ANPCyT', 'AGENCIA i+D+i' => 'AGENCIA i+D+i', 'CIC PBA' => 'CIC PBA', 'CIC' => 'CIC', 'CONICET' => 'CONICET', 'UNLP' => 'UNLP', 'CIN' => 'CIN', 'OTRA' => 'OTRA'];
+    $tiposBeca = ['' => '', 'Beca inicial' => 'Beca inicial', 'Beca superior' => 'Beca superior', 'Beca de entrenamiento' => 'Beca de entrenamiento', 'Beca doctoral' => 'Beca doctoral', 'Beca posdoctoral' => 'Beca posdoctoral', 'Beca finalización del doctorado' => 'Beca finalización del doctorado', 'Beca maestría' => 'Beca maestría', 'Formación Superior' => 'Formación Superior', 'Iniciación' => 'Iniciación', 'TIPO I' => 'TIPO I', 'TIPO II' => 'TIPO II', 'TIPO A' => 'TIPO A', 'Tipo A - Maestría' => 'Tipo A - Maestría', 'Tipo A - Doctorado' => 'Tipo A - Doctorado', 'Beca Cofinanciada (UNLP-CIC)' => 'Beca Cofinanciada (UNLP-CIC)', 'Especial de Maestría' => 'Especial de Maestría', 'TIPO B' => 'TIPO B', 'TIPO B (DOCTORADO)' => 'TIPO B (DOCTORADO)', 'TIPO B (MAESTRÍA)' => 'TIPO B (MAESTRÍA)', 'BECA DE PERFECCIONAMIENTO' => 'BECA DE PERFECCIONAMIENTO', 'CONICET 2' => 'CONICET 2', 'RETENCION DE POSTGRADUADO' => 'RETENCION DE POSTGRADUADO', 'EVC' => 'EVC'];
+
+    // --- Titulos de grado ---
+    $filasTitulos = [];
+    if (is_array(old('titulos'))) {
+        foreach (old('titulos') as $i => $v) {
+            $filasTitulos[] = ['titulo' => $v, 'egreso' => old('egresos')[$i] ?? ''];
+        }
+    } else {
+        foreach ($investigador->titulos as $t) {
+            $filasTitulos[] = ['titulo' => $t->pivot->titulo_id, 'egreso' => $fechaIso($t->pivot->egreso)];
+        }
+    }
+
+    // --- Titulos de posgrado ---
+    $filasPosgrados = [];
+    if (is_array(old('tituloposts'))) {
+        foreach (old('tituloposts') as $i => $v) {
+            $filasPosgrados[] = ['titulo' => $v, 'egreso' => old('egresoposts')[$i] ?? ''];
+        }
+    } else {
+        foreach ($investigador->tituloposts as $t) {
+            $filasPosgrados[] = ['titulo' => $t->pivot->titulo_id, 'egreso' => $fechaIso($t->pivot->egreso)];
+        }
+    }
+
+    // --- Cargos docentes ---
+    $filasCargos = [];
+    if (is_array(old('cargos'))) {
+        foreach (old('cargos') as $i => $v) {
+            $filasCargos[] = [
+                'cargo' => $v,
+                'deddoc' => old('deddocs')[$i] ?? '',
+                'ingreso' => old('ingresos')[$i] ?? '',
+                'facultad' => old('facultads')[$i] ?? '',
+                'universidad' => old('universidads')[$i] ?? '',
+                'activo' => isset(old('activos', [])[$i]),
+            ];
+        }
+    } else {
+        foreach ($investigador->cargos as $c) {
+            $filasCargos[] = [
+                'cargo' => $c->pivot->cargo_id,
+                'deddoc' => $c->pivot->deddoc,
+                'ingreso' => $fechaIso($c->pivot->ingreso),
+                'facultad' => $c->pivot->facultad_id,
+                'universidad' => $c->pivot->universidad_id,
+                'activo' => (bool) $c->pivot->activo,
+            ];
+        }
+    }
+
+    // --- Carrera de investigacion ---
+    $filasCarreras = [];
+    $actualSel = old('actual');
+    if (is_array(old('carrerainvs'))) {
+        foreach (old('carrerainvs') as $i => $v) {
+            $filasCarreras[] = [
+                'carrerainv' => $v,
+                'organismo' => old('organismos')[$i] ?? '',
+                'ingreso' => old('carringresos')[$i] ?? '',
+            ];
+        }
+    } else {
+        $actualSel = '0';
+        foreach ($investigador->carrerainvs as $i => $c) {
+            $filasCarreras[] = [
+                'carrerainv' => $c->pivot->carrerainv_id,
+                'organismo' => $c->pivot->organismo_id,
+                'ingreso' => $fechaIso($c->pivot->ingreso),
+            ];
+            if ($c->pivot->actual) {
+                $actualSel = (string) ($i + 1);
+            }
+        }
+    }
+
+    // --- Categorias SPU ---
+    $filasCategorias = [];
+    $catActualSel = old('catactual');
+    if (is_array(old('categorias'))) {
+        foreach (old('categorias') as $i => $v) {
+            $filasCategorias[] = [
+                'categoria' => $v,
+                'year' => old('catyears')[$i] ?? '',
+                'notificacion' => old('catnotificacions')[$i] ?? '',
+                'universidad' => old('catuniversidads')[$i] ?? '',
+            ];
+        }
+    } else {
+        $catActualSel = '0';
+        foreach ($investigador->categorias as $i => $c) {
+            $filasCategorias[] = [
+                'categoria' => $c->pivot->categoria_id,
+                'year' => $c->pivot->year,
+                'notificacion' => $fechaIso($c->pivot->notificacion),
+                'universidad' => $c->pivot->universidad_id,
+            ];
+            if ($c->pivot->actual) {
+                $catActualSel = (string) ($i + 1);
+            }
+        }
+    }
+
+    // --- Categorias SICADI ---
+    $filasSicadis = [];
+    $sicadiActualSel = old('sicadiactual');
+    if (is_array(old('sicadis'))) {
+        foreach (old('sicadis') as $i => $v) {
+            $filasSicadis[] = [
+                'sicadi' => $v,
+                'year' => old('sicadiyears')[$i] ?? '',
+                'notificacion' => old('sicadinotificacions')[$i] ?? '',
+            ];
+        }
+    } else {
+        $sicadiActualSel = '0';
+        foreach ($investigador->sicadis as $i => $s) {
+            $filasSicadis[] = [
+                'sicadi' => $s->pivot->sicadi_id,
+                'year' => $s->pivot->year,
+                'notificacion' => $fechaIso($s->pivot->notificacion),
+            ];
+            if ($s->pivot->actual) {
+                $sicadiActualSel = (string) ($i + 1);
+            }
+        }
+    }
+
+    // --- Becas ---
+    $filasBecas = [];
+    if (is_array(old('institucions'))) {
+        foreach (old('institucions') as $i => $v) {
+            $filasBecas[] = [
+                'institucion' => $v,
+                'beca' => old('becas')[$i] ?? '',
+                'desde' => old('becadesdes')[$i] ?? '',
+                'hasta' => old('becahastas')[$i] ?? '',
+                'unlp' => isset(old('becaunlps', [])[$i]),
+            ];
+        }
+    } else {
+        foreach ($investigador->becas as $b) {
+            $filasBecas[] = [
+                'institucion' => $b->institucion,
+                'beca' => $b->beca,
+                'desde' => $fechaIso($b->desde),
+                'hasta' => $fechaIso($b->hasta),
+                'unlp' => (bool) $b->unlp,
+            ];
+        }
+    }
+@endphp
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
         <!-- Content Header (Page header) -->
@@ -200,11 +390,11 @@
                                                 </thead>
 
                                                 <tbody id="cuerpoTitulo">
-                                                @foreach ($investigador->titulos as $titulo)
+                                                @foreach ($filasTitulos as $fila)
                                                 <tr>
 
-                                                    <td>{{ Form::select('titulos[]',$titulos, $titulo->pivot->titulo_id,['class' => 'form-control js-example-basic-single', 'style' => 'width: 400px']) }}</td>
-                                                    <td>{{Form::date('egresos[]', ($titulo->pivot->egreso)?date('Y-m-d', strtotime($titulo->pivot->egreso)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
+                                                    <td>{!! $selectFila('titulos[]', $titulos, $fila['titulo'], 'form-control js-example-basic-single', 'width: 400px') !!}</td>
+                                                    <td>{!! $fechaFila('egresos[]', $fila['egreso']) !!}</td>
 
                                                     <td><a href="#" class="btn btn-danger remove"><i class="glyphicon glyphicon-remove"></i></a></td>
                                                 </tr>
@@ -261,13 +451,13 @@
                                                     </thead>
 
                                                     <tbody id="cuerpoPosgrado">
-                                                    @foreach ($investigador->tituloposts as $titulopost)
+                                                    @foreach ($filasPosgrados as $fila)
                                                         <tr>
 
-                                                            <td>{{ Form::select('tituloposts[]',$tituloposts, $titulopost->pivot->titulo_id,['class' => 'form-control js-example-basic-single', 'style' => 'width: 400px']) }}</td>
-                                                            <td>{{Form::date('egresos[]', ($titulopost->pivot->egreso)?date('Y-m-d', strtotime($titulopost->pivot->egreso)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
+                                                            <td>{!! $selectFila('tituloposts[]', $tituloposts, $fila['titulo'], 'form-control js-example-basic-single', 'width: 400px') !!}</td>
+                                                            <td>{!! $fechaFila('egresoposts[]', $fila['egreso']) !!}</td>
 
-                                                            <td><a href="#" class="btn btn-danger remove"><i class="glyphicon glyphicon-remove"></i></a></td>
+                                                            <td><a href="#" class="btn btn-danger removePost"><i class="glyphicon glyphicon-remove"></i></a></td>
                                                         </tr>
                                                     @endforeach
 
@@ -300,21 +490,17 @@
                                                     </thead>
 
                                                     <tbody id="cuerpoCargos">
-                                                    @php
-                                                        $dedicaciones = config('dedicaciones');
-                                                        unset($dedicaciones['Sin Dedicación']);
-                                                    @endphp
-                                                    @foreach ($investigador->cargos as $cargo)
+                                                    @foreach ($filasCargos as $fila)
 
                                                     <tr>
 
-                                                        <td>{{ Form::select('cargos[]',$cargos, $cargo->pivot->cargo_id,['class' => 'form-control', 'style' => 'width: 200px']) }}</td>
+                                                        <td>{!! $selectFila('cargos[]', $cargos, $fila['cargo'], 'form-control', 'width: 200px') !!}</td>
 
-                                                        <td>{{ Form::select('deddocs[]',['' => ''] + $dedicaciones, $cargo->pivot->deddoc,['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
-                                                        <td>{{Form::date('ingresos[]', ($cargo->pivot->ingreso)?date('Y-m-d', strtotime($cargo->pivot->ingreso)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
-                                                        <td>{{ Form::select('facultads[]',$facultades, $cargo->pivot->facultad_id,['class' => 'form-control', 'style' => 'width: 300px']) }}</td>
-                                                        <td>{{ Form::select('universidads[]',$universidades, $cargo->pivot->universidad_id,['class' => 'form-control js-example-basic-single', 'style' => 'width: 300px']) }}</td>
-                                                        <td>{{Form::checkbox('activos[]', 1,($cargo->pivot->activo)?true:false)}}</td>
+                                                        <td>{!! $selectFila('deddocs[]', ['' => ''] + $dedicaciones, $fila['deddoc'], 'form-control', 'width: 120px') !!}</td>
+                                                        <td>{!! $fechaFila('ingresos[]', $fila['ingreso']) !!}</td>
+                                                        <td>{!! $selectFila('facultads[]', $facultades, $fila['facultad'], 'form-control', 'width: 300px') !!}</td>
+                                                        <td>{!! $selectFila('universidads[]', $universidades, $fila['universidad'], 'form-control js-example-basic-single', 'width: 300px') !!}</td>
+                                                        <td><input type="checkbox" name="activos[]" value="1" {{ $fila['activo'] ? 'checked' : '' }}></td>
                                                         <td><a href="#" class="btn btn-danger removeCargo"><i class="glyphicon glyphicon-remove"></i></a></td>
                                                     </tr>
                                                     @endforeach
@@ -360,15 +546,15 @@
                                                     </thead>
 
                                                     <tbody id="cuerpoCarrerainvs">
-                                                    @foreach ($investigador->carrerainvs as $index => $carrerainv)
+                                                    @foreach ($filasCarreras as $i => $fila)
                                                     <tr>
 
-                                                        <td>{{ Form::select('carrerainvs[]',$carrerainvs, $carrerainv->pivot->carrerainv_id,['class' => 'form-control', 'style' => 'width: 200px']) }}</td>
-                                                        <td>{{ Form::select('organismos[]',$organismos, $carrerainv->pivot->organismo_id,['class' => 'form-control', 'style' => 'width: 150px']) }}</td>
-                                                        <td>{{Form::date('carringresos[]',  ($carrerainv->pivot->ingreso)?date('Y-m-d', strtotime($carrerainv->pivot->ingreso)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
+                                                        <td>{!! $selectFila('carrerainvs[]', $carrerainvs, $fila['carrerainv'], 'form-control', 'width: 200px') !!}</td>
+                                                        <td>{!! $selectFila('organismos[]', $organismos, $fila['organismo'], 'form-control', 'width: 150px') !!}</td>
+                                                        <td>{!! $fechaFila('carringresos[]', $fila['ingreso']) !!}</td>
 
 
-                                                        <td>{{ Form::radio('actual', $index + 1, ($carrerainv->pivot->actual)?true:false, ['id' => 'actual_' . ($index + 1)]) }}</td>
+                                                        <td><input type="radio" name="actual" id="actual_{{ $i + 1 }}" value="{{ $i + 1 }}" {{ (string) $actualSel === (string) ($i + 1) ? 'checked' : '' }}></td>
                                                         <td><a href="#" class="btn btn-danger removeCarrerainv"><i class="glyphicon glyphicon-remove"></i></a></td>
                                                     </tr>
                                                     @endforeach
@@ -376,7 +562,7 @@
                                                     <tfoot>
                                                     <tr>
                                                         <td colspan="3" style="text-align: right; font-style: italic;">Ninguna (sin carrera actual)</td>
-                                                        <td>{{ Form::radio('actual', 0, $investigador->carrerainvs->filter(function ($r) { return $r->pivot->actual; })->isEmpty(), ['id' => 'actual_0']) }}</td>
+                                                        <td><input type="radio" name="actual" id="actual_0" value="0" {{ (string) $actualSel === '0' ? 'checked' : '' }}></td>
                                                         <td></td>
                                                     </tr>
                                                     </tfoot>
@@ -410,15 +596,15 @@
                                                     </thead>
 
                                                     <tbody id="cuerpoCategorias">
-                                                    @foreach ($investigador->categorias as $catIndex => $categoria)
+                                                    @foreach ($filasCategorias as $i => $fila)
                                                     <tr>
 
-                                                        <td>{{ Form::select('categorias[]',$categorias, $categoria->pivot->categoria_id,['class' => 'form-control', 'style' => 'width: 60px']) }}</td>
-                                                        <td>{{ Form::select('catyears[]',['' => ''] +$years, $categoria->pivot->year,['class' => 'form-control', 'style' => 'width: 80px']) }}</td>
-                                                        <td>{{Form::date('catnotificacions[]',  ($categoria->pivot->notificacion)?date('Y-m-d', strtotime($categoria->pivot->notificacion)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
-                                                        <td>{{ Form::select('catuniversidads[]',$universidades, $categoria->pivot->universidad_id,['class' => 'form-control js-example-basic-single', 'style' => 'width: 300px']) }}</td>
+                                                        <td>{!! $selectFila('categorias[]', $categorias, $fila['categoria'], 'form-control', 'width: 60px') !!}</td>
+                                                        <td>{!! $selectFila('catyears[]', ['' => ''] + $years, $fila['year'], 'form-control', 'width: 80px') !!}</td>
+                                                        <td>{!! $fechaFila('catnotificacions[]', $fila['notificacion']) !!}</td>
+                                                        <td>{!! $selectFila('catuniversidads[]', $universidades, $fila['universidad'], 'form-control js-example-basic-single', 'width: 300px') !!}</td>
 
-                                                        <td>{{ Form::radio('catactual', $catIndex + 1, ($categoria->pivot->actual)?true:false,['id' => 'catactual_' . ($catIndex + 1)]) }}</td>
+                                                        <td><input type="radio" name="catactual" id="catactual_{{ $i + 1 }}" value="{{ $i + 1 }}" {{ (string) $catActualSel === (string) ($i + 1) ? 'checked' : '' }}></td>
                                                         <td><a href="#" class="btn btn-danger removeCategoria"><i class="glyphicon glyphicon-remove"></i></a></td>
                                                     </tr>
                                                     @endforeach
@@ -426,7 +612,7 @@
                                                     <tfoot>
                                                     <tr>
                                                         <td colspan="4" style="text-align: right; font-style: italic;">Ninguna (sin categoría actual)</td>
-                                                        <td>{{ Form::radio('catactual', 0, $investigador->categorias->filter(function ($r) { return $r->pivot->actual; })->isEmpty(), ['id' => 'catactual_0']) }}</td>
+                                                        <td><input type="radio" name="catactual" id="catactual_0" value="0" {{ (string) $catActualSel === '0' ? 'checked' : '' }}></td>
                                                         <td></td>
                                                     </tr>
                                                     </tfoot>
@@ -457,15 +643,15 @@
                                                     </thead>
 
                                                     <tbody id="cuerpoSicadis">
-                                                    @foreach ($investigador->sicadis as $sicadiIndex => $sicadi)
+                                                    @foreach ($filasSicadis as $i => $fila)
                                                     <tr>
 
-                                                        <td>{{ Form::select('sicadis[]',$sicadis, $sicadi->pivot->sicadi_id,['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
-                                                        <td>{{ Form::select('sicadiyears[]',['' => ''] +$years, $sicadi->pivot->year,['class' => 'form-control', 'style' => 'width: 80px']) }}</td>
-                                                        <td>{{Form::date('sicadinotificacions[]', ($sicadi->pivot->notificacion)?date('Y-m-d', strtotime($sicadi->pivot->notificacion)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
+                                                        <td>{!! $selectFila('sicadis[]', $sicadis, $fila['sicadi'], 'form-control', 'width: 120px') !!}</td>
+                                                        <td>{!! $selectFila('sicadiyears[]', ['' => ''] + $years, $fila['year'], 'form-control', 'width: 80px') !!}</td>
+                                                        <td>{!! $fechaFila('sicadinotificacions[]', $fila['notificacion']) !!}</td>
 
 
-                                                        <td>{{ Form::radio('sicadiactual', $sicadiIndex + 1, ($sicadi->pivot->actual)?true:false,['id' => 'sicadiactual_' . ($sicadiIndex + 1)]) }}</td>
+                                                        <td><input type="radio" name="sicadiactual" id="sicadiactual_{{ $i + 1 }}" value="{{ $i + 1 }}" {{ (string) $sicadiActualSel === (string) ($i + 1) ? 'checked' : '' }}></td>
                                                         <td><a href="#" class="btn btn-danger removeSicadi"><i class="glyphicon glyphicon-remove"></i></a></td>
                                                     </tr>
                                                     @endforeach
@@ -473,7 +659,7 @@
                                                     <tfoot>
                                                     <tr>
                                                         <td colspan="3" style="text-align: right; font-style: italic;">Ninguna (sin categoría actual)</td>
-                                                        <td>{{ Form::radio('sicadiactual', 0, $investigador->sicadis->filter(function ($r) { return $r->pivot->actual; })->isEmpty(), ['id' => 'sicadiactual_0']) }}</td>
+                                                        <td><input type="radio" name="sicadiactual" id="sicadiactual_0" value="0" {{ (string) $sicadiActualSel === '0' ? 'checked' : '' }}></td>
                                                         <td></td>
                                                     </tr>
                                                     </tfoot>
@@ -509,16 +695,16 @@
 
                                                     <tbody id="cuerpoBecas">
 
-                                                    @foreach ($investigador->becas as $beca)
+                                                    @foreach ($filasBecas as $fila)
                                                     <tr>
 
-                                                        <td>{{ Form::select('institucions[]',[''=>'','ANPCyT'=>'ANPCyT','AGENCIA i+D+i'=>'AGENCIA i+D+i','CIC PBA'=>'CIC PBA','CIC'=>'CIC','CONICET'=>'CONICET','UNLP'=>'UNLP','CIN'=>'CIN','OTRA'=>'OTRA'], $beca->institucion,['class' => 'form-control institucion_select', 'style' => 'width: 150px']) }}</td>
-                                                        <td>{{ Form::select('becas[]',[''=>'','Beca inicial'=>'Beca inicial','Beca superior'=>'Beca superior','Beca de entrenamiento'=>'Beca de entrenamiento','Beca doctoral'=>'Beca doctoral','Beca posdoctoral'=>'Beca posdoctoral','Beca finalización del doctorado'=>'Beca finalización del doctorado','Beca maestría'=>'Beca maestría','Formación Superior'=>'Formación Superior','Iniciación'=>'Iniciación','TIPO I'=>'TIPO I','TIPO II'=>'TIPO II','TIPO A'=>'TIPO A','Tipo A - Maestría'=>'Tipo A - Maestría','Tipo A - Doctorado'=>'Tipo A - Doctorado','Beca Cofinanciada (UNLP-CIC)'=>'Beca Cofinanciada (UNLP-CIC)','Especial de Maestría'=>'Especial de Maestría','TIPO B'=>'TIPO B','TIPO B (DOCTORADO)'=>'TIPO B (DOCTORADO)','TIPO B (MAESTRÍA)'=>'TIPO B (MAESTRÍA)','BECA DE PERFECCIONAMIENTO'=>'BECA DE PERFECCIONAMIENTO','CONICET 2'=>'CONICET 2','RETENCION DE POSTGRADUADO'=>'RETENCION DE POSTGRADUADO','EVC'=>'EVC'], $beca->beca,['class' => 'form-control beca_select', 'style' => 'width: 150px']) }}</td>
+                                                        <td>{!! $selectFila('institucions[]', $institucionesBeca, $fila['institucion'], 'form-control institucion_select', 'width: 150px') !!}</td>
+                                                        <td>{!! $selectFila('becas[]', $tiposBeca, $fila['beca'], 'form-control beca_select', 'width: 150px') !!}</td>
 
-                                                        <td>{{Form::date('becadesdes[]', ($beca->desde)?date('Y-m-d', strtotime($beca->desde)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
+                                                        <td>{!! $fechaFila('becadesdes[]', $fila['desde']) !!}</td>
 
-                                                        <td>{{Form::date('becahastas[]', ($beca->hasta)?date('Y-m-d', strtotime($beca->hasta)):'', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
-                                                        <td>{{Form::checkbox('becaunlps[]', 1,($beca->unlp)?true:false)}}</td>
+                                                        <td>{!! $fechaFila('becahastas[]', $fila['hasta']) !!}</td>
+                                                        <td><input type="checkbox" name="becaunlps[]" value="1" {{ $fila['unlp'] ? 'checked' : '' }}></td>
                                                         <td><a href="#" class="btn btn-danger removeBeca"><i class="glyphicon glyphicon-remove"></i></a></td>
                                                     </tr>
                                                     @endforeach
@@ -575,6 +761,32 @@
     <script src="{{ asset('dist/js/confirm-exit.js') }}"></script>
     <!-- page script -->
     <script>
+        // Plantillas para las filas nuevas. Se generan sin old() a proposito: las filas
+        // que ya existen (del modelo o de un POST rebotado) las dibuja Blade arriba.
+        var tplTitulo        = @json($selectFila('titulos[]', $titulos, '', 'form-control js-example-basic-single', 'width: 400px'));
+        var tplEgreso        = @json($fechaFila('egresos[]'));
+        var tplTitulopost    = @json($selectFila('tituloposts[]', $tituloposts, '', 'form-control js-example-basic-single', 'width: 400px'));
+        var tplEgresopost    = @json($fechaFila('egresoposts[]'));
+        var tplCargo         = @json($selectFila('cargos[]', $cargos, '', 'form-control', 'width: 200px'));
+        var tplDeddoc        = @json($selectFila('deddocs[]', ['' => ''] + $dedicaciones, '', 'form-control', 'width: 120px'));
+        var tplIngreso       = @json($fechaFila('ingresos[]'));
+        var tplFacultad      = @json($selectFila('facultads[]', $facultades, '', 'form-control', 'width: 300px'));
+        var tplUniversidad   = @json($selectFila('universidads[]', $universidades, '', 'form-control js-example-basic-single', 'width: 300px'));
+        var tplCarrerainv    = @json($selectFila('carrerainvs[]', $carrerainvs, '', 'form-control', 'width: 200px'));
+        var tplOrganismo     = @json($selectFila('organismos[]', $organismos, '', 'form-control', 'width: 150px'));
+        var tplCarringreso   = @json($fechaFila('carringresos[]'));
+        var tplCategoria     = @json($selectFila('categorias[]', $categorias, '', 'form-control', 'width: 60px'));
+        var tplCatyear       = @json($selectFila('catyears[]', ['' => ''] + $years, '', 'form-control', 'width: 60px'));
+        var tplCatnotif      = @json($fechaFila('catnotificacions[]'));
+        var tplCatuniversidad= @json($selectFila('catuniversidads[]', $universidades, '', 'form-control js-example-basic-single', 'width: 300px'));
+        var tplSicadi        = @json($selectFila('sicadis[]', $sicadis, '', 'form-control', 'width: 120px'));
+        var tplSicadiyear    = @json($selectFila('sicadiyears[]', ['' => ''] + $years, '', 'form-control', 'width: 60px'));
+        var tplSicadinotif   = @json($fechaFila('sicadinotificacions[]'));
+        var tplInstitucion   = @json($selectFila('institucions[]', $institucionesBeca, '', 'form-control institucion_select', 'width: 150px'));
+        var tplBeca          = @json($selectFila('becas[]', $tiposBeca, '', 'form-control beca_select', 'width: 150px'));
+        var tplBecadesde     = @json($fechaFila('becadesdes[]'));
+        var tplBecahasta     = @json($fechaFila('becahastas[]'));
+
         $(document).ready(function () {
             $('#cuil').inputmask('99-99999999-9', { placeholder: 'XX-XXXXXXXX-X' });
             $('.js-example-basic-single').select2();
@@ -606,8 +818,8 @@
         function addRow()
         {
             var tr='<tr>'+
-                '<td>'+'{{ Form::select('titulos[]',$titulos ?? [''=>''], '',['class' => 'form-control js-example-basic-single', 'style' => 'width: 400px']) }}'+'</td>'+
-                '<td>'+'{{Form::date('egresos[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
+                '<td>'+tplTitulo+'</td>'+
+                '<td>'+tplEgreso+'</td>'+
 
                 '<td><a href="#" class="btn btn-danger remove"><i class="glyphicon glyphicon-remove"></i></a></td>'+
                 '</tr>';
@@ -636,8 +848,8 @@
         function addRowPost()
         {
             var tr='<tr>'+
-                '<td>'+'{{ Form::select('tituloposts[]',$tituloposts ?? [''=>''], '',['class' => 'form-control js-example-basic-single', 'style' => 'width: 400px']) }}'+'</td>'+
-                '<td>'+'{{Form::date('egresoposts[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
+                '<td>'+tplTitulopost+'</td>'+
+                '<td>'+tplEgresopost+'</td>'+
 
                 '<td><a href="#" class="btn btn-danger removePost"><i class="glyphicon glyphicon-remove"></i></a></td>'+
                 '</tr>';
@@ -664,12 +876,12 @@
         function addRowCargo()
         {
             var tr='<tr>'+
-                '<td>'+'{{ Form::select('cargos[]',$cargos ?? [''=>''], '',['class' => 'form-control', 'style' => 'width: 200px']) }}'+'</td>'+
-                '<td>'+'{{ Form::select('deddocs[]',['' => ''] + $dedicaciones ?? [''=>''], '',['class' => 'form-control', 'style' => 'width: 120px']) }}'+'</td>'+
-                '<td>'+'{{Form::date('ingresos[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
-                '<td>'+'{{ Form::select('facultads[]',$facultades ?? [''=>''], '',['class' => 'form-control', 'style' => 'width: 300px']) }}'+'</td>'+
-                '<td>'+'{{ Form::select('universidads[]',$universidades ?? [''=>''], '',['class' => 'form-control js-example-basic-single', 'style' => 'width: 300px']) }}'+'</td>'+
-                '<td>'+'{{ Form::checkbox('activos[]',1,true) }}'+'</td>'+
+                '<td>'+tplCargo+'</td>'+
+                '<td>'+tplDeddoc+'</td>'+
+                '<td>'+tplIngreso+'</td>'+
+                '<td>'+tplFacultad+'</td>'+
+                '<td>'+tplUniversidad+'</td>'+
+                '<td><input type="checkbox" name="activos[]" value="1" checked></td>'+
                 '<td><a href="#" class="btn btn-danger removeCargo"><i class="glyphicon glyphicon-remove"></i></a></td>'+
                 '</tr>';
             $('#cuerpoCargos').append(tr);
@@ -696,9 +908,9 @@
         function addRowCarrerainv()
         {
             var tr='<tr>'+
-                '<td>'+'{{ Form::select('carrerainvs[]',$carrerainvs ?? [''=>''], '',['class' => 'form-control', 'style' => 'width: 200px']) }}'+'</td>'+
-                '<td>'+'{{ Form::select('organismos[]',$organismos ?? [''=>''], '',['class' => 'form-control', 'style' => 'width: 150px']) }}'+'</td>'+
-                '<td>'+'{{Form::date('carringresos[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
+                '<td>'+tplCarrerainv+'</td>'+
+                '<td>'+tplOrganismo+'</td>'+
+                '<td>'+tplCarringreso+'</td>'+
 
 
                 '<td><input type="radio" name="actual" id="actual_' + ($("#cuerpoCarrerainvs input[name=actual]").length + 1) + '" value="' + ($("#cuerpoCarrerainvs input[name=actual]").length + 1) + '"></td>' +
@@ -734,10 +946,10 @@
         function addRowCategoria()
         {
             var tr='<tr>'+
-                '<td>'+'{{ Form::select('categorias[]',$categorias ?? [''=>''], '',['class' => 'form-control', 'style' => 'width: 60px']) }}'+'</td>'+
-                '<td>'+'{{ Form::select('catyears[]',['' => ''] + ($years ?? []), '',['class' => 'form-control', 'style' => 'width: 60px']) }}'+'</td>'+
-                '<td>'+'{{Form::date('catnotificacions[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
-                '<td>'+'{{ Form::select('catuniversidads[]',$universidades ?? [''=>''], '',['class' => 'form-control js-example-basic-single', 'style' => 'width: 300px']) }}'+'</td>'+
+                '<td>'+tplCategoria+'</td>'+
+                '<td>'+tplCatyear+'</td>'+
+                '<td>'+tplCatnotif+'</td>'+
+                '<td>'+tplCatuniversidad+'</td>'+
 
 
 
@@ -777,9 +989,9 @@
         function addRowSicadi()
         {
             var tr='<tr>'+
-                '<td>'+'{{ Form::select('sicadis[]',$sicadis ?? [''=>''], '',['class' => 'form-control', 'style' => 'width: 120px']) }}'+'</td>'+
-                '<td>'+'{{ Form::select('sicadiyears[]',['' => ''] + ($years ?? []), '',['class' => 'form-control', 'style' => 'width: 60px']) }}'+'</td>'+
-                '<td>'+'{{Form::date('sicadinotificacions[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
+                '<td>'+tplSicadi+'</td>'+
+                '<td>'+tplSicadiyear+'</td>'+
+                '<td>'+tplSicadinotif+'</td>'+
 
 
 
@@ -820,17 +1032,11 @@
         function addRowBeca()
         {
             var tr='<tr>'+
-                '<td>'+'{{ Form::select('institucions[]',[''=>'','ANPCyT'=>'ANPCyT','AGENCIA i+D+i'=>'AGENCIA i+D+i','CIC PBA'=>'CIC PBA','CIC'=>'CIC','CONICET'=>'CONICET','UNLP'=>'UNLP','CIN'=>'CIN','OTRA'=>'OTRA'], '',['class' => 'form-control institucion_select', 'style' => 'width: 150px']) }}'+'</td>'+
-                '<td>'+'{{ Form::select('becas[]',[''=>'','Beca inicial'=>'Beca inicial','Beca superior'=>'Beca superior','Beca de entrenamiento'=>'Beca de entrenamiento','Beca doctoral'=>'Beca doctoral','Beca posdoctoral'=>'Beca posdoctoral','Beca finalización del doctorado'=>'Beca finalización del doctorado','Beca maestría'=>'Beca maestría','Formación Superior'=>'Formación Superior','Iniciación'=>'Iniciación','TIPO I'=>'TIPO I','TIPO II'=>'TIPO II','TIPO A'=>'TIPO A','Tipo A - Maestría'=>'Tipo A - Maestría','Tipo A - Doctorado'=>'Tipo A - Doctorado','Beca Cofinanciada (UNLP-CIC)'=>'Beca Cofinanciada (UNLP-CIC)','Especial de Maestría'=>'Especial de Maestría','TIPO B'=>'TIPO B','TIPO B (DOCTORADO)'=>'TIPO B (DOCTORADO)','TIPO B (MAESTRÍA)'=>'TIPO B (MAESTRÍA)','BECA DE PERFECCIONAMIENTO'=>'BECA DE PERFECCIONAMIENTO','CONICET 2'=>'CONICET 2','RETENCION DE POSTGRADUADO'=>'RETENCION DE POSTGRADUADO','EVC'=>'EVC'], '',['class' => 'form-control beca_select', 'style' => 'width: 150px']) }}'+'</td>'+
-                '<td>'+'{{Form::date('becadesdes[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
-                '<td>'+'{{Form::date('becahastas[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
-
-
-
-
-
-
-                '<td>'+'{{ Form::checkbox('becaunlps[]',1,false) }}'+'</td>'+
+                '<td>'+tplInstitucion+'</td>'+
+                '<td>'+tplBeca+'</td>'+
+                '<td>'+tplBecadesde+'</td>'+
+                '<td>'+tplBecahasta+'</td>'+
+                '<td><input type="checkbox" name="becaunlps[]" value="1"></td>'+
                 '<td><a href="#" class="btn btn-danger removeBeca"><i class="glyphicon glyphicon-remove"></i></a></td>'+
                 '</tr>';
             $('#cuerpoBecas').append(tr);

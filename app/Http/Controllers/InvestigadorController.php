@@ -301,7 +301,9 @@ class InvestigadorController extends Controller
 
         $erroresPivot = $this->validarPivots($request);
         if (count($erroresPivot) > 0) {
-            return redirect()->back()->with('error', implode(' ', $erroresPivot));
+            // withInput() es lo que evita que el usuario pierda todo lo cargado: sin esto
+            // el redirect vuelve al form vacio y hay que tipear la ficha entera de nuevo.
+            return redirect()->back()->withInput()->with('error', implode(' ', $erroresPivot));
         }
 
         DB::beginTransaction();
@@ -825,7 +827,9 @@ class InvestigadorController extends Controller
         $investigador = Investigador::find($id);
         $erroresPivot = $this->validarPivots($request);
         if (count($erroresPivot) > 0) {
-            return redirect()->back()->with('error', implode(' ', $erroresPivot));
+            // withInput() es lo que evita que el usuario pierda todo lo cargado: sin esto
+            // el redirect vuelve al form vacio y hay que tipear la ficha entera de nuevo.
+            return redirect()->back()->withInput()->with('error', implode(' ', $erroresPivot));
         }
 
         DB::beginTransaction();

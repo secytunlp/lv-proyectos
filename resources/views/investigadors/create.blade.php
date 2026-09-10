@@ -11,6 +11,42 @@
 
 
 @section('content')
+@php
+    /*
+     * Repoblado del formulario cuando el server rebota la validacion (store()).
+     *
+     * OJO con LaravelCollective: para un campo array como 'titulos[]', old() devuelve
+     * el ARRAY completo y getSelectedValue() resuelve con in_array(), asi que todas
+     * las filas terminarian marcando cualquiera de los valores enviados. Por eso las
+     * filas repetibles se arman a mano con $selectFila()/$fechaFila() y no con Form::.
+     * Los campos sueltos (apellido, email, etc.) si los repuebla Form:: solo.
+     */
+    $selectFila = function ($name, $list, $selected = '', $class = 'form-control', $style = '') {
+        $html = '<select name="' . e($name) . '" class="' . e($class) . '"'
+              . ($style !== '' ? ' style="' . e($style) . '"' : '') . '>';
+        foreach ($list as $valor => $etiqueta) {
+            $sel = ((string) $valor === (string) $selected) ? ' selected' : '';
+            $html .= '<option value="' . e($valor) . '"' . $sel . '>' . e($etiqueta) . '</option>';
+        }
+
+        return $html . '</select>';
+    };
+
+    $fechaFila = function ($name, $valor = '', $style = 'width:150px;') {
+        return '<input type="date" name="' . e($name) . '" class="form-control"'
+             . ' style="' . e($style) . '" value="' . e($valor) . '">';
+    };
+
+    // Filas a dibujar: las que mando el usuario, o una fila vacia si no hubo POST.
+    $filas = function ($campo) {
+        $old = old($campo);
+
+        return (is_array($old) && count($old)) ? $old : [''];
+    };
+
+    $institucionesBeca = ['' => '', 'ANPCyT' => 'ANPCyT', 'AGENCIA i+D+i' => 'AGENCIA i+D+i', 'CIC PBA' => 'CIC PBA', 'CIC' => 'CIC', 'CONICET' => 'CONICET', 'UNLP' => 'UNLP', 'CIN' => 'CIN', 'OTRA' => 'OTRA'];
+    $tiposBeca = ['' => '', 'Beca inicial' => 'Beca inicial', 'Beca superior' => 'Beca superior', 'Beca de entrenamiento' => 'Beca de entrenamiento', 'Beca doctoral' => 'Beca doctoral', 'Beca posdoctoral' => 'Beca posdoctoral', 'Beca finalización del doctorado' => 'Beca finalización del doctorado', 'Beca maestría' => 'Beca maestría', 'Formación Superior' => 'Formación Superior', 'Iniciación' => 'Iniciación', 'TIPO I' => 'TIPO I', 'TIPO II' => 'TIPO II', 'TIPO A' => 'TIPO A', 'Tipo A - Maestría' => 'Tipo A - Maestría', 'Tipo A - Doctorado' => 'Tipo A - Doctorado', 'Beca Cofinanciada (UNLP-CIC)' => 'Beca Cofinanciada (UNLP-CIC)', 'Especial de Maestría' => 'Especial de Maestría', 'TIPO B' => 'TIPO B', 'TIPO B (DOCTORADO)' => 'TIPO B (DOCTORADO)', 'TIPO B (MAESTRÍA)' => 'TIPO B (MAESTRÍA)', 'BECA DE PERFECCIONAMIENTO' => 'BECA DE PERFECCIONAMIENTO', 'CONICET 2' => 'CONICET 2', 'RETENCION DE POSTGRADUADO' => 'RETENCION DE POSTGRADUADO', 'EVC' => 'EVC'];
+@endphp
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
         <!-- Content Header (Page header) -->
@@ -196,14 +232,16 @@
                                                 </thead>
 
                                                 <tbody id="cuerpoTitulo">
+                                                @php $oldEgresos = old('egresos', []); @endphp
+                                                @foreach ($filas('titulos') as $i => $valTitulo)
                                                 <tr>
 
-                                                    <td>{{ Form::select('titulos[]',$titulos, '',['class' => 'form-control js-example-basic-single', 'style' => 'width: 400px']) }}</td>
-                                                    <td>{{Form::date('egresos[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
+                                                    <td>{!! $selectFila('titulos[]', $titulos, $valTitulo, 'form-control js-example-basic-single', 'width: 400px') !!}</td>
+                                                    <td>{!! $fechaFila('egresos[]', $oldEgresos[$i] ?? '') !!}</td>
 
                                                     <td><a href="#" class="btn btn-danger remove"><i class="glyphicon glyphicon-remove"></i></a></td>
                                                 </tr>
-
+                                                @endforeach
                                                 </tbody>
 
 
@@ -256,14 +294,16 @@
                                                     </thead>
 
                                                     <tbody id="cuerpoPosgrado">
+                                                    @php $oldEgresoposts = old('egresoposts', []); @endphp
+                                                    @foreach ($filas('tituloposts') as $i => $valTitulopost)
                                                     <tr>
 
-                                                        <td>{{ Form::select('tituloposts[]',$tituloposts, '',['class' => 'form-control js-example-basic-single', 'style' => 'width: 400px']) }}</td>
-                                                        <td>{{Form::date('egresoposts[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
+                                                        <td>{!! $selectFila('tituloposts[]', $tituloposts, $valTitulopost, 'form-control js-example-basic-single', 'width: 400px') !!}</td>
+                                                        <td>{!! $fechaFila('egresoposts[]', $oldEgresoposts[$i] ?? '') !!}</td>
 
                                                         <td><a href="#" class="btn btn-danger removePost"><i class="glyphicon glyphicon-remove"></i></a></td>
                                                     </tr>
-
+                                                    @endforeach
                                                     </tbody>
 
 
@@ -293,21 +333,28 @@
                                                     </thead>
 
                                                     <tbody id="cuerpoCargos">
+                                                    @php
+                                                        $dedicaciones = config('dedicaciones');
+                                                        unset($dedicaciones['Sin Dedicación']);
+                                                        $oldDeddocs = old('deddocs', []);
+                                                        $oldIngresos = old('ingresos', []);
+                                                        $oldFacultads = old('facultads', []);
+                                                        $oldUniversidads = old('universidads', []);
+                                                        $oldActivos = old('activos', []);
+                                                        $huboPostCargos = is_array(old('cargos'));
+                                                    @endphp
+                                                    @foreach ($filas('cargos') as $i => $valCargo)
                                                     <tr>
 
-                                                        <td>{{ Form::select('cargos[]',$cargos, '',['class' => 'form-control', 'style' => 'width: 200px']) }}</td>
-                                                        @php
-                                                            $dedicaciones = config('dedicaciones');
-                                                            unset($dedicaciones['Sin Dedicación']);
-                                                        @endphp
-                                                        <td>{{ Form::select('deddocs[]',['' => ''] + $dedicaciones, '',['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
-                                                        <td>{{Form::date('ingresos[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
-                                                        <td>{{ Form::select('facultads[]',$facultades, '',['class' => 'form-control', 'style' => 'width: 300px']) }}</td>
-                                                        <td>{{ Form::select('universidads[]',$universidades, '',['class' => 'form-control js-example-basic-single', 'style' => 'width: 300px']) }}</td>
-                                                        <td>{{Form::checkbox('activos[]', 1,true)}}</td>
+                                                        <td>{!! $selectFila('cargos[]', $cargos, $valCargo, 'form-control', 'width: 200px') !!}</td>
+                                                        <td>{!! $selectFila('deddocs[]', ['' => ''] + $dedicaciones, $oldDeddocs[$i] ?? '', 'form-control', 'width: 120px') !!}</td>
+                                                        <td>{!! $fechaFila('ingresos[]', $oldIngresos[$i] ?? '') !!}</td>
+                                                        <td>{!! $selectFila('facultads[]', $facultades, $oldFacultads[$i] ?? '', 'form-control', 'width: 300px') !!}</td>
+                                                        <td>{!! $selectFila('universidads[]', $universidades, $oldUniversidads[$i] ?? '', 'form-control js-example-basic-single', 'width: 300px') !!}</td>
+                                                        <td><input type="checkbox" name="activos[]" value="1" {{ $huboPostCargos ? (isset($oldActivos[$i]) ? 'checked' : '') : 'checked' }}></td>
                                                         <td><a href="#" class="btn btn-danger removeCargo"><i class="glyphicon glyphicon-remove"></i></a></td>
                                                     </tr>
-
+                                                    @endforeach
                                                     </tbody>
 
 
@@ -350,17 +397,22 @@
                                                     </thead>
 
                                                     <tbody id="cuerpoCarrerainvs">
+                                                    @php
+                                                        $oldOrganismos = old('organismos', []);
+                                                        $oldCarrIngresos = old('carringresos', []);
+                                                    @endphp
+                                                    @foreach ($filas('carrerainvs') as $i => $valCarrera)
                                                     <tr>
 
-                                                        <td>{{ Form::select('carrerainvs[]',$carrerainvs, '',['class' => 'form-control', 'style' => 'width: 200px']) }}</td>
-                                                        <td>{{ Form::select('organismos[]',$organismos, '',['class' => 'form-control', 'style' => 'width: 150px']) }}</td>
-                                                        <td>{{Form::date('carringresos[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
+                                                        <td>{!! $selectFila('carrerainvs[]', $carrerainvs, $valCarrera, 'form-control', 'width: 200px') !!}</td>
+                                                        <td>{!! $selectFila('organismos[]', $organismos, $oldOrganismos[$i] ?? '', 'form-control', 'width: 150px') !!}</td>
+                                                        <td>{!! $fechaFila('carringresos[]', $oldCarrIngresos[$i] ?? '') !!}</td>
 
 
-                                                        <td>{{ Form::radio('actual', 1, true,['id' => 'actual_1']) }}</td> <!-- Usamos un nombre único con el índice 1 -->
+                                                        <td>{{ Form::radio('actual', $i + 1, $i === 0, ['id' => 'actual_' . ($i + 1)]) }}</td>
                                                         <td><a href="#" class="btn btn-danger removeCarrerainv"><i class="glyphicon glyphicon-remove"></i></a></td>
                                                     </tr>
-
+                                                    @endforeach
                                                     </tbody>
                                                     <tfoot>
                                                     <tr>
@@ -399,17 +451,23 @@
                                                     </thead>
 
                                                     <tbody id="cuerpoCategorias">
+                                                    @php
+                                                        $oldCatYears = old('catyears', []);
+                                                        $oldCatNotifs = old('catnotificacions', []);
+                                                        $oldCatUnivs = old('catuniversidads', []);
+                                                    @endphp
+                                                    @foreach ($filas('categorias') as $i => $valCategoria)
                                                     <tr>
 
-                                                        <td>{{ Form::select('categorias[]',$categorias, '',['class' => 'form-control', 'style' => 'width: 60px']) }}</td>
-                                                        <td>{{ Form::select('catyears[]',['' => ''] +$years, '',['class' => 'form-control', 'style' => 'width: 80px']) }}</td>
-                                                        <td>{{Form::date('catnotificacions[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
-                                                        <td>{{ Form::select('catuniversidads[]',$universidades, '',['class' => 'form-control js-example-basic-single', 'style' => 'width: 300px']) }}</td>
+                                                        <td>{!! $selectFila('categorias[]', $categorias, $valCategoria, 'form-control', 'width: 60px') !!}</td>
+                                                        <td>{!! $selectFila('catyears[]', ['' => ''] + $years, $oldCatYears[$i] ?? '', 'form-control', 'width: 80px') !!}</td>
+                                                        <td>{!! $fechaFila('catnotificacions[]', $oldCatNotifs[$i] ?? '') !!}</td>
+                                                        <td>{!! $selectFila('catuniversidads[]', $universidades, $oldCatUnivs[$i] ?? '', 'form-control js-example-basic-single', 'width: 300px') !!}</td>
 
-                                                        <td>{{ Form::radio('catactual', 1, true,['id' => 'catactual_1']) }}</td> <!-- Usamos un nombre único con el índice 1 -->
+                                                        <td>{{ Form::radio('catactual', $i + 1, $i === 0, ['id' => 'catactual_' . ($i + 1)]) }}</td>
                                                         <td><a href="#" class="btn btn-danger removeCategoria"><i class="glyphicon glyphicon-remove"></i></a></td>
                                                     </tr>
-
+                                                    @endforeach
                                                     </tbody>
                                                     <tfoot>
                                                     <tr>
@@ -445,17 +503,22 @@
                                                     </thead>
 
                                                     <tbody id="cuerpoSicadis">
+                                                    @php
+                                                        $oldSicadiYears = old('sicadiyears', []);
+                                                        $oldSicadiNotifs = old('sicadinotificacions', []);
+                                                    @endphp
+                                                    @foreach ($filas('sicadis') as $i => $valSicadi)
                                                     <tr>
 
-                                                        <td>{{ Form::select('sicadis[]',$sicadis, '',['class' => 'form-control', 'style' => 'width: 120px']) }}</td>
-                                                        <td>{{ Form::select('sicadiyears[]',['' => ''] +$years, '',['class' => 'form-control', 'style' => 'width: 80px']) }}</td>
-                                                        <td>{{Form::date('sicadinotificacions[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
+                                                        <td>{!! $selectFila('sicadis[]', $sicadis, $valSicadi, 'form-control', 'width: 120px') !!}</td>
+                                                        <td>{!! $selectFila('sicadiyears[]', ['' => ''] + $years, $oldSicadiYears[$i] ?? '', 'form-control', 'width: 80px') !!}</td>
+                                                        <td>{!! $fechaFila('sicadinotificacions[]', $oldSicadiNotifs[$i] ?? '') !!}</td>
 
 
-                                                        <td>{{ Form::radio('sicadiactual', 1, true,['id' => 'sicadiactual_1']) }}</td> <!-- Usamos un nombre único con el índice 1 -->
+                                                        <td>{{ Form::radio('sicadiactual', $i + 1, $i === 0, ['id' => 'sicadiactual_' . ($i + 1)]) }}</td>
                                                         <td><a href="#" class="btn btn-danger removeSicadi"><i class="glyphicon glyphicon-remove"></i></a></td>
                                                     </tr>
-
+                                                    @endforeach
                                                     </tbody>
                                                     <tfoot>
                                                     <tr>
@@ -495,18 +558,25 @@
                                                     </thead>
 
                                                     <tbody id="cuerpoBecas">
+                                                    @php
+                                                        $oldBecas = old('becas', []);
+                                                        $oldBecaDesdes = old('becadesdes', []);
+                                                        $oldBecaHastas = old('becahastas', []);
+                                                        $oldBecaUnlps = old('becaunlps', []);
+                                                    @endphp
+                                                    @foreach ($filas('institucions') as $i => $valInstitucion)
                                                     <tr>
 
-                                                        <td>{{ Form::select('institucions[]',[''=>'','ANPCyT'=>'ANPCyT','AGENCIA i+D+i'=>'AGENCIA i+D+i','CIC PBA'=>'CIC PBA','CIC'=>'CIC','CONICET'=>'CONICET','UNLP'=>'UNLP','CIN'=>'CIN','OTRA'=>'OTRA'], '',['class' => 'form-control institucion_select', 'style' => 'width: 150px']) }}</td>
-                                                        <td>{{ Form::select('becas[]',[''=>'','Beca inicial'=>'Beca inicial','Beca superior'=>'Beca superior','Beca de entrenamiento'=>'Beca de entrenamiento','Beca doctoral'=>'Beca doctoral','Beca posdoctoral'=>'Beca posdoctoral','Beca finalización del doctorado'=>'Beca finalización del doctorado','Beca maestría'=>'Beca maestría','Formación Superior'=>'Formación Superior','Iniciación'=>'Iniciación','TIPO I'=>'TIPO I','TIPO II'=>'TIPO II','TIPO A'=>'TIPO A','Tipo A - Maestría'=>'Tipo A - Maestría','Tipo A - Doctorado'=>'Tipo A - Doctorado','Beca Cofinanciada (UNLP-CIC)'=>'Beca Cofinanciada (UNLP-CIC)','Especial de Maestría'=>'Especial de Maestría','TIPO B'=>'TIPO B','TIPO B (DOCTORADO)'=>'TIPO B (DOCTORADO)','TIPO B (MAESTRÍA)'=>'TIPO B (MAESTRÍA)','BECA DE PERFECCIONAMIENTO'=>'BECA DE PERFECCIONAMIENTO','CONICET 2'=>'CONICET 2','RETENCION DE POSTGRADUADO'=>'RETENCION DE POSTGRADUADO','EVC'=>'EVC'], '',['class' => 'form-control beca_select', 'style' => 'width: 150px']) }}</td>
+                                                        <td>{!! $selectFila('institucions[]', $institucionesBeca, $valInstitucion, 'form-control institucion_select', 'width: 150px') !!}</td>
+                                                        <td>{!! $selectFila('becas[]', $tiposBeca, $oldBecas[$i] ?? '', 'form-control beca_select', 'width: 150px') !!}</td>
 
-                                                        <td>{{Form::date('becadesdes[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
+                                                        <td>{!! $fechaFila('becadesdes[]', $oldBecaDesdes[$i] ?? '') !!}</td>
 
-                                                        <td>{{Form::date('becahastas[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
-                                                        <td>{{Form::checkbox('becaunlps[]', 1,false)}}</td>
+                                                        <td>{!! $fechaFila('becahastas[]', $oldBecaHastas[$i] ?? '') !!}</td>
+                                                        <td><input type="checkbox" name="becaunlps[]" value="1" {{ isset($oldBecaUnlps[$i]) ? 'checked' : '' }}></td>
                                                         <td><a href="#" class="btn btn-danger removeBeca"><i class="glyphicon glyphicon-remove"></i></a></td>
                                                     </tr>
-
+                                                    @endforeach
                                                     </tbody>
 
 
@@ -560,6 +630,32 @@
     <script src="{{ asset('dist/js/confirm-exit.js') }}"></script>
     <!-- page script -->
     <script>
+        // Plantillas para las filas nuevas. Se generan sin old() a proposito: las filas
+        // que vuelven de un POST rebotado ya las dibuja Blade arriba.
+        var tplTitulo        = @json($selectFila('titulos[]', $titulos, '', 'form-control js-example-basic-single', 'width: 400px'));
+        var tplEgreso        = @json($fechaFila('egresos[]'));
+        var tplTitulopost    = @json($selectFila('tituloposts[]', $tituloposts, '', 'form-control js-example-basic-single', 'width: 400px'));
+        var tplEgresopost    = @json($fechaFila('egresoposts[]'));
+        var tplCargo         = @json($selectFila('cargos[]', $cargos, '', 'form-control', 'width: 200px'));
+        var tplDeddoc        = @json($selectFila('deddocs[]', ['' => ''] + $dedicaciones, '', 'form-control', 'width: 120px'));
+        var tplIngreso       = @json($fechaFila('ingresos[]'));
+        var tplFacultad      = @json($selectFila('facultads[]', $facultades, '', 'form-control', 'width: 300px'));
+        var tplUniversidad   = @json($selectFila('universidads[]', $universidades, '', 'form-control js-example-basic-single', 'width: 300px'));
+        var tplCarrerainv    = @json($selectFila('carrerainvs[]', $carrerainvs, '', 'form-control', 'width: 200px'));
+        var tplOrganismo     = @json($selectFila('organismos[]', $organismos, '', 'form-control', 'width: 150px'));
+        var tplCarringreso   = @json($fechaFila('carringresos[]'));
+        var tplCategoria     = @json($selectFila('categorias[]', $categorias, '', 'form-control', 'width: 60px'));
+        var tplCatyear       = @json($selectFila('catyears[]', ['' => ''] + $years, '', 'form-control', 'width: 60px'));
+        var tplCatnotif      = @json($fechaFila('catnotificacions[]'));
+        var tplCatuniversidad= @json($selectFila('catuniversidads[]', $universidades, '', 'form-control js-example-basic-single', 'width: 300px'));
+        var tplSicadi        = @json($selectFila('sicadis[]', $sicadis, '', 'form-control', 'width: 120px'));
+        var tplSicadiyear    = @json($selectFila('sicadiyears[]', ['' => ''] + $years, '', 'form-control', 'width: 60px'));
+        var tplSicadinotif   = @json($fechaFila('sicadinotificacions[]'));
+        var tplInstitucion   = @json($selectFila('institucions[]', $institucionesBeca, '', 'form-control institucion_select', 'width: 150px'));
+        var tplBeca          = @json($selectFila('becas[]', $tiposBeca, '', 'form-control beca_select', 'width: 150px'));
+        var tplBecadesde     = @json($fechaFila('becadesdes[]'));
+        var tplBecahasta     = @json($fechaFila('becahastas[]'));
+
         $(document).ready(function () {
             $('#cuil').inputmask('99-99999999-9', { placeholder: 'XX-XXXXXXXX-X' });
             $('.js-example-basic-single').select2();
@@ -577,23 +673,23 @@
                 }
             });
 
-            // Limpiar el estado del radio button por defecto
+            // Marcar la primera fila por defecto SOLO si no venimos de un POST rebotado.
+            // Si hay old(), el radio correcto ya viene marcado desde el server y no hay
+            // que pisarlo.
+            @if (old('actual') === null)
             $('input[name="actual"]').prop('checked', false);
-
-            // Seleccionar el radio button por defecto
             $('#actual_1').prop('checked', true);
+            @endif
 
-            // Limpiar el estado del radio button por defecto
+            @if (old('catactual') === null)
             $('input[name="catactual"]').prop('checked', false);
-
-            // Seleccionar el radio button por defecto
             $('#catactual_1').prop('checked', true);
+            @endif
 
-            // Limpiar el estado del radio button por defecto
+            @if (old('sicadiactual') === null)
             $('input[name="sicadiactual"]').prop('checked', false);
-
-            // Seleccionar el radio button por defecto
             $('#sicadiactual_1').prop('checked', true);
+            @endif
 
 
 
@@ -605,8 +701,8 @@
         function addRow()
         {
             var tr='<tr>'+
-                '<td>'+'{{ Form::select('titulos[]',$titulos ?? [''=>''], '',['class' => 'form-control js-example-basic-single', 'style' => 'width: 400px']) }}'+'</td>'+
-                '<td>'+'{{Form::date('egresos[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
+                '<td>'+tplTitulo+'</td>'+
+                '<td>'+tplEgreso+'</td>'+
 
                 '<td><a href="#" class="btn btn-danger remove"><i class="glyphicon glyphicon-remove"></i></a></td>'+
                 '</tr>';
@@ -635,8 +731,8 @@
         function addRowPost()
         {
             var tr='<tr>'+
-                '<td>'+'{{ Form::select('tituloposts[]',$tituloposts ?? [''=>''], '',['class' => 'form-control js-example-basic-single', 'style' => 'width: 400px']) }}'+'</td>'+
-                '<td>'+'{{Form::date('egresoposts[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
+                '<td>'+tplTitulopost+'</td>'+
+                '<td>'+tplEgresopost+'</td>'+
 
                 '<td><a href="#" class="btn btn-danger removePost"><i class="glyphicon glyphicon-remove"></i></a></td>'+
                 '</tr>';
@@ -663,12 +759,12 @@
         function addRowCargo()
         {
             var tr='<tr>'+
-                '<td>'+'{{ Form::select('cargos[]',$cargos ?? [''=>''], '',['class' => 'form-control', 'style' => 'width: 200px']) }}'+'</td>'+
-                '<td>'+'{{ Form::select('deddocs[]',['' => ''] + $dedicaciones ?? [''=>''], '',['class' => 'form-control', 'style' => 'width: 120px']) }}'+'</td>'+
-                '<td>'+'{{Form::date('ingresos[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
-                '<td>'+'{{ Form::select('facultads[]',$facultades ?? [''=>''], '',['class' => 'form-control', 'style' => 'width: 300px']) }}'+'</td>'+
-                '<td>'+'{{ Form::select('universidads[]',$universidades ?? [''=>''], '',['class' => 'form-control js-example-basic-single', 'style' => 'width: 300px']) }}'+'</td>'+
-                '<td>'+'{{ Form::checkbox('activos[]',1,true) }}'+'</td>'+
+                '<td>'+tplCargo+'</td>'+
+                '<td>'+tplDeddoc+'</td>'+
+                '<td>'+tplIngreso+'</td>'+
+                '<td>'+tplFacultad+'</td>'+
+                '<td>'+tplUniversidad+'</td>'+
+                '<td><input type="checkbox" name="activos[]" value="1" checked></td>'+
                 '<td><a href="#" class="btn btn-danger removeCargo"><i class="glyphicon glyphicon-remove"></i></a></td>'+
                 '</tr>';
             $('#cuerpoCargos').append(tr);
@@ -695,9 +791,9 @@
         function addRowCarrerainv()
         {
             var tr='<tr>'+
-                '<td>'+'{{ Form::select('carrerainvs[]',$carrerainvs ?? [''=>''], '',['class' => 'form-control', 'style' => 'width: 200px']) }}'+'</td>'+
-                '<td>'+'{{ Form::select('organismos[]',$organismos ?? [''=>''], '',['class' => 'form-control', 'style' => 'width: 150px']) }}'+'</td>'+
-                '<td>'+'{{Form::date('carringresos[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
+                '<td>'+tplCarrerainv+'</td>'+
+                '<td>'+tplOrganismo+'</td>'+
+                '<td>'+tplCarringreso+'</td>'+
 
 
                 '<td><input type="radio" name="actual" id="actual_' + ($("#cuerpoCarrerainvs input[name=actual]").length + 1) + '" value="' + ($("#cuerpoCarrerainvs input[name=actual]").length + 1) + '"></td>' +
@@ -730,10 +826,10 @@
         function addRowCategoria()
         {
             var tr='<tr>'+
-                '<td>'+'{{ Form::select('categorias[]',$categorias ?? [''=>''], '',['class' => 'form-control', 'style' => 'width: 60px']) }}'+'</td>'+
-                '<td>'+'{{ Form::select('catyears[]',['' => ''] + ($years ?? []), '',['class' => 'form-control', 'style' => 'width: 60px']) }}'+'</td>'+
-                '<td>'+'{{Form::date('catnotificacions[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
-                '<td>'+'{{ Form::select('catuniversidads[]',$universidades ?? [''=>''], '',['class' => 'form-control js-example-basic-single', 'style' => 'width: 300px']) }}'+'</td>'+
+                '<td>'+tplCategoria+'</td>'+
+                '<td>'+tplCatyear+'</td>'+
+                '<td>'+tplCatnotif+'</td>'+
+                '<td>'+tplCatuniversidad+'</td>'+
 
 
 
@@ -773,9 +869,9 @@
         function addRowSicadi()
         {
             var tr='<tr>'+
-                '<td>'+'{{ Form::select('sicadis[]',$sicadis ?? [''=>''], '',['class' => 'form-control', 'style' => 'width: 120px']) }}'+'</td>'+
-                '<td>'+'{{ Form::select('sicadiyears[]',['' => ''] + ($years ?? []), '',['class' => 'form-control', 'style' => 'width: 60px']) }}'+'</td>'+
-                '<td>'+'{{Form::date('sicadinotificacions[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
+                '<td>'+tplSicadi+'</td>'+
+                '<td>'+tplSicadiyear+'</td>'+
+                '<td>'+tplSicadinotif+'</td>'+
 
 
 
@@ -816,17 +912,11 @@
         function addRowBeca()
         {
             var tr='<tr>'+
-                '<td>'+'{{ Form::select('institucions[]',[''=>'','ANPCyT'=>'ANPCyT','AGENCIA i+D+i'=>'AGENCIA i+D+i','CIC PBA'=>'CIC PBA','CIC'=>'CIC','CONICET'=>'CONICET','UNLP'=>'UNLP','CIN'=>'CIN','OTRA'=>'OTRA'], '',['class' => 'form-control institucion_select', 'style' => 'width: 150px']) }}'+'</td>'+
-                '<td>'+'{{ Form::select('becas[]',[''=>'','Beca inicial'=>'Beca inicial','Beca superior'=>'Beca superior','Beca de entrenamiento'=>'Beca de entrenamiento','Beca doctoral'=>'Beca doctoral','Beca posdoctoral'=>'Beca posdoctoral','Beca finalización del doctorado'=>'Beca finalización del doctorado','Beca maestría'=>'Beca maestría','Formación Superior'=>'Formación Superior','Iniciación'=>'Iniciación','TIPO I'=>'TIPO I','TIPO II'=>'TIPO II','TIPO A'=>'TIPO A','Tipo A - Maestría'=>'Tipo A - Maestría','Tipo A - Doctorado'=>'Tipo A - Doctorado','Beca Cofinanciada (UNLP-CIC)'=>'Beca Cofinanciada (UNLP-CIC)','Especial de Maestría'=>'Especial de Maestría','TIPO B'=>'TIPO B','TIPO B (DOCTORADO)'=>'TIPO B (DOCTORADO)','TIPO B (MAESTRÍA)'=>'TIPO B (MAESTRÍA)','BECA DE PERFECCIONAMIENTO'=>'BECA DE PERFECCIONAMIENTO','CONICET 2'=>'CONICET 2','RETENCION DE POSTGRADUADO'=>'RETENCION DE POSTGRADUADO','EVC'=>'EVC'], '',['class' => 'form-control beca_select', 'style' => 'width: 150px']) }}'+'</td>'+
-                '<td>'+'{{Form::date('becadesdes[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
-                '<td>'+'{{Form::date('becahastas[]', '', ['class' => 'form-control', 'style' => 'width:150px;'])}}'+'</td>'+
-
-
-
-
-
-
-                '<td>'+'{{ Form::checkbox('becaunlps[]',1,false) }}'+'</td>'+
+                '<td>'+tplInstitucion+'</td>'+
+                '<td>'+tplBeca+'</td>'+
+                '<td>'+tplBecadesde+'</td>'+
+                '<td>'+tplBecahasta+'</td>'+
+                '<td><input type="checkbox" name="becaunlps[]" value="1"></td>'+
                 '<td><a href="#" class="btn btn-danger removeBeca"><i class="glyphicon glyphicon-remove"></i></a></td>'+
                 '</tr>';
             $('#cuerpoBecas').append(tr);
