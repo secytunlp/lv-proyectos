@@ -1782,15 +1782,14 @@ class JovenController extends Controller
         $inicioYear = Carbon::create(Constants::YEAR_JOVENES, 1, 1); // 1 de enero del año
         $finYear = Carbon::create(Constants::YEAR_JOVENES, 12, 31); // 31 de diciembre del año
 
-        $beca = $investigador->becas()
-            ->where('desde', '<=', $inicioYear)
-            ->where('hasta', '>=', $finYear)
+        // Beca del investigador solapada con el año de la convocatoria.
+        // Sólo se usa para obtener el resumen: NO debe pisar $beca (la beca actual del joven).
+        $becaInvestigador = $investigador->becas()
+            ->where('desde', '<=', $finYear)
+            ->where('hasta', '>=', $inicioYear)
             ->first(); // Obtiene la primera beca vigente en el año
 
-        $resumen_beca='';
-        if (!empty($beca)){
-            $resumen_beca = $beca->resumen;
-        }
+        $resumen_beca = $becaInvestigador->resumen ?? '';
 
         $becas = $joven->becas()->where('actual', false)->get(); // Becas anteriores
 

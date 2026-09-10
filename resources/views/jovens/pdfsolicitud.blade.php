@@ -253,7 +253,7 @@
     </div>
 @endif
 @endif
-@if(!empty($becas))
+@if($becas->isNotEmpty())
     <div class="content">
         <div>BECAS ANTERIORES</div>
 
