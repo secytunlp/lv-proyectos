@@ -763,29 +763,58 @@
     <script>
         // Plantillas para las filas nuevas. Se generan sin old() a proposito: las filas
         // que ya existen (del modelo o de un POST rebotado) las dibuja Blade arriba.
-        var tplTitulo        = @json($selectFila('titulos[]', $titulos, '', 'form-control js-example-basic-single', 'width: 400px'));
-        var tplEgreso        = @json($fechaFila('egresos[]'));
-        var tplTitulopost    = @json($selectFila('tituloposts[]', $tituloposts, '', 'form-control js-example-basic-single', 'width: 400px'));
-        var tplEgresopost    = @json($fechaFila('egresoposts[]'));
-        var tplCargo         = @json($selectFila('cargos[]', $cargos, '', 'form-control', 'width: 200px'));
-        var tplDeddoc        = @json($selectFila('deddocs[]', ['' => ''] + $dedicaciones, '', 'form-control', 'width: 120px'));
-        var tplIngreso       = @json($fechaFila('ingresos[]'));
-        var tplFacultad      = @json($selectFila('facultads[]', $facultades, '', 'form-control', 'width: 300px'));
-        var tplUniversidad   = @json($selectFila('universidads[]', $universidades, '', 'form-control js-example-basic-single', 'width: 300px'));
-        var tplCarrerainv    = @json($selectFila('carrerainvs[]', $carrerainvs, '', 'form-control', 'width: 200px'));
-        var tplOrganismo     = @json($selectFila('organismos[]', $organismos, '', 'form-control', 'width: 150px'));
-        var tplCarringreso   = @json($fechaFila('carringresos[]'));
-        var tplCategoria     = @json($selectFila('categorias[]', $categorias, '', 'form-control', 'width: 60px'));
-        var tplCatyear       = @json($selectFila('catyears[]', ['' => ''] + $years, '', 'form-control', 'width: 60px'));
-        var tplCatnotif      = @json($fechaFila('catnotificacions[]'));
-        var tplCatuniversidad= @json($selectFila('catuniversidads[]', $universidades, '', 'form-control js-example-basic-single', 'width: 300px'));
-        var tplSicadi        = @json($selectFila('sicadis[]', $sicadis, '', 'form-control', 'width: 120px'));
-        var tplSicadiyear    = @json($selectFila('sicadiyears[]', ['' => ''] + $years, '', 'form-control', 'width: 60px'));
-        var tplSicadinotif   = @json($fechaFila('sicadinotificacions[]'));
-        var tplInstitucion   = @json($selectFila('institucions[]', $institucionesBeca, '', 'form-control institucion_select', 'width: 150px'));
-        var tplBeca          = @json($selectFila('becas[]', $tiposBeca, '', 'form-control beca_select', 'width: 150px'));
-        var tplBecadesde     = @json($fechaFila('becadesdes[]'));
-        var tplBecahasta     = @json($fechaFila('becahastas[]'));
+        @php
+            // OJO: la directiva json de Blade parte su argumento con explode(',', ...), asi
+            // que no se le puede pasar una llamada con comas: se arman aca, por indice.
+            $tpl = [
+                'titulo' => $selectFila('titulos[]', $titulos, '', 'form-control js-example-basic-single', 'width: 400px'),
+                'egreso' => $fechaFila('egresos[]'),
+                'titulopost' => $selectFila('tituloposts[]', $tituloposts, '', 'form-control js-example-basic-single', 'width: 400px'),
+                'egresopost' => $fechaFila('egresoposts[]'),
+                'cargo' => $selectFila('cargos[]', $cargos, '', 'form-control', 'width: 200px'),
+                'deddoc' => $selectFila('deddocs[]', ['' => ''] + $dedicaciones, '', 'form-control', 'width: 120px'),
+                'ingreso' => $fechaFila('ingresos[]'),
+                'facultad' => $selectFila('facultads[]', $facultades, '', 'form-control', 'width: 300px'),
+                'universidad' => $selectFila('universidads[]', $universidades, '', 'form-control js-example-basic-single', 'width: 300px'),
+                'carrerainv' => $selectFila('carrerainvs[]', $carrerainvs, '', 'form-control', 'width: 200px'),
+                'organismo' => $selectFila('organismos[]', $organismos, '', 'form-control', 'width: 150px'),
+                'carringreso' => $fechaFila('carringresos[]'),
+                'categoria' => $selectFila('categorias[]', $categorias, '', 'form-control', 'width: 60px'),
+                'catyear' => $selectFila('catyears[]', ['' => ''] + $years, '', 'form-control', 'width: 60px'),
+                'catnotif' => $fechaFila('catnotificacions[]'),
+                'catuniversidad' => $selectFila('catuniversidads[]', $universidades, '', 'form-control js-example-basic-single', 'width: 300px'),
+                'sicadi' => $selectFila('sicadis[]', $sicadis, '', 'form-control', 'width: 120px'),
+                'sicadiyear' => $selectFila('sicadiyears[]', ['' => ''] + $years, '', 'form-control', 'width: 60px'),
+                'sicadinotif' => $fechaFila('sicadinotificacions[]'),
+                'institucion' => $selectFila('institucions[]', $institucionesBeca, '', 'form-control institucion_select', 'width: 150px'),
+                'beca' => $selectFila('becas[]', $tiposBeca, '', 'form-control beca_select', 'width: 150px'),
+                'becadesde' => $fechaFila('becadesdes[]'),
+                'becahasta' => $fechaFila('becahastas[]'),
+            ];
+        @endphp
+        var tplTitulo          = @json($tpl['titulo']);
+        var tplEgreso          = @json($tpl['egreso']);
+        var tplTitulopost      = @json($tpl['titulopost']);
+        var tplEgresopost      = @json($tpl['egresopost']);
+        var tplCargo           = @json($tpl['cargo']);
+        var tplDeddoc          = @json($tpl['deddoc']);
+        var tplIngreso         = @json($tpl['ingreso']);
+        var tplFacultad        = @json($tpl['facultad']);
+        var tplUniversidad     = @json($tpl['universidad']);
+        var tplCarrerainv      = @json($tpl['carrerainv']);
+        var tplOrganismo       = @json($tpl['organismo']);
+        var tplCarringreso     = @json($tpl['carringreso']);
+        var tplCategoria       = @json($tpl['categoria']);
+        var tplCatyear         = @json($tpl['catyear']);
+        var tplCatnotif        = @json($tpl['catnotif']);
+        var tplCatuniversidad  = @json($tpl['catuniversidad']);
+        var tplSicadi          = @json($tpl['sicadi']);
+        var tplSicadiyear      = @json($tpl['sicadiyear']);
+        var tplSicadinotif     = @json($tpl['sicadinotif']);
+        var tplInstitucion     = @json($tpl['institucion']);
+        var tplBeca            = @json($tpl['beca']);
+        var tplBecadesde       = @json($tpl['becadesde']);
+        var tplBecahasta       = @json($tpl['becahasta']);
 
         $(document).ready(function () {
             $('#cuil').inputmask('99-99999999-9', { placeholder: 'XX-XXXXXXXX-X' });
