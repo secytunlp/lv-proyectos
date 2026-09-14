@@ -714,7 +714,7 @@ class ViajeController extends Controller
             $proyectoActual['estado'] = $proyecto->estado;
             //dd($proyectoActual);
             $proyectosActuales[]=$proyectoActual;
-            if ($proyectoActual['inicio']<=$YearAgo.'12-31') {
+            if ($proyectoActual['inicio']<=$YearAgo.'-12-31') {
                 $aYear=1;
             }
             if ($proyectoActual['fin']>=Carbon::now()->format('Y-m-d')) {
@@ -2308,6 +2308,28 @@ class ViajeController extends Controller
         return response()->download($zipFilePath)->deleteFileAfterSend(true);
     }
 
+    /**
+     * Cuenta palabras separando por espacios, en UTF-8.
+     *
+     * No se usa str_word_count(): corta en los acentos, así que "investigación" cuenta
+     * como dos palabras y el mínimo del resumen quedaba un 30/35% por debajo de lo pedido.
+     *
+     * @param  mixed  $texto
+     * @return int
+     */
+    private function contarPalabras($texto)
+    {
+        $texto = trim((string) $texto);
+
+        if ($texto === '') {
+            return 0;
+        }
+
+        $palabras = preg_split('/\s+/u', $texto, -1, PREG_SPLIT_NO_EMPTY);
+
+        return ($palabras === false) ? 0 : count($palabras);
+    }
+
     public function enviar($id)
     {
         ///$integranteId = $request->query('integrante_id');
@@ -2407,8 +2429,10 @@ class ViajeController extends Controller
 
         }
 
+        // get() devuelve una Collection: empty() sobre un objeto es siempre false, así que
+        // este control no se disparaba nunca y se podía enviar sin proyecto seleccionado.
         $proyecto = $solicitud->proyectos()->where('seleccionado',1)->get();
-        if ((!$esBecarioUNLP)&&(empty($proyecto))) {
+        if ((!$esBecarioUNLP)&&($proyecto->count()==0)) {
             $errores[] = 'Debe seleccionar un proyecto';
         }
 
@@ -2502,7 +2526,7 @@ class ViajeController extends Controller
             $fechaHasta = Carbon::parse($solicitud->trabajohasta);
 
             if ($fechaHasta->lessThanOrEqualTo($fechaDesde)) {
-                $errores[] = "La fecha 'Inicio' debe ser mayor que la fecha 'Fin'.";
+                $errores[] = "La fecha 'Fin' debe ser posterior a la fecha 'Inicio'.";
             }
 
             foreach ($ambitos as $ambito){
@@ -2537,7 +2561,7 @@ class ViajeController extends Controller
                 }
 
             }
-            if (str_word_count($solicitud->resumen,0)<Constants::MAX_PALABRAS_RESUMEN_VIAJES) {
+            if ($this->contarPalabras($solicitud->resumen)<Constants::MAX_PALABRAS_RESUMEN_VIAJES) {
 
                 $errores[]='El texto del resumen en la pestaña motivo debe tener al menos '.Constants::MAX_PALABRAS_RESUMEN_VIAJES.' palabras';
             }
