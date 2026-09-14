@@ -72,6 +72,29 @@ class ImportarAlfabetico extends Command
     /** Ultima letra de `Clase Grupo` -> cd_deddoc (1 Exclusiva, 2 Semi, 3 Simple) */
     private $dedic = array('E' => 1, 'S' => 2, 'X' => 3);
 
+    /**
+     * Columnas opcionales: si el archivo no las trae, se avisa y entran NULL.
+     * No frenan la importacion, a diferencia de las de $columnas.
+     *
+     * Personal viene rotulando la antiguedad de varias formas segun el año, asi
+     * que se aceptan las variantes conocidas. Si aparece otra, se agrega aca.
+     */
+    private $columnasOpcionales = array(
+        'antigüedad años'   => 'antiguedad_anios',
+        'antiguedad años'   => 'antiguedad_anios',
+        'antigüedad anios'  => 'antiguedad_anios',
+        'antiguedad anios'  => 'antiguedad_anios',
+        'antig. años'       => 'antiguedad_anios',
+        'antig años'        => 'antiguedad_anios',
+        'años'              => 'antiguedad_anios',
+        'anios'             => 'antiguedad_anios',
+        'antigüedad meses'  => 'antiguedad_meses',
+        'antiguedad meses'  => 'antiguedad_meses',
+        'antig. meses'      => 'antiguedad_meses',
+        'antig meses'       => 'antiguedad_meses',
+        'meses'             => 'antiguedad_meses',
+    );
+
     /** Columnas del archivo que se usan, por su encabezado (sin distinguir espacios) */
     private $columnas = array(
         'documento'            => 'dni',
@@ -85,6 +108,23 @@ class ImportarAlfabetico extends Command
         'fecha de nacimiento'  => 'nacimiento',
         'cargo'                => 'ds_cargo',
     );
+
+    /**
+     * Valor entero de una columna opcional. Devuelve null si la columna no
+     * estaba en el archivo, si la celda esta vacia o si no tiene digitos.
+     */
+    private function entero($fila, $pos, $campo)
+    {
+        if (!isset($pos[$campo]) || !isset($fila[$pos[$campo]])) {
+            return null;
+        }
+        $v = trim((string) $fila[$pos[$campo]]);
+        if ($v === '') {
+            return null;
+        }
+        $d = preg_replace('/\D/', '', $v);
+        return $d === '' ? null : (int) $d;
+    }
 
     private function norm($v)
     {
@@ -186,6 +226,13 @@ class ImportarAlfabetico extends Command
             if (isset($this->columnas[$t])) {
                 $pos[$this->columnas[$t]] = $col;
             }
+            // Las opcionales no pisan a una ya encontrada: gana el primer
+            // encabezado que matchee, asi "Antigüedad Años" le gana a "Años"
+            // suelto si estuvieran las dos.
+            if (isset($this->columnasOpcionales[$t])
+                && !isset($pos[$this->columnasOpcionales[$t]])) {
+                $pos[$this->columnasOpcionales[$t]] = $col;
+            }
         }
 
         $faltan = array_diff(array_values($this->columnas), array_keys($pos));
@@ -194,6 +241,13 @@ class ImportarAlfabetico extends Command
             return 1;
         }
         $this->line('Encabezado en la fila '.($idxCab + 1).'.');
+
+        foreach (array('antiguedad_anios', 'antiguedad_meses') as $opc) {
+            if (!isset($pos[$opc])) {
+                $this->warn('No encontre la columna "'.$opc.'" en el archivo: entra NULL.');
+                $this->line('  Si esta con otro rotulo, agregalo a $columnasOpcionales.');
+            }
+        }
         $this->line('');
 
         $registros    = array();
@@ -243,6 +297,8 @@ class ImportarAlfabetico extends Command
                 'ds_facultad'  => $dep,
                 'cd_cargo'     => $cdCargo === null ? null : (string) $cdCargo,
                 'cd_deddoc'    => $cdDeddoc === null ? null : (string) $cdDeddoc,
+                'antiguedad_anios' => $this->entero($f, $pos, 'antiguedad_anios'),
+                'antiguedad_meses' => $this->entero($f, $pos, 'antiguedad_meses'),
             );
         }
 

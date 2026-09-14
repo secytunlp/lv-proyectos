@@ -60,6 +60,7 @@ class ExportarDocentesSinSolicitud extends Command
     private const HEADERS = [
         'DNI', 'Apellido y Nombres', 'Nacimiento', 'Escalafon', 'Dependencia',
         'cd_facultad', 'Cargo', 'Clase', 'Dedicacion', 'Funcion', 'Situacion', 'Desde',
+        'Antig_anios', 'Antig_meses',
         'En_investigadors', 'categoria_id', 'Categoria', 'Proyecto_vigente',
     ];
 
@@ -86,13 +87,13 @@ class ExportarDocentesSinSolicitud extends Command
      * Columnas que se escriben pero quedan ocultas en la planilla: el dato esta
      * (se puede mostrar desde Excel) pero no estorba a la vista.
      */
-    private const OCULTAS = ['F', 'M', 'N'];
+    private const OCULTAS = ['F', 'O', 'P'];
 
     /** Se agregan al final solo con --control-nombre */
     private const HEADERS_NOMBRE = ['Match_nombre', 'Solicitud_coincidente'];
 
     /** Columnas que van centradas */
-    private const CENTRADAS = ['A', 'C', 'F', 'H', 'L', 'M', 'N', 'P'];
+    private const CENTRADAS = ['A', 'C', 'F', 'H', 'L', 'M', 'N', 'O', 'P', 'R'];
 
     /** clave de documento => true si tiene un proyecto acreditado en ejecucion hoy */
     private $enProyectoVigente = null;
@@ -831,14 +832,16 @@ class ExportarDocentesSinSolicitud extends Command
             $sheet->setCellValueByColumnAndRow(10, $r, (string) $c->funcion);
             $sheet->setCellValueByColumnAndRow(11, $r, (string) $c->situacion);
             $sheet->setCellValueByColumnAndRow(12, $r, $this->fechaCorta($c->dt_fecha));
-            $sheet->setCellValueByColumnAndRow(13, $r, $this->enInvestigadors($c->dni));
-            $sheet->setCellValueByColumnAndRow(14, $r, $this->categoriaIds($c->dni));
-            $sheet->setCellValueByColumnAndRow(15, $r, $this->categoriaNombres($c->dni));
-            $sheet->setCellValueByColumnAndRow(16, $r, $this->proyectoVigente($c->dni));
+            $sheet->setCellValueByColumnAndRow(13, $r, $this->entero($c, 'antiguedad_anios'));
+            $sheet->setCellValueByColumnAndRow(14, $r, $this->entero($c, 'antiguedad_meses'));
+            $sheet->setCellValueByColumnAndRow(15, $r, $this->enInvestigadors($c->dni));
+            $sheet->setCellValueByColumnAndRow(16, $r, $this->categoriaIds($c->dni));
+            $sheet->setCellValueByColumnAndRow(17, $r, $this->categoriaNombres($c->dni));
+            $sheet->setCellValueByColumnAndRow(18, $r, $this->proyectoVigente($c->dni));
             if ($this->controlNombre()) {
                 $m = $this->matchPorNombre($c->investigador);
-                $sheet->setCellValueByColumnAndRow(17, $r, $m['tipo']);
-                $sheet->setCellValueByColumnAndRow(18, $r, $m['detalle']);
+                $sheet->setCellValueByColumnAndRow(19, $r, $m['tipo']);
+                $sheet->setCellValueByColumnAndRow(20, $r, $m['detalle']);
             }
             $r++;
         }
@@ -879,7 +882,7 @@ class ExportarDocentesSinSolicitud extends Command
         // Con --con-categoria la categoria ES el objeto del listado, asi que esa
         // columna queda a la vista.
         foreach (self::OCULTAS as $col) {
-            if ($col === 'N' && $this->option('con-categoria')) {
+            if ($col === 'P' && $this->option('con-categoria')) {
                 continue;
             }
             $sheet->getColumnDimension($col)->setVisible(false);
@@ -986,6 +989,19 @@ class ExportarDocentesSinSolicitud extends Command
             }
         }
         return count($set);
+    }
+
+    /**
+     * Campo entero de cargos_alfabetico, tolerante a que la columna todavia no
+     * exista en la tabla: en ese caso devuelve '' en vez de romper. Sirve para
+     * poder correr el export antes de aplicar el ALTER de antiguedad.
+     */
+    private function entero($fila, string $campo)
+    {
+        if (!isset($fila->$campo) || $fila->$campo === null || $fila->$campo === '') {
+            return '';
+        }
+        return (int) $fila->$campo;
     }
 
     /** Documento normalizado: solo digitos, sin ceros a la izquierda. */
