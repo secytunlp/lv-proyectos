@@ -762,7 +762,7 @@ a) detallar el mismo y b) justificar su pedido. En el caso de solicitar bibliogr
                                                                                         )}}
 
                                                                                         {{ Form::text('presupuesto'.$tipoPresupuesto->id.'lugar[]', old('presupuesto'.$tipoPresupuesto->id.'lugar.'.$index),
-                                                                                            ['class' => 'form-control ds_lugar', 'placeholder' => 'Lugar', 'style' => ($esViaticos ? '' : 'display:none; ').'width:150px']
+                                                                                            ['class' => 'form-control ds_lugar', 'placeholder' => 'Lugar', 'style' => ($esViaticos ? '' : 'display:none; ').'width:150px', 'maxlength' => \App\Constants::MAX_CAMPO_PRESUPUESTO]
                                                                                         )}}
 
                                                                                         {{ Form::select('presupuesto'.$tipoPresupuesto->id.'pasajes[]',
@@ -772,22 +772,22 @@ a) detallar el mismo y b) justificar su pedido. En el caso de solicitar bibliogr
                                                                                         )}}
 
                                                                                         {{ Form::text('presupuesto'.$tipoPresupuesto->id.'destino[]', old('presupuesto'.$tipoPresupuesto->id.'destino.'.$index),
-                                                                                            ['class' => 'form-control ds_destino', 'placeholder' => 'Destino', 'style' => ($esPasajes ? '' : 'display:none; ').'width:150px']
+                                                                                            ['class' => 'form-control ds_destino', 'placeholder' => 'Destino', 'style' => ($esPasajes ? '' : 'display:none; ').'width:150px', 'maxlength' => \App\Constants::MAX_CAMPO_PRESUPUESTO]
                                                                                         )}}
 
                                                                                         {{ Form::text('presupuesto'.$tipoPresupuesto->id.'inscripcion[]', old('presupuesto'.$tipoPresupuesto->id.'inscripcion.'.$index),
-                                                                                            ['class' => 'form-control ds_inscripcion', 'placeholder' => 'Descripción', 'style' => ($esInscripcion ? '' : 'display:none; ').'width:150px']
+                                                                                            ['class' => 'form-control ds_inscripcion', 'placeholder' => 'Descripción', 'style' => ($esInscripcion ? '' : 'display:none; ').'width:150px', 'maxlength' => \App\Constants::MAX_CAMPO_PRESUPUESTO]
                                                                                         )}}
 
                                                                                         {{ Form::text('presupuesto'.$tipoPresupuesto->id.'otros[]', old('presupuesto'.$tipoPresupuesto->id.'otros.'.$index),
-                                                                                            ['class' => 'form-control ds_otros', 'placeholder' => 'Otros', 'style' => ($esOtros ? '' : 'display:none; ').'width:150px']
+                                                                                            ['class' => 'form-control ds_otros', 'placeholder' => 'Otros', 'style' => ($esOtros ? '' : 'display:none; ').'width:150px', 'maxlength' => \App\Constants::MAX_CAMPO_PRESUPUESTO]
                                                                                         )}}
                                                                                     </div>
                                                                                 </div>
                                                                             </td>
                                                                         @else
                                                                             <td>
-                                                                                {{ Form::text('presupuesto'.$tipoPresupuesto->id.'detalles[]', old('presupuesto'.$tipoPresupuesto->id.'detalles.'.$index), ['class' => 'form-control', 'style' => 'width: 400px']) }}
+                                                                                {{ Form::text('presupuesto'.$tipoPresupuesto->id.'detalles[]', old('presupuesto'.$tipoPresupuesto->id.'detalles.'.$index), ['class' => 'form-control', 'style' => 'width: 400px', 'maxlength' => \App\Constants::MAX_DETALLE_PRESUPUESTO]) }}
                                                                             </td>
                                                                         @endif
                                                                         <td>
@@ -835,7 +835,7 @@ a) detallar el mismo y b) justificar su pedido. En el caso de solicitar bibliogr
                                                                                             ['class' => 'form-control ds_dias', 'placeholder' => 'Días', 'style' => ($esViaticos ? '' : 'display:none; ').'width:150px']) }}
 
                                                                                         {{ Form::text('presupuesto'.$tipoPresupuesto->id.'lugar[]', $esViaticos ? $detalles[2] : '',
-                                                                                            ['class' => 'form-control ds_lugar', 'placeholder' => 'Lugar', 'style' => ($esViaticos ? '' : 'display:none; ').'width:150px']) }}
+                                                                                            ['class' => 'form-control ds_lugar', 'placeholder' => 'Lugar', 'style' => ($esViaticos ? '' : 'display:none; ').'width:150px', 'maxlength' => \App\Constants::MAX_CAMPO_PRESUPUESTO]) }}
 
                                                                                         {{ Form::select('presupuesto'.$tipoPresupuesto->id.'pasajes[]',
                                                                                             ['' => '', 'Aereo' => 'Aéreo', 'Omnibus' => 'Omnibus', 'Automovil' => 'Automóvil'],
@@ -843,19 +843,19 @@ a) detallar el mismo y b) justificar su pedido. En el caso de solicitar bibliogr
                                                                                             ['class' => 'form-control ds_pasajes', 'style' => ($esPasajes ? '' : 'display:none; ').'width:120px']) }}
 
                                                                                         {{ Form::text('presupuesto'.$tipoPresupuesto->id.'destino[]', $esPasajes ? $detalles[2] : '',
-                                                                                            ['class' => 'form-control ds_destino', 'placeholder' => 'Destino', 'style' => ($esPasajes ? '' : 'display:none; ').'width:150px']) }}
+                                                                                            ['class' => 'form-control ds_destino', 'placeholder' => 'Destino', 'style' => ($esPasajes ? '' : 'display:none; ').'width:150px', 'maxlength' => \App\Constants::MAX_CAMPO_PRESUPUESTO]) }}
 
                                                                                         {{ Form::text('presupuesto'.$tipoPresupuesto->id.'inscripcion[]', $esInscripcion ? $detalles[1] : '',
-                                                                                            ['class' => 'form-control ds_inscripcion', 'placeholder' => 'Descripción', 'style' => ($esInscripcion ? '' : 'display:none; ').'width:150px']) }}
+                                                                                            ['class' => 'form-control ds_inscripcion', 'placeholder' => 'Descripción', 'style' => ($esInscripcion ? '' : 'display:none; ').'width:150px', 'maxlength' => \App\Constants::MAX_CAMPO_PRESUPUESTO]) }}
 
                                                                                         {{ Form::text('presupuesto'.$tipoPresupuesto->id.'otros[]', $esOtros ? $detalles[1] : '',
-                                                                                            ['class' => 'form-control ds_otros', 'placeholder' => 'Otros', 'style' => ($esOtros ? '' : 'display:none; ').'width:150px']) }}
+                                                                                            ['class' => 'form-control ds_otros', 'placeholder' => 'Otros', 'style' => ($esOtros ? '' : 'display:none; ').'width:150px', 'maxlength' => \App\Constants::MAX_CAMPO_PRESUPUESTO]) }}
                                                                                     </div>
                                                                                 </div>
                                                                             </td>
                                                                         @else
                                                                             <td>
-                                                                                {{ Form::text('presupuesto'.$tipoPresupuesto->id.'detalles[]', $detalles[0], ['class' => 'form-control', 'style' => 'width: 400px']) }}
+                                                                                {{ Form::text('presupuesto'.$tipoPresupuesto->id.'detalles[]', $detalles[0], ['class' => 'form-control', 'style' => 'width: 400px', 'maxlength' => \App\Constants::MAX_DETALLE_PRESUPUESTO]) }}
                                                                             </td>
                                                                         @endif
                                                                         <td>
@@ -1130,7 +1130,7 @@ a) detallar el mismo y b) justificar su pedido. En el caso de solicitar bibliogr
                     // Div para campos adicionales (extraFields)
                     '<div class="extra-fields" style="display: flex; gap: 10px; align-items: center;">' +
                     '<input type="text" name="presupuesto' + tipoId + 'dias[]" class="form-control ds_dias" placeholder="Días" style="display:none; width: 150px; margin-top: 5px;">' +
-                    '<input type="text" name="presupuesto' + tipoId + 'lugar[]" class="form-control ds_lugar" placeholder="Lugar" style="display:none; width: 150px; margin-top: 5px;">' +
+                    '<input type="text" name="presupuesto' + tipoId + 'lugar[]" class="form-control ds_lugar" placeholder="Lugar" style="display:none; width: 150px; margin-top: 5px;" maxlength="{{ \App\Constants::MAX_CAMPO_PRESUPUESTO }}">' +
 
                     '<select name="presupuesto' + tipoId + 'pasajes[]" class="form-control ds_pasajes" style="display:none; width: 150px; margin-top: 5px;">' +
                     '<option value="">-- seleccionar --</option>' +
@@ -1139,9 +1139,9 @@ a) detallar el mismo y b) justificar su pedido. En el caso de solicitar bibliogr
                     '<option value="Automovil">Automóvil</option>' +
                     '</select>' +
 
-                    '<input type="text" name="presupuesto' + tipoId + 'destino[]" class="form-control ds_destino" placeholder="Destino" style="display:none; width: 150px; margin-top: 5px;">' +
-                    '<input type="text" name="presupuesto' + tipoId + 'inscripcion[]" class="form-control ds_inscripcion" placeholder="Descripción" style="display:none; width: 150px; margin-top: 5px;">' +
-                    '<input type="text" name="presupuesto' + tipoId + 'otros[]" class="form-control ds_otros" placeholder="Otros" style="display:none; width: 150px; margin-top: 5px;">' +
+                    '<input type="text" name="presupuesto' + tipoId + 'destino[]" class="form-control ds_destino" placeholder="Destino" style="display:none; width: 150px; margin-top: 5px;" maxlength="{{ \App\Constants::MAX_CAMPO_PRESUPUESTO }}">' +
+                    '<input type="text" name="presupuesto' + tipoId + 'inscripcion[]" class="form-control ds_inscripcion" placeholder="Descripción" style="display:none; width: 150px; margin-top: 5px;" maxlength="{{ \App\Constants::MAX_CAMPO_PRESUPUESTO }}">' +
+                    '<input type="text" name="presupuesto' + tipoId + 'otros[]" class="form-control ds_otros" placeholder="Otros" style="display:none; width: 150px; margin-top: 5px;" maxlength="{{ \App\Constants::MAX_CAMPO_PRESUPUESTO }}">' +
                     '</div>' + // Cierre de extra-fields
                     '</div>' + // Cierre del div principal
                     '</td>' +
@@ -1153,7 +1153,7 @@ a) detallar el mismo y b) justificar su pedido. En el caso de solicitar bibliogr
                 // Lógica por defecto para otros tipos
                 tr = '<tr>' +
                     '<td><input type="date" name="presupuesto' + tipoId + 'fechas[]" class="form-control" style="width: 150px;"></td>' +
-                    '<td><input type="text" name="presupuesto' + tipoId + 'detalles[]" class="form-control" style="width: 400px;"></td>' +
+                    '<td><input type="text" name="presupuesto' + tipoId + 'detalles[]" class="form-control" style="width: 400px;" maxlength="{{ \App\Constants::MAX_DETALLE_PRESUPUESTO }}"></td>' +
                     '<td><input type="number" name="presupuesto' + tipoId + 'importes[]" class="form-control" style="width: 150px;"></td>' +
                     '<td><a href="#" class="btn btn-danger removePresupuesto"><i class="glyphicon glyphicon-remove"></i></a></td>' +
                     '</tr>';

@@ -1097,7 +1097,7 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
                                                                                         }}
 
                                                                                         {{ Form::text('presupuesto'.$tipoPresupuesto->id.'lugar[]', old('presupuesto'.$tipoPresupuesto->id.'lugar.'.$index),
-                                                                                            ['class' => 'form-control ds_lugar', 'placeholder' => 'Lugar', 'style' => ($esViaticos ? '' : 'display:none; ').'width:150px'])
+                                                                                            ['class' => 'form-control ds_lugar', 'placeholder' => 'Lugar', 'style' => ($esViaticos ? '' : 'display:none; ').'width:150px', 'maxlength' => \App\Constants::MAX_CAMPO_PRESUPUESTO])
                                                                                         }}
 
                                                                                         {{ Form::select('presupuesto'.$tipoPresupuesto->id.'pasajes[]',
@@ -1107,17 +1107,17 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
                                                                                         ) }}
 
                                                                                         {{ Form::text('presupuesto'.$tipoPresupuesto->id.'destino[]', old('presupuesto'.$tipoPresupuesto->id.'destino.'.$index),
-                                                                                            ['class' => 'form-control ds_destino', 'placeholder' => 'Destino', 'style' => ($esPasajes ? '' : 'display:none; ').'width:150px'])
+                                                                                            ['class' => 'form-control ds_destino', 'placeholder' => 'Destino', 'style' => ($esPasajes ? '' : 'display:none; ').'width:150px', 'maxlength' => \App\Constants::MAX_CAMPO_PRESUPUESTO])
                                                                                         }}
 
                                                                                         {{ Form::text('presupuesto'.$tipoPresupuesto->id.'inscripcion[]', old('presupuesto'.$tipoPresupuesto->id.'inscripcion.'.$index),
-                                                                                            ['class' => 'form-control ds_inscripcion', 'placeholder' => 'Descripción', 'style' => ($esInscripcion ? '' : 'display:none; ').'width:150px'])
+                                                                                            ['class' => 'form-control ds_inscripcion', 'placeholder' => 'Descripción', 'style' => ($esInscripcion ? '' : 'display:none; ').'width:150px', 'maxlength' => \App\Constants::MAX_CAMPO_PRESUPUESTO])
                                                                                         }}
                                                                                     </div>
                                                                                 </div>
                                                                             </td>
                                                                         @else
-                                                                            <td>{{ Form::text('presupuesto'.$tipoPresupuesto->id.'detalles[]', old('presupuesto'.$tipoPresupuesto->id.'detalles.'.$index), ['class' => 'form-control', 'style' => 'width: 400px']) }}</td>
+                                                                            <td>{{ Form::text('presupuesto'.$tipoPresupuesto->id.'detalles[]', old('presupuesto'.$tipoPresupuesto->id.'detalles.'.$index), ['class' => 'form-control', 'style' => 'width: 400px', 'maxlength' => \App\Constants::MAX_DETALLE_PRESUPUESTO]) }}</td>
                                                                         @endif
                                                                         <td>{{Form::number('presupuesto'.$tipoPresupuesto->id.'importes[]', old('presupuesto'.$tipoPresupuesto->id.'importes.'.$index), ['class' => 'form-control', 'style' => 'width:150px;'])}}</td>
                                                                         <td><a href="#" class="btn btn-danger removePresupuesto"><i class="glyphicon glyphicon-remove"></i></a></td>
@@ -1460,7 +1460,7 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
                     // Div para campos adicionales (extraFields)
                     '<div class="extra-fields" style="display: flex; gap: 10px; align-items: center;">' +
                     '<input type="text" name="presupuesto' + tipoId + 'dias[]" class="form-control ds_dias" placeholder="Días" style="display:none; width: 150px; margin-top: 5px;">' +
-                    '<input type="text" name="presupuesto' + tipoId + 'lugar[]" class="form-control ds_lugar" placeholder="Lugar" style="display:none; width: 150px; margin-top: 5px;">' +
+                    '<input type="text" name="presupuesto' + tipoId + 'lugar[]" class="form-control ds_lugar" placeholder="Lugar" style="display:none; width: 150px; margin-top: 5px;" maxlength="{{ \App\Constants::MAX_CAMPO_PRESUPUESTO }}">' +
 
                     '<select name="presupuesto' + tipoId + 'pasajes[]" class="form-control ds_pasajes" style="display:none; width: 150px; margin-top: 5px;">' +
                     '<option value="">-- seleccionar --</option>' +
@@ -1470,8 +1470,8 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
                     '<option value="Otros">Otros</option>' +
                     '</select>' +
 
-                    '<input type="text" name="presupuesto' + tipoId + 'destino[]" class="form-control ds_destino" placeholder="Destino" style="display:none; width: 150px; margin-top: 5px;">' +
-                    '<input type="text" name="presupuesto' + tipoId + 'inscripcion[]" class="form-control ds_inscripcion" placeholder="Descripción" style="display:none; width: 150px; margin-top: 5px;">' +
+                    '<input type="text" name="presupuesto' + tipoId + 'destino[]" class="form-control ds_destino" placeholder="Destino" style="display:none; width: 150px; margin-top: 5px;" maxlength="{{ \App\Constants::MAX_CAMPO_PRESUPUESTO }}">' +
+                    '<input type="text" name="presupuesto' + tipoId + 'inscripcion[]" class="form-control ds_inscripcion" placeholder="Descripción" style="display:none; width: 150px; margin-top: 5px;" maxlength="{{ \App\Constants::MAX_CAMPO_PRESUPUESTO }}">' +
 
                     '</div>' + // Cierre de extra-fields
                     '</div>' + // Cierre del div principal
@@ -1484,7 +1484,7 @@ Esta información será tenida en cuenta en el proceso de evaluación')}}
                 // Lógica por defecto para otros tipos
                 tr = '<tr>' +
                     '<td><input type="date" name="presupuesto' + tipoId + 'fechas[]" class="form-control" style="width: 150px;"></td>' +
-                    '<td><input type="text" name="presupuesto' + tipoId + 'detalles[]" class="form-control" style="width: 400px;"></td>' +
+                    '<td><input type="text" name="presupuesto' + tipoId + 'detalles[]" class="form-control" style="width: 400px;" maxlength="{{ \App\Constants::MAX_DETALLE_PRESUPUESTO }}"></td>' +
                     '<td><input type="number" name="presupuesto' + tipoId + 'importes[]" class="form-control" style="width: 150px;"></td>' +
                     '<td><a href="#" class="btn btn-danger removePresupuesto"><i class="glyphicon glyphicon-remove"></i></a></td>' +
                     '</tr>';

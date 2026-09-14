@@ -13,6 +13,7 @@ use App\Models\Proyecto;
 use App\Models\Sicadi;
 use App\Models\User;
 use App\Traits\SanitizesInput;
+use App\Traits\ValidatesPresupuestos;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use App\Models\Joven;
@@ -40,6 +41,7 @@ class JovenController extends Controller
 
 {
     use SanitizesInput;
+    use ValidatesPresupuestos;
     /**
      * Display a listing of the resource.
      *
@@ -677,6 +679,11 @@ class JovenController extends Controller
             'inicioAnterior.*.date_format' => 'Fecha incio inválida en un de los proyectos anteriores',
             'finAnterior.*.date_format' => 'Fecha fin inválida en un de los proyectos anteriores',
         ];
+
+        // El detalle del presupuesto es una descripción de una línea guardada en una
+        // columna VARCHAR: se acota acá para que un texto pegado sea un error de
+        // validación y no un 500 por "Data too long for column 'detalle'".
+        $this->reglasDetallePresupuesto($request, $rules, $messages);
 
         // Crear el validador con las reglas y mensajes
         $validator = Validator::make($request->all(), $rules, $messages);
@@ -1441,7 +1448,7 @@ class JovenController extends Controller
                                         'joven_id' => $solicitud->id,
                                         'tipo_presupuesto_id' => $tipoPresupuesto->id,
                                         'fecha' => $this->sanitizeInput($fecha),
-                                        'detalle' => $this->sanitizeInput($detalle),
+                                        'detalle' => $this->recortarDetalle($this->sanitizeInput($detalle)),
                                         'monto' => $this->sanitizeInput($importe),
                                         'created_at' => now(),
                                         'updated_at' => now(),
@@ -1474,7 +1481,7 @@ class JovenController extends Controller
                                     'joven_id' => $solicitud->id,
                                     'tipo_presupuesto_id' => $tipoPresupuesto->id,
                                     'fecha' => $this->sanitizeInput($fecha),
-                                    'detalle' => $this->sanitizeInput($detalles[$index]),
+                                    'detalle' => $this->recortarDetalle($this->sanitizeInput($detalles[$index])),
                                     'monto' => ($importes[$index]) ? $importes[$index] : 0,
                                     'created_at' => now(), // Establece la fecha y hora de creación
                                     'updated_at' => now(), // Establece la fecha y hora de actualización
