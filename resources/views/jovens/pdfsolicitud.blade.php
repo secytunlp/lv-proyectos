@@ -381,7 +381,7 @@
     @endphp
     <div>Declaro que al momento de la presentación de la solicitud de subsidios {{$year}}, he entregado en la Secretaría
         de Ciencia y Técnica de la Universidad Nacional de La Plata el informe y constancia de la rendición
-        efectuada en mi Unidad Académica correspondiente al subsidio OTORGADO EN EL PERIODO {{$year}} al
+        efectuada en mi Unidad Académica correspondiente al subsidio OTORGADO EN EL PERIODO 2004 al
         {{$yearAnt}} inclusive. Tomo conocimiento que el no cumplimiento de lo mencionado precedentemente es motivo de
         exclusión de esta presentación.</div>
 </div>
