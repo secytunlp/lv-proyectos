@@ -2278,7 +2278,7 @@ class JovenController extends Controller
         $roleName = Role::find(Constants::ID_ADMIN_FACULTAD_PROYECTOS)->name;
 
         // Obtener usuarios que pertenecen a la facultad especificada y tienen el rol con id 4
-        $usuarios = User::where('facultad_id', $joven->facultad_id)
+        $usuarios = User::where('facultad_id', $joven->facultadplanilla_id)
             ->role($roleName)
             ->get();
 
