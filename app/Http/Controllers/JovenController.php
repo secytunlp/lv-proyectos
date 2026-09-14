@@ -12,6 +12,7 @@ use App\Models\Persona;
 use App\Models\Proyecto;
 use App\Models\Sicadi;
 use App\Models\User;
+use App\Traits\CalculaAntiguedadJovenes;
 use App\Traits\SanitizesInput;
 use App\Traits\ValidatesPresupuestos;
 use Illuminate\Database\QueryException;
@@ -42,6 +43,7 @@ class JovenController extends Controller
 {
     use SanitizesInput;
     use ValidatesPresupuestos;
+    use CalculaAntiguedadJovenes;
     /**
      * Display a listing of the resource.
      *
@@ -2128,47 +2130,21 @@ class JovenController extends Controller
             $errores[] = "No se pueden presentar los Directores y/o Codirectores de Proyectos de Acreditación.";
         }
 
-        $totalDiasInvestigacion = 0;
-        $becas = $solicitud->becas()->get(); // todas
-        // Sumar días de las becas
-        if (!empty($becas)) {
-            foreach ($becas as $beca) {
-                if ($beca->unlp){
-                    $fechaDesde = Carbon::parse($beca->desde);
-                    $fechaHasta = Carbon::parse($beca->hasta);
+        // Antigüedad en investigación: unión de los intervalos de becas UNLP y proyectos,
+        // recortados en el cierre de la convocatoria. Ver App\Traits\CalculaAntiguedadJovenes:
+        // antes se sumaba el período nominal completo de cada beca y cada proyecto, así que
+        // contaba tiempo futuro (joven_proyectos.hasta es el fin del proyecto si no hay baja)
+        // y duplicaba los períodos simultáneos.
+        $corteAntiguedad = $this->fechaCorteAntiguedadJoven();
+        $diasAntiguedad = $this->diasAntiguedadJoven($solicitud, $corteAntiguedad);
+        $diasMinimos = $this->diasMinimosAntiguedadJoven();
 
-                    // Solo suma si ambas fechas son válidas
-                    if ($fechaDesde && $fechaHasta) {
-                        $diasBeca = $fechaHasta->diffInDays($fechaDesde);
-                        $totalDiasInvestigacion += $diasBeca;
-                    }
-                }
-
-            }
-        }
-        $proyectos = $solicitud->proyectos()->get(); // todos
-        // Sumar días de los proyectos
-        if (!empty($proyectos)) {
-            foreach ($proyectos as $proyecto) {
-                $fechaInicio = Carbon::parse($proyecto->desde);
-                $fechaFin = Carbon::parse($proyecto->hasta);
-
-                // Solo suma si ambas fechas son válidas
-                if ($fechaInicio && $fechaFin) {
-                    $diasProyecto = $fechaFin->diffInDays($fechaInicio);
-                    $totalDiasInvestigacion += $diasProyecto;
-                }
-            }
-        }
-
-        $diasYear = intval(Constants::YEAR_PROYECTOS)*intval(Constants::DIAS_YEAR);
-
-        // Convertir el total de días en años (365 días = 1 año)
-        $yearInvestigacion = $totalDiasInvestigacion / $diasYear;
-
-        // Verificar si el investigador tiene al menos 1 año de investigación
-        if ($yearInvestigacion < intval(Constants::YEAR_PROYECTOS)) {
-            $errores[] = "Menos de ".intval(Constants::YEAR_PROYECTOS)." años de participación en proyectos UNLP / Beca UNLP";
+        if ($diasAntiguedad < $diasMinimos) {
+            $anios = intval(Constants::YEAR_PROYECTOS);
+            $errores[] = "Menos de ".$anios." ".(($anios == 1) ? "año" : "años")
+                ." de participación en proyectos UNLP / Beca UNLP: acredita "
+                .$diasAntiguedad." días al ".$corteAntiguedad->format('d/m/Y')
+                ." y se requieren ".$diasMinimos.".";
         }
 
         // Tu lógica para calcular el monto total
