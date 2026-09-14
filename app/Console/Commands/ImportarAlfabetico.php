@@ -80,19 +80,19 @@ class ImportarAlfabetico extends Command
      * que se aceptan las variantes conocidas. Si aparece otra, se agrega aca.
      */
     private $columnasOpcionales = array(
+        // Rotulos reales del alfabetico de agosto 2026.
+        'antiguedad aa'     => 'antiguedad_anios',
+        'antiguedad mm'     => 'antiguedad_meses',
+        // Variantes por si cambian el rotulo.
+        'antigüedad aa'     => 'antiguedad_anios',
         'antigüedad años'   => 'antiguedad_anios',
         'antiguedad años'   => 'antiguedad_anios',
-        'antigüedad anios'  => 'antiguedad_anios',
         'antiguedad anios'  => 'antiguedad_anios',
         'antig. años'       => 'antiguedad_anios',
-        'antig años'        => 'antiguedad_anios',
-        'años'              => 'antiguedad_anios',
-        'anios'             => 'antiguedad_anios',
+        'antigüedad mm'     => 'antiguedad_meses',
         'antigüedad meses'  => 'antiguedad_meses',
         'antiguedad meses'  => 'antiguedad_meses',
         'antig. meses'      => 'antiguedad_meses',
-        'antig meses'       => 'antiguedad_meses',
-        'meses'             => 'antiguedad_meses',
     );
 
     /** Columnas del archivo que se usan, por su encabezado (sin distinguir espacios) */
