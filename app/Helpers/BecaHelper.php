@@ -2,46 +2,90 @@
 
 namespace App\Helpers;
 
-use Illuminate\Support\Facades\Log;
-
 class BecaHelper
 {
+    /**
+     * Instituciones que se escriben distinto según la pantalla.
+     *
+     * La beca actual toma las instituciones de config/becaEntidades.php ("CIC PBA",
+     * "AGENCIA i+D+i") y las anteriores de una lista propia del formulario ("CIC",
+     * "ANPCyT"). Las dos grafías apuntan a la misma institución, así que cualquiera de
+     * las dos tiene que encontrar sus niveles de beca.
+     */
+    private static $equivalencias = [
+        'CIC'           => 'CIC PBA',
+        'CIC PBA'       => 'CIC',
+        'ANPCyT'        => 'AGENCIA i+D+i',
+        'AGENCIA i+D+i' => 'ANPCyT',
+    ];
+
+    /**
+     * Niveles de beca de la beca actual, según la institución.
+     *
+     * @param  string|null  $institucionSeleccionada
+     * @return array
+     */
     public static function obtenerOpcionesBecaPorInstitucion($institucionSeleccionada)
     {
-        //dd($institucionSeleccionada);
-
-        switch ($institucionSeleccionada) {
-            case 'AGENCIA i+D+i':
-                return ['','Beca inicial'=>'Beca inicial', 'Beca superior'=>'Beca superior'];
-            case 'CIC PBA':
-                return ['', 'Beca de entrenamiento'=>'Beca de entrenamiento','Beca doctoral'=>'Beca doctoral', 'Beca posdoctoral'=>'Beca posdoctoral'];
-            case 'CONICET':
-                return ['','Beca doctoral'=>'Beca doctoral', 'Beca posdoctoral'=>'Beca posdoctoral','Beca finalización del doctorado'=>'Beca finalización del doctorado'];
-            case 'UNLP':
-                return ['','Beca doctoral'=>'Beca doctoral', 'Beca posdoctoral'=>'Beca posdoctoral','Beca maestría'=>'Beca maestría','Beca Cofinanciada (UNLP-CIC)'=>'Beca Cofinanciada (UNLP-CIC)'];
-            case 'CIN':
-                return ['','EVC'=>'EVC'];
-            default:
-                return ['']; // Opción por defecto
-        }
+        return self::opciones('becas', $institucionSeleccionada);
     }
 
+    /**
+     * Niveles de beca de las becas anteriores, según la institución.
+     *
+     * @param  string|null  $institucionSeleccionada
+     * @return array
+     */
     public static function obtenerOpcionesBecaPorInstitucionAnterior($institucionSeleccionada)
     {
-        switch ($institucionSeleccionada) {
-            case 'AGENCIA i+D+i':
-                return ['','Beca inicial'=>'Beca inicial', 'Beca superior'=>'Beca superior'];
-            case 'CIC PBA':
-                return ['', 'Beca de entrenamiento'=>'Beca de entrenamiento','Beca doctoral'=>'Beca doctoral', 'Beca posdoctoral'=>'Beca posdoctoral'];
-            case 'CONICET':
-                return ['','Beca doctoral'=>'Beca doctoral', 'Beca posdoctoral'=>'Beca posdoctoral','Beca finalización del doctorado'=>'Beca finalización del doctorado','TIPO I'=>'TIPO I','TIPO II'=>'TIPO II','CONICET 2'=>'CONICET 2'];
-            case 'UNLP':
-                return ['','Beca doctoral'=>'Beca doctoral', 'Beca posdoctoral'=>'Beca posdoctoral','Beca maestría'=>'Beca maestría','Beca Cofinanciada (UNLP-CIC)'=>'Beca Cofinanciada (UNLP-CIC)', 'Formación Superior'=>'Formación Superior','Iniciación'=>'Iniciación','TIPO A'=>'TIPO A','Tipo A - Maestría'=>'Tipo A - Maestría','Tipo A - Doctorado'=>'Tipo A - Doctorado','Especial de Maestría'=>'Especial de Maestría','TIPO B'=>'TIPO B','TIPO B (DOCTORADO)'=>'TIPO B (DOCTORADO)','TIPO B (MAESTRÍA)'=>'TIPO B (MAESTRÍA)','BECA DE PERFECCIONAMIENTO'=>'BECA DE PERFECCIONAMIENTO','RETENCION DE POSTGRADUADO'=>'RETENCION DE POSTGRADUADO'];
-            case 'CIN':
-                return ['','EVC'=>'EVC'];
-            default:
-                return ['']; // Opción por defecto
+        return self::opciones('becasAnteriores', $institucionSeleccionada);
+    }
+
+    /**
+     * Busca los niveles en el config y los devuelve como valor => etiqueta.
+     *
+     * Antes cada método tenía su propio switch, duplicando los configs que ya usa el JS
+     * del formulario. Esa copia se desalineó: el switch de las anteriores esperaba
+     * "CIC PBA" / "AGENCIA i+D+i" mientras el select mandaba "CIC" / "ANPCyT", así que
+     * esas dos instituciones se quedaban sin opciones y el formulario guardaba el nivel
+     * en blanco.
+     *
+     * Los config son listas planas; Form::select necesita valor => etiqueta, porque con
+     * una lista plana el valor de cada opción termina siendo su índice numérico (la
+     * opción vacía valía "0").
+     *
+     * @param  string  $config
+     * @param  string|null  $institucion
+     * @return array
+     */
+    private static function opciones($config, $institucion)
+    {
+        $institucion = trim((string) $institucion);
+        $todas = config($config, []);
+
+        $niveles = null;
+
+        if ($institucion !== '' && array_key_exists($institucion, $todas)) {
+            $niveles = $todas[$institucion];
+        } elseif ($institucion !== '' && isset(self::$equivalencias[$institucion])) {
+            $equivalente = self::$equivalencias[$institucion];
+            if (array_key_exists($equivalente, $todas)) {
+                $niveles = $todas[$equivalente];
+            }
         }
+
+        if ($niveles === null) {
+            return ['' => ''];
+        }
+
+        $opciones = ['' => ''];
+        foreach ($niveles as $nivel) {
+            $nivel = (string) $nivel;
+            if ($nivel !== '') {
+                $opciones[$nivel] = $nivel;
+            }
+        }
+
+        return $opciones;
     }
 }
-
