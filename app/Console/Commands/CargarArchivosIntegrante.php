@@ -103,7 +103,14 @@ class CargarArchivosIntegrante extends Command
         }
 
         // Read and store via the same disk the controller uses (storage/app/public)
-        Storage::put($target, file_get_contents($sourcePath));
+        // Storage::put() returns false instead of throwing when the write fails
+        // (typically a permission problem on the destination folder). Without this
+        // check the command would report success and save a URL with no file behind it.
+        if (Storage::put($target, file_get_contents($sourcePath)) === false) {
+            $this->error("No se pudo escribir {$target}.");
+            $this->line('  Revisar permisos: el usuario que corre artisan tiene que poder escribir en storage/app/' . $dir);
+            return false;
+        }
 
         // Storage::url() yields the /storage/... form expected by the rest of the app
         return Storage::url($target);
