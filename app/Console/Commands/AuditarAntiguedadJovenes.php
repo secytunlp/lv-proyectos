@@ -19,9 +19,13 @@ use PhpOffice\PhpSpreadsheet\Cell\DataType;
  * Investigadores con el criterio corregido (App\Traits\CalculaAntiguedadJovenes) y
  * la compara contra el cálculo que estaba vigente cuando se enviaron.
  *
+ * Lo que se mide es el TRAMO CONTINUO más largo. La columna "Dias sumando tramos"
+ * muestra qué pasaría sin exigir continuidad: si esa dice SI y el diagnóstico no es OK,
+ * a esa persona la deja afuera el corte entre participaciones, no la falta de tiempo.
+ *
  *   DEJADA PASAR   la solicitud ya se envió y no llega al mínimo. Son las que
- *                  entraron por el bug: el cálculo viejo sumaba período futuro y
- *                  períodos simultáneos.
+ *                  entraron por el bug: el cálculo viejo sumaba período futuro,
+ *                  períodos simultáneos y participaciones cortadas.
  *   INSUFICIENTE   todavía está en Creada y no llega al mínimo: con el arreglo
  *                  puesto, el sistema no la va a dejar enviar.
  *   SIN DATOS      no hay ninguna beca UNLP ni proyecto con fechas utilizables.
@@ -46,10 +50,13 @@ class AuditarAntiguedadJovenes extends Command
 
     private const HEADERS = [
         'Joven ID', 'Estado', 'Apellido', 'Nombre', 'Documento', 'CUIL', 'Facultad',
-        'Egreso grado', 'Dias acreditados', 'Anios acreditados', 'Dias minimos',
+        'Egreso grado', 'Dias continuos', 'Anios continuos', 'Dias minimos',
+        'Dias sumando tramos', 'Llega sumando tramos',
         'Dias calculo anterior', 'Pasaba el control anterior',
-        'Intervalos computados', 'Diagnostico',
+        'Tramo continuo mas largo', 'Intervalos computados', 'Diagnostico',
     ];
+
+    private const COL_DIAGNOSTICO = 17;
 
     public function handle(): int
     {
@@ -88,7 +95,7 @@ class AuditarAntiguedadJovenes extends Command
         $solicitudes = $query->get();
 
         $this->info('Periodo '.$anio.' — solicitudes: '.$solicitudes->count());
-        $this->line('Antigüedad computada al '.$corte->format('d/m/Y').', mínimo '.$diasMinimos.' días');
+        $this->line('Antigüedad computada al '.$corte->format('d/m/Y').', mínimo '.$diasMinimos.' días continuos');
         if ($estado !== '') {
             $this->line('Estado: '.$estado);
         } else {
@@ -105,7 +112,9 @@ class AuditarAntiguedadJovenes extends Command
         $informe = [];
         foreach ($solicitudes as $solicitud) {
             $intervalos = $this->intervalosAntiguedadJoven($solicitud, $corte);
+            $tramos     = $this->tramosAntiguedadJoven($solicitud, $corte);
             $dias       = $this->diasAntiguedadJoven($solicitud, $corte);
+            $diasSuma   = $this->diasAntiguedadJovenSumaTramos($solicitud, $corte);
             $diasAntes  = $this->diasAntiguedadJovenCalculoAnterior($solicitud);
 
             if (empty($intervalos)) {
@@ -147,8 +156,11 @@ class AuditarAntiguedadJovenes extends Command
                 $dias,
                 round($dias / intval(Constants::DIAS_YEAR), 2),
                 $diasMinimos,
+                $diasSuma,
+                ($diasSuma >= $diasMinimos) ? 'SI' : 'NO',
                 $diasAntes,
                 ($diasAntes >= $diasMinimos) ? 'SI' : 'NO',
+                $this->describirTramoMasLargoJoven($tramos),
                 $this->describirIntervalosAntiguedadJoven($intervalos),
                 $diagnostico,
             ];
@@ -162,7 +174,7 @@ class AuditarAntiguedadJovenes extends Command
         // Resumen por diagnostico
         $conteo = [];
         foreach ($informe as $fila) {
-            $diagnostico = $fila[14];
+            $diagnostico = $fila[self::COL_DIAGNOSTICO];
             if (!array_key_exists($diagnostico, $conteo)) {
                 $conteo[$diagnostico] = 0;
             }
@@ -179,7 +191,8 @@ class AuditarAntiguedadJovenes extends Command
         // Detalle de las que no cumplen
         $incumplen = [];
         foreach ($informe as $fila) {
-            if ($fila[14] === 'DEJADA PASAR' || $fila[14] === 'INSUFICIENTE' || $fila[14] === 'SIN DATOS') {
+            $diagnostico = $fila[self::COL_DIAGNOSTICO];
+            if ($diagnostico === 'DEJADA PASAR' || $diagnostico === 'INSUFICIENTE' || $diagnostico === 'SIN DATOS') {
                 $incumplen[] = [
                     $fila[0],
                     $fila[1],
@@ -187,7 +200,7 @@ class AuditarAntiguedadJovenes extends Command
                     $fila[5],
                     $fila[8],
                     $fila[11],
-                    $fila[14],
+                    $diagnostico,
                 ];
             }
         }
@@ -195,7 +208,7 @@ class AuditarAntiguedadJovenes extends Command
             $this->newLine();
             $this->line('Solicitudes que no llegan al mínimo (primeras 30 de '.count($incumplen).'):');
             $this->table(
-                ['Joven', 'Estado', 'Apellido, Nombre', 'CUIL', 'Dias', 'Dias antes', 'Diagnostico'],
+                ['Joven', 'Estado', 'Apellido, Nombre', 'CUIL', 'Dias continuos', 'Sumando tramos', 'Diagnostico'],
                 array_slice($incumplen, 0, 30)
             );
         }

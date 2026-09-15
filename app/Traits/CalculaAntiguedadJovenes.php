@@ -20,6 +20,11 @@ use Carbon\Carbon;
  *     lo posterior no cuenta, y lo que empieza después del cierre no cuenta nada;
  *   - los intervalos se UNEN en vez de sumarse, así una beca y un proyecto que
  *     corren en paralelo cuentan una sola vez.
+ *
+ * Y el año que se exige es CONTINUO: lo que se mide es el tramo unido más largo, no la
+ * suma de todos. Dos participaciones cortadas —seis meses en un proyecto que terminó en
+ * 2025 y ocho en el actual— no se suman para llegar al año. Una beca y un proyecto que se
+ * encadenan sin hueco sí forman un solo tramo, porque la unión los funde.
  */
 trait CalculaAntiguedadJovenes
 {
@@ -198,7 +203,24 @@ trait CalculaAntiguedadJovenes
     }
 
     /**
-     * Días de antigüedad efectivos: unión de los intervalos recortados en el corte.
+     * Tramos continuos de antigüedad: los intervalos recortados en el corte, unidos.
+     *
+     * @param  \App\Models\Joven  $solicitud
+     * @param  \Carbon\Carbon|null  $corte
+     * @return array
+     */
+    protected function tramosAntiguedadJoven($solicitud, Carbon $corte = null)
+    {
+        return $this->unirIntervalosAntiguedadJoven(
+            $this->intervalosAntiguedadJoven($solicitud, $corte)
+        );
+    }
+
+    /**
+     * Antigüedad acreditada: el tramo continuo más largo.
+     *
+     * Es el número que se compara contra el mínimo. No es la suma de los tramos: el año
+     * que pide la convocatoria es de participación continua.
      *
      * @param  \App\Models\Joven  $solicitud
      * @param  \Carbon\Carbon|null  $corte
@@ -206,16 +228,60 @@ trait CalculaAntiguedadJovenes
      */
     protected function diasAntiguedadJoven($solicitud, Carbon $corte = null)
     {
-        $unidos = $this->unirIntervalosAntiguedadJoven(
-            $this->intervalosAntiguedadJoven($solicitud, $corte)
-        );
-
         $dias = 0;
-        foreach ($unidos as $tramo) {
+        foreach ($this->tramosAntiguedadJoven($solicitud, $corte) as $tramo) {
+            $diasTramo = $tramo['desde']->diffInDays($tramo['hasta']);
+            if ($diasTramo > $dias) {
+                $dias = $diasTramo;
+            }
+        }
+
+        return $dias;
+    }
+
+    /**
+     * Suma de todos los tramos, sin exigir continuidad.
+     *
+     * No valida nada: está para que la auditoría pueda mostrar a quién lo separa de la
+     * regla sólo el corte entre participaciones.
+     *
+     * @param  \App\Models\Joven  $solicitud
+     * @param  \Carbon\Carbon|null  $corte
+     * @return int
+     */
+    protected function diasAntiguedadJovenSumaTramos($solicitud, Carbon $corte = null)
+    {
+        $dias = 0;
+        foreach ($this->tramosAntiguedadJoven($solicitud, $corte) as $tramo) {
             $dias += $tramo['desde']->diffInDays($tramo['hasta']);
         }
 
         return $dias;
+    }
+
+    /**
+     * Texto legible del tramo continuo más largo, para los informes.
+     *
+     * @param  array  $tramos
+     * @return string
+     */
+    protected function describirTramoMasLargoJoven(array $tramos)
+    {
+        $mejor = null;
+        foreach ($tramos as $tramo) {
+            $dias = $tramo['desde']->diffInDays($tramo['hasta']);
+            if ($mejor === null || $dias > $mejor['dias']) {
+                $mejor = ['tramo' => $tramo, 'dias' => $dias];
+            }
+        }
+
+        if ($mejor === null) {
+            return '';
+        }
+
+        return $mejor['tramo']['desde']->format('d/m/Y')
+            .' - '.$mejor['tramo']['hasta']->format('d/m/Y')
+            .' = '.$mejor['dias'].' d';
     }
 
     /**
