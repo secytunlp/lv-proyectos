@@ -12,13 +12,15 @@ class CargarArchivosIntegrante extends Command
 {
     // Usage:
     //   php artisan integrante:cargar-archivos {id} --cv=/path/CV.pdf --plan=/path/PLAN.pdf
+    //   php artisan integrante:cargar-archivos {id} --resolucion=/path/RES.pdf
     protected $signature = 'integrante:cargar-archivos
                             {id : Integrante ID}
                             {--cv= : Absolute path to the curriculum file}
                             {--plan= : Absolute path to the work plan file}
+                            {--resolucion= : Absolute path to the resolucion file}
                             {--dry-run : Show what would change without writing}';
 
-    protected $description = 'Attach curriculum and/or work plan files to an existing integrante without altering its state';
+    protected $description = 'Attach curriculum, work plan and/or resolucion files to an existing integrante without altering its state';
 
     public function handle()
     {
@@ -31,10 +33,11 @@ class CargarArchivosIntegrante extends Command
 
         $cvPath   = $this->option('cv');
         $planPath = $this->option('plan');
+        $resPath  = $this->option('resolucion');
         $dryRun   = $this->option('dry-run');
 
-        if (!$cvPath && !$planPath) {
-            $this->error('Provide at least --cv or --plan.');
+        if (!$cvPath && !$planPath && !$resPath) {
+            $this->error('Provide at least --cv, --plan or --resolucion.');
             return 1;
         }
 
@@ -54,6 +57,12 @@ class CargarArchivosIntegrante extends Command
             $url = $this->storeFile($planPath, $dir, 'PLAN_', $dryRun);
             if ($url === false) return 1;
             $changes['actividades'] = $url;
+        }
+
+        if ($resPath) {
+            $url = $this->storeFile($resPath, $dir, 'RES_', $dryRun);
+            if ($url === false) return 1;
+            $changes['resolucion'] = $url;
         }
 
         if ($dryRun) {
