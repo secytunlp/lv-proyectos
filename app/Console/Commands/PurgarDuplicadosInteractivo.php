@@ -287,7 +287,7 @@ class PurgarDuplicadosInteractivo extends Command
 
         foreach ($porDoc as $doc => $miembros) {
             if (count($miembros) < 2) continue;
-            $ids = array_map(fn($m) => (int)$m->id, $miembros);
+            $ids = array_map(function ($m) { return (int) $m->id; }, $miembros);
             sort($ids);
             $ids_key = implode(',', $ids);
             if (isset($vistos[$ids_key])) continue;
@@ -307,7 +307,7 @@ class PurgarDuplicadosInteractivo extends Command
 
             foreach ($porNac as $nac => $grupo) {
                 if (count($grupo) < 2) continue;
-                $ids = array_map(fn($m) => (int)$m->id, $grupo);
+                $ids = array_map(function ($m) { return (int) $m->id; }, $grupo);
                 sort($ids);
                 $ids_key = implode(',', $ids);
                 if (isset($vistos[$ids_key])) continue;
