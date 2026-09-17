@@ -29,13 +29,17 @@ class ExportarSubsidiosFacultad extends Command
 {
     protected $signature = 'subsidios:facultad
         {--anio=2026 : Año del listado. Define la fecha de corte (fin > {anio-1}-12-31).}
+        {--tipo=I+D : Programa a listar: I+D o PPID. Se genera en archivos separados por programa.}
         {--fecha-corte= : Fecha de corte (Y-m-d). Por defecto {anio-1}-12-31.}
         {--hasta-inicio= : Excluye proyectos con inicio >= esta fecha (Y-m-d). Opcional, para replicar un período pasado.}
         {--estado=Acreditado : Estado del proyecto a incluir. "todos" para no filtrar.}
         {--juntos : Genera un único .xlsx con todas las facultades juntas.}
         {--salida= : Carpeta de salida para los .xlsx.}';
 
-    protected $description = 'Exporta un Excel por facultad con los proyectos I+D en ejecución que entran al subsidio (candidatos, antes de calcular).';
+    protected $description = 'Exporta un Excel por facultad con los proyectos en ejecución que entran al subsidio (candidatos, antes de calcular). Un programa por corrida (--tipo=I+D | PPID).';
+
+    /** Programas válidos para subsidios. */
+    private const TIPOS_VALIDOS = ['I+D', 'PPID'];
 
     private const HEADERS = [
         'N°', 'Proyecto', 'Inicio', 'Fin', 'Director',
@@ -75,15 +79,21 @@ class ExportarSubsidiosFacultad extends Command
             return self::FAILURE;
         }
 
+        $tipo = (string) $this->option('tipo');
+        if (! in_array($tipo, self::TIPOS_VALIDOS, true)) {
+            $this->error('Tipo inválido. Usá --tipo=I+D o --tipo=PPID.');
+            return self::FAILURE;
+        }
+
         $fechaCorte = $this->option('fecha-corte') ?: ($anio - 1) . '-12-31';
 
         $salida = $this->option('salida') ?: storage_path("app/subsidios_{$anio}");
         $this->ensureDir($salida);
 
-        $rows = $this->fetchRows($fechaCorte);
+        $rows = $this->fetchRows($fechaCorte, $tipo);
 
         if ($rows->isEmpty()) {
-            $this->warn('No se encontraron proyectos en ejecución para los filtros indicados.');
+            $this->warn("No se encontraron proyectos {$tipo} en ejecución para los filtros indicados.");
             return self::FAILURE;
         }
 
@@ -97,9 +107,10 @@ class ExportarSubsidiosFacultad extends Command
                 return $cmp;
             })->values();
 
-            $file = rtrim($salida, '/\\') . DIRECTORY_SEPARATOR . "Subsidios {$anio} - TODOS.xlsx";
-            $this->writeXlsxJuntos($ordenados, $anio, $file);
-            $this->info("Proyectos a subsidiar {$anio}: {$rows->count()} en 1 archivo.");
+            $file = rtrim($salida, '/\\') . DIRECTORY_SEPARATOR
+                . "Subsidios {$anio} - {$this->tipoArchivo($tipo)} - TODOS.xlsx";
+            $this->writeXlsxJuntos($ordenados, $anio, $tipo, $file);
+            $this->info("Proyectos {$tipo} a subsidiar {$anio}: {$rows->count()} en 1 archivo.");
             $this->line('  ->  ' . basename($file));
             $this->info("Listo. Archivo en: {$salida}");
             return self::SUCCESS;
@@ -110,7 +121,11 @@ class ExportarSubsidiosFacultad extends Command
             return (string) $r->facultad;
         });
 
-        $this->info("Proyectos a subsidiar {$anio}: {$rows->count()} en {$grupos->count()} archivo(s).");
+        $this->info("Proyectos {$tipo} a subsidiar {$anio}: {$rows->count()} en {$grupos->count()} archivo(s).");
+
+        // I+D conserva el nombre plano (Agrarias.xlsx); los demás programas
+        // llevan prefijo para no pisar los archivos ya generados.
+        $prefijo = ($tipo === 'I+D') ? '' : $this->tipoArchivo($tipo) . ' - ';
 
         foreach ($grupos as $facultad => $filas) {
             $filas = $filas->sort(function ($a, $b) {
@@ -118,8 +133,8 @@ class ExportarSubsidiosFacultad extends Command
             })->values();
 
             $file = rtrim($salida, '/\\') . DIRECTORY_SEPARATOR
-                . $this->nombreCorto($facultad) . '.xlsx';
-            $this->writeXlsx($filas, $facultad, $anio, $file);
+                . $prefijo . $this->nombreCorto($facultad) . '.xlsx';
+            $this->writeXlsx($filas, $facultad, $tipo, $anio, $file);
             $this->line(sprintf('  %-14s %3d  ->  %s',
                 $this->nombreCorto($facultad), $filas->count(), basename($file)));
         }
@@ -129,10 +144,11 @@ class ExportarSubsidiosFacultad extends Command
     }
 
     /**
-     * Proyectos I+D en ejecución con director. Mismo criterio que el pipeline
-     * de subsidios (poblarSubsidioProyectos): tipo I+D, estado, fin > corte.
+     * Proyectos del programa indicado en ejecución con director. Mismo criterio
+     * que el pipeline de subsidios (poblarSubsidioProyectos): tipo, estado,
+     * fin > corte.
      */
-    private function fetchRows(string $fechaCorte)
+    private function fetchRows(string $fechaCorte, string $tipo)
     {
         $query = DB::table('proyectos as p')
             ->join('integrantes as i', function ($join) {
@@ -142,7 +158,7 @@ class ExportarSubsidiosFacultad extends Command
             ->leftJoin('investigadors as inv', 'i.investigador_id', '=', 'inv.id')
             ->leftJoin('personas as per', 'inv.persona_id', '=', 'per.id')
             ->leftJoin('facultads as f', 'p.facultad_id', '=', 'f.id')
-            ->where('p.tipo', 'I+D')
+            ->where('p.tipo', $tipo)
             ->where('p.fin', '>', $fechaCorte)
             ->select([
                 'p.id', 'p.codigo', 'p.inicio', 'p.fin',
@@ -166,7 +182,7 @@ class ExportarSubsidiosFacultad extends Command
         return $query->get()->unique('id')->values();
     }
 
-    private function writeXlsx($filas, string $facultad, int $anio, string $path): void
+    private function writeXlsx($filas, string $facultad, string $tipo, int $anio, string $path): void
     {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -175,7 +191,7 @@ class ExportarSubsidiosFacultad extends Command
         $lastCol = Coordinate::stringFromColumnIndex(count(self::HEADERS));
 
         // Título
-        $sheet->setCellValue('A1', "Proyectos I+D {$anio}");
+        $sheet->setCellValue('A1', "Proyectos {$tipo} {$anio}");
         $sheet->mergeCells("A1:{$lastCol}1");
         $sheet->setCellValue('A2', $this->nombreCorto($facultad));
         $sheet->mergeCells("A2:{$lastCol}2");
@@ -208,7 +224,7 @@ class ExportarSubsidiosFacultad extends Command
         unset($spreadsheet);
     }
 
-    private function writeXlsxJuntos($filas, int $anio, string $path): void
+    private function writeXlsxJuntos($filas, int $anio, string $tipo, string $path): void
     {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -217,7 +233,7 @@ class ExportarSubsidiosFacultad extends Command
         $lastCol = Coordinate::stringFromColumnIndex(count(self::HEADERS_JUNTOS));
 
         // Título
-        $sheet->setCellValue('A1', "Proyectos I+D {$anio} - Todas las facultades");
+        $sheet->setCellValue('A1', "Proyectos {$tipo} {$anio} - Todas las facultades");
         $sheet->mergeCells("A1:{$lastCol}1");
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(12);
         $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
@@ -299,6 +315,12 @@ class ExportarSubsidiosFacultad extends Command
     private function director($row): string
     {
         return trim(((string) ($row->apellido ?? '')) . ', ' . ((string) ($row->nombre ?? '')), ', ');
+    }
+
+    /** Nombre de programa seguro para usar en el nombre de archivo. */
+    private function tipoArchivo(string $tipo): string
+    {
+        return str_replace(['/', '\\', ':'], '-', $tipo);
     }
 
     private function nombreCorto(?string $facultad): string
