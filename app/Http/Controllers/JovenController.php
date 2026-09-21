@@ -313,12 +313,12 @@ class JovenController extends Controller
         $sheet->setCellValue('I1', 'U. Académica');
         $sheet->setCellValue('J1', 'Disciplina');
         $sheet->setCellValue('K1', 'Proyecto');
-        $sheet->setCellValue('L1', 'Monto');
-        $sheet->setCellValue('M1', 'Evaluadores');
-        $sheet->setCellValue('N1', 'Diferencia');
-        $sheet->setCellValue('O1', 'Puntaje');
-        $sheet->setCellValue('P1', 'Beca');
-        $sheet->setCellValue('Q1', 'Lugar de trabajo');
+        $sheet->setCellValue('L1', 'Beca');
+        $sheet->setCellValue('M1', 'Lugar de trabajo');
+        $sheet->setCellValue('N1', 'Monto');
+        $sheet->setCellValue('O1', 'Evaluadores');
+        $sheet->setCellValue('P1', 'Diferencia');
+        $sheet->setCellValue('Q1', 'Puntaje');
 
         // Llenar los datos
         $row = 2;
@@ -385,7 +385,6 @@ class JovenController extends Controller
                 if ($becaDesde || $becaHasta) {
                     $strBeca .= ' ('.$becaDesde.' - '.$becaHasta.')';
                 }
-                $strBeca .= ' UNLP: '.(($beca->unlp) ? 'Sí' : 'No');
             }
 
             // Lugar de trabajo: el de la beca y/o el de la carrera de investigador, si los tiene
@@ -410,12 +409,12 @@ class JovenController extends Controller
             $sheet->setCellValue('I' . $row, $item->facultad_nombre);
             $sheet->setCellValue('J' . $row, $item->disciplina);
             $sheet->setCellValue('K' . $row, $strProyectos);
-            $sheet->setCellValue('L' . $row, '$' . number_format($joven->presupuestos()->sum('monto'), 2, ',', '.'));
-            $sheet->setCellValue('M' . $row, $strEvaluacions);
-            $sheet->setCellValue('N' . $row, $item->diferencia);
-            $sheet->setCellValue('O' . $row, $item->puntaje);
-            $sheet->setCellValue('P' . $row, $strBeca);
-            $sheet->setCellValue('Q' . $row, $strLugar);
+            $sheet->setCellValue('L' . $row, $strBeca);
+            $sheet->setCellValue('M' . $row, $strLugar);
+            $sheet->setCellValue('N' . $row, '$' . number_format($joven->presupuestos()->sum('monto'), 2, ',', '.'));
+            $sheet->setCellValue('O' . $row, $strEvaluacions);
+            $sheet->setCellValue('P' . $row, $item->diferencia);
+            $sheet->setCellValue('Q' . $row, $item->puntaje);
             $row++;
         }
 
