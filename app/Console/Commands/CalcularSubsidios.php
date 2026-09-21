@@ -298,7 +298,7 @@ class CalcularSubsidios extends Command
                     END
             WHERE
                 i.tipo <> 'Colaborador'
-              AND p.tipo = 'I+D'
+              AND p.tipo IN ('I+D', 'PPID')
               AND p.estado = 'Acreditado'
               AND p.fin > ?
               AND (i.estado IS NULL OR i.estado = '')
@@ -354,7 +354,7 @@ class CalcularSubsidios extends Command
                     ON ua.unidad_id = p.unidad_id AND ua.periodo_id = ?
             WHERE
                 i.tipo = 'Director'
-              AND p.tipo = 'I+D'
+              AND p.tipo IN ('I+D', 'PPID')
               AND p.estado = 'Acreditado'
               AND p.fin > ?
               $hastaInicioSql

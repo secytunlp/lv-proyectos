@@ -247,11 +247,13 @@ class JovenController extends Controller
         // La lógica de exportación a Excel va aquí
         $filtros = $request->all();
 
-        $query = Joven::select('jovens.id as id', 'personas.nombre as persona_nombre', 'periodos.nombre as periodo_nombre', DB::raw("CONCAT(personas.apellido, ', ', personas.nombre) as persona_apellido"),'jovens.fecha as fecha','jovens.estado as estado', 'facultads.cat as facultad_cat', 'facultads.nombre as facultad_nombre','jovens.diferencia','jovens.puntaje','personas.cuil','jovens.email','jovens.nacimiento','jovens.disciplina')
+        $query = Joven::select('jovens.id as id', 'personas.nombre as persona_nombre', 'periodos.nombre as periodo_nombre', DB::raw("CONCAT(personas.apellido, ', ', personas.nombre) as persona_apellido"),'jovens.fecha as fecha','jovens.estado as estado', 'facultads.cat as facultad_cat', 'facultads.nombre as facultad_nombre','jovens.diferencia','jovens.puntaje','personas.cuil','jovens.email','jovens.nacimiento','jovens.disciplina', DB::raw("CONCAT_WS(' - ', unidadbeca.nombre, unidadbeca.sigla) as unidadbeca"), DB::raw("CONCAT_WS(' - ', unidadcarrera.nombre, unidadcarrera.sigla) as unidadcarrera"))
             ->leftJoin('periodos', 'jovens.periodo_id', '=', 'periodos.id')
             ->leftJoin('investigadors', 'jovens.investigador_id', '=', 'investigadors.id')
             ->leftJoin('personas', 'investigadors.persona_id', '=', 'personas.id')
             ->leftJoin('facultads', 'jovens.facultadplanilla_id', '=', 'facultads.id')
+            ->leftJoin('unidads as unidadbeca', 'jovens.unidadbeca_id', '=', 'unidadbeca.id')
+            ->leftJoin('unidads as unidadcarrera', 'jovens.unidadcarrera_id', '=', 'unidadcarrera.id')
             ->with(['evaluacions' => function($query) {
                 // Añadir select específico de los campos que deseas de los evaluadores
                 $query->select('joven_evaluacions.joven_id', 'user_name', 'user_id', 'interno', 'joven_evaluacions.estado', 'joven_evaluacions.puntaje')
@@ -316,6 +318,8 @@ class JovenController extends Controller
         $sheet->setCellValue('M1', 'Evaluadores');
         $sheet->setCellValue('N1', 'Diferencia');
         $sheet->setCellValue('O1', 'Puntaje');
+        $sheet->setCellValue('P1', 'Beca');
+        $sheet->setCellValue('Q1', 'Lugar de trabajo');
 
         // Llenar los datos
         $row = 2;
@@ -365,6 +369,36 @@ class JovenController extends Controller
                     $strEvaluacions .= $evaluador.' / '.$strInterno.' / '.$evaluacion->estado.' / P. '.number_format ( $evaluacion->puntaje , 2 , ',', '.' ).'---';
                 }
             }
+            // Beca actual de la solicitud (joven_becas.actual = 1)
+            $beca = $joven->becas()->where('actual', 1)->first();
+            $strBeca = '';
+            if ($beca) {
+                $partesBeca = [];
+                if (!empty($beca->institucion)) {
+                    $partesBeca[] = $beca->institucion;
+                }
+                if (!empty($beca->beca)) {
+                    $partesBeca[] = $beca->beca;
+                }
+                $strBeca = implode(' - ', $partesBeca);
+                $becaDesde = (!empty($beca->desde) && $beca->desde != '0000-00-00') ? date('d/m/Y', strtotime($beca->desde)) : '';
+                $becaHasta = (!empty($beca->hasta) && $beca->hasta != '0000-00-00') ? date('d/m/Y', strtotime($beca->hasta)) : '';
+                if ($becaDesde || $becaHasta) {
+                    $strBeca .= ' ('.$becaDesde.' - '.$becaHasta.')';
+                }
+                $strBeca .= ' UNLP: '.(($beca->unlp) ? 'Sí' : 'No');
+            }
+
+            // Lugar de trabajo: el de la beca y/o el de la carrera de investigador, si los tiene
+            $lugares = [];
+            if (!empty($item->unidadbeca)) {
+                $lugares[] = 'Beca: '.$item->unidadbeca;
+            }
+            if (!empty($item->unidadcarrera)) {
+                $lugares[] = 'Carrera: '.$item->unidadcarrera;
+            }
+            $strLugar = implode(' / ', $lugares);
+
             $fecha = \Carbon\Carbon::parse($item->fecha);
             $sheet->setCellValue('A' . $row, $item->periodo_nombre);
             $sheet->setCellValue('B' . $row, $item->persona_apellido);
@@ -381,6 +415,8 @@ class JovenController extends Controller
             $sheet->setCellValue('M' . $row, $strEvaluacions);
             $sheet->setCellValue('N' . $row, $item->diferencia);
             $sheet->setCellValue('O' . $row, $item->puntaje);
+            $sheet->setCellValue('P' . $row, $strBeca);
+            $sheet->setCellValue('Q' . $row, $strLugar);
             $row++;
         }
 
