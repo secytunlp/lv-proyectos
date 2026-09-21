@@ -276,14 +276,11 @@ class JovenController extends Controller
         }
 
         if (!empty($filtros['busqueda'])) {
-
-
-            $request->session()->put('nombre_filtro_joven', $filtros['busqueda']);
-
+            $busqueda = $filtros['busqueda'];
+            $request->session()->put('nombre_filtro_joven', $busqueda);
         }
         else{
             $busqueda = $request->session()->get('nombre_filtro_joven');
-
         }
 
 
@@ -291,7 +288,9 @@ class JovenController extends Controller
         if (!empty($busqueda)) {
             $query->where(function ($query) use ($columnas, $busqueda) {
                 foreach ($columnas as $columna) {
-                    $query->orWhere($columna, 'like', "%$busqueda%");
+                    if ($columna) { // $columnas tiene un '' (columna de evaluadores), igual que en dataTable
+                        $query->orWhere($columna, 'like', "%$busqueda%");
+                    }
                 }
             });
         }
