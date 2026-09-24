@@ -844,10 +844,14 @@ class ViajeController extends Controller
 
         // Añadir la validación personalizada para la fecha de cierre
         $validator->after(function ($validator) use ($request) {
-            $today = now();
-            $cierreDate = \Carbon\Carbon::parse(Constants::CIERRE_VIAJES);
-            if ($today->gt($cierreDate)) {
-                $validator->errors()->add('convocatoria', 'La convocatoria no está vigente.');
+            // Closing date only applies to applicants (role 2); administrators can save after closing
+            $selectedRoleId = session('selected_rol');
+            if ($selectedRoleId == 2) {
+                $today = now();
+                $cierreDate = \Carbon\Carbon::parse(Constants::CIERRE_VIAJES);
+                if ($today->gt($cierreDate)) {
+                    $validator->errors()->add('convocatoria', 'La convocatoria no está vigente.');
+                }
             }
 
 
@@ -1585,11 +1589,15 @@ class ViajeController extends Controller
     {
         $viaje = Viaje::find($id);
 
-        $today = now();
-        $cierreDate = \Carbon\Carbon::parse(Constants::CIERRE_VIAJES);
-        if ($today->gt($cierreDate)) {
+        // Closing date only applies to applicants (role 2); administrators can edit after closing
+        $selectedRoleId = session('selected_rol');
+        if ($selectedRoleId==2){
+            $today = now();
+            $cierreDate = \Carbon\Carbon::parse(Constants::CIERRE_VIAJES);
+            if ($today->gt($cierreDate)) {
 
-            return redirect()->route('viajes.index')->withErrors(['message' => 'La convocatoria no está vigente.']);
+                return redirect()->route('viajes.index')->withErrors(['message' => 'La convocatoria no está vigente.']);
+            }
         }
 
         $titulos=Titulo::where('nivel', 'Grado')->orderBy('nombre','ASC')->get();

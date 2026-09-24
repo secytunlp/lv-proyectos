@@ -726,10 +726,14 @@ class JovenController extends Controller
 
         // Añadir la validación personalizada para la fecha de cierre
         $validator->after(function ($validator) use ($request) {
-            $today = now();
-            $cierreDate = \Carbon\Carbon::parse(Constants::CIERRE_JOVENES);
-            if ($today->gt($cierreDate)) {
-                $validator->errors()->add('convocatoria', 'La convocatoria no está vigente.');
+            // Closing date only applies to applicants (role 2); administrators can save after closing
+            $selectedRoleId = session('selected_rol');
+            if ($selectedRoleId == 2) {
+                $today = now();
+                $cierreDate = \Carbon\Carbon::parse(Constants::CIERRE_JOVENES);
+                if ($today->gt($cierreDate)) {
+                    $validator->errors()->add('convocatoria', 'La convocatoria no está vigente.');
+                }
             }
 
             // Validar la edad solo si 'unlpActual' no es 1
@@ -1555,11 +1559,15 @@ class JovenController extends Controller
     {
         $joven = Joven::find($id);
 
-        $today = now();
-        $cierreDate = \Carbon\Carbon::parse(Constants::CIERRE_JOVENES);
-        if ($today->gt($cierreDate)) {
+        // Closing date only applies to applicants (role 2); administrators can edit after closing
+        $selectedRoleId = session('selected_rol');
+        if ($selectedRoleId==2){
+            $today = now();
+            $cierreDate = \Carbon\Carbon::parse(Constants::CIERRE_JOVENES);
+            if ($today->gt($cierreDate)) {
 
-            return redirect()->route('jovens.index')->withErrors(['message' => 'La convocatoria no está vigente.']);
+                return redirect()->route('jovens.index')->withErrors(['message' => 'La convocatoria no está vigente.']);
+            }
         }
 
         $titulos=Titulo::where('nivel', 'Grado')->orderBy('nombre','ASC')->get();
