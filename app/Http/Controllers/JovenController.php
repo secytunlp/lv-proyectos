@@ -323,7 +323,9 @@ class JovenController extends Controller
         // Llenar los datos
         $row = 2;
         foreach ($data as $item) {
-            $fechaLimiteEdad = \Carbon\Carbon::parse(Constants::YEAR_JOVENES.'-'.Constants::MES_EDAD_JOVENES.'-'.Constants::DIA_EDAD_JOVENES);
+            // Misma edad que mira el control de envío: la que cumple en el año de la
+            // convocatoria de la solicitud, para que el Excel y el sistema no discrepen.
+            $edadEnConvocatoria = $this->edadEnConvocatoriaJoven($item->nacimiento, $item->periodo_nombre);
             $nacimiento = Carbon::parse($item->nacimiento);
             $joven = Joven::find($item->id);
             $proyectos = $joven->proyectos()->get(); // todos
@@ -401,7 +403,7 @@ class JovenController extends Controller
             $sheet->setCellValue('A' . $row, $item->periodo_nombre);
             $sheet->setCellValue('B' . $row, $item->persona_apellido);
             $sheet->setCellValue('C' . $row, $item->cuil);
-            $sheet->setCellValue('D' . $row, $nacimiento->diffInYears($fechaLimiteEdad));
+            $sheet->setCellValue('D' . $row, $edadEnConvocatoria);
             $sheet->setCellValue('E' . $row, $item->email);
             $sheet->setCellValue('F' . $row, $fecha->format('d/m/Y'));
             $sheet->setCellValue('G' . $row, $item->estado);
@@ -740,13 +742,11 @@ class JovenController extends Controller
             if ($request->input('unlpActual') != 1) {
                 // Validar la edad si la fecha de nacimiento está presente
                 if ($request->has('nacimiento')) {
-                    $fechaNacimiento = \Carbon\Carbon::parse($request->input('nacimiento'));
-                    $fechaLimiteEdad = \Carbon\Carbon::create(Constants::YEAR_JOVENES, Constants::MES_EDAD_JOVENES, Constants::DIA_EDAD_JOVENES);
-                    $edad = $fechaNacimiento->age;
-                //Log::info('Nacimiento: '. $fechaNacimiento.' limite: '.$fechaLimiteEdad.' edad '.$edad);
-                    if ($edad >= intval(Constants::TOPE_EDAD_JOVENES) ) {
+                    // Tope por año calendario: ver edadEnConvocatoriaJoven().
+                    $edad = $this->edadEnConvocatoriaJoven($request->input('nacimiento'));
+                    if ($edad !== null && $edad >= intval(Constants::TOPE_EDAD_JOVENES) ) {
 
-                        $validator->errors()->add('fecha_nacimiento', 'Solicitante no menor a '.Constants::TOPE_EDAD_JOVENES.' años al ' . Constants::DIA_EDAD_JOVENES . '/' . Constants::MES_EDAD_JOVENES . '/' . Constants::YEAR_JOVENES . ' y no Becario UNLP');
+                        $validator->errors()->add('fecha_nacimiento', 'No pueden presentarse quienes cumplan '.Constants::TOPE_EDAD_JOVENES.' años o más durante ' . Constants::YEAR_JOVENES . ' y no sean Becario/a UNLP: cumple ' . $edad . ' años en ' . Constants::YEAR_JOVENES);
                     }
                 }
             }
@@ -1084,6 +1084,36 @@ class JovenController extends Controller
         }
 
         return redirect()->route('jovens.index')->with($respuestaID, $respuestaMSJ);
+    }
+
+    /**
+     * Edad que la persona cumple DURANTE el año de la convocatoria.
+     *
+     * El tope de edad es por año calendario: no pueden presentarse quienes cumplan
+     * TOPE_EDAD_JOVENES años o más durante el año, incluso si los cumplen el 31/12. Por eso
+     * se compara el año de nacimiento y no una fecha límite.
+     *
+     * Antes se usaba $fechaNacimiento->age —la edad al momento de enviar—, que dejaba pasar
+     * a todo el que cumplía el tope después de la fecha de envío: para la convocatoria 2026,
+     * los nacidos entre abril y diciembre de 1991, según cuándo presentaran.
+     *
+     * @param  mixed  $nacimiento
+     * @param  mixed  $anio  Año de la convocatoria; por defecto Constants::YEAR_JOVENES
+     * @return int|null  null si no hay fecha de nacimiento
+     */
+    private function edadEnConvocatoriaJoven($nacimiento, $anio = null)
+    {
+        $nacimiento = substr((string) $nacimiento, 0, 10);
+
+        if ($nacimiento === '' || strpos($nacimiento, '0000-00-00') === 0) {
+            return null;
+        }
+
+        if ($anio === null || !ctype_digit((string) $anio)) {
+            $anio = Constants::YEAR_JOVENES;
+        }
+
+        return intval($anio) - intval(Carbon::parse($nacimiento)->format('Y'));
     }
 
     private function safeRequest($request, $key, $default = null)
@@ -2106,16 +2136,12 @@ class JovenController extends Controller
 
 
         if (!$esBecarioUNLP) {
-            // Validar la edad si la fecha de nacimiento está presente
-            if ($solicitud->nacimiento) {
-                $fechaNacimiento = \Carbon\Carbon::parse($solicitud->nacimiento);
-                $fechaLimiteEdad = \Carbon\Carbon::create(Constants::YEAR_JOVENES, Constants::MES_EDAD_JOVENES, Constants::DIA_EDAD_JOVENES);
-                $edad = $fechaNacimiento->age;
-                //Log::info('Nacimiento: '. $fechaNacimiento.' limite: '.$fechaLimiteEdad.' edad '.$edad);
-                if ($edad >= intval(Constants::TOPE_EDAD_JOVENES) ) {
-                    $errores[] = 'Solicitante no menor a '.Constants::TOPE_EDAD_JOVENES.' años al ' . Constants::DIA_EDAD_JOVENES . '/' . Constants::MES_EDAD_JOVENES . '/' . Constants::YEAR_JOVENES . ' y no Becario UNLP';
-
-                }
+            // Validar la edad si la fecha de nacimiento está presente.
+            // El tope es por año calendario: quien cumple TOPE_EDAD_JOVENES durante el año
+            // de la convocatoria no puede presentarse, aunque los cumpla el 31/12.
+            $edad = $this->edadEnConvocatoriaJoven($solicitud->nacimiento);
+            if ($edad !== null && $edad >= intval(Constants::TOPE_EDAD_JOVENES) ) {
+                $errores[] = 'No pueden presentarse quienes cumplan '.Constants::TOPE_EDAD_JOVENES.' años o más durante ' . Constants::YEAR_JOVENES . ' y no sean Becario/a UNLP: cumple ' . $edad . ' años en ' . Constants::YEAR_JOVENES;
             }
         }
         $esSimple=($solicitud->deddoc=='Simple')?1:0;
