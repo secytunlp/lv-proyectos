@@ -21,10 +21,11 @@ use Carbon\Carbon;
  *   - los intervalos se UNEN en vez de sumarse, así una beca y un proyecto que
  *     corren en paralelo cuentan una sola vez.
  *
- * Y el año que se exige es CONTINUO: lo que se mide es el tramo unido más largo, no la
- * suma de todos. Dos participaciones cortadas —seis meses en un proyecto que terminó en
- * 2025 y ocho en el actual— no se suman para llegar al año. Una beca y un proyecto que se
- * encadenan sin hueco sí forman un solo tramo, porque la unión los funde.
+ * Y el año que se exige es CONTINUO Y VIGENTE: lo que se mide es el tramo unido que sigue
+ * abierto en la fecha de corte. Dos participaciones cortadas —seis meses en un proyecto que
+ * terminó en 2025 y ocho en el actual— no se suman para llegar al año, y tres años seguidos
+ * que terminaron hace dos tampoco acreditan nada si hoy no hay continuidad. Una beca y un
+ * proyecto que se encadenan sin hueco sí forman un solo tramo, porque la unión los funde.
  */
 trait CalculaAntiguedadJovenes
 {
@@ -217,16 +218,60 @@ trait CalculaAntiguedadJovenes
     }
 
     /**
-     * Antigüedad acreditada: el tramo continuo más largo.
+     * El tramo que sigue abierto en la fecha de corte, o null si no hay ninguno.
      *
-     * Es el número que se compara contra el mínimo. No es la suma de los tramos: el año
-     * que pide la convocatoria es de participación continua.
+     * Como los intervalos se recortan en el corte, el tramo vigente es el único que
+     * termina exactamente ahí: lo que terminó antes ya no está corriendo.
+     *
+     * @param  \App\Models\Joven  $solicitud
+     * @param  \Carbon\Carbon|null  $corte
+     * @return array|null
+     */
+    protected function tramoVigenteAntiguedadJoven($solicitud, Carbon $corte = null)
+    {
+        if ($corte === null) {
+            $corte = $this->fechaCorteAntiguedadJoven();
+        }
+
+        foreach ($this->tramosAntiguedadJoven($solicitud, $corte) as $tramo) {
+            if ($tramo['hasta']->equalTo($corte)) {
+                return $tramo;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Antigüedad acreditada: los días del tramo continuo VIGENTE.
+     *
+     * Es el número que se compara contra el mínimo. No es la suma de los tramos ni el
+     * tramo más largo de cualquier época: el año que pide la convocatoria es de
+     * participación continua y en curso. Tres años seguidos que terminaron hace dos no
+     * acreditan antigüedad vigente.
      *
      * @param  \App\Models\Joven  $solicitud
      * @param  \Carbon\Carbon|null  $corte
      * @return int
      */
     protected function diasAntiguedadJoven($solicitud, Carbon $corte = null)
+    {
+        $tramo = $this->tramoVigenteAntiguedadJoven($solicitud, $corte);
+
+        return ($tramo === null) ? 0 : $tramo['desde']->diffInDays($tramo['hasta']);
+    }
+
+    /**
+     * El tramo continuo más largo, esté vigente o no.
+     *
+     * No valida nada: está para que la auditoría y el mensaje de error puedan mostrar a
+     * quien tiene la antigüedad pero cortada, que es el caso que más confunde.
+     *
+     * @param  \App\Models\Joven  $solicitud
+     * @param  \Carbon\Carbon|null  $corte
+     * @return int
+     */
+    protected function diasAntiguedadJovenTramoMasLargo($solicitud, Carbon $corte = null)
     {
         $dias = 0;
         foreach ($this->tramosAntiguedadJoven($solicitud, $corte) as $tramo) {
@@ -282,6 +327,23 @@ trait CalculaAntiguedadJovenes
         return $mejor['tramo']['desde']->format('d/m/Y')
             .' - '.$mejor['tramo']['hasta']->format('d/m/Y')
             .' = '.$mejor['dias'].' d';
+    }
+
+    /**
+     * Texto legible de un tramo, para los informes.
+     *
+     * @param  array|null  $tramo
+     * @return string
+     */
+    protected function describirTramoJoven($tramo)
+    {
+        if (empty($tramo)) {
+            return '';
+        }
+
+        return $tramo['desde']->format('d/m/Y')
+            .' - '.$tramo['hasta']->format('d/m/Y')
+            .' = '.$tramo['desde']->diffInDays($tramo['hasta']).' d';
     }
 
     /**

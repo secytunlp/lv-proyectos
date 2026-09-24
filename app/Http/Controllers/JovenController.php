@@ -2172,22 +2172,32 @@ class JovenController extends Controller
             $errores[] = "No se pueden presentar los Directores y/o Codirectores de Proyectos de Acreditación.";
         }
 
-        // Antigüedad en investigación: tramo CONTINUO más largo de becas UNLP y proyectos,
+        // Antigüedad en investigación: tramo CONTINUO Y VIGENTE de becas UNLP y proyectos,
         // recortado en el cierre de la convocatoria. Ver App\Traits\CalculaAntiguedadJovenes:
         // antes se sumaba el período nominal completo de cada beca y cada proyecto, así que
         // contaba tiempo futuro (joven_proyectos.hasta es el fin del proyecto si no hay baja),
-        // duplicaba los períodos simultáneos y dejaba llegar al año sumando participaciones
-        // cortadas.
+        // duplicaba los períodos simultáneos, dejaba llegar al año sumando participaciones
+        // cortadas y daba por buena una continuidad que había terminado años atrás.
         $corteAntiguedad = $this->fechaCorteAntiguedadJoven();
         $diasAntiguedad = $this->diasAntiguedadJoven($solicitud, $corteAntiguedad);
         $diasMinimos = $this->diasMinimosAntiguedadJoven();
 
         if ($diasAntiguedad < $diasMinimos) {
             $anios = intval(Constants::YEAR_PROYECTOS);
-            $errores[] = "Menos de ".$anios." ".(($anios == 1) ? "año" : "años")
-                ." de participación continua en proyectos UNLP / Beca UNLP: acredita "
+            $error = "Menos de ".$anios." ".(($anios == 1) ? "año" : "años")
+                ." de participación continua y vigente en proyectos UNLP / Beca UNLP: acredita "
                 .$diasAntiguedad." días seguidos al ".$corteAntiguedad->format('d/m/Y')
                 ." y se requieren ".$diasMinimos.".";
+
+            // Si tuvo la antigüedad pero cortada, conviene decírselo: es el caso que más
+            // confunde al solicitante.
+            $tramoMasLargo = $this->diasAntiguedadJovenTramoMasLargo($solicitud, $corteAntiguedad);
+            if ($tramoMasLargo > $diasAntiguedad) {
+                $error .= " Su período continuo más largo fue de ".$tramoMasLargo
+                    ." días, pero no llega hasta el cierre.";
+            }
+
+            $errores[] = $error;
         }
 
         // Tu lógica para calcular el monto total

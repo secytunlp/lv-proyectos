@@ -19,9 +19,10 @@ use PhpOffice\PhpSpreadsheet\Cell\DataType;
  * Investigadores con el criterio corregido (App\Traits\CalculaAntiguedadJovenes) y
  * la compara contra el cálculo que estaba vigente cuando se enviaron.
  *
- * Lo que se mide es el TRAMO CONTINUO más largo. La columna "Dias sumando tramos"
- * muestra qué pasaría sin exigir continuidad: si esa dice SI y el diagnóstico no es OK,
- * a esa persona la deja afuera el corte entre participaciones, no la falta de tiempo.
+ * Lo que se mide es el TRAMO CONTINUO VIGENTE: el que sigue abierto en la fecha de corte.
+ * Las columnas "Llega con un tramo no vigente" y "Llega sumando tramos" muestran qué
+ * pasaría con criterios más laxos: si alguna dice SI y el diagnóstico no es OK, a esa
+ * persona la deja afuera la discontinuidad, no la falta de tiempo acumulado.
  *
  *   DEJADA PASAR   la solicitud ya se envió y no llega al mínimo. Son las que
  *                  entraron por el bug: el cálculo viejo sumaba período futuro,
@@ -41,6 +42,7 @@ class AuditarAntiguedadJovenes extends Command
         {--anio= : Periodo de las solicitudes. Por defecto Constants::YEAR_JOVENES}
         {--corte= : Fecha hasta la que se computa la antiguedad (Y-m-d). Por defecto Constants::CIERRE_JOVENES}
         {--estado= : Filtra por un estado puntual de la solicitud}
+        {--cuil= : Audita una sola persona y muestra el detalle de su calculo (los guiones se ignoran)}
         {--incluir-creadas : Incluye las solicitudes que todavia no se enviaron}
         {--solo= : Muestra solo las filas cuyo diagnostico contenga este texto}
         {--sin-excel : No genera el .xlsx, solo la salida por consola}
@@ -50,13 +52,16 @@ class AuditarAntiguedadJovenes extends Command
 
     private const HEADERS = [
         'Joven ID', 'Estado', 'Apellido', 'Nombre', 'Documento', 'CUIL', 'Facultad',
-        'Egreso grado', 'Dias continuos', 'Anios continuos', 'Dias minimos',
+        'Egreso grado', 'Dias vigentes', 'Anios vigentes', 'Dias minimos',
+        'Dias tramo mas largo', 'Llega con un tramo no vigente',
         'Dias sumando tramos', 'Llega sumando tramos',
         'Dias calculo anterior', 'Pasaba el control anterior',
-        'Tramo continuo mas largo', 'Intervalos computados', 'Diagnostico',
+        'Tramo vigente', 'Tramo continuo mas largo', 'Intervalos computados', 'Diagnostico',
     ];
 
-    private const COL_DIAGNOSTICO = 17;
+    private const COL_DIAS_VIGENTES  = 8;
+    private const COL_TRAMO_MAS_LARGO = 11;
+    private const COL_DIAGNOSTICO    = 20;
 
     public function handle(): int
     {
@@ -78,6 +83,7 @@ class AuditarAntiguedadJovenes extends Command
         $estado         = trim((string) $this->option('estado'));
         $solo           = trim((string) $this->option('solo'));
         $incluirCreadas = (bool) $this->option('incluir-creadas');
+        $cuil           = preg_replace('/\D/', '', (string) $this->option('cuil'));
 
         $diasMinimos = $this->diasMinimosAntiguedadJoven();
 
@@ -86,17 +92,27 @@ class AuditarAntiguedadJovenes extends Command
                 $q->where('nombre', $anio);
             });
 
+        if ($cuil !== '') {
+            // Un CUIL puntual se audita entero: no tiene sentido esconderle la solicitud
+            // por el estado, que es justo lo que se está por mirar.
+            $query->whereHas('investigador.persona', function ($q) use ($cuil) {
+                $q->whereRaw("REPLACE(REPLACE(cuil, '-', ''), ' ', '') = ?", [$cuil]);
+            });
+        }
+
         if ($estado !== '') {
             $query->where('estado', $estado);
-        } elseif (!$incluirCreadas) {
+        } elseif (!$incluirCreadas && $cuil === '') {
             $query->where('estado', '<>', 'Creada');
         }
 
         $solicitudes = $query->get();
 
         $this->info('Periodo '.$anio.' — solicitudes: '.$solicitudes->count());
-        $this->line('Antigüedad computada al '.$corte->format('d/m/Y').', mínimo '.$diasMinimos.' días continuos');
-        if ($estado !== '') {
+        $this->line('Antigüedad computada al '.$corte->format('d/m/Y').', mínimo '.$diasMinimos.' días continuos y vigentes');
+        if ($cuil !== '') {
+            $this->line('CUIL '.$cuil.', todos los estados');
+        } elseif ($estado !== '') {
             $this->line('Estado: '.$estado);
         } else {
             $this->line($incluirCreadas ? 'Todos los estados' : 'Solo solicitudes ya enviadas (estado <> Creada)');
@@ -111,11 +127,13 @@ class AuditarAntiguedadJovenes extends Command
 
         $informe = [];
         foreach ($solicitudes as $solicitud) {
-            $intervalos = $this->intervalosAntiguedadJoven($solicitud, $corte);
-            $tramos     = $this->tramosAntiguedadJoven($solicitud, $corte);
-            $dias       = $this->diasAntiguedadJoven($solicitud, $corte);
-            $diasSuma   = $this->diasAntiguedadJovenSumaTramos($solicitud, $corte);
-            $diasAntes  = $this->diasAntiguedadJovenCalculoAnterior($solicitud);
+            $intervalos   = $this->intervalosAntiguedadJoven($solicitud, $corte);
+            $tramos       = $this->tramosAntiguedadJoven($solicitud, $corte);
+            $tramoVigente = $this->tramoVigenteAntiguedadJoven($solicitud, $corte);
+            $dias         = $this->diasAntiguedadJoven($solicitud, $corte);
+            $diasLargo    = $this->diasAntiguedadJovenTramoMasLargo($solicitud, $corte);
+            $diasSuma     = $this->diasAntiguedadJovenSumaTramos($solicitud, $corte);
+            $diasAntes    = $this->diasAntiguedadJovenCalculoAnterior($solicitud);
 
             if (empty($intervalos)) {
                 $diagnostico = 'SIN DATOS';
@@ -156,10 +174,13 @@ class AuditarAntiguedadJovenes extends Command
                 $dias,
                 round($dias / intval(Constants::DIAS_YEAR), 2),
                 $diasMinimos,
+                $diasLargo,
+                ($diasLargo >= $diasMinimos && $dias < $diasMinimos) ? 'SI' : 'NO',
                 $diasSuma,
                 ($diasSuma >= $diasMinimos) ? 'SI' : 'NO',
                 $diasAntes,
                 ($diasAntes >= $diasMinimos) ? 'SI' : 'NO',
+                $this->describirTramoJoven($tramoVigente),
                 $this->describirTramoMasLargoJoven($tramos),
                 $this->describirIntervalosAntiguedadJoven($intervalos),
                 $diagnostico,
@@ -169,6 +190,22 @@ class AuditarAntiguedadJovenes extends Command
         if (empty($informe)) {
             $this->warn('Nada que informar con esos filtros.');
             return self::SUCCESS;
+        }
+
+        // Detalle completo cuando se audita una sola persona
+        if ($cuil !== '') {
+            foreach ($informe as $fila) {
+                $this->newLine();
+                $this->info('Joven '.$fila[0].' — '.$fila[2].', '.$fila[3].' ('.$fila[5].') — estado '.$fila[1]);
+                $this->line('  Diagnostico       : '.$fila[self::COL_DIAGNOSTICO]);
+                $this->line('  Dias vigentes     : '.$fila[8].' (minimo '.$fila[10].')');
+                $this->line('  Tramo vigente     : '.($fila[17] !== '' ? $fila[17] : '(ninguno abierto al corte)'));
+                $this->line('  Tramo mas largo   : '.($fila[18] !== '' ? $fila[18] : '(ninguno)').' — llegaria: '.$fila[12]);
+                $this->line('  Sumando tramos    : '.$fila[13].' — llegaria: '.$fila[14]);
+                $this->line('  Calculo anterior  : '.$fila[15].' — pasaba: '.$fila[16]);
+                $this->line('  Intervalos        : '.($fila[19] !== '' ? $fila[19] : '(ninguno computable)'));
+            }
+            $this->newLine();
         }
 
         // Resumen por diagnostico
@@ -198,8 +235,8 @@ class AuditarAntiguedadJovenes extends Command
                     $fila[1],
                     $fila[2].', '.$fila[3],
                     $fila[5],
-                    $fila[8],
-                    $fila[11],
+                    $fila[self::COL_DIAS_VIGENTES],
+                    $fila[self::COL_TRAMO_MAS_LARGO],
                     $diagnostico,
                 ];
             }
@@ -208,7 +245,7 @@ class AuditarAntiguedadJovenes extends Command
             $this->newLine();
             $this->line('Solicitudes que no llegan al mínimo (primeras 30 de '.count($incumplen).'):');
             $this->table(
-                ['Joven', 'Estado', 'Apellido, Nombre', 'CUIL', 'Dias continuos', 'Sumando tramos', 'Diagnostico'],
+                ['Joven', 'Estado', 'Apellido, Nombre', 'CUIL', 'Dias vigentes', 'Tramo mas largo', 'Diagnostico'],
                 array_slice($incumplen, 0, 30)
             );
         }
