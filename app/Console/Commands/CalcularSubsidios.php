@@ -28,11 +28,13 @@ class CalcularSubsidios extends Command
     protected $signature = 'subsidios:calcular
         {--anio= : Period year, e.g. 2026. Defines dirproy_AAAA / intproy_AAAA. Required.}
         {--mt= : Monto Total (MT) to distribute this period. Required.}
+        {--porcentaje=100 : Porcentaje del MT a repartir (ej. 90). Se documenta en el comentario de dirproy_AAAA.}
         {--periodo= : Viajes period id for the approved-units filter (#5). Required unless --skip-extraction.}
         {--fecha-corte= : Cutoff date (Y-m-d). Defaults to {anio-1}-12-31.}
         {--hasta-inicio= : Exclude projects with inicio >= this date (Y-m-d). For replaying a past period.}
         {--ord-multiplicar : Use ord*numdirfac instead of the document ord/numdirfac (CIU polynomial). For comparison only.}
         {--skip-extraction : Skip #4/#5, run only on already-populated subsidio_* tables.}
+        {--solo-extraccion : Pobla subsidio_integrantes/subsidio_proyectos y confirma, SIN calcular (para controlar DNI antes).}
         {--dry-run : Run everything inside a transaction and roll back at the end.}';
 
     protected $description = 'Calculates the direct research subsidies (CIU hours-based polynomial).';
@@ -47,6 +49,10 @@ class CalcularSubsidios extends Command
 
     /** @var int */
     protected $anio;
+    /** @var float MT bruto ingresado por --mt (antes de aplicar el porcentaje). */
+    protected $mtBruto = 0.0;
+    /** @var float Porcentaje del MT a repartir (--porcentaje, default 100). */
+    protected $porcentaje = 100.0;
     /** @var int */
     protected $periodo;
     /** @var string|null */
@@ -74,10 +80,29 @@ class CalcularSubsidios extends Command
         $this->tablaRenuncias = "subsidio_proyecto_renuncias_{$this->anio}";
         $this->tablaInformes = "subsidio_informes_{$this->anio}";
 
-        $mt = (float) $this->option('mt');
-        if ($mt <= 0) {
+        $soloExtraccion = (bool) $this->option('solo-extraccion');
+
+        $this->mtBruto = (float) $this->option('mt');
+        if (! $soloExtraccion && $this->mtBruto <= 0) {
             $this->error('Falta --mt o es inválido.');
             return self::FAILURE;
+        }
+
+        // Porcentaje del MT a repartir (ej. 90%). El efectivo es el que se usa.
+        $this->porcentaje = (float) $this->option('porcentaje');
+        if ($this->porcentaje <= 0 || $this->porcentaje > 100) {
+            $this->error('--porcentaje inválido (debe ser >0 y <=100).');
+            return self::FAILURE;
+        }
+        $mt = round($this->mtBruto * $this->porcentaje / 100, 2);
+
+        if (! $soloExtraccion && $this->porcentaje != 100.0) {
+            $this->warn(sprintf(
+                'MT bruto %s x %s%% = %s a repartir.',
+                number_format($this->mtBruto, 2),
+                rtrim(rtrim(number_format($this->porcentaje, 2), '0'), '.'),
+                number_format($mt, 2)
+            ));
         }
 
         $fechaCorte = $this->option('fecha-corte') ?: ($this->anio - 1).'-12-31';
@@ -119,6 +144,20 @@ class CalcularSubsidios extends Command
             }
 
             $this->limpiarPendientes();
+
+            // Modo control: deja pobladas subsidio_integrantes / subsidio_proyectos
+            // (para revisar DNI vs SIGEVA) y NO calcula.
+            if ($this->option('solo-extraccion')) {
+                if ($dryRun) {
+                    DB::rollBack();
+                    $this->warn('DRY-RUN: extracción revertida.');
+                } else {
+                    DB::commit();
+                    $this->info('Extracción confirmada: subsidio_integrantes / subsidio_proyectos pobladas. Cálculo NO ejecutado.');
+                }
+                return self::SUCCESS;
+            }
+
             $this->poblarIntproy($fechaCorte);
             $this->poblarDirproy();
 
@@ -264,7 +303,13 @@ class CalcularSubsidios extends Command
                 per.documento,
                 CASE WHEN i.tipo = 'Director' THEN '1' ELSE '0' END,
                 CASE WHEN i.alta = '0000-00-00' THEN '' ELSE i.alta END,
-                CASE WHEN i.baja = '0000-00-00' THEN '' ELSE i.baja END,
+                -- Baja pendiente (estado 4/5) aún no firme -> se limpia, sigue activo
+                -- (equivale al UPDATE subsidio_integrantes SET baja=NULL del script viejo).
+                CASE
+                    WHEN i.estado IN ('Baja Creada', 'Baja Recibida') THEN NULL
+                    WHEN i.baja = '0000-00-00' THEN ''
+                    ELSE i.baja
+                END,
                 -- Best category = lowest id within {6,7,8,9,10}; resolved against
                 -- categorias so the controller always gets 'I'..'V' (never 'D2').
                 cat_min.nombre,
@@ -301,7 +346,10 @@ class CalcularSubsidios extends Command
               AND p.tipo IN ('I+D', 'PPID')
               AND p.estado = 'Acreditado'
               AND p.fin > ?
-              AND (i.estado IS NULL OR i.estado = '')
+              -- Excluye altas y cambios pendientes (equiv. DELETE estado_id IN (1,2,6,7)
+              -- del script viejo). Bajas pendientes (4,5) y cambios hs/tipo (8-11) quedan.
+              AND (i.estado IS NULL OR i.estado NOT IN
+                   ('Alta Creada', 'Alta Recibida', 'Cambio Creado', 'Cambio Recibido'))
               AND (i.baja IS NULL OR i.baja = '0000-00-00' OR i.alta <> i.baja)
               $hastaInicioSql
         ";
@@ -369,11 +417,17 @@ class CalcularSubsidios extends Command
     }
 
     /**
-     * Old import-workflow cleanup. May be a no-op in the new in-DB flow where
-     * subsidio_integrantes is rebuilt from scratch. Kept for parity; review.
+     * Old import-workflow cleanup (estado_id). REDUNDANTE en el flujo nuevo: el
+     * manejo de estados ya se hace en poblarSubsidioIntegrantes (excluye altas/
+     * cambios pendientes y limpia la baja de las bajas pendientes). Se conserva
+     * como no-op para el modo --skip-extraction sobre tablas del workflow viejo
+     * que aún tuvieran estado_id poblado.
      */
     protected function limpiarPendientes(): void
     {
+        if (! DB::getSchemaBuilder()->hasColumn('subsidio_integrantes', 'estado_id')) {
+            return;
+        }
         DB::table('subsidio_integrantes')->whereIn('estado_id', [1, 2, 6, 7])->delete();
         DB::table('subsidio_integrantes')->whereIn('estado_id', [4, 5])->update(['baja' => null]);
     }
@@ -655,10 +709,16 @@ class CalcularSubsidios extends Command
      */
     protected function registrarParametros(float $mt, array $resumen): void
     {
+        // Si se repartió un porcentaje del MT, se deja documentado el bruto y el %.
+        $mtTxt = (string) $mt;
+        if ($this->porcentaje != 100.0) {
+            $mtTxt = sprintf('%s (%s%% de %s)', $mt, rtrim(rtrim(number_format($this->porcentaje, 2, '.', ''), '0'), '.'), $this->mtBruto);
+        }
+
         $comment = sprintf(
             'Subsidios %d | MT=%s | periodo=%d | ST=%s | m=%s | total=%s | calculado=%s',
             $this->anio,
-            $mt,
+            $mtTxt,
             $this->periodo,
             $resumen['St'],
             $resumen['M'],
