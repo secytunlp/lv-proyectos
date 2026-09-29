@@ -29,7 +29,7 @@ class CalcularSubsidios extends Command
         {--anio= : Period year, e.g. 2026. Defines dirproy_AAAA / intproy_AAAA. Required.}
         {--mt= : Monto Total (MT) to distribute this period. Required.}
         {--porcentaje=100 : Porcentaje del MT a repartir (ej. 90). Se documenta en el comentario de dirproy_AAAA.}
-        {--periodo= : Viajes period id for the approved-units filter (#5). Required unless --skip-extraction.}
+        {--periodo= : Período de joven_evaluacion_unidad_aprobadas para el filtro de unidades aprobadas (#5). Requerido salvo --skip-extraction.}
         {--fecha-corte= : Cutoff date (Y-m-d). Defaults to {anio-1}-12-31.}
         {--hasta-inicio= : Exclude projects with inicio >= this date (Y-m-d). For replaying a past period.}
         {--ord-multiplicar : Use ord*numdirfac instead of the document ord/numdirfac (CIU polynomial). For comparison only.}
@@ -111,7 +111,7 @@ class CalcularSubsidios extends Command
 
         $this->periodo = (int) $this->option('periodo');
         if (! $this->option('skip-extraction') && $this->periodo <= 0) {
-            $this->error('Falta --periodo (id del período de viajes para la #5).');
+            $this->error('Falta --periodo (id del período de joven_evaluacion_unidad_aprobadas para la #5).');
             return self::FAILURE;
         }
 
@@ -405,7 +405,7 @@ class CalcularSubsidios extends Command
                 JOIN personas per      ON inv.persona_id = per.id
                 JOIN proyectos p       ON i.proyecto_id = p.id
                 LEFT JOIN unidads u    ON u.id = p.unidad_id
-                LEFT JOIN viaje_evaluacion_unidad_aprobadas ua
+                LEFT JOIN joven_evaluacion_unidad_aprobadas ua
                     ON ua.unidad_id = p.unidad_id AND ua.periodo_id = ?
             WHERE
                 i.tipo = 'Director'
