@@ -280,7 +280,7 @@ class GestionarRenunciasSubsidios extends Command
             })
             ->leftJoin('investigadors as inv', 'i.investigador_id', '=', 'inv.id')
             ->leftJoin('personas as per', 'inv.persona_id', '=', 'per.id')
-            ->where('p.codigo', $codigo)
+            ->whereIn('p.codigo', $this->variantesCodigo($codigo))
             ->select([
                 'p.id as proyecto_id',
                 'p.codigo',
@@ -294,5 +294,20 @@ class GestionarRenunciasSubsidios extends Command
     protected function director($proy): string
     {
         return trim(((string) ($proy->apellido ?? '')) . ', ' . ((string) ($proy->nombre ?? '')), ', ');
+    }
+
+    /**
+     * Variantes del código para tolerar el prefijo "11/": algunos proyectos
+     * están cargados como "11/H1099" y otros como "SH005". Prueba las dos.
+     *
+     * @return string[]
+     */
+    protected function variantesCodigo(string $codigo): array
+    {
+        $codigo = trim($codigo);
+        if (strpos($codigo, '11/') === 0) {
+            return [$codigo, substr($codigo, 3)];
+        }
+        return [$codigo, '11/' . $codigo];
     }
 }
