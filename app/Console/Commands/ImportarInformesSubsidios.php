@@ -135,14 +135,14 @@ class ImportarInformesSubsidios extends Command
             $buffer[] = [
                 'proyecto'    => $codigo,
                 'proyecto_id' => $mapProy[$codigo],
-                'director'    => $this->col($row, $idx, 'director') ?: null,
+                'director'    => $this->utf8($this->col($row, $idx, 'director')) ?: null,
                 'inicio'      => $this->fecha($this->col($row, $idx, 'inicio')),
                 'fin'         => $this->fecha($this->col($row, $idx, 'fin')),
-                'integrante'  => trim($apellido . ', ' . $nombre, ', ') ?: null,
+                'integrante'  => $this->utf8(trim($apellido . ', ' . $nombre, ', ')) ?: null,
                 'cuil'        => $this->col($row, $idx, 'cuil') ?: null,
                 'documento'   => $this->documento($this->col($row, $idx, 'documento')),
-                'rol'         => $this->col($row, $idx, 'rol') ?: null,
-                'evaluacion'  => $this->col($row, $idx, 'evaluacion') ?: null,
+                'rol'         => $this->utf8($this->col($row, $idx, 'rol')) ?: null,
+                'evaluacion'  => $this->utf8($this->col($row, $idx, 'evaluacion')) ?: null,
                 'alta'        => $this->fecha($this->col($row, $idx, 'alta')),
                 'baja'        => $this->fecha($this->col($row, $idx, 'baja')),
                 'vigencia'    => $this->fecha($this->col($row, $idx, 'vigencia')),
@@ -253,5 +253,17 @@ class ImportarInformesSubsidios extends Command
     {
         $d = preg_replace('/\D+/', '', $v);
         return $d === '' ? null : (int) $d;
+    }
+
+    /**
+     * Normaliza a UTF-8. El export de HeidiSQL suele venir en Windows-1252;
+     * si el valor ya es UTF-8 válido se deja igual (evita doble codificación).
+     */
+    protected function utf8(string $v): string
+    {
+        if ($v === '' || mb_check_encoding($v, 'UTF-8')) {
+            return $v;
+        }
+        return mb_convert_encoding($v, 'UTF-8', 'Windows-1252');
     }
 }
