@@ -2239,6 +2239,23 @@ class JovenController extends Controller
             $errores[] = 'El monto total debe ser mayor que 0 (cero) y no puede superar el límite máximo de $' . number_format(Constants::MONTO_JOVENES, 2, ',', '.');
         }
 
+        // Cada fila del presupuesto tiene que traer su descripción. El guardado acepta la
+        // fila con que esté el concepto o el importe, y acá sólo se miraba el total, así que
+        // se podía enviar un "Otros - Descripción:" en blanco.
+        $nombresTipoPresupuesto = DB::table('tipo_presupuestos')->pluck('nombre', 'id');
+        foreach ($presupuestos as $presupuesto) {
+            if (!$this->presupuestoSinDescripcion($presupuesto)) {
+                continue;
+            }
+
+            $nombreTipo = isset($nombresTipoPresupuesto[$presupuesto->tipo_presupuesto_id])
+                ? $nombresTipoPresupuesto[$presupuesto->tipo_presupuesto_id]
+                : 'Presupuesto';
+
+            $errores[] = 'Complete la descripción del presupuesto en ' . $nombreTipo . ': '
+                . $this->describirFilaPresupuesto($presupuesto);
+        }
+
 
 
         if (empty($solicitud->facultadplanilla_id) || empty($solicitud->objetivo) || empty($solicitud->justificacion) || empty($solicitud->curriculum)) {

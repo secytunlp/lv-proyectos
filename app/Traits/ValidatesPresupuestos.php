@@ -66,4 +66,84 @@ trait ValidatesPresupuestos
     {
         return mb_substr((string) $detalle, 0, Constants::MAX_DETALLE_PRESUPUESTO);
     }
+
+    /**
+     * Cuántos campos del detalle tiene que traer cargados cada concepto del tipo 2.
+     *
+     * El detalle del tipo 2 se guarda como "concepto|campo1|campo2" y las vistas lo leen
+     * por posición. Según el concepto, el formulario muestra uno o dos campos; los dos que
+     * muestra son obligatorios.
+     */
+    private static $camposRequeridosConcepto = [
+        'Viaticos'    => 2, // días y lugar
+        'Alojamiento' => 2, // noches y lugar
+        'Pasajes'     => 2, // pasaje y destino
+        'Inscripcion' => 1, // descripción
+        'Otros'       => 1, // descripción
+    ];
+
+    /**
+     * ¿La fila de presupuesto quedó sin descripción?
+     *
+     * El guardado acepta la fila con que esté el concepto o el importe, y el envío sólo
+     * miraba el total, así que se podía mandar un "Otros - Descripción:" en blanco, que en
+     * el PDF sale como el esqueleto vacío.
+     *
+     * @param  object  $presupuesto  fila de joven_presupuestos / viaje_presupuestos
+     * @return bool
+     */
+    protected function presupuestoSinDescripcion($presupuesto)
+    {
+        $detalle = trim((string) $presupuesto->detalle);
+
+        if (intval($presupuesto->tipo_presupuesto_id) !== 2) {
+            return ($detalle === '');
+        }
+
+        $partes   = array_pad(explode('|', $detalle), 3, '');
+        $concepto = trim($partes[0]);
+
+        if ($concepto === '') {
+            return true;
+        }
+
+        $requeridos = isset(self::$camposRequeridosConcepto[$concepto])
+            ? self::$camposRequeridosConcepto[$concepto]
+            : 1;
+
+        for ($i = 1; $i <= $requeridos; $i++) {
+            if (trim($partes[$i]) === '') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Cómo nombrar una fila de presupuesto en un mensaje de error, para que el solicitante
+     * la encuentre en la pantalla.
+     *
+     * @param  object  $presupuesto
+     * @return string
+     */
+    protected function describirFilaPresupuesto($presupuesto)
+    {
+        $detalle = trim((string) $presupuesto->detalle);
+        $partes  = array_pad(explode('|', $detalle), 3, '');
+
+        if (intval($presupuesto->tipo_presupuesto_id) === 2) {
+            $concepto = trim($partes[0]);
+            $texto = ($concepto !== '') ? $concepto : 'fila sin concepto';
+        } else {
+            $texto = ($detalle !== '') ? mb_substr($detalle, 0, 40) : 'fila sin descripción';
+        }
+
+        $fecha = substr((string) $presupuesto->fecha, 0, 10);
+        if ($fecha !== '' && strpos($fecha, '0000-00-00') !== 0) {
+            $texto .= ' del '.date('d/m/Y', strtotime($fecha));
+        }
+
+        return $texto.' por $'.number_format((float) $presupuesto->monto, 2, ',', '.');
+    }
 }
