@@ -189,7 +189,7 @@ class ImportarInformesSubsidios extends Command
                 `fin` DATETIME NULL DEFAULT NULL,
                 `integrante` VARCHAR(255) NULL DEFAULT NULL,
                 `cuil` VARCHAR(20) NULL DEFAULT NULL,
-                `documento` INT(11) NULL DEFAULT NULL,
+                `documento` BIGINT(20) NULL DEFAULT NULL,
                 `rol` VARCHAR(50) NULL DEFAULT NULL,
                 `evaluacion` VARCHAR(20) NULL DEFAULT NULL,
                 `alta` DATETIME NULL DEFAULT NULL,
@@ -201,6 +201,19 @@ class ImportarInformesSubsidios extends Command
                 INDEX `idx_proy_doc` (`proyecto_id`, `documento`)
             ) COLLATE='utf8mb4_unicode_ci' ENGINE=InnoDB
         ");
+
+        // Auto-actualiza una tabla vieja donde documento quedó como INT:
+        // hay documentos de 9+ dígitos que no entran en INT.
+        $tipo = DB::selectOne("
+            SELECT DATA_TYPE AS data_type
+            FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME = ?
+              AND COLUMN_NAME = 'documento'
+        ", [$this->tabla]);
+        if ($tipo && strtolower($tipo->data_type) !== 'bigint') {
+            DB::statement("ALTER TABLE `{$this->tabla}` MODIFY `documento` BIGINT(20) NULL DEFAULT NULL");
+        }
     }
 
     /**
@@ -248,11 +261,14 @@ class ImportarInformesSubsidios extends Command
         return $v;
     }
 
-    /** Documento: sólo dígitos (los pasaportes/no numéricos quedan null). */
+    /**
+     * Documento: sólo dígitos (los pasaportes/no numéricos quedan null).
+     * Devuelve string numérico (no int) para no romper con valores largos en 32-bit.
+     */
     protected function documento(string $v)
     {
         $d = preg_replace('/\D+/', '', $v);
-        return $d === '' ? null : (int) $d;
+        return $d === '' ? null : $d;
     }
 
     /**
