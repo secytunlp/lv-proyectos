@@ -312,12 +312,14 @@ class CalcularSubsidios extends Command
     /**
      * #5 — Proyectos para subsidios automáticos (SICADI nuevo).
      *
-     * ord per project:
+     * ord per project (per the CIU document and the 2025 calc):
      *   - unit NOT approved (Ord 284) for this period -> 2
-     *   - unit approved                               -> 8
+     *   - unit approved + UPID (unidads.upid = 1)      -> 2
+     *   - unit approved + Centro/Laboratorio/Instituto -> 8
      *
-     * NOTE: the UPID-specific case (approved UPID -> 2) was dropped on request;
-     * approved units now all get 8.
+     * UPID is the origin's bl_upid, synced into unidads.upid by sync:unidads.
+     * If unidads.upid is not populated yet everything falls back to 8, so run
+     * sync:unidads before calculating.
      */
     protected function poblarSubsidioProyectos(string $fechaCorte): void
     {
@@ -344,12 +346,17 @@ class CalcularSubsidios extends Command
                 inv.id,
                 p.facultad_id,
                 p.unidad_id,
-                CASE WHEN ua.unidad_id IS NULL THEN 2 ELSE 8 END,
+                CASE
+                    WHEN ua.unidad_id IS NULL THEN 2
+                    WHEN u.upid = 1 THEN 2
+                    ELSE 8
+                END,
                 p.id
             FROM integrantes i
                 JOIN investigadors inv ON i.investigador_id = inv.id
                 JOIN personas per      ON inv.persona_id = per.id
                 JOIN proyectos p       ON i.proyecto_id = p.id
+                LEFT JOIN unidads u    ON u.id = p.unidad_id
                 LEFT JOIN viaje_evaluacion_unidad_aprobadas ua
                     ON ua.unidad_id = p.unidad_id AND ua.periodo_id = ?
             WHERE

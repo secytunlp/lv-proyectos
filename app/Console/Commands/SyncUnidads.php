@@ -48,6 +48,7 @@ class SyncUnidads extends Command
             ->select([
                 'cd_unidad as id',
                 'cd_tipounidad as tipo',
+                'bl_upid as upid',
                 'cd_padre as padre_id',
                 'bl_hijos as hijos',
                 'ds_unidad as nombre',
@@ -68,6 +69,7 @@ class SyncUnidads extends Command
                     return [
                         'id' => $row->id,
                         'tipo' => trim($row->tipo),
+                        'upid' => is_numeric($row->upid) ? (int) $row->upid : 0,
                         'nombre' => trim($row->nombre),
                         'padre_id' => trim($row->padre_id),
                         'hijos' => $row->hijos,
@@ -88,7 +90,7 @@ class SyncUnidads extends Command
                         $data,
                         ['id'],
                         [
-                            'nombre','padre_id','hijos','tipo','codigo',
+                            'nombre','padre_id','hijos','tipo','upid','codigo',
                             'sigla','direccion','email','facultad_id','activa','updated_at'
                         ]
                     );
