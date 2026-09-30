@@ -13,9 +13,16 @@ use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 /**
  * Compara los integrantes tenidos en cuenta (intproy) entre dos cálculos,
- * para los proyectos que coinciden en ambos. Muestra horas (in_dedi) y
- * categoría (in_cainv), y marca el estado: igual / cambió / sólo nuevo /
- * sólo viejo. No compara montos.
+ * para los proyectos que coinciden en ambos. No compara montos.
+ *
+ * Genera un .xlsx con dos hojas:
+ *   - Resumen por proyecto: cantidad de integrantes viejo vs nuevo (+ dif y
+ *     cuántos cambiaron), con estado OK / REVISAR.
+ *   - Detalle: por integrante, categoría y horas (in_dedi) de cada año, y estado
+ *     igual / CAMBIO / SOLO NUEVO / SOLO VIEJO.
+ *
+ * Nota: en intproy sólo hay categoría (in_cainv) y horas (in_dedi); la
+ * dedicación 1/2/3 es un filtro previo y no queda guardada.
  *
  * Uso:
  *   php artisan subsidios:comparar-integrantes --nuevo=intproy_2026 --viejo=intproy_2025_ppid
@@ -25,10 +32,10 @@ class CompararIntegrantesSubsidios extends Command
     protected $signature = 'subsidios:comparar-integrantes
         {--nuevo= : Tabla intproy nueva (ej. intproy_2026). Requerido.}
         {--viejo= : Tabla intproy vieja (ej. intproy_2025_ppid). Requerido.}
-        {--solo-diferencias : Excluye las filas "igual" del Excel.}
+        {--solo-diferencias : En el detalle, excluye las filas "igual".}
         {--salida= : Carpeta de salida.}';
 
-    protected $description = 'Compara integrantes (horas y categoría) de intproy entre dos años, en los proyectos que coinciden.';
+    protected $description = 'Compara integrantes (cantidad, categoría y horas) de intproy entre dos años, en los proyectos que coinciden.';
 
     public function handle(): int
     {
@@ -45,41 +52,41 @@ class CompararIntegrantesSubsidios extends Command
             }
         }
 
-        $filasNuevo = DB::table($nuevo)->select('pr_id', 'pr_codigo', 'in_id', 'in_nombre', 'in_cainv', 'in_dedi')->get();
-        $filasViejo = DB::table($viejo)->select('pr_id', 'pr_codigo', 'in_id', 'in_nombre', 'in_cainv', 'in_dedi')->get();
+        $selN = DB::table($nuevo . ' as t')->leftJoin('facultads as f', 'f.id', '=', 't.fac_id')
+            ->select('t.pr_id', 't.pr_codigo', 't.in_id', 't.in_nombre', 't.in_cainv', 't.in_dedi', 'f.nombre as facultad')->get();
+        $selV = DB::table($viejo . ' as t')->leftJoin('facultads as f', 'f.id', '=', 't.fac_id')
+            ->select('t.pr_id', 't.pr_codigo', 't.in_id', 't.in_nombre', 't.in_cainv', 't.in_dedi', 'f.nombre as facultad')->get();
 
-        // Mapas por (pr_id|in_id) y conjuntos de proyectos.
         $mapN = [];
         $proyN = [];
-        foreach ($filasNuevo as $r) {
+        $cntN = [];
+        foreach ($selN as $r) {
             $mapN[$r->pr_id . '|' . $r->in_id] = $r;
-            $proyN[$r->pr_id] = true;
+            $proyN[$r->pr_id] = $r;
+            $cntN[$r->pr_id] = (isset($cntN[$r->pr_id]) ? $cntN[$r->pr_id] : 0) + 1;
         }
         $mapV = [];
         $proyV = [];
-        foreach ($filasViejo as $r) {
+        $cntV = [];
+        foreach ($selV as $r) {
             $mapV[$r->pr_id . '|' . $r->in_id] = $r;
-            $proyV[$r->pr_id] = true;
+            $proyV[$r->pr_id] = $r;
+            $cntV[$r->pr_id] = (isset($cntV[$r->pr_id]) ? $cntV[$r->pr_id] : 0) + 1;
         }
 
-        // Proyectos que coinciden en ambos cálculos.
         $coinciden = array_intersect_key($proyN, $proyV);
 
-        // Une todas las claves (integrante-proyecto) de proyectos coincidentes.
+        // Detalle por integrante + acumulado de cambios por proyecto.
         $keys = [];
-        foreach ($mapN as $k => $r) {
-            if (isset($coinciden[$r->pr_id])) { $keys[$k] = true; }
-        }
-        foreach ($mapV as $k => $r) {
-            if (isset($coinciden[$r->pr_id])) { $keys[$k] = true; }
-        }
+        foreach ($mapN as $k => $r) { if (isset($coinciden[$r->pr_id])) { $keys[$k] = true; } }
+        foreach ($mapV as $k => $r) { if (isset($coinciden[$r->pr_id])) { $keys[$k] = true; } }
 
-        $rows = [];
-        $cont = ['igual' => 0, 'cambio' => 0, 'solo_nuevo' => 0, 'solo_viejo' => 0];
+        $detalle = [];
+        $cambiosPorProy = [];
         foreach (array_keys($keys) as $k) {
             $n = isset($mapN[$k]) ? $mapN[$k] : null;
             $v = isset($mapV[$k]) ? $mapV[$k] : null;
-            $base = $n ?: $v;
+            $base = $n ? $n : $v;
 
             $catN = $n ? $n->in_cainv : null;
             $hN   = $n ? $n->in_dedi : null;
@@ -88,99 +95,155 @@ class CompararIntegrantesSubsidios extends Command
 
             if (! $v) {
                 $estado = 'SOLO NUEVO';
-                $cont['solo_nuevo']++;
             } elseif (! $n) {
                 $estado = 'SOLO VIEJO';
-                $cont['solo_viejo']++;
-            } elseif ((float) $hN !== (float) $hV || (string) $catN !== (string) $catV) {
+            } elseif ((float) $hN !== (float) $hV || $this->normCat($catN) !== $this->normCat($catV)) {
                 $estado = 'CAMBIO';
-                $cont['cambio']++;
             } else {
                 $estado = 'igual';
-                $cont['igual']++;
             }
 
-            if ($this->option('solo-diferencias') && $estado === 'igual') {
-                continue;
+            if ($estado !== 'igual') {
+                $cambiosPorProy[$base->pr_id] = (isset($cambiosPorProy[$base->pr_id]) ? $cambiosPorProy[$base->pr_id] : 0) + 1;
             }
 
-            $rows[] = [
-                'proyecto'   => $base->pr_codigo,
-                'integrante' => $base->in_nombre,
-                'cat_v'      => $catV,
-                'horas_v'    => $hV,
-                'cat_n'      => $catN,
-                'horas_n'    => $hN,
-                'estado'     => $estado,
+            if (! ($this->option('solo-diferencias') && $estado === 'igual')) {
+                $detalle[] = [
+                    'facultad'   => $base->facultad,
+                    'proyecto'   => $base->pr_codigo,
+                    'integrante' => $base->in_nombre,
+                    'cat_v'      => $catV,
+                    'horas_v'    => $hV,
+                    'cat_n'      => $catN,
+                    'horas_n'    => $hN,
+                    'estado'     => $estado,
+                ];
+            }
+        }
+
+        // Resumen por proyecto.
+        $resumen = [];
+        foreach ($coinciden as $prId => $base) {
+            $cv = isset($cntV[$prId]) ? $cntV[$prId] : 0;
+            $cn = isset($cntN[$prId]) ? $cntN[$prId] : 0;
+            $camb = isset($cambiosPorProy[$prId]) ? $cambiosPorProy[$prId] : 0;
+            $resumen[] = [
+                'facultad'    => $base->facultad,
+                'proyecto'    => $base->pr_codigo,
+                'cant_v'      => $cv,
+                'cant_n'      => $cn,
+                'dif'         => $cn - $cv,
+                'cambios'     => $camb,
+                'estado'      => ($cv === $cn && $camb === 0) ? 'OK' : 'REVISAR',
             ];
         }
 
-        // Orden natural por código + integrante.
-        usort($rows, function ($a, $b) {
+        $ord = function ($a, $b) {
+            $c = strcmp((string) $a['facultad'], (string) $b['facultad']);
+            if ($c !== 0) { return $c; }
             $c = strnatcmp((string) $a['proyecto'], (string) $b['proyecto']);
-            return $c !== 0 ? $c : strcmp((string) $a['integrante'], (string) $b['integrante']);
-        });
+            if ($c !== 0) { return $c; }
+            return strcmp((string) (isset($a['integrante']) ? $a['integrante'] : ''), (string) (isset($b['integrante']) ? $b['integrante'] : ''));
+        };
+        usort($resumen, $ord);
+        usort($detalle, $ord);
 
         $salida = $this->option('salida') ?: storage_path('app/comparacion_subsidios');
-        if (! is_dir($salida)) {
-            mkdir($salida, 0755, true);
-        }
+        if (! is_dir($salida)) { mkdir($salida, 0755, true); }
         $file = rtrim($salida, '/\\') . DIRECTORY_SEPARATOR . "Comparacion {$nuevo} vs {$viejo}.xlsx";
-        $this->escribir($rows, $nuevo, $viejo, $file);
 
-        $this->info(sprintf(
-            'Proyectos coincidentes: %d | filas: %d (igual %d, cambio %d, solo nuevo %d, solo viejo %d)',
-            count($coinciden), count($rows), $cont['igual'], $cont['cambio'], $cont['solo_nuevo'], $cont['solo_viejo']
-        ));
+        $ss = new Spreadsheet();
+        $ss->removeSheetByIndex(0);
+        $this->hojaResumen($ss, $resumen, $nuevo, $viejo);
+        $this->hojaDetalle($ss, $detalle, $nuevo, $viejo);
+        (new Xlsx($ss))->save($file);
+        $ss->disconnectWorksheets();
+
+        $revisar = 0;
+        foreach ($resumen as $r) { if ($r['estado'] === 'REVISAR') { $revisar++; } }
+        $this->info(sprintf('Proyectos coincidentes: %d | a revisar: %d | filas detalle: %d', count($coinciden), $revisar, count($detalle)));
         $this->line('  ->  ' . $file);
         return self::SUCCESS;
     }
 
-    private function escribir(array $rows, string $nuevo, string $viejo, string $path): void
+    private function hojaResumen(Spreadsheet $ss, array $rows, string $nuevo, string $viejo): void
     {
-        $headers = ['N°', 'Proyecto', 'Integrante', "Cat {$viejo}", "Horas {$viejo}", "Cat {$nuevo}", "Horas {$nuevo}", 'Estado'];
-
-        $ss = new Spreadsheet();
-        $sheet = $ss->getActiveSheet();
-        $sheet->setTitle('Comparacion');
-
-        $lastCol = Coordinate::stringFromColumnIndex(count($headers));
-        $sheet->setCellValue('A1', "Comparación integrantes: {$nuevo} vs {$viejo}");
-        $sheet->mergeCells("A1:{$lastCol}1");
-        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(12);
-        $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-
-        $hr = 3;
-        foreach ($headers as $i => $h) {
-            $sheet->setCellValueByColumnAndRow($i + 1, $hr, $h);
-        }
-
-        $r = $hr + 1;
-        $n = 1;
+        $headers = ['N°', 'Facultad', 'Proyecto', "Integr. {$viejo}", "Integr. {$nuevo}", 'Dif', 'Con cambios', 'Estado'];
+        $sheet = $ss->createSheet();
+        $sheet->setTitle('Resumen por proyecto');
+        $this->cabecera($sheet, "Resumen por proyecto: {$nuevo} vs {$viejo}", $headers);
+        $r = 4; $n = 1;
         foreach ($rows as $row) {
             $sheet->setCellValueByColumnAndRow(1, $r, $n++);
-            $sheet->setCellValueByColumnAndRow(2, $r, $row['proyecto']);
-            $sheet->setCellValueByColumnAndRow(3, $r, $row['integrante']);
-            $sheet->setCellValueByColumnAndRow(4, $r, $row['cat_v']);
-            $sheet->setCellValueByColumnAndRow(5, $r, $row['horas_v']);
-            $sheet->setCellValueByColumnAndRow(6, $r, $row['cat_n']);
-            $sheet->setCellValueByColumnAndRow(7, $r, $row['horas_n']);
+            $sheet->setCellValueByColumnAndRow(2, $r, $row['facultad']);
+            $sheet->setCellValueByColumnAndRow(3, $r, $row['proyecto']);
+            $sheet->setCellValueByColumnAndRow(4, $r, $row['cant_v']);
+            $sheet->setCellValueByColumnAndRow(5, $r, $row['cant_n']);
+            $sheet->setCellValueByColumnAndRow(6, $r, $row['dif']);
+            $sheet->setCellValueByColumnAndRow(7, $r, $row['cambios']);
             $sheet->setCellValueByColumnAndRow(8, $r, $row['estado']);
             $r++;
         }
-        $lastRow = max($r - 1, $hr);
+        $this->cerrar($sheet, count($headers), $r - 1);
+    }
 
-        $sheet->getStyle("A{$hr}:{$lastCol}{$hr}")->getFont()->setBold(true);
-        $sheet->getStyle("A{$hr}:{$lastCol}{$hr}")->getFill()
-            ->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('D9E1F2');
-        $sheet->getStyle("A{$hr}:{$lastCol}{$lastRow}")->getBorders()
-            ->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
-        for ($c = 1; $c <= count($headers); $c++) {
+    private function hojaDetalle(Spreadsheet $ss, array $rows, string $nuevo, string $viejo): void
+    {
+        $headers = ['N°', 'Facultad', 'Proyecto', 'Integrante', "Cat {$viejo}", "Horas {$viejo}", "Cat {$nuevo}", "Horas {$nuevo}", 'Estado'];
+        $sheet = $ss->createSheet();
+        $sheet->setTitle('Detalle');
+        $this->cabecera($sheet, "Detalle integrantes: {$nuevo} vs {$viejo}", $headers);
+        $r = 4; $n = 1;
+        foreach ($rows as $row) {
+            $sheet->setCellValueByColumnAndRow(1, $r, $n++);
+            $sheet->setCellValueByColumnAndRow(2, $r, $row['facultad']);
+            $sheet->setCellValueByColumnAndRow(3, $r, $row['proyecto']);
+            $sheet->setCellValueByColumnAndRow(4, $r, $row['integrante']);
+            $sheet->setCellValueByColumnAndRow(5, $r, $row['cat_v']);
+            $sheet->setCellValueByColumnAndRow(6, $r, $row['horas_v']);
+            $sheet->setCellValueByColumnAndRow(7, $r, $row['cat_n']);
+            $sheet->setCellValueByColumnAndRow(8, $r, $row['horas_n']);
+            $sheet->setCellValueByColumnAndRow(9, $r, $row['estado']);
+            $r++;
+        }
+        $this->cerrar($sheet, count($headers), $r - 1);
+    }
+
+    private function cabecera($sheet, string $titulo, array $headers): void
+    {
+        $lastCol = Coordinate::stringFromColumnIndex(count($headers));
+        $sheet->setCellValue('A1', $titulo);
+        $sheet->mergeCells("A1:{$lastCol}1");
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(12);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        foreach ($headers as $i => $h) {
+            $sheet->setCellValueByColumnAndRow($i + 1, 3, $h);
+        }
+    }
+
+    private function cerrar($sheet, int $cols, int $lastRow): void
+    {
+        $lastCol = Coordinate::stringFromColumnIndex($cols);
+        $lastRow = max($lastRow, 3);
+        $sheet->getStyle("A3:{$lastCol}3")->getFont()->setBold(true);
+        $sheet->getStyle("A3:{$lastCol}3")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('D9E1F2');
+        $sheet->getStyle("A3:{$lastCol}{$lastRow}")->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+        for ($c = 1; $c <= $cols; $c++) {
             $sheet->getColumnDimension(Coordinate::stringFromColumnIndex($c))->setAutoSize(true);
         }
-        $sheet->freezePane('A' . ($hr + 1));
+        $sheet->freezePane('A4');
+    }
 
-        (new Xlsx($ss))->save($path);
-        $ss->disconnectWorksheets();
+    /**
+     * Normaliza la categoría: 's/c', '-', vacío y NULL son "sin categoría"
+     * (mismo peso 0,5), no un cambio real. I..V quedan igual.
+     */
+    private function normCat($c): string
+    {
+        $c = strtoupper(trim((string) $c));
+        if ($c === '' || $c === 'S/C' || $c === '-') {
+            return 'SC';
+        }
+        return $c;
     }
 }
