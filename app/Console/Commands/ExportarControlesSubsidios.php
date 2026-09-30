@@ -19,7 +19,7 @@ use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
  *
  * Controles:
  *   1. Sin informe        - integrantes que cuentan y no tienen informe que matchee.
- *   2. No evaluados        - con informe, evaluación distinta de Satisfactorio y sin ningún Satisfactorio.
+ *   2. No evaluados        - NO titular con evaluación vacía (listado pero sin evaluar).
  *   3. No corresponde/otros- con informe cuya evaluación no es Satisfactorio/Titular/No corresponde.
  *
  * Uso:
@@ -65,15 +65,18 @@ class ExportarControlesSubsidios extends Command
             ORDER BY si.proyecto, si.integrante
         ");
 
-        // --- Control 2: no evaluados (informe no satisfactorio, sin ningún Satisfactorio) ---
+        // --- Control 2: no evaluados = NO titular con evaluación vacía
+        // (el director los incluyó pero no los evaluó), y sin ningún Satisfactorio. ---
         $c2 = DB::select("
             SELECT si.proyecto, inf.director, inf.integrante, inf.documento, inf.rol, inf.evaluacion, si.alta, si.baja
             FROM {$inf} inf
             JOIN subsidio_integrantes si ON inf.documento = si.documento AND inf.proyecto_id = si.proyecto_id
-            WHERE inf.rol <> 'titular' AND inf.rol <> 'colaborador'
+            WHERE inf.rol <> 'Titular'
+              AND inf.rol <> 'Colaborador'
+              AND (inf.evaluacion IS NULL OR inf.evaluacion = '')
+              AND si.dedicacion IN (1,2,3)
               AND (si.baja IS NULL OR si.baja = '0000-00-00' OR si.baja > '{$bajaB}')
               AND si.alta < '{$ini}'
-              AND inf.evaluacion <> 'No corresponde'
               AND NOT EXISTS (SELECT 1 FROM {$inf} s WHERE s.documento = inf.documento AND s.proyecto_id = inf.proyecto_id AND s.evaluacion = 'Satisfactorio')
             ORDER BY si.proyecto
         ");
@@ -89,7 +92,8 @@ class ExportarControlesSubsidios extends Command
               AND si.alta < '{$ini}'
               AND (si.baja IS NULL OR si.baja = '0000-00-00' OR si.baja > '{$bajaA}')
               AND (si.universidad_id = 11 OR si.universidad_id = 0 OR si.universidad_id IS NULL)
-              AND (inf.evaluacion <> 'Satisfactorio' AND inf.rol <> 'Titular' AND inf.rol <> 'No corresponde')
+              AND (inf.evaluacion <> 'Satisfactorio' AND inf.rol <> 'Titular'
+                   AND inf.rol <> 'No corresponde' AND inf.rol <> 'Colaborador')
             ORDER BY si.proyecto, si.integrante
         ");
 
