@@ -85,7 +85,7 @@ class ExportarControlesSubsidios extends Command
 
         // --- Control 3: con informe cuya evaluación no es Satisfactorio/Titular/No corresponde ---
         $c3 = DB::select("
-            SELECT f.nombre AS facultad, si.integrante, si.proyecto, si.categoria, si.documento, inf.proyecto AS proy_informe, inf.evaluacion, inf.rol
+            SELECT f.nombre AS facultad, si.integrante, si.proyecto, si.categoria, si.documento, inf.proyecto AS proy_informe, inf.evaluacion, inf.rol, si.alta, si.baja
             FROM subsidio_integrantes si
             JOIN subsidio_proyectos sp ON si.proyecto_id = sp.proyecto_id
             LEFT JOIN facultads f ON f.id = si.facultad_id
@@ -100,6 +100,11 @@ class ExportarControlesSubsidios extends Command
             ORDER BY f.nombre, si.proyecto, si.integrante
         ");
 
+        // Orden natural del código (11/H999 antes que 11/H1000), por facultad.
+        $c1 = $this->ordenar($c1);
+        $c2 = $this->ordenar($c2);
+        $c3 = $this->ordenar($c3);
+
         $salida = $this->option('salida') ?: storage_path("app/controles_{$anio}");
         $this->ensureDir($salida);
         $file = rtrim($salida, '/\\') . DIRECTORY_SEPARATOR . "Controles subsidios {$anio}.xlsx";
@@ -108,16 +113,16 @@ class ExportarControlesSubsidios extends Command
         $spreadsheet->removeSheetByIndex(0);
 
         $this->hoja($spreadsheet, "1 - Sin informe", "Control 1 - Integrantes sin informe ({$anio})",
-            ['Facultad', 'Proyecto', 'Integrante', 'Categoría', 'Documento', 'Alta', 'Baja'], $c1,
-            function ($r) { return [$r->facultad, $r->proyecto, $r->integrante, $r->categoria, $r->documento, $this->fecha($r->alta), $this->fecha($r->baja)]; });
+            ['Proyecto', 'Integrante', 'Categoría', 'Documento', 'Alta', 'Baja'], $c1,
+            function ($r) { return [$r->proyecto, $r->integrante, $r->categoria, $r->documento, $this->fecha($r->alta), $this->fecha($r->baja)]; });
 
         $this->hoja($spreadsheet, "2 - No evaluados", "Control 2 - No evaluados ({$anio})",
-            ['Facultad', 'Proyecto', 'Director', 'Integrante', 'Documento', 'Rol', 'Evaluación', 'Alta', 'Baja'], $c2,
-            function ($r) { return [$r->facultad, $r->proyecto, $r->director, $r->integrante, $r->documento, $r->rol, $r->evaluacion, $this->fecha($r->alta), $this->fecha($r->baja)]; });
+            ['Proyecto', 'Integrante', 'Documento', 'Rol', 'Evaluación', 'Alta', 'Baja'], $c2,
+            function ($r) { return [$r->proyecto, $r->integrante, $r->documento, $r->rol, $r->evaluacion, $this->fecha($r->alta), $this->fecha($r->baja)]; });
 
         $this->hoja($spreadsheet, "3 - No corresponde", "Control 3 - Evaluación no Satisfactorio/Titular ({$anio})",
-            ['Facultad', 'Integrante', 'Proyecto', 'Categoría', 'Documento', 'Proy. informe', 'Evaluación', 'Rol'], $c3,
-            function ($r) { return [$r->facultad, $r->integrante, $r->proyecto, $r->categoria, $r->documento, $r->proy_informe, $r->evaluacion, $r->rol]; });
+            ['Integrante', 'Proyecto', 'Categoría', 'Documento', 'Proy. informe', 'Evaluación', 'Rol', 'Alta', 'Baja'], $c3,
+            function ($r) { return [$r->integrante, $r->proyecto, $r->categoria, $r->documento, $r->proy_informe, $r->evaluacion, $r->rol, $this->fecha($r->alta), $this->fecha($r->baja)]; });
 
         (new Xlsx($spreadsheet))->save($file);
         $spreadsheet->disconnectWorksheets();
@@ -170,6 +175,29 @@ class ExportarControlesSubsidios extends Command
             $sheet->getColumnDimension(Coordinate::stringFromColumnIndex($c))->setAutoSize(true);
         }
         $sheet->freezePane('A' . ($headerRow + 1));
+    }
+
+    /**
+     * Ordena por facultad y luego por código de proyecto en orden natural
+     * (11/H999 antes que 11/H1000) y por integrante.
+     *
+     * @param array $rows
+     * @return array
+     */
+    private function ordenar(array $rows): array
+    {
+        usort($rows, function ($a, $b) {
+            $cf = strcmp((string) ($a->facultad ?? ''), (string) ($b->facultad ?? ''));
+            if ($cf !== 0) {
+                return $cf;
+            }
+            $cp = strnatcmp((string) ($a->proyecto ?? ''), (string) ($b->proyecto ?? ''));
+            if ($cp !== 0) {
+                return $cp;
+            }
+            return strcmp((string) ($a->integrante ?? ''), (string) ($b->integrante ?? ''));
+        });
+        return $rows;
     }
 
     private function fecha($value): string

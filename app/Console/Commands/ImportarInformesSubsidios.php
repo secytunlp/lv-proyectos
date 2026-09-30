@@ -110,6 +110,7 @@ class ImportarInformesSubsidios extends Command
 
         $leidas = 0;
         $insertadas = 0;
+        $noVigentes = 0;
         $sinMatch = [];
         $buffer = [];
 
@@ -127,6 +128,14 @@ class ImportarInformesSubsidios extends Command
             if (! isset($mapProy[$codigo])) {
                 $sinMatch[$codigo] = true;
                 continue; // igual que el INNER JOIN proyecto: sin match no entra
+            }
+
+            // Sólo la fila VIGENTE: fecha_fin_vigencia vacía. Las que tienen fecha
+            // fueron reemplazadas (superseded) y no valen. "Siempre vale una".
+            $vig = $this->col($row, $idx, 'vigencia');
+            if ($vig !== '' && strpos($vig, '0000-00-00') !== 0) {
+                $noVigentes++;
+                continue;
             }
 
             $apellido = $this->col($row, $idx, 'apellido');
@@ -161,7 +170,7 @@ class ImportarInformesSubsidios extends Command
         fclose($fh);
 
         $this->newLine();
-        $this->info("Leídas: {$leidas} | Insertadas: {$insertadas} | Total en {$this->tabla}: " . DB::table($this->tabla)->count());
+        $this->info("Leídas: {$leidas} | Insertadas: {$insertadas} | No vigentes salteadas: {$noVigentes} | Total en {$this->tabla}: " . DB::table($this->tabla)->count());
 
         if ($sinMatch) {
             $cods = array_keys($sinMatch);
