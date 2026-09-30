@@ -610,8 +610,9 @@ class CalcularSubsidios extends Command
             );
         }
 
-        // Round M to 2 decimals, exactly as the original controller did.
-        $M = round($mt / $St, 2);
+        // m truncado a 2 decimales (NO redondea hacia arriba): junto con el floor
+        // de cada monto, garantiza que el total repartido nunca supere el MT.
+        $M = floor($mt / $St * 100) / 100;
 
         $this->line("  ST = 1.3*$totA + 0.8*$totB + 0.5*$totC + Nd($Nd) = $St");
         $this->line("  m  = $mt / $St = $M");
@@ -648,7 +649,9 @@ class CalcularSubsidios extends Command
                 $Sp = (1.3 * $a) + (0.8 * $b) + (0.5 * $c) + $ordNd;
                 DB::table($this->tablaDir)->where('pr_id', $mProy)->update([
                     'divi'  => $ordNd,
-                    'monto' => round($Sp * $M, 2),
+                    // Monto final SIN decimales (truncado). Con m truncado arriba,
+                    // el total nunca supera el MT (queda un pequeño remanente sin repartir).
+                    'monto' => floor($Sp * $M),
                     'spond' => $Sp,
                 ]);
             }
