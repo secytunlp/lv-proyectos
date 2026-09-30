@@ -20,8 +20,9 @@ use Illuminate\Support\Facades\DB;
  * The calculation tables are per-year: dirproy_AAAA / intproy_AAAA (kept as history).
  * Reads from SICADI core tables, writes ONLY to scratch tables:
  *   subsidio_integrantes, subsidio_proyectos, dirproy_AAAA, intproy_AAAA.
- * Never writes to subsidio_informes (imported from SIGEVA) or
- * subsidio_proyecto_renuncias (maintained by hand).
+ * Never writes contenido a subsidio_informes (imported from SIGEVA),
+ * subsidio_proyecto_renuncias ni subsidio_incorporados (maintained by hand;
+ * incorporados = forzar "informó satisfactorio" para integrantes puntuales).
  */
 class CalcularSubsidios extends Command
 {
@@ -65,6 +66,8 @@ class CalcularSubsidios extends Command
     protected $tablaRenuncias;   // subsidio_proyecto_renuncias_AAAA (manual, read-only)
     /** @var string */
     protected $tablaInformes;    // subsidio_informes_AAAA (imported from SIGEVA, read-only)
+    /** @var string */
+    protected $tablaIncorporados;   // subsidio_incorporados_AAAA (manual: forzar "informó satisfactorio")
 
     public function handle(): int
     {
@@ -79,6 +82,7 @@ class CalcularSubsidios extends Command
         $this->tablaInt = "intproy_{$this->anio}";
         $this->tablaRenuncias = "subsidio_proyecto_renuncias_{$this->anio}";
         $this->tablaInformes = "subsidio_informes_{$this->anio}";
+        $this->tablaIncorporados = "subsidio_incorporados_{$this->anio}";
 
         $soloExtraccion = (bool) $this->option('solo-extraccion');
 
@@ -243,6 +247,22 @@ class CalcularSubsidios extends Command
         if ($ordType && strtolower($ordType->data_type) !== 'decimal') {
             DB::statement("ALTER TABLE `{$this->tablaDir}` MODIFY `ord` DECIMAL(15,4) NULL DEFAULT NULL");
         }
+
+        // Tabla manual de incorporados: se mantiene a mano (como las renuncias).
+        // Cada fila (proyecto_id, documento) hace que ese integrante se trate como
+        // "informó satisfactorio" en poblarIntproy. Se crea vacía si no existe.
+        DB::statement("
+            CREATE TABLE IF NOT EXISTS `{$this->tablaIncorporados}` (
+                `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+                `proyecto_id` INT(11) NULL DEFAULT NULL,
+                `documento` BIGINT(20) NULL DEFAULT NULL,
+                `codigo` VARCHAR(50) NULL DEFAULT NULL,
+                `integrante` VARCHAR(255) NULL DEFAULT NULL,
+                `motivo` VARCHAR(255) NULL DEFAULT NULL,
+                PRIMARY KEY (`id`),
+                INDEX `idx_proy_doc` (`proyecto_id`, `documento`)
+            ) COLLATE='utf8mb4_unicode_ci' ENGINE=InnoDB
+        ");
     }
 
     /**
@@ -474,11 +494,16 @@ class CalcularSubsidios extends Command
               )
         ";
 
-        // Informed projects (running & reported): satisfactory evaluation, holder, or recent addition.
+        // Informed projects (running & reported): satisfactory evaluation, holder,
+        // recent addition, OR manually incorporated (subsidio_incorporados_AAAA:
+        // "simular que informó satisfactorio"). Siguen necesitando dedicacion 1/2/3
+        // (está en el WHERE base de $select).
         DB::insert(
             "INSERT INTO `{$this->tablaInt}` ($cols) ".sprintf($select, 'DISTINCT ')."
               AND sp.inicio < ? AND sp.fin > ?
-              AND (inf.evaluacion = 'Satisfactorio' OR inf.rol = 'Titular' OR si.alta > ?)",
+              AND (inf.evaluacion = 'Satisfactorio' OR inf.rol = 'Titular' OR si.alta > ?
+                   OR EXISTS (SELECT 1 FROM `{$this->tablaIncorporados}` inc
+                              WHERE inc.proyecto_id = si.proyecto_id AND inc.documento = si.documento))",
             [$bajaCorte, $iniInformado, $iniInformado, $altaNuevos]
         );
 
