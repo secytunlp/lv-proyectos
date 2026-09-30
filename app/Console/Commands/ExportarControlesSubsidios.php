@@ -66,37 +66,39 @@ class ExportarControlesSubsidios extends Command
             ORDER BY f.nombre, si.proyecto, si.integrante
         ");
 
-        // --- Control 2: no evaluados = NO titular con evaluación vacía
-        // (el director los incluyó pero no los evaluó), y sin ningún Satisfactorio. ---
+        // --- Control 2: no evaluados = NO titular con evaluación vacía o
+        // 'No corresponde' (la evaluación no aplica = no lo evaluaron). ---
         $c2 = DB::select("
-            SELECT f.nombre AS facultad, si.proyecto, inf.director, inf.integrante, inf.documento, inf.rol, inf.evaluacion, si.alta, si.baja
+            SELECT f.nombre AS facultad, si.proyecto, inf.integrante, inf.documento, inf.rol, inf.evaluacion, si.alta, si.baja
             FROM {$inf} inf
             JOIN subsidio_integrantes si ON inf.documento = si.documento AND inf.proyecto_id = si.proyecto_id
+            JOIN subsidio_proyectos sp ON sp.proyecto_id = si.proyecto_id
             LEFT JOIN facultads f ON f.id = si.facultad_id
             WHERE inf.rol <> 'Titular'
               AND inf.rol <> 'Colaborador'
-              AND (inf.evaluacion IS NULL OR inf.evaluacion = '')
+              AND (inf.evaluacion IS NULL OR inf.evaluacion = '' OR inf.evaluacion = 'No corresponde')
               AND si.dedicacion IN (1,2,3)
-              AND (si.baja IS NULL OR si.baja = '0000-00-00' OR si.baja > '{$bajaCtrl}')
-              AND si.alta < '{$ini}'
-              AND NOT EXISTS (SELECT 1 FROM {$inf} s WHERE s.documento = inf.documento AND s.proyecto_id = inf.proyecto_id AND s.evaluacion = 'Satisfactorio')
-            ORDER BY f.nombre, si.proyecto
-        ");
-
-        // --- Control 3: con informe cuya evaluación no es Satisfactorio/Titular/No corresponde ---
-        $c3 = DB::select("
-            SELECT f.nombre AS facultad, si.integrante, si.proyecto, si.categoria, si.documento, inf.proyecto AS proy_informe, inf.evaluacion, inf.rol, si.alta, si.baja
-            FROM subsidio_integrantes si
-            JOIN subsidio_proyectos sp ON si.proyecto_id = sp.proyecto_id
-            LEFT JOIN facultads f ON f.id = si.facultad_id
-            LEFT JOIN {$inf} inf ON inf.proyecto_id = si.proyecto_id AND inf.documento = si.documento
-            WHERE si.dedicacion IN (1,2,3)
               AND sp.inicio < '{$ini}' AND sp.fin > '{$ini}'
               AND si.alta < '{$ini}'
               AND (si.baja IS NULL OR si.baja = '0000-00-00' OR si.baja > '{$bajaCtrl}')
               AND (si.universidad_id = 11 OR si.universidad_id = 0 OR si.universidad_id IS NULL)
-              AND (inf.evaluacion <> 'Satisfactorio' AND inf.rol <> 'Titular'
-                   AND inf.rol <> 'No corresponde' AND inf.rol <> 'Colaborador')
+            ORDER BY f.nombre, si.proyecto
+        ");
+
+        // --- Control 3: NO satisfactorio (se evaluaron y les fue mal). ---
+        $c3 = DB::select("
+            SELECT f.nombre AS facultad, si.proyecto, si.integrante, si.documento, inf.rol, inf.evaluacion, si.alta, si.baja
+            FROM {$inf} inf
+            JOIN subsidio_integrantes si ON inf.documento = si.documento AND inf.proyecto_id = si.proyecto_id
+            JOIN subsidio_proyectos sp ON sp.proyecto_id = si.proyecto_id
+            LEFT JOIN facultads f ON f.id = si.facultad_id
+            WHERE inf.evaluacion = 'No satisfactorio'
+              AND inf.rol <> 'Titular'
+              AND inf.rol <> 'Colaborador'
+              AND si.dedicacion IN (1,2,3)
+              AND sp.inicio < '{$ini}' AND sp.fin > '{$ini}'
+              AND si.alta < '{$ini}'
+              AND (si.baja IS NULL OR si.baja = '0000-00-00' OR si.baja > '{$bajaCtrl}')
             ORDER BY f.nombre, si.proyecto, si.integrante
         ");
 
@@ -120,9 +122,9 @@ class ExportarControlesSubsidios extends Command
             ['Proyecto', 'Integrante', 'Documento', 'Rol', 'Evaluación', 'Alta', 'Baja'], $c2,
             function ($r) { return [$r->proyecto, $r->integrante, $r->documento, $r->rol, $r->evaluacion, $this->fecha($r->alta), $this->fecha($r->baja)]; });
 
-        $this->hoja($spreadsheet, "3 - No corresponde", "Control 3 - Evaluación no Satisfactorio/Titular ({$anio})",
-            ['Integrante', 'Proyecto', 'Categoría', 'Documento', 'Proy. informe', 'Evaluación', 'Rol', 'Alta', 'Baja'], $c3,
-            function ($r) { return [$r->integrante, $r->proyecto, $r->categoria, $r->documento, $r->proy_informe, $r->evaluacion, $r->rol, $this->fecha($r->alta), $this->fecha($r->baja)]; });
+        $this->hoja($spreadsheet, "3 - No satisfactorio", "Control 3 - No satisfactorio ({$anio})",
+            ['Proyecto', 'Integrante', 'Documento', 'Rol', 'Evaluación', 'Alta', 'Baja'], $c3,
+            function ($r) { return [$r->proyecto, $r->integrante, $r->documento, $r->rol, $r->evaluacion, $this->fecha($r->alta), $this->fecha($r->baja)]; });
 
         (new Xlsx($spreadsheet))->save($file);
         $spreadsheet->disconnectWorksheets();
