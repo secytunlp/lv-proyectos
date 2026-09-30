@@ -110,7 +110,6 @@ class ImportarInformesSubsidios extends Command
 
         $leidas = 0;
         $insertadas = 0;
-        $noVigentes = 0;
         $sinMatch = [];
         $buffer = [];
 
@@ -128,14 +127,6 @@ class ImportarInformesSubsidios extends Command
             if (! isset($mapProy[$codigo])) {
                 $sinMatch[$codigo] = true;
                 continue; // igual que el INNER JOIN proyecto: sin match no entra
-            }
-
-            // Sólo la fila VIGENTE: fecha_fin_vigencia vacía. Las que tienen fecha
-            // fueron reemplazadas (superseded) y no valen. "Siempre vale una".
-            $vig = $this->col($row, $idx, 'vigencia');
-            if ($vig !== '' && strpos($vig, '0000-00-00') !== 0) {
-                $noVigentes++;
-                continue;
             }
 
             $apellido = $this->col($row, $idx, 'apellido');
@@ -169,8 +160,28 @@ class ImportarInformesSubsidios extends Command
         }
         fclose($fh);
 
+        // Dedup: una fila por (proyecto_id, documento). SIGEVA trae versiones
+        // históricas de la misma persona; nos quedamos con la VIGENTE
+        // (fecha_fin_vigencia NULL) y, si no hay, con la última (mayor vigencia).
+        // No se descarta a nadie: cada persona-proyecto queda con su fila actual.
+        $antes = (int) DB::table($this->tabla)->count();
+        DB::statement("
+            DELETE t FROM `{$this->tabla}` t
+            JOIN (
+                SELECT id FROM (
+                    SELECT id, ROW_NUMBER() OVER (
+                        PARTITION BY proyecto_id, documento
+                        ORDER BY (vigencia IS NULL) DESC, vigencia DESC, id DESC
+                    ) AS rn
+                    FROM `{$this->tabla}`
+                ) x WHERE x.rn > 1
+            ) d ON d.id = t.id
+        ");
+        $total = (int) DB::table($this->tabla)->count();
+        $duplicadas = $antes - $total;
+
         $this->newLine();
-        $this->info("Leídas: {$leidas} | Insertadas: {$insertadas} | No vigentes salteadas: {$noVigentes} | Total en {$this->tabla}: " . DB::table($this->tabla)->count());
+        $this->info("Leídas: {$leidas} | Insertadas: {$insertadas} | Duplicadas (versiones) removidas: {$duplicadas} | Total vigente en {$this->tabla}: {$total}");
 
         if ($sinMatch) {
             $cods = array_keys($sinMatch);
