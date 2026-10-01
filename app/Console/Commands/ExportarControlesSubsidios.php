@@ -51,12 +51,29 @@ class ExportarControlesSubsidios extends Command
         // No controlar bajas <= (anio-2)-01-01 (ej. 2024-01-01 para 2026): ya se fueron.
         $bajaCtrl = ($anio - 2) . '-01-01';
 
+        // Datos mostrados (integrante/documento/alta/baja/estado) EN VIVO desde
+        // integrantes+personas; baja pendiente en blanco por CASE (no se modifica
+        // integrantes). Los FILTROS siguen sobre si (snapshot de la extracción).
+        $joinVivo = "
+            LEFT JOIN integrantes ig ON ig.investigador_id = si.investigador_id AND ig.proyecto_id = si.proyecto_id
+                AND (ig.estado IS NULL OR ig.estado NOT IN ('Alta Creada','Alta Recibida','Cambio Creado','Cambio Recibido'))
+            LEFT JOIN investigadors inv ON inv.id = ig.investigador_id
+            LEFT JOIN personas per ON per.id = inv.persona_id
+        ";
+        $altaVivo = "CASE WHEN ig.id IS NULL THEN si.alta WHEN ig.alta='0000-00-00' THEN '' ELSE ig.alta END AS alta";
+        $bajaVivo = "CASE WHEN ig.id IS NULL THEN si.baja WHEN ig.estado IN ('Baja Creada','Baja Recibida') THEN NULL WHEN ig.baja='0000-00-00' THEN '' ELSE ig.baja END AS baja";
+
         // --- Control 1: sin informe que matchee ---
         $c1 = DB::select("
-            SELECT f.nombre AS facultad, si.proyecto, sp.director, si.integrante, si.categoria, si.documento, si.alta, si.baja
+            SELECT f.nombre AS facultad, si.proyecto, sp.director,
+                   COALESCE(CONCAT(per.apellido, ', ', per.nombre), si.integrante) AS integrante,
+                   si.categoria,
+                   COALESCE(per.documento, si.documento) AS documento,
+                   {$altaVivo}, {$bajaVivo}, ig.estado
             FROM subsidio_integrantes si
             JOIN subsidio_proyectos sp ON si.proyecto_id = sp.proyecto_id
             LEFT JOIN facultads f ON f.id = si.facultad_id
+            {$joinVivo}
             WHERE si.dedicacion IN (1,2,3)
               AND sp.inicio < '{$ini}' AND sp.fin > '{$ini}'
               AND si.alta < '{$ini}'
@@ -69,11 +86,16 @@ class ExportarControlesSubsidios extends Command
         // --- Control 2: no evaluados = NO titular con evaluación vacía o
         // 'No corresponde' (la evaluación no aplica = no lo evaluaron). ---
         $c2 = DB::select("
-            SELECT f.nombre AS facultad, si.proyecto, sp.director, inf.integrante, inf.documento, inf.rol, inf.evaluacion, si.alta, si.baja
+            SELECT f.nombre AS facultad, si.proyecto, sp.director,
+                   COALESCE(CONCAT(per.apellido, ', ', per.nombre), inf.integrante) AS integrante,
+                   COALESCE(per.documento, inf.documento) AS documento,
+                   inf.rol, inf.evaluacion,
+                   {$altaVivo}, {$bajaVivo}, ig.estado
             FROM {$inf} inf
             JOIN subsidio_integrantes si ON inf.documento = si.documento AND inf.proyecto_id = si.proyecto_id
             JOIN subsidio_proyectos sp ON sp.proyecto_id = si.proyecto_id
             LEFT JOIN facultads f ON f.id = si.facultad_id
+            {$joinVivo}
             WHERE inf.rol <> 'Titular'
               AND inf.rol <> 'Colaborador'
               AND (inf.evaluacion IS NULL OR inf.evaluacion = '' OR inf.evaluacion = 'No corresponde')
@@ -87,11 +109,16 @@ class ExportarControlesSubsidios extends Command
 
         // --- Control 3: NO satisfactorio (se evaluaron y les fue mal). ---
         $c3 = DB::select("
-            SELECT f.nombre AS facultad, si.proyecto, sp.director, si.integrante, si.documento, inf.rol, inf.evaluacion, si.alta, si.baja
+            SELECT f.nombre AS facultad, si.proyecto, sp.director,
+                   COALESCE(CONCAT(per.apellido, ', ', per.nombre), si.integrante) AS integrante,
+                   COALESCE(per.documento, si.documento) AS documento,
+                   inf.rol, inf.evaluacion,
+                   {$altaVivo}, {$bajaVivo}, ig.estado
             FROM {$inf} inf
             JOIN subsidio_integrantes si ON inf.documento = si.documento AND inf.proyecto_id = si.proyecto_id
             JOIN subsidio_proyectos sp ON sp.proyecto_id = si.proyecto_id
             LEFT JOIN facultads f ON f.id = si.facultad_id
+            {$joinVivo}
             WHERE inf.evaluacion = 'No satisfactorio'
               AND inf.rol <> 'Titular'
               AND inf.rol <> 'Colaborador'
@@ -116,16 +143,16 @@ class ExportarControlesSubsidios extends Command
         $spreadsheet->removeSheetByIndex(0);
 
         $this->hoja($spreadsheet, "1 - Sin informe", "Control 1 - Integrantes sin informe ({$anio})",
-            ['Proyecto', 'Director', 'Integrante', 'Categoría', 'Documento', 'Alta', 'Baja'], $c1,
-            function ($r) { return [$r->proyecto, $r->director, $r->integrante, $r->categoria, $r->documento, $this->fecha($r->alta), $this->fecha($r->baja)]; });
+            ['Proyecto', 'Director', 'Integrante', 'Categoría', 'Documento', 'Alta', 'Baja', 'Estado'], $c1,
+            function ($r) { return [$r->proyecto, $r->director, $r->integrante, $r->categoria, $r->documento, $this->fecha($r->alta), $this->fecha($r->baja), $r->estado]; });
 
         $this->hoja($spreadsheet, "2 - No evaluados", "Control 2 - No evaluados ({$anio})",
-            ['Proyecto', 'Director', 'Integrante', 'Documento', 'Rol', 'Evaluación', 'Alta', 'Baja'], $c2,
-            function ($r) { return [$r->proyecto, $r->director, $r->integrante, $r->documento, $r->rol, $r->evaluacion, $this->fecha($r->alta), $this->fecha($r->baja)]; });
+            ['Proyecto', 'Director', 'Integrante', 'Documento', 'Rol', 'Evaluación', 'Alta', 'Baja', 'Estado'], $c2,
+            function ($r) { return [$r->proyecto, $r->director, $r->integrante, $r->documento, $r->rol, $r->evaluacion, $this->fecha($r->alta), $this->fecha($r->baja), $r->estado]; });
 
         $this->hoja($spreadsheet, "3 - No satisfactorio", "Control 3 - No satisfactorio ({$anio})",
-            ['Proyecto', 'Director', 'Integrante', 'Documento', 'Rol', 'Evaluación', 'Alta', 'Baja'], $c3,
-            function ($r) { return [$r->proyecto, $r->director, $r->integrante, $r->documento, $r->rol, $r->evaluacion, $this->fecha($r->alta), $this->fecha($r->baja)]; });
+            ['Proyecto', 'Director', 'Integrante', 'Documento', 'Rol', 'Evaluación', 'Alta', 'Baja', 'Estado'], $c3,
+            function ($r) { return [$r->proyecto, $r->director, $r->integrante, $r->documento, $r->rol, $r->evaluacion, $this->fecha($r->alta), $this->fecha($r->baja), $r->estado]; });
 
         (new Xlsx($spreadsheet))->save($file);
         $spreadsheet->disconnectWorksheets();
