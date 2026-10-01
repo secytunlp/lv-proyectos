@@ -51,8 +51,10 @@ class ExportarControlesSubsidios extends Command
         // No controlar bajas <= (anio-2)-01-01 (ej. 2024-01-01 para 2026): ya se fueron.
         $bajaCtrl = ($anio - 2) . '-01-01';
 
-        // Los incorporados a mano (subsidio_incorporados_AAAA) ya están resueltos:
-        // se excluyen del control "sin informe" para que sólo muestre lo pendiente.
+        // Los incorporados a mano (subsidio_incorporados_AAAA) ya están resueltos
+        // (cuentan por incorporación): se excluyen de los tres controles para que
+        // sólo muestren lo pendiente. Aparecen sobre todo en el #2 "no evaluados"
+        // (tienen informe con evaluación 'No corresponde'/vacía, de ahí se eligen).
         $inc = "subsidio_incorporados_{$anio}";
         $incNotExists = DB::getSchemaBuilder()->hasTable($inc)
             ? "AND NOT EXISTS (SELECT 1 FROM {$inc} inc WHERE inc.proyecto_id = si.proyecto_id AND inc.documento = si.documento)"
@@ -120,6 +122,7 @@ class ExportarControlesSubsidios extends Command
               AND si.alta < '{$ini}'
               AND (si.baja IS NULL OR si.baja = '0000-00-00' OR si.baja > '{$bajaCtrl}')
               AND (si.universidad_id = 11 OR si.universidad_id = 0 OR si.universidad_id IS NULL)
+              {$incNotExists}
             ORDER BY f.nombre, si.proyecto
         ");
 
@@ -143,6 +146,7 @@ class ExportarControlesSubsidios extends Command
               AND sp.inicio < '{$ini}' AND sp.fin > '{$ini}'
               AND si.alta < '{$ini}'
               AND (si.baja IS NULL OR si.baja = '0000-00-00' OR si.baja > '{$bajaCtrl}')
+              {$incNotExists}
             ORDER BY f.nombre, si.proyecto, si.integrante
         ");
 
