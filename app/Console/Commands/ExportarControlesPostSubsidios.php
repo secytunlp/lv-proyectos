@@ -53,8 +53,12 @@ class ExportarControlesPostSubsidios extends Command
         $tieneRen = DB::getSchemaBuilder()->hasTable($ren);
 
         // --- Control 4: integrantes en más de 2 proyectos ---
+        // Mismo formato/columnas que los controles pre-cálculo: se cruza intproy
+        // (los contados) con subsidio_integrantes / subsidio_proyectos para traer
+        // director, documento, alta y baja. Agrupado por integrante.
         $c4 = DB::select("
-            SELECT t.in_id, t.in_nombre, t.in_cainv, t.in_dedi, t.pr_codigo, t.pr_id, sub.cant
+            SELECT f.nombre AS facultad, si.proyecto, sp.director, si.integrante,
+                   si.categoria, si.documento, si.alta, si.baja, ig.estado
             FROM `{$int}` t
             JOIN (
                 SELECT in_id, COUNT(DISTINCT pr_id) AS cant
@@ -62,15 +66,19 @@ class ExportarControlesPostSubsidios extends Command
                 GROUP BY in_id
                 HAVING COUNT(DISTINCT pr_id) > 2
             ) sub ON t.in_id = sub.in_id
-            ORDER BY t.in_nombre, t.in_id, t.pr_id
+            JOIN subsidio_integrantes si ON si.proyecto_id = t.pr_id AND si.investigador_id = t.in_id
+            JOIN subsidio_proyectos sp ON sp.proyecto_id = t.pr_id
+            LEFT JOIN integrantes ig ON ig.investigador_id = t.in_id AND ig.proyecto_id = t.pr_id
+            LEFT JOIN facultads f ON f.id = si.facultad_id
+            ORDER BY si.integrante, si.proyecto
         ");
         // Orden natural del código dentro de cada integrante.
         usort($c4, function ($a, $b) {
-            $c = strcmp((string) $a->in_nombre, (string) $b->in_nombre);
+            $c = strcmp((string) $a->integrante, (string) $b->integrante);
             if ($c !== 0) {
                 return $c;
             }
-            return strnatcmp((string) $a->pr_codigo, (string) $b->pr_codigo);
+            return strnatcmp((string) $a->proyecto, (string) $b->proyecto);
         });
 
         // --- Control 5: proyectos NO subsidiados (monto 0/null y sin renuncia) ---
@@ -101,7 +109,11 @@ class ExportarControlesPostSubsidios extends Command
         // --- Control 6: resumen ---
         $total  = (float) DB::table($dir)->sum('monto');
         $subsid = (int) DB::table($dir)->where('monto', '>', 0)->count();
-        $cantMas2 = count(array_unique(array_map(function ($r) { return $r->in_id; }, $c4)));
+        $cantMas2 = (int) DB::table($int)
+            ->select('in_id')
+            ->groupBy('in_id')
+            ->havingRaw('COUNT(DISTINCT pr_id) > 2')
+            ->get()->count();
         $resumen = [
             (object) ['concepto' => 'Total repartido (SUM monto)', 'valor' => number_format($total, 0, ',', '.')],
             (object) ['concepto' => 'Proyectos subsidiados (monto > 0)', 'valor' => (string) $subsid],
@@ -117,9 +129,9 @@ class ExportarControlesPostSubsidios extends Command
         $spreadsheet->removeSheetByIndex(0);
 
         $this->hoja($spreadsheet, "4 - En +2 proyectos", "Control 4 - Integrantes en más de 2 proyectos ({$anio})",
-            ['Integrante', 'Categoría', 'Horas', 'Proyecto', 'Cant. proy.'], $c4,
+            ['Proyecto', 'Director', 'Integrante', 'Categoría', 'Documento', 'Alta', 'Baja', 'Estado'], $c4,
             function ($r) {
-                return [$r->in_nombre, $r->in_cainv, $r->in_dedi, $r->pr_codigo, (int) $r->cant];
+                return [$r->proyecto, $r->director, $r->integrante, $r->categoria, $r->documento, $this->fecha($r->alta), $this->fecha($r->baja), $r->estado];
             });
 
         $this->hoja($spreadsheet, "5 - No subsidiados", "Control 5 - Proyectos no subsidiados ({$anio})",
