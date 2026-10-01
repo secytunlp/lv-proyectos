@@ -51,6 +51,13 @@ class ExportarControlesSubsidios extends Command
         // No controlar bajas <= (anio-2)-01-01 (ej. 2024-01-01 para 2026): ya se fueron.
         $bajaCtrl = ($anio - 2) . '-01-01';
 
+        // Los incorporados a mano (subsidio_incorporados_AAAA) ya están resueltos:
+        // se excluyen del control "sin informe" para que sólo muestre lo pendiente.
+        $inc = "subsidio_incorporados_{$anio}";
+        $incNotExists = DB::getSchemaBuilder()->hasTable($inc)
+            ? "AND NOT EXISTS (SELECT 1 FROM {$inc} inc WHERE inc.proyecto_id = si.proyecto_id AND inc.documento = si.documento)"
+            : '';
+
         // Datos mostrados (integrante/documento/categoría/alta/baja/estado) EN VIVO
         // desde integrantes+personas+investigadors (NO de subsidio_integrantes).
         // Los FILTROS siguen sobre si (snapshot de la extracción), pero NINGÚN dato
@@ -88,6 +95,7 @@ class ExportarControlesSubsidios extends Command
               AND (si.baja IS NULL OR si.baja = '0000-00-00' OR si.baja > '{$bajaCtrl}')
               AND (si.universidad_id = 11 OR si.universidad_id = 0 OR si.universidad_id IS NULL)
               AND NOT EXISTS (SELECT 1 FROM {$inf} i WHERE i.proyecto_id = si.proyecto_id AND i.documento = si.documento)
+              {$incNotExists}
             ORDER BY f.nombre, si.proyecto, si.integrante
         ");
 
