@@ -29,6 +29,8 @@ class ExportarMontosSubsidios extends Command
         {--anio= : Año (usa dirproy_AAAA). Requerido.}
         {--solo-con-monto : Excluye los proyectos con monto 0.}
         {--debajo-de= : Sólo proyectos con monto MENOR a este valor (ej. 100000).}
+        {--piso= : Sube a este valor a los que estén por debajo. Sin él, propone el piso máximo que entra en la reserva (MT bruto − total repartido).}
+        {--crudo : Exporta una tabla plana (Facultad/ID/Director/Codirector/Monto), sin logo, títulos, secciones ni subtotales.}
         {--salida= : Carpeta de salida.}';
 
     protected $description = 'Genera el listado de subsidios por facultad (ID/Director/Codirector/Monto) desde dirproy_AAAA.';
@@ -77,15 +79,80 @@ class ExportarMontosSubsidios extends Command
             return self::FAILURE;
         }
 
+        // --- Piso: subir a los que están por debajo ---
+        $pisoOpt = $this->option('piso');
+        $pisoVal = ($pisoOpt !== null && $pisoOpt !== '') ? (float) $pisoOpt : null;
+
+        // Reserva = MT bruto − total repartido. El MT bruto queda guardado por el
+        // cálculo en el comentario de dirproy_AAAA: "MT=<repartido> (<pct>% de <bruto>)".
+        $mtBruto   = $this->mtBrutoDesdeComentario($tabla);
+        $repartido = (float) DB::table($tabla)->sum('monto');
+        $reserva   = ($mtBruto !== null) ? ($mtBruto - $repartido) : null;
+
+        $pisoNota = null;
+        if ($reserva !== null || $pisoVal !== null) {
+            // Todos los montos > 0 (sin los filtros de display) para sugerir y costear.
+            $montosAll = DB::table($tabla)->where('monto', '>', 0)->pluck('monto')
+                ->map(function ($m) { return (float) $m; })->all();
+
+            if ($reserva !== null && $reserva > 0) {
+                $sugerido = $this->pisoMaximo($montosAll, $reserva);
+                $this->info('MT bruto = ' . number_format($mtBruto, 0, ',', '.')
+                    . ' | repartido = ' . number_format($repartido, 0, ',', '.')
+                    . ' | reserva = ' . number_format($reserva, 0, ',', '.'));
+                $this->info('Piso máximo sugerido = ' . number_format($sugerido, 0, ',', '.')
+                    . ($pisoVal === null ? ' (redondealo y pasalo con --piso=)' : ''));
+                if ($pisoVal === null) {
+                    $pisoVal = $sugerido;
+                }
+            } elseif ($reserva !== null) {
+                $this->warn('No hay reserva (MT bruto = total repartido). Usá --piso= si querés igualar igual.');
+            }
+
+            if ($pisoVal !== null) {
+                $costo = 0.0;
+                $suben = 0;
+                foreach ($montosAll as $m) {
+                    if ($m < $pisoVal) {
+                        $costo += $pisoVal - $m;
+                        $suben++;
+                    }
+                }
+                $this->info('Piso aplicado = ' . number_format($pisoVal, 0, ',', '.')
+                    . ' | sube ' . $suben . ' proyecto(s) | costo = ' . number_format($costo, 0, ',', '.'));
+                if ($reserva !== null && $reserva > 0) {
+                    if ($costo > $reserva) {
+                        $this->warn('  OJO: se pasa de la reserva por ' . number_format($costo - $reserva, 0, ',', '.'));
+                    } else {
+                        $this->info('  Sobran ' . number_format($reserva - $costo, 0, ',', '.') . ' de la reserva.');
+                    }
+                }
+                // Igualar: subir a los que están por debajo del piso (monto > 0).
+                foreach ($rows as $row) {
+                    if ((float) $row->monto > 0 && (float) $row->monto < $pisoVal) {
+                        $row->monto = $pisoVal;
+                    }
+                }
+                $pisoNota = 'igualados a un piso de ' . number_format($pisoVal, 0, ',', '.');
+            }
+        }
+
         // Agrupar por facultad.
         $porFac = [];
         foreach ($rows as $r) {
             $porFac[(string) $r->facultad][] = $r;
         }
-        // Orden interno de cada facultad: natural por código (I+D y luego PPID,
-        // igual que el Excel definitivo: A361..A390, PPID/A024..).
+        // Orden interno de cada facultad: I+D primero y PPID al final, cada grupo
+        // en orden natural (igual que el Excel definitivo: A361..A390, PPID/A024..;
+        // Exactas X926.. y después PPID/X080..). NO alcanza strnatcmp plano porque
+        // intercala los PPID en facultades con letra > P (S, T, U, V, X).
         foreach ($porFac as &$lista) {
             usort($lista, function ($a, $b) {
+                $pa = $this->esPPID($a->pr_codigo) ? 1 : 0;
+                $pb = $this->esPPID($b->pr_codigo) ? 1 : 0;
+                if ($pa !== $pb) {
+                    return $pa - $pb;
+                }
                 return strnatcmp((string) $a->pr_codigo, (string) $b->pr_codigo);
             });
         }
@@ -108,9 +175,23 @@ class ExportarMontosSubsidios extends Command
         if (! is_dir($salida)) {
             mkdir($salida, 0755, true);
         }
-        $suf = $filtroDebajo ? ' (debajo de ' . number_format((float) $debajoDe, 0, ',', '.') . ')' : '';
-        $file = rtrim($salida, '/\\') . DIRECTORY_SEPARATOR . "Subsidios {$anio}{$suf}.xlsx";
-        $this->escribir($porFac, $anio, $file, $filtroDebajo ? (float) $debajoDe : null);
+        $suf = '';
+        $notas = [];
+        if ($filtroDebajo) {
+            $suf .= ' (debajo de ' . number_format((float) $debajoDe, 0, ',', '.') . ')';
+            $notas[] = 'proyectos con monto menor a ' . number_format((float) $debajoDe, 0, ',', '.');
+        }
+        if ($pisoNota !== null) {
+            $suf .= ' (piso ' . number_format((float) $pisoVal, 0, ',', '.') . ')';
+            $notas[] = $pisoNota;
+        }
+        if ($this->option('crudo')) {
+            $file = rtrim($salida, '/\\') . DIRECTORY_SEPARATOR . "Subsidios {$anio}{$suf} (crudo).xlsx";
+            $this->escribirCrudo($porFac, $file);
+        } else {
+            $file = rtrim($salida, '/\\') . DIRECTORY_SEPARATOR . "Subsidios {$anio}{$suf}.xlsx";
+            $this->escribir($porFac, $anio, $file, $notas ? implode(' — ', $notas) : null);
+        }
 
         $total = (float) $rows->sum('monto');
         $this->info("Subsidios {$anio}{$suf}: {$rows->count()} proyecto(s) en " . count($porFac) . " facultad(es). Total: " . number_format($total, 0, ',', '.'));
@@ -123,6 +204,102 @@ class ExportarMontosSubsidios extends Command
      * Define el orden de facultades (A, B, E, F, G, H, I, J, M, N, O, P, S, T,
      * U, V, X) igual que el Excel definitivo.
      */
+    /**
+     * MT bruto guardado por el cálculo en el comentario de dirproy_AAAA:
+     * "Subsidios AAAA | MT=<repartido> (<pct>% de <bruto>) | ...". Devuelve el
+     * bruto, o null si no se puede leer (p.ej. se calculó al 100%).
+     */
+    private function mtBrutoDesdeComentario(string $tabla): ?float
+    {
+        $row = DB::selectOne("
+            SELECT TABLE_COMMENT AS c
+            FROM information_schema.TABLES
+            WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?
+        ", [$tabla]);
+        if (! $row || empty($row->c)) {
+            return null;
+        }
+        if (preg_match('/MT=[\d.]+\s*\([\d.]+%\s*de\s*([\d.]+)\)/', $row->c, $m)) {
+            return (float) $m[1];
+        }
+        return null;
+    }
+
+    /**
+     * Piso máximo (entero) al que se puede igualar a los de abajo sin pasarse de
+     * la reserva: busca el mayor X tal que SUM(X - monto | monto < X) <= reserva.
+     *
+     * @param float[] $montos
+     */
+    private function pisoMaximo(array $montos, float $reserva): float
+    {
+        if (empty($montos) || $reserva <= 0) {
+            return 0.0;
+        }
+        $lo = min($montos);
+        $hi = max($montos);
+        for ($it = 0; $it < 100; $it++) {
+            $mid = ($lo + $hi) / 2;
+            $costo = 0.0;
+            foreach ($montos as $m) {
+                if ($m < $mid) {
+                    $costo += $mid - $m;
+                }
+            }
+            if ($costo <= $reserva) {
+                $lo = $mid;
+            } else {
+                $hi = $mid;
+            }
+        }
+        return floor($lo);
+    }
+
+    /**
+     * Tabla PLANA, sin formato: encabezado + una fila por proyecto
+     * (Facultad / ID / Director / Codirector / Monto). Respeta el orden de
+     * facultades y el orden interno (I+D y luego PPID), y el piso si se aplicó.
+     */
+    private function escribirCrudo(array $porFac, string $path): void
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Subsidios');
+
+        $headers = ['Facultad', 'ID', 'Director', 'Codirector', 'Monto'];
+        foreach ($headers as $i => $h) {
+            $sheet->setCellValueByColumnAndRow($i + 1, 1, $h);
+        }
+        $sheet->getStyle('A1:E1')->getFont()->setBold(true);
+
+        $r = 2;
+        foreach ($porFac as $facultad => $lista) {
+            foreach ($lista as $row) {
+                $sheet->setCellValue("A{$r}", $facultad);
+                $sheet->setCellValue("B{$r}", $row->pr_codigo);
+                $sheet->setCellValue("C{$r}", $row->pr_dirpr);
+                $sheet->setCellValue("D{$r}", $row->codirector);
+                $sheet->setCellValue("E{$r}", (int) $row->monto);
+                $r++;
+            }
+        }
+        $lastRow = max($r - 1, 1);
+        $sheet->getStyle("E2:E{$lastRow}")->getNumberFormat()->setFormatCode('#,##0');
+        foreach (['A', 'B', 'C', 'D', 'E'] as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+        $sheet->freezePane('A2');
+
+        (new Xlsx($spreadsheet))->save($path);
+        $spreadsheet->disconnectWorksheets();
+    }
+
+    /** Un proyecto es PPID si su código contiene "PPID" (p.ej. "PPID/A024"). */
+    private function esPPID($codigo): bool
+    {
+        return stripos((string) $codigo, 'PPID') !== false;
+    }
+
     private function letraFacultad($codigo): string
     {
         $c = preg_replace('#^(PPID/|\d+/)#i', '', (string) $codigo);
@@ -139,7 +316,7 @@ class ExportarMontosSubsidios extends Command
      *  - encabezados grises con bordes; datos con bordes
      *  - subtotales por facultad y total general CON FÓRMULAS (=SUM / =a+b+..)
      */
-    private function escribir(array $porFac, int $anio, string $path, $debajoDe = null): void
+    private function escribir(array $porFac, int $anio, string $path, $nota = null): void
     {
         $spreadsheet = new Spreadsheet();
         $spreadsheet->getDefaultStyle()->getFont()->setName('Calibri')->setSize(11);
@@ -147,8 +324,8 @@ class ExportarMontosSubsidios extends Command
         $sheet->setTitle('Monto de Proyectos');
 
         $titulo = "SUBSIDIOS {$anio} PARA PROYECTOS DE INVESTIGACIÓN Y DESARROLLO I+D y PPID";
-        if ($debajoDe !== null) {
-            $titulo .= ' — proyectos con monto menor a ' . number_format((float) $debajoDe, 0, ',', '.');
+        if ($nota !== null && $nota !== '') {
+            $titulo .= ' — ' . $nota;
         }
 
         $logo = public_path('images/subsidios_logo.jpg');
