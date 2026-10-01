@@ -56,23 +56,19 @@ class ExportarControlesPostSubsidios extends Command
         // Mismo formato/columnas que los controles pre-cálculo: se cruza intproy
         // (los contados) con subsidio_integrantes / subsidio_proyectos para traer
         // director, documento, alta y baja. Agrupado por integrante.
-        // alta/baja/estado/documento/integrante salen EN VIVO de integrantes +
-        // personas (no del snapshot subsidio_integrantes, que puede estar viejo),
-        // y se replica el borrado de la baja pendiente que hace el cálculo
-        // (estado Baja Creada/Recibida -> baja en blanco).
+        // TODOS los datos mostrados salen EN VIVO de integrantes + personas +
+        // investigadors (NO de subsidio_integrantes). Se muestra la baja REAL
+        // (incluida la de 'Baja Creada/Recibida') junto al estado para auditarla:
+        // el borrado de la baja es SÓLO del cálculo, acá no se blanquea nada.
         $c4 = DB::select("
             SELECT f.nombre AS facultad,
                    p.codigo AS proyecto,
                    sp.director,
                    CONCAT(per.apellido, ', ', per.nombre) AS integrante,
-                   si.categoria,
+                   cat.nombre AS categoria,
                    per.documento,
                    CASE WHEN ig.alta = '0000-00-00' THEN '' ELSE ig.alta END AS alta,
-                   CASE
-                       WHEN ig.estado IN ('Baja Creada', 'Baja Recibida') THEN NULL
-                       WHEN ig.baja = '0000-00-00' THEN ''
-                       ELSE ig.baja
-                   END AS baja,
+                   CASE WHEN ig.baja = '0000-00-00' THEN '' ELSE ig.baja END AS baja,
                    ig.estado
             FROM `{$int}` t
             JOIN (
@@ -82,12 +78,16 @@ class ExportarControlesPostSubsidios extends Command
                 HAVING COUNT(DISTINCT pr_id) > 2
             ) sub ON t.in_id = sub.in_id
             JOIN integrantes ig ON ig.investigador_id = t.in_id AND ig.proyecto_id = t.pr_id
-                AND (ig.estado IS NULL OR ig.estado NOT IN
-                     ('Alta Creada', 'Alta Recibida', 'Cambio Creado', 'Cambio Recibido'))
             JOIN investigadors inv ON inv.id = ig.investigador_id
             JOIN personas per ON per.id = inv.persona_id
             JOIN proyectos p ON p.id = ig.proyecto_id
-            LEFT JOIN subsidio_integrantes si ON si.proyecto_id = t.pr_id AND si.investigador_id = t.in_id
+            LEFT JOIN categorias cat ON cat.id = CASE
+                WHEN inv.categoria_id IN (6,7,8,9,10) AND inv.sicadi_id IN (6,7,8,9,10)
+                     THEN LEAST(inv.categoria_id, inv.sicadi_id)
+                WHEN inv.categoria_id IN (6,7,8,9,10) THEN inv.categoria_id
+                WHEN inv.sicadi_id    IN (6,7,8,9,10) THEN inv.sicadi_id
+                ELSE NULL
+            END
             LEFT JOIN subsidio_proyectos sp ON sp.proyecto_id = t.pr_id
             LEFT JOIN facultads f ON f.id = p.facultad_id
             ORDER BY integrante, p.codigo

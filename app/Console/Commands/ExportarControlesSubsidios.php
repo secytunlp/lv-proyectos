@@ -51,24 +51,32 @@ class ExportarControlesSubsidios extends Command
         // No controlar bajas <= (anio-2)-01-01 (ej. 2024-01-01 para 2026): ya se fueron.
         $bajaCtrl = ($anio - 2) . '-01-01';
 
-        // Datos mostrados (integrante/documento/alta/baja/estado) EN VIVO desde
-        // integrantes+personas; baja pendiente en blanco por CASE (no se modifica
-        // integrantes). Los FILTROS siguen sobre si (snapshot de la extracción).
+        // Datos mostrados (integrante/documento/categoría/alta/baja/estado) EN VIVO
+        // desde integrantes+personas+investigadors (NO de subsidio_integrantes).
+        // Los FILTROS siguen sobre si (snapshot de la extracción), pero NINGÚN dato
+        // mostrado sale de si. Baja REAL (sin blanquear): el borrado de bajas
+        // pendientes es sólo del cálculo; acá la fecha va junto al estado.
         $joinVivo = "
             LEFT JOIN integrantes ig ON ig.investigador_id = si.investigador_id AND ig.proyecto_id = si.proyecto_id
-                AND (ig.estado IS NULL OR ig.estado NOT IN ('Alta Creada','Alta Recibida','Cambio Creado','Cambio Recibido'))
             LEFT JOIN investigadors inv ON inv.id = ig.investigador_id
             LEFT JOIN personas per ON per.id = inv.persona_id
+            LEFT JOIN categorias cat ON cat.id = CASE
+                WHEN inv.categoria_id IN (6,7,8,9,10) AND inv.sicadi_id IN (6,7,8,9,10)
+                     THEN LEAST(inv.categoria_id, inv.sicadi_id)
+                WHEN inv.categoria_id IN (6,7,8,9,10) THEN inv.categoria_id
+                WHEN inv.sicadi_id    IN (6,7,8,9,10) THEN inv.sicadi_id
+                ELSE NULL
+            END
         ";
-        $altaVivo = "CASE WHEN ig.id IS NULL THEN si.alta WHEN ig.alta='0000-00-00' THEN '' ELSE ig.alta END AS alta";
-        $bajaVivo = "CASE WHEN ig.id IS NULL THEN si.baja WHEN ig.estado IN ('Baja Creada','Baja Recibida') THEN NULL WHEN ig.baja='0000-00-00' THEN '' ELSE ig.baja END AS baja";
+        $altaVivo = "CASE WHEN ig.alta='0000-00-00' THEN '' ELSE ig.alta END AS alta";
+        $bajaVivo = "CASE WHEN ig.baja='0000-00-00' THEN '' ELSE ig.baja END AS baja";
 
         // --- Control 1: sin informe que matchee ---
         $c1 = DB::select("
             SELECT f.nombre AS facultad, si.proyecto, sp.director,
-                   COALESCE(CONCAT(per.apellido, ', ', per.nombre), si.integrante) AS integrante,
-                   si.categoria,
-                   COALESCE(per.documento, si.documento) AS documento,
+                   CONCAT(per.apellido, ', ', per.nombre) AS integrante,
+                   cat.nombre AS categoria,
+                   per.documento,
                    {$altaVivo}, {$bajaVivo}, ig.estado
             FROM subsidio_integrantes si
             JOIN subsidio_proyectos sp ON si.proyecto_id = sp.proyecto_id
@@ -87,8 +95,8 @@ class ExportarControlesSubsidios extends Command
         // 'No corresponde' (la evaluación no aplica = no lo evaluaron). ---
         $c2 = DB::select("
             SELECT f.nombre AS facultad, si.proyecto, sp.director,
-                   COALESCE(CONCAT(per.apellido, ', ', per.nombre), inf.integrante) AS integrante,
-                   COALESCE(per.documento, inf.documento) AS documento,
+                   CONCAT(per.apellido, ', ', per.nombre) AS integrante,
+                   per.documento,
                    inf.rol, inf.evaluacion,
                    {$altaVivo}, {$bajaVivo}, ig.estado
             FROM {$inf} inf
@@ -110,8 +118,8 @@ class ExportarControlesSubsidios extends Command
         // --- Control 3: NO satisfactorio (se evaluaron y les fue mal). ---
         $c3 = DB::select("
             SELECT f.nombre AS facultad, si.proyecto, sp.director,
-                   COALESCE(CONCAT(per.apellido, ', ', per.nombre), si.integrante) AS integrante,
-                   COALESCE(per.documento, si.documento) AS documento,
+                   CONCAT(per.apellido, ', ', per.nombre) AS integrante,
+                   per.documento,
                    inf.rol, inf.evaluacion,
                    {$altaVivo}, {$bajaVivo}, ig.estado
             FROM {$inf} inf
