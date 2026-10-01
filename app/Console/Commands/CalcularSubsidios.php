@@ -147,7 +147,11 @@ class CalcularSubsidios extends Command
                 $this->warn('Extracción salteada: usando subsidio_* tal como están.');
             }
 
-            $this->limpiarPendientes();
+            // Con --skip-extraction se respeta la tabla editada a mano (no se limpian
+            // pendientes), ya que no hubo extracción nueva que limpiar.
+            if (! $this->option('skip-extraction')) {
+                $this->limpiarPendientes();
+            }
 
             // Modo control: deja pobladas subsidio_integrantes / subsidio_proyectos
             // (para revisar DNI vs SIGEVA) y NO calcula.
@@ -282,8 +286,14 @@ class CalcularSubsidios extends Command
         $this->info("Vaciando {$this->tablaDir} / {$this->tablaInt}...");
         DB::table($this->tablaDir)->delete();
         DB::table($this->tablaInt)->delete();
-        DB::table('subsidio_integrantes')->delete();
-        DB::table('subsidio_proyectos')->delete();
+        // Con --skip-extraction NO se vacían subsidio_integrantes/subsidio_proyectos:
+        // se usan tal como están (permite editarlas a mano antes de calcular).
+        if (! $this->option('skip-extraction')) {
+            DB::table('subsidio_integrantes')->delete();
+            DB::table('subsidio_proyectos')->delete();
+        } else {
+            $this->warn('subsidio_integrantes / subsidio_proyectos: NO se vacían (--skip-extraction).');
+        }
         // subsidio_informes  -> imported from SIGEVA, NOT touched
         // subsidio_proyecto_renuncias -> maintained by hand, NOT touched
     }
