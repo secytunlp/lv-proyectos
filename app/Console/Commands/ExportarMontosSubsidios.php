@@ -10,8 +10,7 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
-use PhpOffice\PhpSpreadsheet\Worksheet\HeaderFooter;
-use PhpOffice\PhpSpreadsheet\Worksheet\HeaderFooterDrawing;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
@@ -152,20 +151,8 @@ class ExportarMontosSubsidios extends Command
             $titulo .= ' — proyectos con monto menor a ' . number_format((float) $debajoDe, 0, ',', '.');
         }
 
-        // Título + logo en la CABECERA de impresión (se repiten en cada página).
-        $hf = $sheet->getHeaderFooter();
         $logo = public_path('images/subsidios_logo.jpg');
-        if (is_file($logo)) {
-            $dib = new HeaderFooterDrawing();
-            $dib->setName('Logo');
-            $dib->setPath($logo);
-            $dib->setResizeProportional(true);
-            $dib->setHeight(55);
-            $hf->addImage($dib, HeaderFooter::IMAGE_HEADER_LEFT);
-            $hf->setOddHeader('&L&G&C&"Arial,Bold"&11' . $titulo);
-        } else {
-            $hf->setOddHeader('&C&"Arial,Bold"&11' . $titulo);
-        }
+        $hayLogo = is_file($logo);
 
         $r = 1;
         $subtotales = [];
@@ -175,7 +162,35 @@ class ExportarMontosSubsidios extends Command
         foreach ($porFac as $facultad => $lista) {
             $i++;
 
-            // Nombre de facultad (primera fila de la página de esa facultad)
+            // Cabecera de la facultad: logo (imagen flotante) + título (fila alta,
+            // merge C:F), igual que el Subsidios_AAAA.xlsx original. Se repite arriba
+            // de cada facultad (= arriba de cada página por el salto).
+            $tr = $r;
+            $sheet->setCellValue("C{$tr}", $titulo);
+            $sheet->mergeCells("C{$tr}:F{$tr}");
+            $sheet->getStyle("C{$tr}")->getFont()->setName('Arial')->setSize(10)->setBold(true);
+            $sheet->getStyle("C{$tr}")->getAlignment()
+                ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+                ->setVertical(Alignment::VERTICAL_BOTTOM)
+                ->setWrapText(true);
+            $sheet->getRowDimension($tr)->setRowHeight(80);
+            if ($hayLogo) {
+                $dib = new Drawing();
+                $dib->setName('Logo');
+                $dib->setPath($logo);
+                $dib->setResizeProportional(true);
+                $dib->setHeight(56);
+                $dib->setCoordinates("C{$tr}");
+                $dib->setOffsetX(3);
+                $dib->setOffsetY(4);
+                $dib->setWorksheet($sheet);
+            }
+            $r++;
+
+            // Fila en blanco
+            $r++;
+
+            // Nombre de facultad
             $sheet->setCellValue("C{$r}", $facultad !== '' ? $facultad : 'SIN FACULTAD');
             $sheet->getStyle("C{$r}")->getFont()->setName('Arial')->setSize(10)->setBold(true);
             $r++;
@@ -242,14 +257,13 @@ class ExportarMontosSubsidios extends Command
             $sheet->setBreak("C{$sr}", Worksheet::BREAK_ROW);
         }
 
-        // Impresión: vertical, ajustar al ancho, margen superior para la cabecera.
+        // Impresión: vertical, ajustar al ancho (el logo/título van en el cuerpo).
         $ps = $sheet->getPageSetup();
         $ps->setOrientation(PageSetup::ORIENTATION_PORTRAIT);
         $ps->setPaperSize(PageSetup::PAPERSIZE_A4);
         $ps->setFitToWidth(1);
         $ps->setFitToHeight(0);
         $ps->setPrintArea("C1:F{$r}");
-        $sheet->getPageMargins()->setTop(1.2)->setHeader(0.3);
 
         (new Xlsx($spreadsheet))->save($path);
         $spreadsheet->disconnectWorksheets();
