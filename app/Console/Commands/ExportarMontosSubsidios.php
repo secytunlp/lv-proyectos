@@ -162,27 +162,35 @@ class ExportarMontosSubsidios extends Command
         foreach ($porFac as $facultad => $lista) {
             $i++;
 
-            // Cabecera de la facultad: logo (imagen flotante) + título (fila alta,
-            // merge C:F), igual que el Subsidios_AAAA.xlsx original. Se repite arriba
-            // de cada facultad (= arriba de cada página por el salto).
-            $tr = $r;
+            // Cabecera de la facultad (igual que el Subsidios_AAAA.xlsx original):
+            // logo (imagen flotante) + "ANEXO" + título. Se repite arriba de cada
+            // facultad (= arriba de cada página por el salto).
+            $ar = $r;                                   // fila ANEXO
+            $sheet->setCellValue("C{$ar}", 'ANEXO');
+            $sheet->mergeCells("C{$ar}:F{$ar}");
+            $sheet->getStyle("C{$ar}")->getFont()->setName('Arial')->setSize(12)->setBold(true);
+            $sheet->getStyle("C{$ar}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getRowDimension($ar)->setRowHeight(22);
+            $r++;
+
+            $tr = $r;                                   // fila título
             $sheet->setCellValue("C{$tr}", $titulo);
             $sheet->mergeCells("C{$tr}:F{$tr}");
             $sheet->getStyle("C{$tr}")->getFont()->setName('Arial')->setSize(10)->setBold(true);
             $sheet->getStyle("C{$tr}")->getAlignment()
                 ->setHorizontal(Alignment::HORIZONTAL_CENTER)
-                ->setVertical(Alignment::VERTICAL_BOTTOM)
+                ->setVertical(Alignment::VERTICAL_CENTER)
                 ->setWrapText(true);
-            $sheet->getRowDimension($tr)->setRowHeight(80);
+            $sheet->getRowDimension($tr)->setRowHeight(50);
             if ($hayLogo) {
                 $dib = new Drawing();
                 $dib->setName('Logo');
                 $dib->setPath($logo);
                 $dib->setResizeProportional(true);
                 $dib->setHeight(56);
-                $dib->setCoordinates("C{$tr}");
+                $dib->setCoordinates("C{$ar}");       // ancla en ANEXO, abarca ambas filas
                 $dib->setOffsetX(3);
-                $dib->setOffsetY(4);
+                $dib->setOffsetY(2);
                 $dib->setWorksheet($sheet);
             }
             $r++;
@@ -268,5 +276,43 @@ class ExportarMontosSubsidios extends Command
 
         (new Xlsx($spreadsheet))->save($path);
         $spreadsheet->disconnectWorksheets();
+
+        // PhpSpreadsheet escribe los saltos de fila como <brk id="N" man="1"/> SIN
+        // el atributo max, por lo que Excel los ignora para el contenido fuera de la
+        // columna A. Se inyecta max="16383" (ancho completo) como en el original.
+        $this->arreglarSaltos($path);
+    }
+
+    /**
+     * Agrega max="16383" a cada <brk> de rowBreaks del .xlsx ya guardado, para
+     * que Excel respete los saltos de página manuales en todo el ancho.
+     */
+    private function arreglarSaltos(string $path): void
+    {
+        if (! class_exists('ZipArchive')) {
+            return;
+        }
+        $zip = new \ZipArchive();
+        if ($zip->open($path) !== true) {
+            return;
+        }
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $name = $zip->getNameIndex($i);
+            if (! preg_match('#^xl/worksheets/sheet\d+\.xml$#', (string) $name)) {
+                continue;
+            }
+            $xml = $zip->getFromName($name);
+            if ($xml === false || strpos($xml, '<rowBreaks') === false) {
+                continue;
+            }
+            $nuevo = preg_replace_callback('#<rowBreaks\b.*?</rowBreaks>#s', function ($m) {
+                return preg_replace('#<brk id="(\d+)" man="1"\s*/>#', '<brk id="$1" max="16383" man="1"/>', $m[0]);
+            }, $xml);
+            if ($nuevo !== null && $nuevo !== $xml) {
+                $zip->deleteName($name);
+                $zip->addFromString($name, $nuevo);
+            }
+        }
+        $zip->close();
     }
 }
