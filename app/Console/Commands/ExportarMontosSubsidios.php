@@ -257,12 +257,13 @@ class ExportarMontosSubsidios extends Command
             $sheet->setBreak("C{$sr}", Worksheet::BREAK_ROW);
         }
 
-        // Impresión: vertical, ajustar al ancho (el logo/título van en el cuerpo).
+        // Impresión: vertical, A4. Escala FIJA (NO fitToPage): "Ajustar a una
+        // página" hace que Excel IGNORE los saltos de página manuales, por eso se
+        // usa una escala fija para que entren las columnas y se respeten los saltos.
         $ps = $sheet->getPageSetup();
         $ps->setOrientation(PageSetup::ORIENTATION_PORTRAIT);
         $ps->setPaperSize(PageSetup::PAPERSIZE_A4);
-        $ps->setFitToWidth(1);
-        $ps->setFitToHeight(0);
+        $ps->setScale(80);
         $ps->setPrintArea("C1:F{$r}");
 
         (new Xlsx($spreadsheet))->save($path);
