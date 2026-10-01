@@ -10,6 +10,10 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Worksheet\HeaderFooter;
+use PhpOffice\PhpSpreadsheet\Worksheet\HeaderFooterDrawing;
+use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 /**
  * Listado definitivo de subsidios por facultad (montos), formato igual al
@@ -129,9 +133,10 @@ class ExportarMontosSubsidios extends Command
     }
 
     /**
-     * Formato idéntico al Subsidios_AAAA.xlsx definitivo:
+     * Formato del Subsidios_AAAA.xlsx definitivo, con el TÍTULO y el LOGO en la
+     * CABECERA de impresión (se repiten en cada página) y un SALTO DE PÁGINA
+     * después de cada facultad:
      *  - columnas desde C: ID / DIRECTOR / CODIRECTOR / MONTO
-     *  - título repetido antes de cada facultad (Arial 10 bold, centrado)
      *  - encabezados grises con bordes; datos con bordes
      *  - subtotales por facultad y total general CON FÓRMULAS (=SUM / =a+b+..)
      */
@@ -147,20 +152,30 @@ class ExportarMontosSubsidios extends Command
             $titulo .= ' — proyectos con monto menor a ' . number_format((float) $debajoDe, 0, ',', '.');
         }
 
+        // Título + logo en la CABECERA de impresión (se repiten en cada página).
+        $hf = $sheet->getHeaderFooter();
+        $logo = public_path('images/subsidios_logo.jpg');
+        if (is_file($logo)) {
+            $dib = new HeaderFooterDrawing();
+            $dib->setName('Logo');
+            $dib->setPath($logo);
+            $dib->setResizeProportional(true);
+            $dib->setHeight(55);
+            $hf->addImage($dib, HeaderFooter::IMAGE_HEADER_LEFT);
+            $hf->setOddHeader('&L&G&C&"Arial,Bold"&11' . $titulo);
+        } else {
+            $hf->setOddHeader('&C&"Arial,Bold"&11' . $titulo);
+        }
+
         $r = 1;
         $subtotales = [];
+        $saltos = [];            // filas de subtotal donde cortar página
+        $nFac = count($porFac);
+        $i = 0;
         foreach ($porFac as $facultad => $lista) {
-            // Título (repetido antes de cada facultad)
-            $sheet->setCellValue("C{$r}", $titulo);
-            $sheet->mergeCells("C{$r}:F{$r}");
-            $sheet->getStyle("C{$r}")->getFont()->setName('Arial')->setSize(10)->setBold(true);
-            $sheet->getStyle("C{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $r++;
+            $i++;
 
-            // Fila en blanco
-            $r++;
-
-            // Nombre de facultad
+            // Nombre de facultad (primera fila de la página de esa facultad)
             $sheet->setCellValue("C{$r}", $facultad !== '' ? $facultad : 'SIN FACULTAD');
             $sheet->getStyle("C{$r}")->getFont()->setName('Arial')->setSize(10)->setBold(true);
             $r++;
@@ -197,8 +212,12 @@ class ExportarMontosSubsidios extends Command
             $sheet->getStyle("F{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
             $sheet->getStyle("F{$r}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('BFBFBF');
             $subtotales[] = "F{$r}";
+
+            // Salto de página después del subtotal de cada facultad (menos la última).
+            if ($i < $nFac) {
+                $saltos[] = $r;
+            }
             $r++;
-            // (sin fila en blanco: el próximo título va inmediatamente, como el original)
         }
 
         // Fila en blanco + Total general (fórmula = suma de subtotales)
@@ -217,6 +236,20 @@ class ExportarMontosSubsidios extends Command
         $sheet->getColumnDimension('D')->setWidth(34.9);
         $sheet->getColumnDimension('E')->setWidth(34.9);
         $sheet->getColumnDimension('F')->setWidth(12);
+
+        // Saltos de página (después del subtotal de cada facultad).
+        foreach ($saltos as $sr) {
+            $sheet->setBreak("C{$sr}", Worksheet::BREAK_ROW);
+        }
+
+        // Impresión: vertical, ajustar al ancho, margen superior para la cabecera.
+        $ps = $sheet->getPageSetup();
+        $ps->setOrientation(PageSetup::ORIENTATION_PORTRAIT);
+        $ps->setPaperSize(PageSetup::PAPERSIZE_A4);
+        $ps->setFitToWidth(1);
+        $ps->setFitToHeight(0);
+        $ps->setPrintArea("C1:F{$r}");
+        $sheet->getPageMargins()->setTop(1.2)->setHeader(0.3);
 
         (new Xlsx($spreadsheet))->save($path);
         $spreadsheet->disconnectWorksheets();
