@@ -170,7 +170,7 @@ class ExportarMontosSubsidios extends Command
             $sheet->mergeCells("C{$ar}:F{$ar}");
             $sheet->getStyle("C{$ar}")->getFont()->setName('Arial')->setSize(12)->setBold(true);
             $sheet->getStyle("C{$ar}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getRowDimension($ar)->setRowHeight(22);
+            $sheet->getRowDimension($ar)->setRowHeight(30);
             $r++;
 
             $tr = $r;                                   // fila título
@@ -179,9 +179,9 @@ class ExportarMontosSubsidios extends Command
             $sheet->getStyle("C{$tr}")->getFont()->setName('Arial')->setSize(10)->setBold(true);
             $sheet->getStyle("C{$tr}")->getAlignment()
                 ->setHorizontal(Alignment::HORIZONTAL_CENTER)
-                ->setVertical(Alignment::VERTICAL_CENTER)
+                ->setVertical(Alignment::VERTICAL_BOTTOM)
                 ->setWrapText(true);
-            $sheet->getRowDimension($tr)->setRowHeight(50);
+            $sheet->getRowDimension($tr)->setRowHeight(52);
             if ($hayLogo) {
                 $dib = new Drawing();
                 $dib->setName('Logo');
