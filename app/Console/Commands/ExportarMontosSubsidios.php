@@ -74,18 +74,32 @@ class ExportarMontosSubsidios extends Command
             return self::FAILURE;
         }
 
-        // Agrupar por facultad; orden natural del código dentro de cada una.
+        // Agrupar por facultad.
         $porFac = [];
         foreach ($rows as $r) {
             $porFac[(string) $r->facultad][] = $r;
         }
-        ksort($porFac);
+        // Orden interno de cada facultad: natural por código (I+D y luego PPID,
+        // igual que el Excel definitivo: A361..A390, PPID/A024..).
         foreach ($porFac as &$lista) {
             usort($lista, function ($a, $b) {
                 return strnatcmp((string) $a->pr_codigo, (string) $b->pr_codigo);
             });
         }
         unset($lista);
+        // Orden de facultades: por la LETRA del código (A, B, E, F, G, H, I, J,
+        // M, N, O, P, S, T, U, V, X), que es el orden del Excel definitivo
+        // (NO alfabético por nombre: Agrarias antes que Artes).
+        $letras = [];
+        foreach ($porFac as $nombre => $lista) {
+            $letras[$nombre] = $this->letraFacultad($lista[0]->pr_codigo);
+        }
+        asort($letras, SORT_STRING);
+        $ordenado = [];
+        foreach ($letras as $nombre => $l) {
+            $ordenado[$nombre] = $porFac[$nombre];
+        }
+        $porFac = $ordenado;
 
         $salida = $this->option('salida') ?: storage_path("app/subsidios_{$anio}");
         if (! is_dir($salida)) {
@@ -101,71 +115,108 @@ class ExportarMontosSubsidios extends Command
         return self::SUCCESS;
     }
 
+    /**
+     * Letra de facultad a partir del código (quita prefijos PPID/ o NN/).
+     * Define el orden de facultades (A, B, E, F, G, H, I, J, M, N, O, P, S, T,
+     * U, V, X) igual que el Excel definitivo.
+     */
+    private function letraFacultad($codigo): string
+    {
+        $c = preg_replace('#^(PPID/|\d+/)#i', '', (string) $codigo);
+        $c = ltrim($c);
+        $l = strtoupper(substr($c, 0, 1));
+        return ($l >= 'A' && $l <= 'Z') ? $l : 'ZZ';
+    }
+
+    /**
+     * Formato idéntico al Subsidios_AAAA.xlsx definitivo:
+     *  - columnas desde C: ID / DIRECTOR / CODIRECTOR / MONTO
+     *  - título repetido antes de cada facultad (Arial 10 bold, centrado)
+     *  - encabezados grises con bordes; datos con bordes
+     *  - subtotales por facultad y total general CON FÓRMULAS (=SUM / =a+b+..)
+     */
     private function escribir(array $porFac, int $anio, string $path, $debajoDe = null): void
     {
         $spreadsheet = new Spreadsheet();
+        $spreadsheet->getDefaultStyle()->getFont()->setName('Calibri')->setSize(11);
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Monto de Proyectos');
 
-        // Título
         $titulo = "SUBSIDIOS {$anio} PARA PROYECTOS DE INVESTIGACIÓN Y DESARROLLO I+D y PPID";
         if ($debajoDe !== null) {
             $titulo .= ' — proyectos con monto menor a ' . number_format((float) $debajoDe, 0, ',', '.');
         }
-        $sheet->setCellValue('A1', $titulo);
-        $sheet->mergeCells('A1:D1');
-        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(12);
-        $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-        $r = 3;
-        $granTotal = 0.0;
+        $r = 1;
+        $subtotales = [];
         foreach ($porFac as $facultad => $lista) {
+            // Título (repetido antes de cada facultad)
+            $sheet->setCellValue("C{$r}", $titulo);
+            $sheet->mergeCells("C{$r}:F{$r}");
+            $sheet->getStyle("C{$r}")->getFont()->setName('Arial')->setSize(10)->setBold(true);
+            $sheet->getStyle("C{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $r++;
+
+            // Fila en blanco
+            $r++;
+
             // Nombre de facultad
-            $sheet->setCellValue("A{$r}", $facultad !== '' ? $facultad : 'SIN FACULTAD');
-            $sheet->mergeCells("A{$r}:D{$r}");
-            $sheet->getStyle("A{$r}")->getFont()->setBold(true);
-            $sheet->getStyle("A{$r}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('D9E1F2');
+            $sheet->setCellValue("C{$r}", $facultad !== '' ? $facultad : 'SIN FACULTAD');
+            $sheet->getStyle("C{$r}")->getFont()->setName('Arial')->setSize(10)->setBold(true);
             $r++;
 
-            // Encabezado
+            // Encabezados
             $hr = $r;
-            foreach (['ID', 'DIRECTOR', 'CODIRECTOR', 'MONTO'] as $i => $h) {
-                $sheet->setCellValueByColumnAndRow($i + 1, $r, $h);
-            }
-            $sheet->getStyle("A{$r}:D{$r}")->getFont()->setBold(true);
+            $sheet->setCellValue("C{$r}", 'ID');
+            $sheet->setCellValue("D{$r}", 'DIRECTOR');
+            $sheet->setCellValue("E{$r}", 'CODIRECTOR');
+            $sheet->setCellValue("F{$r}", 'MONTO');
+            $sheet->getStyle("C{$r}:F{$r}")->getFont()->setBold(true);
+            $sheet->getStyle("C{$r}:F{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle("C{$r}:F{$r}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('C0C0C0');
             $r++;
 
-            $subtotal = 0.0;
-            $start = $r;
+            // Datos
+            $dataStart = $r;
             foreach ($lista as $row) {
-                $sheet->setCellValueByColumnAndRow(1, $r, $row->pr_codigo);
-                $sheet->setCellValueByColumnAndRow(2, $r, $row->pr_dirpr);
-                $sheet->setCellValueByColumnAndRow(3, $r, $row->codirector);
-                $sheet->setCellValueByColumnAndRow(4, $r, (int) $row->monto);
-                $subtotal += (float) $row->monto;
+                $sheet->setCellValue("C{$r}", $row->pr_codigo);
+                $sheet->setCellValue("D{$r}", $row->pr_dirpr);
+                $sheet->setCellValue("E{$r}", $row->codirector);
+                $sheet->setCellValue("F{$r}", (int) $row->monto);
                 $r++;
             }
+            $dataEnd = $r - 1;
 
-            // Subtotal facultad
-            $sheet->setCellValue("C{$r}", 'Subtotal');
-            $sheet->setCellValueByColumnAndRow(4, $r, (int) $subtotal);
-            $sheet->getStyle("C{$r}:D{$r}")->getFont()->setBold(true);
-            $sheet->getStyle("A{$hr}:D{$r}")->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
-            $granTotal += $subtotal;
-            $r += 2; // fila en blanco entre facultades
+            // Bordes en encabezados + datos
+            $sheet->getStyle("C{$hr}:F{$dataEnd}")
+                ->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+
+            // Subtotal (fórmula, en la columna de monto; sin etiqueta, como el original)
+            $sheet->setCellValue("F{$r}", "=SUM(F{$dataStart}:F{$dataEnd})");
+            $sheet->getStyle("F{$r}")->getFont()->setBold(true);
+            $sheet->getStyle("F{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            $sheet->getStyle("F{$r}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('BFBFBF');
+            $subtotales[] = "F{$r}";
+            $r++;
+            // (sin fila en blanco: el próximo título va inmediatamente, como el original)
         }
 
-        // Gran total
-        $sheet->setCellValue("C{$r}", 'TOTAL GENERAL');
-        $sheet->setCellValueByColumnAndRow(4, $r, (int) $granTotal);
-        $sheet->getStyle("C{$r}:D{$r}")->getFont()->setBold(true)->setSize(12);
+        // Fila en blanco + Total general (fórmula = suma de subtotales)
+        $r++;
+        $sheet->setCellValue("E{$r}", 'Total');
+        $sheet->getStyle("E{$r}")->getFont()->setBold(true);
+        $sheet->getStyle("E{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+        $sheet->setCellValue("F{$r}", '=' . implode('+', $subtotales));
+        $sheet->getStyle("F{$r}")->getFont()->setBold(true);
 
-        // Anchos
-        $anchos = ['A' => 14, 'B' => 38, 'C' => 38, 'D' => 16];
-        foreach ($anchos as $col => $w) {
-            $sheet->getColumnDimension($col)->setWidth($w);
-        }
-        $sheet->getStyle("D1:D{$r}")->getNumberFormat()->setFormatCode('#,##0');
+        // Formato numérico de la columna de monto en todo el rango
+        $sheet->getStyle("F1:F{$r}")->getNumberFormat()->setFormatCode('#,##0');
+
+        // Anchos (D/E = director/codirector; C = id; F = monto)
+        $sheet->getColumnDimension('C')->setWidth(10.1);
+        $sheet->getColumnDimension('D')->setWidth(34.9);
+        $sheet->getColumnDimension('E')->setWidth(34.9);
+        $sheet->getColumnDimension('F')->setWidth(12);
 
         (new Xlsx($spreadsheet))->save($path);
         $spreadsheet->disconnectWorksheets();
