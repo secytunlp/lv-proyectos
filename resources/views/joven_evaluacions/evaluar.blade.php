@@ -507,6 +507,7 @@
         $sub = 0;
         $j = 0;
         $max = 0;
+        $checkedUnidad = '';
         if ($unidadAprobada) {
             $checkedUnidad = ' CHECKED ';
         }
@@ -632,6 +633,7 @@
     @php
         $primerAnteriors = $anteriorMaximos->first();
         //dd($anteriorMaximos);
+        $checkedAnterior = '';
         if (!$subsidioAnterior) {
             $checkedAnterior = ' CHECKED ';
         }

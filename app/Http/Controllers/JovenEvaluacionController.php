@@ -868,7 +868,7 @@ class JovenEvaluacionController extends Controller
 
             $cargorMaximo = explode('-',trim($request->cargomaximo));
 
-            if ($cargorMaximo) {
+            if (count($cargorMaximo) > 1) {
                 DB::table('joven_evaluacion_puntaje_cargos')->insert([
                     'joven_evaluacion_id' => $id, // Supongo que tienes un objeto $investigador disponible
                     'joven_evaluacion_planilla_id' => $request->joven_evaluacion_planilla_id,
@@ -883,6 +883,7 @@ class JovenEvaluacionController extends Controller
             $cantAntAcad = $request->cantantacad;
             //dd($cantAntAcad);
             for ($i = 0; $i < $cantAntAcad; $i++) {
+                $id_ant_acad = null;
                 $inputName = 'id_ant_acad' . $i;
                 if ($request->has($inputName)) {
                     $id_ant_acad = $request->input($inputName);
@@ -912,6 +913,7 @@ class JovenEvaluacionController extends Controller
             $cantOtros = $request->cantotros;
             //dd($cantOtros);
             for ($i = 0; $i < $cantOtros; $i++) {
+                $id_otro = null;
                 $inputName = 'id_otros' . $i;
                 if ($request->has($inputName)) {
                     $id_otro = $request->input($inputName);
@@ -938,6 +940,7 @@ class JovenEvaluacionController extends Controller
             $cantProduccions = $request->cantproduccions;
             //dd($cantProduccion);
             for ($i = 0; $i < $cantProduccions; $i++) {
+                $id_produccion = null;
                 $inputName = 'id_produccion' . $i;
                 if ($request->has($inputName)) {
                     $id_produccion = $request->input($inputName);
@@ -970,6 +973,7 @@ class JovenEvaluacionController extends Controller
             $cantAnteriors = $request->cantanteriors;
             //dd($cantAnteriors);
             for ($i = 0; $i < $cantAnteriors; $i++) {
+                $id_anterior = null;
                 $inputName = 'id_anterior' . $i;
                 if ($request->has($inputName)) {
                     $id_anterior = $request->input($inputName);
@@ -996,6 +1000,7 @@ class JovenEvaluacionController extends Controller
             $cantJustificacions = $request->cantjustificacions;
             //dd($cantJustificacions);
             for ($i = 0; $i < $cantJustificacions; $i++) {
+                $id_justificacion = null;
                 $inputName = 'id_justificacions' . $i;
                 if ($request->has($inputName)) {
                     $id_justificacion = $request->input($inputName);
@@ -1010,7 +1015,7 @@ class JovenEvaluacionController extends Controller
                     DB::table('joven_evaluacion_puntaje_justificacions')->insert([
                         'joven_evaluacion_id' => $id, // Supongo que tienes un objeto $investigador disponible
                         'joven_evaluacion_planilla_id' => $request->joven_evaluacion_planilla_id,
-                        'joven_evaluacion_planilla_justificacion_max_id' => $id_anterior,
+                        'joven_evaluacion_planilla_justificacion_max_id' => $id_justificacion,
                         'puntaje' => $puntaje,
                         'created_at' => now(), // Establece la fecha y hora de creación
                         'updated_at' => now(), // Establece la fecha y hora de actualización
