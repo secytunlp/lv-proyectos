@@ -484,7 +484,7 @@
             @endif
                 @php
                     $puntajeOtro = $evaluacion->puntaje_otros->where('joven_evaluacion_planilla_otro_max_id', $otroMaximo->id)->first();
-                    $puntaje = (($puntajeOtro)&&($puntajeOtro->puntaje))?(int)$puntajeOtro->puntaje:'';
+                    $puntaje = (($puntajeOtro)&&($puntajeOtro->puntaje))?(float)$puntajeOtro->puntaje:'';
                     $tope = (($otroMaximo->tope==0)||($otroMaximo->tope==$otroMaximo->minimo))?'':'<strong>Max. '.$otroMaximo->tope.'pt.</strong>';
                     $hasta = (($otroMaximo->maximo!=0)&&($otroMaximo->minimo==$otroMaximo->maximo))?((($otroMaximo->minimo==$otroMaximo->tope)&&($otroMaximo->minimo==$otroMaximo->maximo))?$otroMaximo->maximo. ' pt.':$otroMaximo->maximo. ' c/u'):'Hasta '.$otroMaximo->tope;
                     $control = (($otroMaximo->maximo!=0)&&($otroMaximo->minimo==$otroMaximo->maximo))?((($otroMaximo->minimo==$otroMaximo->tope)&&($otroMaximo->minimo==$otroMaximo->maximo))?1:2):3; //1=check 2=c/u 3=hasta
@@ -606,7 +606,7 @@
             @endif
             @php
                 $puntajeProduccion = $evaluacion->puntaje_produccions->where('joven_evaluacion_planilla_produccion_max_id', $produccionMaximo->id)->first();
-                $puntaje = (($puntajeProduccion)&&($puntajeProduccion->puntaje))?(int)$puntajeProduccion->puntaje:'';
+                $puntaje = (($puntajeProduccion)&&($puntajeProduccion->puntaje))?(float)$puntajeProduccion->puntaje:'';
                 $tope = (($produccionMaximo->tope==0)||($produccionMaximo->tope==$produccionMaximo->minimo))?'':'<strong>Max. '.$produccionMaximo->tope.'pt.</strong>';
                 $hasta = (($produccionMaximo->maximo!=0)&&($produccionMaximo->minimo==$produccionMaximo->maximo))?((($produccionMaximo->minimo==$produccionMaximo->tope)&&($produccionMaximo->minimo==$produccionMaximo->maximo))?$produccionMaximo->maximo. ' pt.':$produccionMaximo->maximo. ' c/u'):'Hasta '.$produccionMaximo->tope;
                 $control = (($produccionMaximo->maximo!=0)&&($produccionMaximo->minimo==$produccionMaximo->maximo))?((($produccionMaximo->minimo==$produccionMaximo->tope)&&($produccionMaximo->minimo==$produccionMaximo->maximo))?1:2):3; //1=check 2=c/u 3=hasta
@@ -727,7 +727,7 @@
             @endif
             @php
                 $puntajeAnterior = $evaluacion->puntaje_anteriors->where('joven_evaluacion_planilla_anterior_max_id', $anteriorMaximo->id)->first();
-                $puntaje = (($puntajeAnterior)&&($puntajeAnterior->puntaje))?(int)$puntajeAnterior->puntaje:'';
+                $puntaje = (($puntajeAnterior)&&($puntajeAnterior->puntaje))?(float)$puntajeAnterior->puntaje:'';
                 $tope = (($anteriorMaximo->tope==0)||($anteriorMaximo->tope==$anteriorMaximo->minimo))?'':'<strong>Max. '.$anteriorMaximo->tope.'pt.</strong>';
                 ///dd($tope);
                 $hasta = (($anteriorMaximo->maximo!=0)&&($anteriorMaximo->minimo==$anteriorMaximo->maximo))?((($anteriorMaximo->minimo==$anteriorMaximo->tope)&&($anteriorMaximo->minimo==$anteriorMaximo->maximo))?$anteriorMaximo->maximo. ' pt.':$anteriorMaximo->maximo. ' c/u'):'Hasta '.$anteriorMaximo->tope;
@@ -829,7 +829,7 @@
             @endif
             @php
                 $puntajeJustificacion = $evaluacion->puntaje_justificacions->where('joven_evaluacion_planilla_justificacion_max_id', $justificacionMaximo->id)->first();
-                $puntaje = (($puntajeJustificacion)&&($puntajeJustificacion->puntaje))?(int)$puntajeJustificacion->puntaje:'';
+                $puntaje = (($puntajeJustificacion)&&($puntajeJustificacion->puntaje))?(float)$puntajeJustificacion->puntaje:'';
                 $tope = (($justificacionMaximo->tope==0)||($justificacionMaximo->tope==$justificacionMaximo->minimo))?'':'<strong>Max. '.$justificacionMaximo->tope.'pt.</strong>';
                 $hasta = (($justificacionMaximo->maximo!=0)&&($justificacionMaximo->minimo==$justificacionMaximo->maximo))?((($justificacionMaximo->minimo==$justificacionMaximo->tope)&&($justificacionMaximo->minimo==$justificacionMaximo->maximo))?$justificacionMaximo->maximo. ' pt.':$justificacionMaximo->maximo. ' c/u'):'Hasta '.$justificacionMaximo->tope;
                 $control = (($justificacionMaximo->maximo!=0)&&($justificacionMaximo->minimo==$justificacionMaximo->maximo))?((($justificacionMaximo->minimo==$justificacionMaximo->tope)&&($justificacionMaximo->minimo==$justificacionMaximo->maximo))?1:2):3; //1=check 2=c/u 3=hasta
