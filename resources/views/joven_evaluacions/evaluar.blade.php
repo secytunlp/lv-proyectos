@@ -1782,6 +1782,35 @@
             return valid; // Devuelve el estado de validez
         }
 
+        // Etiqueta debajo de cada input: indica si se carga una cantidad o un puntaje.
+        // Misma regla que sumar_total(): con maximo != 0 el valor se multiplica por el maximo (cantidad);
+        // con maximo == 0 es el puntaje directo. En produccion con campo de cantidad, el segundo es el puntaje total.
+        function etiquetarInputs() {
+            function fmtNum(n) { return String(parseFloat(n)).replace('.', ','); }
+            function agregar(el, texto, ayuda) {
+                if ($(el).next('.tipo-carga').length) return;
+                $(el).attr('title', ayuda);
+                $(el).after('<small class="tipo-carga" style="display:block;color:#6c757d;font-size:11px;line-height:1.2;white-space:nowrap;">' + texto + '</small>');
+            }
+            $.each(['antacad', 'otros', 'produccion', 'anterior', 'justificacions'], function (_, sec) {
+                $('input[type="number"][id^="puntaje' + sec + '"]').each(function () {
+                    var i = this.id.substring(('puntaje' + sec).length);
+                    if (!/^\d+$/.test(i)) return;
+                    var max = parseFloat($('#max' + sec + i).val()) || 0;
+                    if (sec === 'produccion' && $('#cantproduccion' + i).length) {
+                        agregar(this, 'puntaje total', 'Puntaje total asignado (admite decimales)');
+                    } else if (max !== 0) {
+                        agregar(this, 'cantidad (× ' + fmtNum(max) + ' pt)', 'Cantidad: se multiplica por ' + fmtNum(max) + ' puntos');
+                    } else {
+                        agregar(this, 'puntaje', 'Puntaje asignado (admite decimales)');
+                    }
+                });
+            });
+            $('input[type="number"][id^="cantproduccion"]').each(function () {
+                agregar(this, 'cantidad', 'Cantidad de producciones');
+            });
+        }
+        $(document).ready(etiquetarInputs);
         $(document).ready(sumar_total);
 
     </script>
