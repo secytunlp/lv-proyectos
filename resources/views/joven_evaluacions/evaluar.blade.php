@@ -1798,16 +1798,16 @@
                     if (!/^\d+$/.test(i)) return;
                     var max = parseFloat($('#max' + sec + i).val()) || 0;
                     if (sec === 'produccion' && $('#cantproduccion' + i).length) {
-                        agregar(this, 'puntaje total', 'Puntaje total asignado (admite decimales)');
+                        agregar(this, 'Indique puntaje total', 'Puntaje total asignado (admite decimales)');
                     } else if (max !== 0) {
-                        agregar(this, 'cantidad (× ' + fmtNum(max) + ' pt)', 'Cantidad: se multiplica por ' + fmtNum(max) + ' puntos');
+                        agregar(this, 'Indique cantidad', 'Cantidad: se multiplica por ' + fmtNum(max) + ' puntos');
                     } else {
-                        agregar(this, 'puntaje', 'Puntaje asignado (admite decimales)');
+                        agregar(this, 'Indique puntaje', 'Puntaje asignado (admite decimales)');
                     }
                 });
             });
             $('input[type="number"][id^="cantproduccion"]').each(function () {
-                agregar(this, 'cantidad', 'Cantidad de producciones');
+                agregar(this, 'Indique cantidad', 'Cantidad de producciones');
             });
         }
         $(document).ready(etiquetarInputs);
