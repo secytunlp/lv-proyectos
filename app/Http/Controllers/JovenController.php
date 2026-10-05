@@ -2742,15 +2742,17 @@ class JovenController extends Controller
             // Sincroniza las becas declaradas en la solicitud contra investigador_becas.
             // La tabla tiene un unico sobre (investigador_id, institucion, beca, desde, hasta).
             //
-            //   ya existe la tupla exacta                  -> no se toca
-            //   hay fila(s) de ese tipo SIN fechas         -> se completa la de menor id
-            //   hay fila(s) de ese tipo CON otras fechas   -> no se pisa, queda en el log
-            //   no hay ninguna                             -> se inserta
+            // Primero se limpian las filas de ese tipo que no tienen NINGUNA fecha: no aportan
+            // nada frente a otra del mismo tipo y son las que hacian chocar el unico. Despues:
             //
-            // Antes se actualizaba con where(investigador_id, beca, institucion) sin filtrar
-            // por fecha ni por id: si habia dos filas del mismo tipo les ponia las mismas
-            // fechas a las dos y violaba el unico. Y si la fila ya tenia fechas distintas, las
-            // pisaba sin avisar.
+            //   ya existe la tupla exacta            -> no se toca
+            //   existe exactamente una (inst, nivel) -> se completan/corrigen sus fechas, por id
+            //   existen varias (inst, nivel)         -> ambiguo: no se toca, queda en el log
+            //   no existe ninguna                    -> se inserta
+            //
+            // Antes se actualizaba con where(investigador_id, beca, institucion) sin filtrar por
+            // fecha ni por id: si habia dos filas del mismo tipo les ponia las mismas fechas a
+            // las dos y violaba el unico.
             $soloFecha = function ($valor) {
                 return ($valor === null || $valor === '') ? '' : substr((string) $valor, 0, 10);
             };
@@ -2775,6 +2777,34 @@ class JovenController extends Controller
                     ->orderBy('id')
                     ->get();
 
+                // Limpieza previa de filas sin ninguna fecha. Si alguna tiene datos, sobran
+                // todas las vacias; si estan todas vacias, se conserva la de menor id, que es
+                // la que se completa mas abajo. Una fila con una sola de las dos fechas NO se
+                // toca: ese dato es informacion.
+                if ($candidatas->count() > 1) {
+                    $vacias = $candidatas->filter(function ($fila) use ($soloFecha) {
+                        return $soloFecha($fila->desde) === '' && $soloFecha($fila->hasta) === '';
+                    })->values();
+
+                    $conDatos = $candidatas->filter(function ($fila) use ($soloFecha) {
+                        return $soloFecha($fila->desde) !== '' || $soloFecha($fila->hasta) !== '';
+                    });
+
+                    $aBorrar = $conDatos->isNotEmpty()
+                        ? $vacias->pluck('id')->all()
+                        : $vacias->slice(1)->pluck('id')->all();
+
+                    if (!empty($aBorrar)) {
+                        DB::table('investigador_becas')->whereIn('id', $aBorrar)->delete();
+
+                        Log::warning('Becas duplicadas sin fechas eliminadas. Investigador: '
+                            . $investigador->id . ' - ' . $institucion . ' - ' . $nivel
+                            . ' - ids: ' . implode(',', $aBorrar));
+
+                        $candidatas = $candidatas->whereNotIn('id', $aBorrar)->values();
+                    }
+                }
+
                 // 1) la beca ya esta cargada tal cual
                 $exacta = $candidatas->first(function ($fila) use ($soloFecha, $desde, $hasta) {
                     return $soloFecha($fila->desde) === $desde && $soloFecha($fila->hasta) === $hasta;
@@ -2785,13 +2815,9 @@ class JovenController extends Controller
                     continue;
                 }
 
-                // 2) filas incompletas: se completan con lo que declara la solicitud
-                $vacias = $candidatas->filter(function ($fila) use ($soloFecha) {
-                    return $soloFecha($fila->desde) === '' || $soloFecha($fila->hasta) === '';
-                })->values();
-
-                if ($vacias->isNotEmpty()) {
-                    $fila = $vacias->first();
+                // 2) una sola candidata: se completan o corrigen sus fechas, por id
+                if ($candidatas->count() === 1) {
+                    $fila = $candidatas->first();
 
                     DB::table('investigador_becas')
                         ->where('id', $fila->id)
@@ -2801,21 +2827,17 @@ class JovenController extends Controller
                             'updated_at' => now(),
                         ]);
 
-                    Log::info('Beca completada (id ' . $fila->id . '): ' . $institucion . ' - ' . $nivel
+                    Log::info('Fechas de beca actualizadas (id ' . $fila->id . '): '
+                        . $institucion . ' - ' . $nivel
+                        . ' - ' . $soloFecha($fila->desde) . ' / ' . $soloFecha($fila->hasta)
                         . ' -> ' . $desde . ' / ' . $hasta);
-
-                    if ($vacias->count() > 1) {
-                        Log::warning('Quedan becas duplicadas sin fechas, revisar a mano. Investigador: '
-                            . $investigador->id . ' - ' . $institucion . ' - ' . $nivel
-                            . ' - ids: ' . $vacias->slice(1)->pluck('id')->implode(','));
-                    }
 
                     continue;
                 }
 
-                // 3) ya tiene fechas y son otras: no se pisa
+                // 3) varias con fechas distintas: no se puede saber cual corresponde
                 if ($candidatas->isNotEmpty()) {
-                    Log::warning('La beca ya tiene otras fechas cargadas, no se modifica. Investigador: '
+                    Log::warning('Beca ambigua, no se modifica. Investigador: '
                         . $investigador->id . ' - ' . $institucion . ' - ' . $nivel
                         . ' - declarado: ' . $desde . ' / ' . $hasta
                         . ' - ids: ' . $candidatas->pluck('id')->implode(','));
