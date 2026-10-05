@@ -2739,59 +2739,103 @@ class JovenController extends Controller
 
         if (!empty($becas)) {
 
+            // Sincroniza las becas declaradas en la solicitud contra investigador_becas.
+            // La tabla tiene un unico sobre (investigador_id, institucion, beca, desde, hasta).
+            //
+            //   ya existe la tupla exacta                  -> no se toca
+            //   hay fila(s) de ese tipo SIN fechas         -> se completa la de menor id
+            //   hay fila(s) de ese tipo CON otras fechas   -> no se pisa, queda en el log
+            //   no hay ninguna                             -> se inserta
+            //
+            // Antes se actualizaba con where(investigador_id, beca, institucion) sin filtrar
+            // por fecha ni por id: si habia dos filas del mismo tipo les ponia las mismas
+            // fechas a las dos y violaba el unico. Y si la fila ya tenia fechas distintas, las
+            // pisaba sin avisar.
+            $soloFecha = function ($valor) {
+                return ($valor === null || $valor === '') ? '' : substr((string) $valor, 0, 10);
+            };
 
-            // Obtener los IDs e instituciones de las becas existentes del investigador
-            $existingBecas = $investigador->becas->map(function($beca) {
-                return [
-                    'beca' => $beca->beca,
-                    'institucion' => $beca->institucion,
-                    'desde' => $beca->desde,
-                    'hasta' => $beca->hasta,
-                ];
-            })->toArray();
+            foreach ($becas as $beca) {
 
-            foreach ($becas as $beca){
-                $existingBeca = collect($existingBecas)->first(function ($existingBeca) use ($beca) {
-                    return $existingBeca['beca'] == $beca->beca && $existingBeca['institucion'] == $beca->institucion;
+                $institucion = trim((string) $beca->institucion);
+                $nivel       = trim((string) $beca->beca);
+                $desde       = $soloFecha($beca->desde);
+                $hasta       = $soloFecha($beca->hasta);
+
+                if ($institucion === '' || $nivel === '') {
+                    Log::warning('Beca de la solicitud sin institucion o sin nivel, se omite. Joven: ' . $joven->id);
+                    continue;
+                }
+
+                // Se consulta en cada vuelta para no trabajar sobre una relacion cacheada
+                $candidatas = DB::table('investigador_becas')
+                    ->where('investigador_id', $investigador->id)
+                    ->where('institucion', $institucion)
+                    ->where('beca', $nivel)
+                    ->orderBy('id')
+                    ->get();
+
+                // 1) la beca ya esta cargada tal cual
+                $exacta = $candidatas->first(function ($fila) use ($soloFecha, $desde, $hasta) {
+                    return $soloFecha($fila->desde) === $desde && $soloFecha($fila->hasta) === $hasta;
                 });
 
-                if ($existingBeca) {
-                    // Si la beca existe, verificar si las fechas 'desde' y 'hasta' son distintas
-                    if ($existingBeca['desde'] != $beca->desde || $existingBeca['hasta'] != $beca->hasta) {
-                        // Actualizar las fechas en la beca existente
-                        DB::table('investigador_becas')
-                            ->where('investigador_id', $investigador->id)
-                            ->where('beca', $beca->beca)
-                            ->where('institucion', $beca->institucion)
-                            ->update([
-                                'desde' => $beca->desde,
-                                'hasta' => $beca->hasta,
-                                'updated_at' => now(),
-                            ]);
-
-                        Log::info("Fechas de Beca Actualizadas: " . $beca->beca . " - Institución: " . $beca->institucion);
-                    } else {
-                        Log::info("La beca ya existe y las fechas son las mismas: " . $beca->beca . " - Institución: " . $beca->institucion);
-                    }
-                } else {
-                    // Si la beca no existe, insertarla en la tabla 'investigador_becas'
-                    DB::table('investigador_becas')->insert([
-                        'investigador_id' => $investigador->id,
-                        'beca' => $beca->beca,
-                        'institucion' => $beca->institucion,
-                        'desde' => $beca->desde,
-                        'hasta' => $beca->hasta,
-                        'unlp' => 0,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
-
-                    Log::info("Nueva Beca Insertada: " . $beca->beca . " - Institución: " . $beca->institucion);
+                if ($exacta) {
+                    Log::info('Beca sin cambios: ' . $institucion . ' - ' . $nivel);
+                    continue;
                 }
+
+                // 2) filas incompletas: se completan con lo que declara la solicitud
+                $vacias = $candidatas->filter(function ($fila) use ($soloFecha) {
+                    return $soloFecha($fila->desde) === '' || $soloFecha($fila->hasta) === '';
+                })->values();
+
+                if ($vacias->isNotEmpty()) {
+                    $fila = $vacias->first();
+
+                    DB::table('investigador_becas')
+                        ->where('id', $fila->id)
+                        ->update([
+                            'desde' => $desde !== '' ? $desde : null,
+                            'hasta' => $hasta !== '' ? $hasta : null,
+                            'updated_at' => now(),
+                        ]);
+
+                    Log::info('Beca completada (id ' . $fila->id . '): ' . $institucion . ' - ' . $nivel
+                        . ' -> ' . $desde . ' / ' . $hasta);
+
+                    if ($vacias->count() > 1) {
+                        Log::warning('Quedan becas duplicadas sin fechas, revisar a mano. Investigador: '
+                            . $investigador->id . ' - ' . $institucion . ' - ' . $nivel
+                            . ' - ids: ' . $vacias->slice(1)->pluck('id')->implode(','));
+                    }
+
+                    continue;
+                }
+
+                // 3) ya tiene fechas y son otras: no se pisa
+                if ($candidatas->isNotEmpty()) {
+                    Log::warning('La beca ya tiene otras fechas cargadas, no se modifica. Investigador: '
+                        . $investigador->id . ' - ' . $institucion . ' - ' . $nivel
+                        . ' - declarado: ' . $desde . ' / ' . $hasta
+                        . ' - ids: ' . $candidatas->pluck('id')->implode(','));
+                    continue;
+                }
+
+                // 4) no existe: se inserta
+                DB::table('investigador_becas')->insert([
+                    'investigador_id' => $investigador->id,
+                    'beca' => $nivel,
+                    'institucion' => $institucion,
+                    'desde' => $desde !== '' ? $desde : null,
+                    'hasta' => $hasta !== '' ? $hasta : null,
+                    'unlp' => 0,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                Log::info('Nueva beca insertada: ' . $institucion . ' - ' . $nivel);
             }
-// Verificar si la nueva beca ya existe en las becas del investigador
-
-
 
         }
     }
