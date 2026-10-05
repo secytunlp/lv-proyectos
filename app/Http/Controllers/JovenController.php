@@ -2336,7 +2336,8 @@ class JovenController extends Controller
                 DB::rollback();
                 if ($ex->errorInfo[1] == 1062) {
                     $respuestaID = 'error';
-                    $respuestaMSJ = 'El/la integrante ya forma parte del proyecto.';
+                    Log::error('Duplicado 1062 en '.__METHOD__.': '.$ex->getMessage());
+                    $respuestaMSJ = 'No se pudo completar la operacion: hay un registro duplicado ('.$ex->errorInfo[2].')';
                 } else {
                     $respuestaID = 'error';
                     $respuestaMSJ = $ex->getMessage();
@@ -2459,7 +2460,8 @@ class JovenController extends Controller
             DB::rollback();
             if ($ex->errorInfo[1] == 1062) {
                 $respuestaID = 'error';
-                $respuestaMSJ = 'El/la integrante ya forma parte del proyecto.';
+                Log::error('Duplicado 1062 en '.__METHOD__.': '.$ex->getMessage());
+                $respuestaMSJ = 'No se pudo completar la operacion: hay un registro duplicado ('.$ex->errorInfo[2].')';
             } else {
                 $respuestaID = 'error';
                 $respuestaMSJ = $ex->getMessage();
@@ -2541,7 +2543,8 @@ class JovenController extends Controller
             DB::rollback();
             if ($ex->errorInfo[1] == 1062) {
                 $respuestaID = 'error';
-                $respuestaMSJ = 'El/la integrante ya forma parte del proyecto.';
+                Log::error('Duplicado 1062 en '.__METHOD__.': '.$ex->getMessage());
+                $respuestaMSJ = 'No se pudo completar la operacion: hay un registro duplicado ('.$ex->errorInfo[2].')';
             } else {
                 $respuestaID = 'error';
                 $respuestaMSJ = $ex->getMessage();
