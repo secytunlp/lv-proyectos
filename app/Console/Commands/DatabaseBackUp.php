@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Constants;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -183,14 +184,18 @@ class DatabaseBackUp extends Command
     {
         try {
             Mail::html($body, function ($message) use ($subject, $attachs) {
-                $message->to(config('backup.destino'))->subject($subject);
+                // Mismo remitente que usa el sistema en sus mails (SicadiEnviada & cía.):
+                // el SMTP no acepta el MAIL_FROM_ADDRESS por defecto de config/mail.php.
+                $message->from(Constants::MAIL_SICADI, Constants::NOMBRE_SICADI)
+                    ->to(config('backup.destino'))
+                    ->subject($subject);
                 foreach ($attachs as $path) {
                     $message->attach($path);
                 }
             });
         } catch (\Throwable $e) {
             Log::error('database:backup: no se pudo enviar el mail: ' . $e->getMessage());
-            $this->warn('No se pudo enviar el mail de aviso (ver laravel.log).');
+            $this->warn('No se pudo enviar el mail de aviso: ' . $e->getMessage());
         }
     }
 }
