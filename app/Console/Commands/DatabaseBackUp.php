@@ -182,12 +182,16 @@ class DatabaseBackUp extends Command
 
     private function notificar($subject, $body, array $attachs = [])
     {
+        // Default acá también: si el servidor tiene config:cache viejo, config/backup.php
+        // no está en la caché y config('backup.*') devuelve null.
+        $destino = config('backup.destino') ?: 'marcosp@presi.unlp.edu.ar';
+
         try {
-            Mail::html($body, function ($message) use ($subject, $attachs) {
+            Mail::html($body, function ($message) use ($subject, $attachs, $destino) {
                 // Mismo remitente que usa el sistema en sus mails (SicadiEnviada & cía.):
                 // el SMTP no acepta el MAIL_FROM_ADDRESS por defecto de config/mail.php.
                 $message->from(Constants::MAIL_SICADI, Constants::NOMBRE_SICADI)
-                    ->to(config('backup.destino'))
+                    ->to($destino)
                     ->subject($subject);
                 foreach ($attachs as $path) {
                     $message->attach($path);
