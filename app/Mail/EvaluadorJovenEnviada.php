@@ -36,7 +36,7 @@ class EvaluadorJovenEnviada extends Mailable
             ->subject($this->datos['asunto'])
             ->with($this->datos)
             ->from($this->datos['from_email'], $this->datos['from_name']) // Obtener desde $datos
-            ->replyTo($this->datos['from_email'], $this->datos['from_name']); // Obtener desde $datos
+            ->replyTo($this->datos['reply_to_email'] ?? $this->datos['from_email'], $this->datos['reply_to_name'] ?? $this->datos['from_name']); // Obtener desde $datos
         if ($this->adjuntarPlanilla) {
             if (file_exists($this->adjuntarPlanilla)) {
                 $mail->attach($this->adjuntarPlanilla);

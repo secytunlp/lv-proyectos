@@ -2306,8 +2306,12 @@ class JovenController extends Controller
                 $user = User::find($userId); // Obtener el usuario por su ID
                 // Preparar datos para el correo
                 $datosCorreo = [
-                    'from_email' => $user->email,
-                    'from_name' => $user->name,
+                    // From siempre institucional: si va el mail del usuario (ej. @gmail.com) el relay
+                    // de presi no lo firma con DKIM y Gmail lo rebota (550 5.7.30). El usuario va en Reply-To.
+                    'from_email' => Constants::MAIL_JOVENES,
+                    'from_name' => Constants::NOMBRE_JOVENES,
+                    'reply_to_email' => $user->email,
+                    'reply_to_name' => $user->name,
                     'asunto' => 'Solicitud de Subsidios para Jóvenes Investigadores '.$year,
                     'year' => $year,
 

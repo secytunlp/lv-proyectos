@@ -1074,8 +1074,11 @@ class JovenEvaluacionController extends Controller
             // Preparar datos para el correo
             $datosCorreo = [
                 'asunto' => 'Aceptación de Evaluación de Subsidios para Jóvenes Investigadores '.$year,
-                'from_email' => $user->email,
-                'from_name' => $user->name,
+                // From institucional: con el mail del usuario (ej. @gmail.com) el relay no firma DKIM y Gmail rebota (5.7.30)
+                'from_email' => Constants::MAIL_JOVENES,
+                'from_name' => Constants::NOMBRE_JOVENES,
+                'reply_to_email' => $user->email,
+                'reply_to_name' => $user->name,
                 'year' => $year,
 
                 'investigador' => $joven->investigador->persona->apellido.', '.$joven->investigador->persona->nombre.' ('.$joven->investigador->persona->cuil.')',
@@ -1156,8 +1159,11 @@ class JovenEvaluacionController extends Controller
             // Preparar datos para el correo
             $datosCorreo = [
                 'asunto' => 'Rechazo de Evaluación de Subsidios para Jóvenes Investigadores '.$year,
-                'from_email' => $user->email,
-                'from_name' => $user->name,
+                // From institucional: con el mail del usuario (ej. @gmail.com) el relay no firma DKIM y Gmail rebota (5.7.30)
+                'from_email' => Constants::MAIL_JOVENES,
+                'from_name' => Constants::NOMBRE_JOVENES,
+                'reply_to_email' => $user->email,
+                'reply_to_name' => $user->name,
                 'year' => $year,
 
                 'investigador' => $joven->investigador->persona->apellido.', '.$joven->investigador->persona->nombre.' ('.$joven->investigador->persona->cuil.')',
@@ -1388,8 +1394,11 @@ class JovenEvaluacionController extends Controller
                 // Preparar datos para el correo
                 $datosCorreo = [
                     'asunto' => 'Evaluación de Subsidios para Jóvenes Investigadores '.$year,
-                    'from_email' => $user->email,
-                    'from_name' => $user->name,
+                    // From institucional: con el mail del usuario (ej. @gmail.com) el relay no firma DKIM y Gmail rebota (5.7.30)
+                    'from_email' => Constants::MAIL_JOVENES,
+                    'from_name' => Constants::NOMBRE_JOVENES,
+                    'reply_to_email' => $user->email,
+                    'reply_to_name' => $user->name,
                     'year' => $year,
 
                     'investigador' => $joven->investigador->persona->apellido.', '.$joven->investigador->persona->nombre.' ('.$joven->investigador->persona->cuil.')',

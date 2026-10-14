@@ -2689,8 +2689,11 @@ class ViajeController extends Controller
                 $user = User::find($userId); // Obtener el usuario por su ID
                 // Preparar datos para el correo
                 $datosCorreo = [
-                    'from_email' => $user->email,
-                    'from_name' => $user->name,
+                    // From institucional: con el mail del usuario (ej. @gmail.com) el relay no firma DKIM y Gmail rebota (5.7.30)
+                    'from_email' => Constants::MAIL_VIAJES,
+                    'from_name' => Constants::NOMBRE_VIAJES,
+                    'reply_to_email' => $user->email,
+                    'reply_to_name' => $user->name,
                     'asunto' => 'Solicitud de Subsidios para Viajes y/o Estadías ('.Constants::MES_DESDE_VIAJES.' '.$year.' - '.Constants::MES_HASTA_VIAJES.' '.(intval($year)+1).')',
                     'year' => $year,
                     'mes_desde' => Constants::MES_DESDE_VIAJES,
