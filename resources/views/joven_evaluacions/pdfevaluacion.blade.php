@@ -608,7 +608,7 @@
                 $puntajeProduccion = $evaluacion->puntaje_produccions->where('joven_evaluacion_planilla_produccion_max_id', $produccionMaximo->id)->first();
                 $puntaje = (($puntajeProduccion)&&($puntajeProduccion->puntaje))?(float)$puntajeProduccion->puntaje:'';
                 $tope = (($produccionMaximo->tope==0)||($produccionMaximo->tope==$produccionMaximo->minimo))?'':'<strong>Max. '.$produccionMaximo->tope.'pt.</strong>';
-                $hasta = (($produccionMaximo->maximo!=0)&&($produccionMaximo->minimo==$produccionMaximo->maximo))?((($produccionMaximo->minimo==$produccionMaximo->tope)&&($produccionMaximo->minimo==$produccionMaximo->maximo))?$produccionMaximo->maximo. ' pt.':$produccionMaximo->maximo. ' c/u'):'Hasta '.$produccionMaximo->tope;
+                $hasta = (($produccionMaximo->maximo!=0)&&($produccionMaximo->minimo==$produccionMaximo->maximo))?((($produccionMaximo->minimo==$produccionMaximo->tope)&&($produccionMaximo->minimo==$produccionMaximo->maximo))?$produccionMaximo->maximo. ' pt.':$produccionMaximo->maximo. ' c/u'):(($produccionMaximo->minimo!=$produccionMaximo->maximo)?'Hasta '.$produccionMaximo->maximo. ' c/u':'Hasta '.$produccionMaximo->tope);
                 $control = (($produccionMaximo->maximo!=0)&&($produccionMaximo->minimo==$produccionMaximo->maximo))?((($produccionMaximo->minimo==$produccionMaximo->tope)&&($produccionMaximo->minimo==$produccionMaximo->maximo))?1:2):3; //1=check 2=c/u 3=hasta
                 switch ( $control) {
                     case '1' :
