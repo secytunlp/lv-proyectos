@@ -182,7 +182,7 @@ class ExportarControlIntegrantesInformes extends Command
 
     /**
      * Integrantes de esos proyectos que participaron en el período del informe:
-     * alta hasta el 31/12 del año; bajas de cualquier fecha (es el historial del
+     * alta hasta el 31/12 del año (salvo el Director actual, que entra siempre); bajas de cualquier fecha (es el historial del
      * proyecto, como en el control 2024) salvo --solo-anio. Se descartan las
      * filas con alta == baja.
      */
@@ -200,8 +200,11 @@ class ExportarControlIntegrantesInformes extends Command
             ->where(function ($w) use ($estados) {
                 $w->whereIn('estado', $estados)->orWhereNull('estado');
             })
+            // El Director entra aunque su alta sea posterior al año: es quien
+            // presenta el informe (caso 11/V325, cambio de director en 2026).
             ->where(function ($w) use ($hasta) {
-                $w->whereNull('alta')->orWhere('alta', '0000-00-00')->orWhere('alta', '<=', $hasta);
+                $w->whereNull('alta')->orWhere('alta', '0000-00-00')->orWhere('alta', '<=', $hasta)
+                    ->orWhere('tipo', 'Director');
             });
 
         if ($this->option('solo-anio')) {
