@@ -1368,7 +1368,8 @@ class JovenEvaluacionController extends Controller
 
         $errores = [];
 
-        if (!$evaluacion->puntaje){
+        // puntaje es decimal: "0.00" es truthy en PHP, por eso se compara como número
+        if ((float) $evaluacion->puntaje <= 0){
             $errores[] = 'Aún no ha cargado puntajes';
         }
 

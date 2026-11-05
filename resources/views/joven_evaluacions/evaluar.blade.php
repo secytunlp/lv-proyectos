@@ -1271,6 +1271,7 @@
 
 
             for (var i=0; i<cantidad.val(); i++){
+                var $pasoElTope = 0; // se reinicia por item; antes quedaba sin declarar y tiraba ReferenceError
 
                 cant = $('#cantproduccion'+i);
 
@@ -1345,9 +1346,9 @@
                     if((tope.val() != 0)&&(puntajeElem.attr('type') != "checkbox")&&(puntaje>parseFloat(tope.val()))) {
                         if(!$pasoElTope){
                             div.text('Excedido, toma el max.');
-                            span.text(tope.val());
-                            ptotal = tope.val();
                         }
+                        span.text(tope.val());
+                        ptotal = tope.val();
 
 
                     }
