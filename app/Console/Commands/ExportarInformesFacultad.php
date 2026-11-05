@@ -32,30 +32,13 @@ class ExportarInformesFacultad extends Command
     protected $description = 'Exporta un Excel por facultad con los proyectos que presentan informe y el tipo de informe según la cohorte';
 
     /**
-     * Rangos (cohortes) por año de informe.
-     *
-     * Clave: "<año inicio>-<año fin>" del proyecto.
-     * Valor: etiqueta del tipo de informe (columna "Informe").
-     *
-     * Fuente: rangos definidos por Secretaría para los informes de cada año.
-     * Solo entran al listado las cohortes presentes en este mapa; el resto de
-     * los proyectos (ya terminados, etc.) quedan afuera.
+     * Rangos (cohortes) por año de informe: viven en config/informes.php,
+     * compartidos con informes:control-integrantes.
      */
-    private const RANGOS = [
-        2025 => [
-            'I+D' => [
-                '2022-2025' => 'Final',            // 4 años, cierra en 2025
-                '2023-2026' => 'Reducido 3° año',
-                '2024-2025' => 'Final',            // 2 años, cierra en 2025
-                '2024-2027' => 'Bienal',
-                '2025-2026' => 'Reducido 1° año',  // aún sin proyectos cargados
-                '2025-2028' => 'Reducido 1° año',  // aún sin proyectos cargados
-            ],
-            'PPID' => [
-                '2024-2025' => 'Final',
-            ],
-        ],
-    ];
+    private function rangos(): array
+    {
+        return config('informes.rangos', []);
+    }
 
     private const HEADERS = [
         'N°', 'Proyecto', 'Título', 'Inicio', 'Fin', 'Director', 'Informe',
@@ -86,12 +69,12 @@ class ExportarInformesFacultad extends Command
     {
         $anio = (int) $this->option('anio');
 
-        if (!isset(self::RANGOS[$anio])) {
-            $this->error("No hay rangos definidos para el año {$anio}. Agregalos en la constante RANGOS.");
+        if (!isset($this->rangos()[$anio])) {
+            $this->error("No hay rangos definidos para el año {$anio}. Agregalos en config/informes.php.");
             return self::FAILURE;
         }
 
-        $mapa = self::RANGOS[$anio];
+        $mapa = $this->rangos()[$anio];
         $tipos = array_keys($mapa);
 
         $salida = $this->option('salida') ?: storage_path("app/informes_{$anio}");
