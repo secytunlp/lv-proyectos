@@ -55,6 +55,9 @@ class ExportarControlIntegrantesInformes extends Command
 
     private const AZUL = '1F3F99';
 
+    /** Proyectos cuyo Director tiene alta posterior al año del informe (para el resumen). */
+    private $directoresPosteriores = [];
+
     private const NOMBRE_CORTO = [
         'FACULTAD DE CIENCIAS AGRARIAS Y FORESTALES'         => 'Agrarias',
         'FACULTAD DE CIENCIAS VETERINARIAS'                  => 'Veterinarias',
@@ -293,6 +296,19 @@ class ExportarControlIntegrantesInformes extends Command
                 $sheet->setCellValue("F{$r}", $this->corta($i->alta));
                 $sheet->setCellValue("G{$r}", $this->corta($i->baja));
                 $sheet->setCellValue("H{$r}", (string) $i->estado);
+
+                // Director con alta posterior al año del informe: se marca en la fila.
+                $alta = $this->iso($i->alta);
+                if ($tipo === 'DIRECTOR' && $alta !== '' && $alta > "{$anio}-12-31") {
+                    $nota = "Director posterior al informe {$anio} (alta " . $this->corta($i->alta) . ')';
+                    $estado = trim((string) $i->estado);
+                    $sheet->setCellValue("H{$r}", $estado !== '' ? "{$estado} · {$nota}" : $nota);
+                    $sheet->getStyle("A{$r}:H{$r}")->getFill()->setFillType(Fill::FILL_SOLID)
+                        ->getStartColor()->setRGB('FFF2CC');
+                    $sheet->getStyle("F{$r}")->getFont()->setBold(true);
+                    $sheet->getStyle("H{$r}")->getAlignment()->setWrapText(true);
+                    $this->directoresPosteriores[] = "{$p->codigo} ({$this->nombre($i)}, alta {$this->corta($i->alta)})";
+                }
                 $r++;
             }
             if ($r > $ini) {
@@ -340,6 +356,12 @@ class ExportarControlIntegrantesInformes extends Command
         if ($sinDirector->count()) {
             $this->warn("  {$sinDirector->count()} proyecto(s) sin Director en el listado: "
                 . $sinDirector->pluck('codigo')->implode(', '));
+        }
+
+        if ($this->directoresPosteriores) {
+            $this->warn('  ' . count($this->directoresPosteriores)
+                . ' proyecto(s) con Director de alta posterior al año (marcados en amarillo): '
+                . implode('; ', $this->directoresPosteriores));
         }
 
         $sinPersona = $integrantes->flatten(1)->filter(function ($i) {
