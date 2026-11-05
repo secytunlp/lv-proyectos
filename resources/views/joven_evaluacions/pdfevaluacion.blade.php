@@ -887,7 +887,7 @@
 
         @endphp
     <tr>
-        <td colspan="4" style="text-align: right;"><strong> Total (max. <span>{{$planilla->maximo}}</span> )</strong></td><td style="text-align: center;background-color: #e1e1e1;"><strong>{{ number_format($total, 2) }}</strong></td>
+        <td colspan="4" style="text-align: right;"><strong> Total (max. <span>{{$planilla->maximo}}</span> )</strong></td><td style="text-align: center;background-color: #e1e1e1;"><strong>{{ number_format($total, 2) }}</strong><!--TOTAL_EVALUACION:{{ round($total, 2) }}--></td>
     </tr>
 </table>
 

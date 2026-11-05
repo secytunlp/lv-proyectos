@@ -529,21 +529,12 @@ class JovenEvaluacionController extends Controller
 
 
 
-    public function generatePDF(Request $request,$attach = false)
+    /**
+     * Datos de cabecera de una evaluacion (solicitante, evaluador, puntaje guardado).
+     * Compartido por generatePDF() y jovenes:auditar-puntajes.
+     */
+    public function datosCabeceraEvaluacion($evaluacionId)
     {
-
-        if ($request->has('joven_evaluacion_id')) {
-            $evaluacionId = $request->query('joven_evaluacion_id');
-            $evaluacion = JovenEvaluacion::findOrFail($evaluacionId);
-            $joven = Joven::findOrFail($evaluacion->joven_id);
-            // Haz algo con $evaluacionId
-        } else {
-            $joven = Joven::findOrFail($request->query('joven_id'));
-            $user = auth()->user();
-            $evaluacion = $joven->evaluacions()->where('user_id', $user->id)->first(); // Evaluación del usuario
-            $evaluacionId=$evaluacion->id;
-        }
-
         // Consulta base
         $query = JovenEvaluacion::select('joven_evaluacions.id as id','investigadors.id as investigador_id', 'periodos.nombre as periodo_nombre', DB::raw("CONCAT(personas.apellido, ', ', personas.nombre) as persona_apellido"),'personas.cuil', 'facultads.nombre as facultad_nombre', 'joven_evaluacions.estado as estado','joven_evaluacions.puntaje as puntaje',
             DB::raw("IFNULL(users.name, joven_evaluacions.user_name) as usuario_nombre"),
@@ -554,23 +545,18 @@ class JovenEvaluacionController extends Controller
             ->leftJoin('personas', 'investigadors.persona_id', '=', 'personas.id')
             ->leftJoin('facultads', 'jovens.facultadplanilla_id', '=', 'facultads.id')
             ->leftJoin('users', 'joven_evaluacions.user_id', '=', 'users.id');
-
-
-
         $query->where('joven_evaluacions.id', $evaluacionId);
 
+        return $query->first();
+    }
 
-
-        // Obtener solo los elementos paginados
-        $datos = $query->first();
-        //dd($datos);
-
-        // Verifica si hay puntajes
-        if (!$datos->puntaje) {
-            return response()->json([
-                'message' => 'Aún no ha cargado ningún puntaje.',
-            ], 400); // 400 Bad Request
-        }
+    /**
+     * Arma los datos que consume la vista joven_evaluacions.pdfevaluacion.
+     * Compartido por generatePDF() y jovenes:auditar-puntajes, para que el recalculo
+     * del total sea exactamente el mismo que muestra el PDF.
+     */
+    public function datosEvaluacionPDF($evaluacion, $joven, $datos)
+    {
         $planilla = DB::table('joven_evaluacion_planillas')
 
             ->where('joven_evaluacion_planillas.periodo_id',$joven->periodo_id)
@@ -655,7 +641,7 @@ class JovenEvaluacionController extends Controller
             ->select('joven_evaluacion_planilla_justificacion_maxs.*', 'joven_evaluacion_planilla_justificacions.nombre as justificacion_nombre', 'evaluacion_grupos.maximo as grupo_maximo', 'evaluacion_grupos.nombre as grupo_nombre', 'padre.nombre as padre_nombre','padre.id as padre_id','padre.maximo as padre_maximo', 'evaluacion_subgrupos.nombre as subgrupo_nombre','joven_evaluacion_planilla_justificacions.evaluacion_subgrupo_id')
             ->get();
 
-        $data = [
+        return [
             'year' => $datos->periodo_nombre,
             'facultadplanilla' => $datos->facultad_nombre,
             'solicitante' => $datos->persona_apellido,
@@ -673,6 +659,32 @@ class JovenEvaluacionController extends Controller
             'anteriorMaximos' => $anteriorMaximos,
             'justificacionMaximos' => $justificacionMaximos,
         ];
+    }
+
+    public function generatePDF(Request $request,$attach = false)
+    {
+
+        if ($request->has('joven_evaluacion_id')) {
+            $evaluacionId = $request->query('joven_evaluacion_id');
+            $evaluacion = JovenEvaluacion::findOrFail($evaluacionId);
+            $joven = Joven::findOrFail($evaluacion->joven_id);
+            // Haz algo con $evaluacionId
+        } else {
+            $joven = Joven::findOrFail($request->query('joven_id'));
+            $user = auth()->user();
+            $evaluacion = $joven->evaluacions()->where('user_id', $user->id)->first(); // Evaluación del usuario
+            $evaluacionId=$evaluacion->id;
+        }
+
+        $datos = $this->datosCabeceraEvaluacion($evaluacionId);
+
+        // Verifica si hay puntajes
+        if (!$datos->puntaje) {
+            return response()->json([
+                'message' => 'Aún no ha cargado ningún puntaje.',
+            ], 400); // 400 Bad Request
+        }
+        $data = $this->datosEvaluacionPDF($evaluacion, $joven, $datos);
         //dd($data);
 
 
