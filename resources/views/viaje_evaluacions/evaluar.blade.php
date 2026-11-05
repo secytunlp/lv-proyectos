@@ -798,6 +798,7 @@
 
 
             for (var i=0; i<cantidad.val(); i++){
+                var $pasoElTope = 0; // se reinicia por item; antes quedaba sin declarar y tiraba ReferenceError
 
                 cant = $('#cantitem'+i);
 
@@ -819,7 +820,7 @@
                     cantidadItem = (cant.val()!='')?parseFloat(cant.val()):0;
 
                     if(puntajeElem.attr('type') == "checkbox"){
-                        puntaje = (puntajeElem.attr("checked"))?parseFloat(puntajeElem.val()):0;
+                        puntaje = (puntajeElem.prop("checked"))?parseFloat(puntajeElem.val()):0;
                         //console.log(puntaje);
 
                     }
@@ -861,20 +862,19 @@
 
                 if ((puntajeElem.length > 0)){
                     if(puntajeElem.attr('type') == "checkbox"){
-                        puntaje = (puntajeElem.attr("checked"))?parseFloat(puntajeElem.val()):0;
+                        puntaje = (puntajeElem.prop("checked"))?parseFloat(puntajeElem.val()):0;
 
                     }
                     else{
-
-                    }
                         puntaje = (puntajeElem.val()!='')?parseFloat(puntajeElem.val()):0;
+                    }
                     //console.log(tope.val()+' - '+puntaje);
                     if((tope.val() != 0)&&(puntajeElem.attr('type') != "checkbox")&&(puntaje>parseFloat(tope.val()))) {
                         if(!$pasoElTope){
                             div.text('Excedido, toma el max.');
-                            span.text(tope.val());
-                            ptotal = tope.val();
                         }
+                        span.text(tope.val());
+                        ptotal = tope.val();
 
 
                     }
@@ -1008,6 +1008,7 @@
             var subpuntaje=0;
 
             for (var i=cantidad.val(); i<parseInt(cantidad2.val()); i++){
+                var $pasoElTope = 0; // se reinicia por item; antes quedaba sin declarar y tiraba ReferenceError
 
                 console.log(i);
                 cant = $('#cantitem'+i);
@@ -1030,7 +1031,7 @@
                     cantidadItem = (cant.val()!='')?parseFloat(cant.val()):0;
 
                     if(puntajeElem.attr('type') == "checkbox"){
-                        puntaje = (puntajeElem.attr("checked"))?parseFloat(puntajeElem.val()):0;
+                        puntaje = (puntajeElem.prop("checked"))?parseFloat(puntajeElem.val()):0;
                         //console.log(puntaje);
 
                     }
@@ -1072,20 +1073,19 @@
 
                 if ((puntajeElem.length > 0)){
                     if(puntajeElem.attr('type') == "checkbox"){
-                        puntaje = (puntajeElem.attr("checked"))?parseFloat(puntajeElem.val()):0;
+                        puntaje = (puntajeElem.prop("checked"))?parseFloat(puntajeElem.val()):0;
 
                     }
                     else{
-
+                        puntaje = (puntajeElem.val()!='')?parseFloat(puntajeElem.val()):0;
                     }
-                    puntaje = (puntajeElem.val()!='')?parseFloat(puntajeElem.val()):0;
                     //console.log(tope.val()+' - '+puntaje);
                     if((tope.val() != 0)&&(puntajeElem.attr('type') != "checkbox")&&(puntaje>parseFloat(tope.val()))) {
                         if(!$pasoElTope){
                             div.text('Excedido, toma el max.');
-                            span.text(tope.val());
-                            ptotal = tope.val();
                         }
+                        span.text(tope.val());
+                        ptotal = tope.val();
 
 
                     }
@@ -1266,7 +1266,7 @@
                     }
                     else if(puntajeElem.attr('type') == "radio"){
                         evento = $('#maxevento'+i);
-                        puntaje = (puntajeElem.attr("checked"))?parseFloat(puntajeElem.val()):0;
+                        puntaje = (puntajeElem.prop("checked"))?parseFloat(puntajeElem.val()):0;
 
                     }
                     else {
