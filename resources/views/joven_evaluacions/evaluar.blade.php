@@ -1339,9 +1339,8 @@
 
                     }
                     else{
-
-                    }
                         puntaje = (puntajeElem.val()!='')?parseFloat(puntajeElem.val()):0;
+                    }
                     //console.log(tope.val()+' - '+puntaje);
                     if((tope.val() != 0)&&(puntajeElem.attr('type') != "checkbox")&&(puntaje>parseFloat(tope.val()))) {
                         if(!$pasoElTope){
