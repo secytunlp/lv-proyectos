@@ -167,6 +167,47 @@ class JovenEvaluacionController extends Controller
         // Obtener la cantidad total de registros después de aplicar el filtro de búsqueda
         $recordsFiltered = $query->count();
 
+        // DEBUG temporal: filtros activos del listado de evaluaciones (borrar cuando se resuelva)
+        try {
+            $rolNombre = $selectedRoleId ? optional(Role::find($selectedRoleId))->name : null;
+            $propias = DB::table('joven_evaluacions')
+                ->leftJoin('jovens', 'joven_evaluacions.joven_id', '=', 'jovens.id')
+                ->where(function ($q) use ($user) {
+                    $q->where('joven_evaluacions.user_cuil', $user->cuil)
+                      ->orWhere('joven_evaluacions.user_id', $user->id);
+                })
+                ->select('joven_evaluacions.id', 'joven_evaluacions.joven_id', 'jovens.periodo_id',
+                         'joven_evaluacions.estado', 'joven_evaluacions.user_id', 'joven_evaluacions.user_cuil')
+                ->get();
+            $sql = $query->toSql();
+            foreach ($query->getBindings() as $b) {
+                $sql = preg_replace('/\?/', is_numeric($b) ? $b : "'" . addslashes($b) . "'", $sql, 1);
+            }
+            Log::info('[joven_evaluacions.dataTable] filtros activos', [
+                'user_id'          => $user->id,
+                'user_cuil'        => $user->cuil,
+                'user_name'        => $user->name,
+                'user_facultad_id' => $user->facultad_id,
+                'roles_usuario'    => $user->getRoleNames()->toArray(),
+                'selected_rol'     => $selectedRoleId,
+                'selected_rol_nombre' => $rolNombre,
+                'filtro_rol'       => $selectedRoleId == 6 ? 'evaluador: user_cuil/user_id'
+                                      : ($selectedRoleId == 4 ? 'facultad: jovens.facultadplanilla_id = ' . $user->facultad_id
+                                      : 'ninguno'),
+                'joven_id'         => $jovenId,
+                'periodo'          => $periodo,
+                'predefinido'      => $predefinido,
+                'busqueda'         => $busqueda,
+                'start'            => $request->input('start'),
+                'length'           => $request->input('length'),
+                'recordsFiltered'  => $recordsFiltered,
+                'evaluaciones_propias_sin_filtros' => $propias->toArray(),
+                'sql'              => $sql,
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('[joven_evaluacions.dataTable] no se pudo loguear filtros: ' . $e->getMessage());
+        }
+
         // Protección contra consumo excesivo de recursos
         $length = intval($request->input('length', 10));
         $length = ($length > 0 && $length <= 100) ? $length : 10;
